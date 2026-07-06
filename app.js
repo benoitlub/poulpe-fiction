@@ -14,12 +14,12 @@ const questions = {
   product:["Quel produit voulez-vous vendre ?","À qui rend-il service concrètement ?","Où ces personnes vous découvrent-elles aujourd'hui ?","Quel premier résultat voulez-vous : ventes, emails, rendez-vous, précommandes ?"]
 };
 
-let state = { step:"objective", objective:null, q:0, answers:[], mission:null, apiError:null, octopus:null };
+let state = { step:"objective", objective:null, q:0, answers:[], mission:null, apiError:null, octopus:null, authorized:false };
 const root = document.getElementById("root");
 
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus}; render(); }
+function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,authorized:false}; render(); }
 
 async function loadOctopusStatus(){
   try {
@@ -32,27 +32,38 @@ async function loadOctopusStatus(){
   }
 }
 
-async function startMission(){
-  state.step="mission";
-  state.apiError=null;
-  render();
+function missionPayload(authorize=false){
   const s = selected();
   const prompt = [
+    "Tu es le tentacule marketing d'Octopus Engine.",
+    "Tu aides un créateur ou un client à obtenir un résultat concret sans usine à gaz.",
+    "Réponds en français.",
+    "Donne une sortie directement exploitable.",
+    "Structure la réponse avec : promesse, preuves, séquence de 7 actions, premier message.",
     `Objectif choisi: ${s ? s[1] : state.objective}`,
-    ...state.answers.map((answer, index) => `Réponse ${index + 1}: ${answer}`),
-    "Produis une première mission utile, claire et directement exploitable par un client."
+    ...state.answers.map((answer, index) => `Réponse ${index + 1}: ${answer}`)
   ].join("\n");
+
+  return {
+    parcelId: state.objective === "books" ? "kif-molla" : "yael",
+    title: s ? s[1] : "Mission Poulpe Fiction",
+    objective: state.answers[0] || (s ? s[2] : "Créer une mission utile"),
+    prompt,
+    authorize: authorize ? ["mistral"] : []
+  };
+}
+
+async function runOctopusMission(authorize=false){
+  state.step="mission";
+  state.apiError=null;
+  state.authorized=authorize;
+  render();
 
   try {
     const response = await fetch(`${OCTOPUS_API}/mission`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        parcelId: state.objective === "books" ? "kif-molla" : "yael",
-        title: s ? s[1] : "Mission Poulpe Fiction",
-        objective: state.answers[0] || (s ? s[2] : "Créer une mission utile"),
-        prompt
-      })
+      body: JSON.stringify(missionPayload(authorize))
     });
     state.mission = await response.json();
     state.step="result";
@@ -62,6 +73,9 @@ async function startMission(){
   }
   render();
 }
+
+function startMission(){ runOctopusMission(false); }
+function authorizeMistral(){ runOctopusMission(true); }
 
 function localMissionOutput(){
   const s = selected();
@@ -91,7 +105,7 @@ function renderStatus(){
 function render(){
   if(state.step === "objective"){
     root.innerHTML = `${renderStatus()}<div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
-    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus};render();});
+    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,authorized:false};render();});
     return;
   }
   if(state.step === "dialogue"){
@@ -120,7 +134,7 @@ function render(){
     return;
   }
   if(state.step === "mission"){
-    root.innerHTML = `<div class="panel analysis"><div class="spinner"></div><h2>Mission envoyée à Octopus</h2><p>Le moteur choisit un tentacule, vérifie les ressources et applique la policy.</p><ul class="checks"><li>✓ Mission créée</li><li>✓ Tentacule demandé</li><li>✓ Ressources évaluées</li></ul></div>`;
+    root.innerHTML = `<div class="panel analysis"><div class="spinner"></div><h2>${state.authorized ? "Mistral autorisé" : "Mission envoyée à Octopus"}</h2><p>Le moteur choisit un tentacule, vérifie les ressources et applique la policy.</p><ul class="checks"><li>✓ Mission créée</li><li>✓ Tentacule demandé</li><li>✓ Ressources évaluées</li></ul></div>`;
     return;
   }
   if(state.step === "result"){
@@ -135,9 +149,12 @@ function render(){
     const outputText = mission.output?.text || mission.output?.policyReason || mission.summary || "Octopus a répondu sans sortie exploitable.";
     const status = mission.status || "unknown";
     const resourceStatus = mission.resourceResult?.status || "non utilisée";
-    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Réponse Octopus · ${esc(status)}</p><h2>Mission traitée par le moteur</h2><div class="plans"><article class="plan-item"><strong>État</strong><p>${esc(status)}</p></article><article class="plan-item"><strong>Ressource</strong><p>${esc(resourceStatus)}</p></article></div><article class="plan-item"><strong>Sortie du moteur</strong><p>${esc(outputText).replace(/\n/g,"<br>")}</p></article><div class="actions" style="margin-top:18px"><button class="ghost" id="backPlan">Retour au plan</button><button class="primary" id="restart">Nouvel objectif</button></div></div>`;
+    const authorizeButton = status === "waiting-authorization" ? `<button class="primary" id="authorizeMistral">Autoriser Mistral</button>` : "";
+    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Réponse Octopus · ${esc(status)}</p><h2>Mission traitée par le moteur</h2><div class="plans"><article class="plan-item"><strong>État</strong><p>${esc(status)}</p></article><article class="plan-item"><strong>Ressource</strong><p>${esc(resourceStatus)}</p></article></div><article class="plan-item"><strong>Sortie du moteur</strong><p>${esc(outputText).replace(/\n/g,"<br>")}</p></article><div class="actions" style="margin-top:18px"><button class="ghost" id="backPlan">Retour au plan</button>${authorizeButton}<button class="primary" id="restart">Nouvel objectif</button></div></div>`;
     document.getElementById("backPlan").onclick=()=>{state.step="plan"; render();};
     document.getElementById("restart").onclick=restart;
+    const auth = document.getElementById("authorizeMistral");
+    if(auth) auth.onclick=authorizeMistral;
   }
 }
 render();
