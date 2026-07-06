@@ -1,0 +1,217 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f7efe4;
+  background: #100c12;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 108, 61, 0.24), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(107, 76, 255, 0.22), transparent 30rem),
+    #100c12;
+}
+
+button, textarea { font: inherit; }
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.hero-card {
+  width: min(1080px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 32px;
+  background: rgba(16, 12, 18, 0.82);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px);
+  padding: clamp(24px, 5vw, 56px);
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 36px;
+}
+
+.brand-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ff6c3d, #8b5cf6);
+  color: white;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #c8b7aa;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+h1, h2 { margin: 0; line-height: 1.05; }
+h1 { font-size: clamp(2.2rem, 6vw, 5.4rem); max-width: 850px; }
+h2 { font-size: clamp(1.65rem, 4vw, 3rem); }
+
+.grid.objectives {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.objective-card {
+  min-height: 240px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 22px;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.055);
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.objective-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 108, 61, 0.8);
+  background: rgba(255, 108, 61, 0.09);
+}
+
+.objective-card span {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.objective-card small {
+  display: block;
+  color: #d5c9bf;
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+
+.objective-card em {
+  display: block;
+  color: #9f9188;
+  font-style: normal;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.dialogue-panel, .analysis-panel, .plan-panel {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 26px;
+  padding: clamp(22px, 4vw, 42px);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.progress-line, .actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.progress-line {
+  color: #c8b7aa;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 170px;
+  resize: vertical;
+  margin: 26px 0 20px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  padding: 18px;
+  color: #f7efe4;
+  background: rgba(0, 0, 0, 0.24);
+  outline: none;
+}
+
+textarea:focus { border-color: #ff6c3d; }
+
+.primary, .ghost {
+  border: 0;
+  border-radius: 999px;
+  padding: 13px 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+.primary {
+  background: #ff6c3d;
+  color: #140b07;
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f7efe4;
+}
+
+.analysis-panel {
+  text-align: center;
+}
+
+.spin { animation: spin 1s linear infinite; color: #ff6c3d; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.analysis-panel p { color: #c8b7aa; }
+.analysis-panel ul {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 26px auto 0;
+  max-width: 380px;
+  text-align: left;
+}
+.analysis-panel li { display: flex; gap: 10px; align-items: center; color: #e4d7ca; }
+
+.plan-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 26px 0;
+}
+
+.plan-item, .mission-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.plan-item p, .mission-card p { color: #c8b7aa; line-height: 1.5; }
+
+.mission-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 900px) {
+  .grid.objectives, .plan-list { grid-template-columns: 1fr; }
+  .mission-card { grid-template-columns: 1fr; }
+  .actions, .progress-line { align-items: stretch; flex-direction: column; }
+}
