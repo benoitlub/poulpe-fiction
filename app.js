@@ -18,6 +18,27 @@ const root = document.getElementById("root");
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
 function restart(){ state={step:"objective",objective:null,q:0,answers:[]}; render(); }
+function startMission(){ state.step="mission"; render(); setTimeout(()=>{state.step="result"; render();},1400); }
+
+function missionOutput(){
+  const s = selected();
+  const goal = esc(state.answers[0] || s[2]);
+  const offer = esc(state.answers[1] || "une offre utile");
+  const channels = esc(state.answers[2] || "le canal le plus crédible");
+  const block = esc(state.answers[3] || "le manque de clarté");
+  const title = s[1];
+  return {
+    promise: title === "Trouver des clients"
+      ? `Nous aidons votre client idéal à passer de “je cherche une solution” à “je prends rendez-vous”, avec une offre claire et un premier canal prioritaire.`
+      : `Transformer ${goal} en campagne lisible, régulière et suffisamment humaine pour créer de l'intérêt sans épuiser le créateur.`,
+    proofs: [
+      `Objectif prioritaire : ${goal}.`,
+      `Point d'appui : ${channels}.`,
+      `Blocage à lever : ${block}.`
+    ],
+    message: `Bonjour, je prépare une approche simple autour de ${offer}. L'idée n'est pas de vous vendre un tunnel magique, mais de clarifier le problème, montrer la preuve, puis proposer une première action facile. Est-ce que je peux vous envoyer le plan en 3 points ?`
+  };
+}
 
 function render(){
   if(state.step === "objective"){
@@ -45,7 +66,19 @@ function render(){
       ["Créer la première séquence","Préparer 7 contenus, 1 page de destination et 1 message de contact simple."],
       ["Mesurer sans se noyer",`Suivre seulement 3 signaux : vues utiles, réponses, demandes qualifiées. Blocage à traiter : ${block}.`]
     ];
-    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Plan proposé</p><h2>${s[1]}</h2><div class="plans">${plan.map((p,i)=>`<article class="plan-item"><strong>${i+1}. ${p[0]}</strong><p>${p[1]}</p></article>`).join("")}</div><div class="mission"><div>✦</div><div><strong>Première mission</strong><p>Rédiger la promesse, les 3 preuves et le premier message de campagne.</p></div><button class="primary">Commencer</button></div><button class="ghost" id="restart">Nouvel objectif</button></div>`;
+    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Plan proposé</p><h2>${s[1]}</h2><div class="plans">${plan.map((p,i)=>`<article class="plan-item"><strong>${i+1}. ${p[0]}</strong><p>${p[1]}</p></article>`).join("")}</div><div class="mission"><div>✦</div><div><strong>Première mission</strong><p>Rédiger la promesse, les 3 preuves et le premier message de campagne.</p></div><button class="primary" id="startMission">Commencer</button></div><button class="ghost" id="restart">Nouvel objectif</button></div>`;
+    document.getElementById("restart").onclick=restart;
+    document.getElementById("startMission").onclick=startMission;
+    return;
+  }
+  if(state.step === "mission"){
+    root.innerHTML = `<div class="panel analysis"><div class="spinner"></div><h2>Mission enclenchée</h2><p>Préparation de la promesse, des preuves et du premier message exploitable.</p><ul class="checks"><li>✓ Mission créée</li><li>✓ Ressources évaluées</li><li>✓ Sortie en préparation</li></ul></div>`;
+    return;
+  }
+  if(state.step === "result"){
+    const out = missionOutput();
+    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Mission 1 · sortie prête</p><h2>Promesse + preuves + message</h2><div class="plans"><article class="plan-item"><strong>Promesse</strong><p>${out.promise}</p></article><article class="plan-item"><strong>3 preuves</strong><p>1. ${out.proofs[0]}<br>2. ${out.proofs[1]}<br>3. ${out.proofs[2]}</p></article></div><article class="plan-item"><strong>Premier message de campagne</strong><p>${out.message}</p></article><div class="actions" style="margin-top:18px"><button class="ghost" id="backPlan">Retour au plan</button><button class="primary" id="restart">Nouvel objectif</button></div></div>`;
+    document.getElementById("backPlan").onclick=()=>{state.step="plan"; render();};
     document.getElementById("restart").onclick=restart;
   }
 }
