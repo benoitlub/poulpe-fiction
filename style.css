@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, sans-serif;
+  color: #f7efe4;
+  background: radial-gradient(circle at top left, rgba(255,108,61,.24), transparent 34rem), #100c12;
+}
+* { box-sizing: border-box; }
+.app { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.card {
+  width: min(1080px, 100%);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 32px;
+  background: rgba(16,12,18,.88);
+  box-shadow: 0 30px 90px rgba(0,0,0,.45);
+  padding: clamp(22px,5vw,56px);
+}
+.brand { display: flex; align-items: center; gap: 18px; margin-bottom: 34px; }
+.mark { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(135deg,#ff6c3d,#8b5cf6); font-size: 28px; }
+.eyebrow { margin: 0 0 8px; color: #c8b7aa; text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; font-weight: 800; }
+h1,h2 { margin: 0; line-height: 1.05; }
+h1 { font-size: clamp(2.1rem,6vw,5.2rem); max-width: 850px; }
+h2 { font-size: clamp(1.6rem,4vw,3rem); }
+.grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
+.objective { min-height: 240px; text-align: left; border: 1px solid rgba(255,255,255,.12); border-radius: 24px; padding: 22px; color: inherit; background: rgba(255,255,255,.055); cursor: pointer; }
+.objective:hover { transform: translateY(-4px); border-color: rgba(255,108,61,.85); }
+.objective span { display: block; font-size: 1.3rem; font-weight: 900; margin-bottom: 12px; }
+.objective small { display: block; color: #d5c9bf; line-height: 1.45; margin-bottom: 18px; }
+.objective em { display: block; color: #9f9188; font-style: normal; font-size: .9rem; line-height: 1.4; }
+.panel { border: 1px solid rgba(255,255,255,.12); border-radius: 26px; padding: clamp(20px,4vw,42px); background: rgba(255,255,255,.055); }
+.progress,.actions { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+.progress { color: #c8b7aa; font-weight: 800; margin-bottom: 22px; }
+textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px solid rgba(255,255,255,.16); border-radius: 20px; padding: 18px; color: #f7efe4; background: rgba(0,0,0,.24); outline: none; }
+.primary,.ghost { border: 0; border-radius: 999px; padding: 13px 18px; cursor: pointer; font-weight: 900; }
+.primary { background: #ff6c3d; color: #140b07; }
+.ghost { background: rgba(255,255,255,.08); color: #f7efe4; }
+.analysis { text-align: center; }
+.spinner { width: 42px; height: 42px; border: 4px solid rgba(255,255,255,.16); border-top-color: #ff6c3d; border-radius: 50%; margin: 0 auto 20px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.analysis p,.plan p { color: #c8b7aa; }
+.checks { list-style: none; display: grid; gap: 10px; padding: 0; margin: 26px auto 0; max-width: 390px; text-align: left; }
+.plans { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 26px 0; }
+.plan-item,.mission { border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 18px; background: rgba(0,0,0,.18); }
+.mission { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; margin-bottom: 16px; }
+@media(max-width:900px){ .grid,.plans{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress{align-items:stretch;flex-direction:column}.objective{min-height:auto} }
