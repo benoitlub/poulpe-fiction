@@ -1,4 +1,5 @@
 const OCTOPUS_API = "https://octopus-engine.onrender.com";
+const PUBLISHER_API = globalThis.PUBLISHER_API_URL || localStorage.getItem("PUBLISHER_API_URL") || "https://blacklace-publisher-api.onrender.com";
 
 const objectives = [
   ["clients","Trouver des clients","2 rendez-vous qualifiés par mois, sans usine à gaz.","J'ai une page Facebook avec 3 abonnés et je veux 1 à 2 clients qualifiés par mois."],
@@ -14,12 +15,23 @@ const questions = {
   product:["Quel produit voulez-vous vendre ?","À qui rend-il service concrètement ?","Où ces personnes vous découvrent-elles aujourd'hui ?","Quel premier résultat voulez-vous : ventes, emails, rendez-vous, précommandes ?"]
 };
 
-let state = { step:"objective", objective:null, q:0, answers:[], mission:null, apiError:null, octopus:null, authorized:false };
+let state = {
+  step:"objective",
+  objective:null,
+  q:0,
+  answers:[],
+  mission:null,
+  apiError:null,
+  octopus:null,
+  greenhouse:{ status:"loading", data:null, error:null },
+  authorized:false
+};
 const root = document.getElementById("root");
 
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,authorized:false}; render(); }
+function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,authorized:false}; render(); }
+function greenhouseCuttings(){ return Array.isArray(state.greenhouse?.data?.cuttings) ? state.greenhouse.data.cuttings : []; }
 
 async function loadOctopusStatus(){
   try {
@@ -30,6 +42,29 @@ async function loadOctopusStatus(){
     state.octopus = { status:"unreachable", message: error instanceof Error ? error.message : "Octopus unreachable" };
     render();
   }
+}
+
+async function loadGreenhouse(){
+  if(!PUBLISHER_API){
+    state.greenhouse = { status:"unconfigured", data:null, error:null };
+    render();
+    return;
+  }
+
+  try {
+    state.greenhouse = { status:"loading", data:null, error:null };
+    render();
+    const response = await fetch(`${PUBLISHER_API.replace(/\/$/, "")}/api/greenhouse`);
+    if(!response.ok) throw new Error(`Publisher ${response.status} ${response.statusText}`);
+    state.greenhouse = { status:"ready", data:await response.json(), error:null };
+  } catch (error) {
+    state.greenhouse = {
+      status:"error",
+      data:null,
+      error:error instanceof Error ? error.message : "Serre Publisher inaccessible"
+    };
+  }
+  render();
 }
 
 function missionPayload(authorize=false){
@@ -102,10 +137,30 @@ function renderStatus(){
   return `<p class="eyebrow">Octopus : ${esc(status)} · Mistral : ${esc(mistralStatus)}</p>`;
 }
 
+function renderGreenhouse(){
+  const greenhouse = state.greenhouse || { status:"unconfigured" };
+  const cuttings = greenhouseCuttings();
+  if(greenhouse.status === "loading"){
+    return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>Gérard regarde vers la serre...</h2><p>Les boutures arrivent doucement.</p></div></section>`;
+  }
+  if(greenhouse.status === "unconfigured"){
+    return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>Serre Publisher non configurée</h2><p>Ajoute une URL Publisher pour ouvrir les yeux de Gérard.</p></div></section>`;
+  }
+  if(greenhouse.status === "error"){
+    return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>Serre inaccessible</h2><p>${esc(greenhouse.error)}</p></div><button class="ghost" id="reloadGreenhouse">Réessayer</button></section>`;
+  }
+  if(!cuttings.length){
+    return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>La serre est vide</h2><p>Aucune bouture disponible pour l'instant.</p></div></section>`;
+  }
+  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div></section>`;
+}
+
 function render(){
   if(state.step === "objective"){
-    root.innerHTML = `${renderStatus()}<div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
-    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,authorized:false};render();});
+    root.innerHTML = `${renderStatus()}${renderGreenhouse()}<div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
+    const retry = document.getElementById("reloadGreenhouse");
+    if(retry) retry.onclick=loadGreenhouse;
+    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,authorized:false};render();});
     return;
   }
   if(state.step === "dialogue"){
@@ -159,3 +214,4 @@ function render(){
 }
 render();
 loadOctopusStatus();
+loadGreenhouse();
