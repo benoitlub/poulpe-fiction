@@ -42,4 +42,13 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .plans { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 26px 0; }
 .plan-item,.mission { border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 18px; background: rgba(0,0,0,.18); }
 .mission { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; margin-bottom: 16px; }
-@media(max-width:900px){ .grid,.plans{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress{align-items:stretch;flex-direction:column}.objective{min-height:auto} }
+.greenhouse { border: 1px solid rgba(135,214,166,.24); border-radius: 26px; padding: 20px; margin: 0 0 22px; background: linear-gradient(135deg,rgba(54,116,87,.22),rgba(255,255,255,.045)); }
+.greenhouse p { color: #d5c9bf; margin: 8px 0 0; line-height: 1.45; }
+.greenhouse-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.greenhouse-head span { border: 1px solid rgba(135,214,166,.28); border-radius: 999px; padding: 8px 12px; color: #b7f1c9; font-weight: 900; white-space: nowrap; }
+.cuttings { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 18px; }
+.cutting { border: 1px solid rgba(255,255,255,.11); border-radius: 18px; padding: 14px; background: rgba(0,0,0,.18); }
+.cutting strong { display: block; margin-bottom: 8px; }
+.cutting p { margin: 0 0 10px; }
+.cutting small { color: #9fe3bc; line-height: 1.35; }
+@media(max-width:900px){ .grid,.plans,.cuttings{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head{align-items:stretch;flex-direction:column}.objective{min-height:auto} }
