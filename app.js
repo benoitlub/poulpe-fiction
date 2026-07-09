@@ -1,6 +1,7 @@
 const OCTOPUS_API = "https://octopus-engine.onrender.com";
 const PUBLISHER_API = globalThis.PUBLISHER_API_URL || localStorage.getItem("PUBLISHER_API_URL") || "https://blacklace-publisher-api.onrender.com";
 const ATTRACTIONS_KEY = "poulpe-fiction:greenhouse-attractions:v1";
+const DREAMS_KEY = "poulpe-fiction:dreams:v1";
 
 const objectives = [
   ["clients","Trouver des clients","2 rendez-vous qualifiés par mois, sans usine à gaz.","J'ai une page Facebook avec 3 abonnés et je veux 1 à 2 clients qualifiés par mois."],
@@ -26,6 +27,7 @@ let state = {
   octopus:null,
   greenhouse:{ status:"loading", data:null, error:null },
   attractions:loadAttractions(),
+  dreams:loadDreams(),
   playground:null,
   authorized:false
 };
@@ -34,7 +36,7 @@ const root = document.getElementById("root");
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,playground:state.playground,authorized:false}; render(); }
+function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,playground:state.playground,authorized:false}; render(); }
 function greenhouseCuttings(){ return Array.isArray(state.greenhouse?.data?.cuttings) ? state.greenhouse.data.cuttings : []; }
 
 function loadAttractions(){
@@ -48,6 +50,57 @@ function loadAttractions(){
 function saveAttractions(attractions){
   state.attractions = attractions;
   localStorage.setItem(ATTRACTIONS_KEY, JSON.stringify(attractions));
+}
+
+function loadDreams(){
+  try {
+    const stored = JSON.parse(localStorage.getItem(DREAMS_KEY) || "null");
+    if(stored && typeof stored === "object") return { lastPlay:stored.lastPlay || null, dreamsByDate:stored.dreamsByDate || {} };
+  } catch (_) {}
+  return { lastPlay:null, dreamsByDate:{} };
+}
+
+function saveDreams(dreams){
+  state.dreams = dreams;
+  localStorage.setItem(DREAMS_KEY, JSON.stringify(dreams));
+}
+
+function rememberPlayedIdea(entry, hypothesis){
+  const dreams = loadDreams();
+  saveDreams({
+    ...dreams,
+    lastPlay:{
+      date:todayKey(),
+      entry:{ id:entry.id, title:entry.title || entry.id },
+      hypothesis
+    }
+  });
+}
+
+function dreamSentence(lastPlay){
+  const id = String(lastPlay?.entry?.id || lastPlay?.entry?.title || "").toLowerCase();
+  if(id.includes("linkedin")) return "Cette nuit, je me demandais si une récolte pouvait être racontée comme une petite histoire vivante, plutôt que comme un rapport.";
+  if(id.includes("saas")) return "Cette nuit, je voyais des outils qui revenaient souvent, comme des traces dans le sable de la serre.";
+  if(id.includes("github") || id.includes("repo")) return "Cette nuit, les commits ressemblaient à des petites mues. Peut-être qu'un projet raconte aussi pourquoi il change.";
+  return "Cette nuit, cette bouture flottait encore dans mon jardin intérieur. Je ne sais pas si elle veut pousser.";
+}
+
+function dreamForToday(){
+  const dreams = loadDreams();
+  const today = todayKey();
+  if(dreams.dreamsByDate?.[today]) return dreams.dreamsByDate[today];
+  const lastPlay = dreams.lastPlay;
+  if(!lastPlay || !lastPlay.date || lastPlay.date >= today) return null;
+
+  const dream = {
+    date:today,
+    sourceDate:lastPlay.date,
+    title:lastPlay.entry?.title || lastPlay.entry?.id || "une idée",
+    text:dreamSentence(lastPlay),
+    whisper:"C'était peut-être juste un rêve."
+  };
+  saveDreams({ ...dreams, dreamsByDate:{ ...(dreams.dreamsByDate || {}), [today]:dream } });
+  return dream;
 }
 
 function recordGreenhouseLook(cuttings){
@@ -107,7 +160,9 @@ function playObservation(entry){
 function startLocalPlay(){
   const intrigue = topIntrigue();
   if(!intrigue) return;
-  state.playground = { mode:"play", date:todayKey(), entry:intrigue, hypothesis:playHypothesis(intrigue) };
+  const hypothesis = playHypothesis(intrigue);
+  rememberPlayedIdea(intrigue, hypothesis);
+  state.playground = { mode:"play", date:todayKey(), entry:intrigue, hypothesis };
   render();
 }
 
@@ -229,6 +284,12 @@ function renderStatus(){
   return `<p class="eyebrow">Octopus : ${esc(status)} · Mistral : ${esc(mistralStatus)}</p>`;
 }
 
+function renderDream(){
+  const dream = dreamForToday();
+  if(!dream || state.greenhouse.status !== "ready") return "";
+  return `<section class="dream"><p class="eyebrow">🌙 J'ai rêvé...</p><p>${esc(dream.text)}</p><small>${esc(dream.whisper)}</small></section>`;
+}
+
 function renderAttractions(){
   const entries = attractionEntries();
   if(!entries.length || state.greenhouse.status !== "ready") return "";
@@ -283,14 +344,14 @@ function renderGreenhouse(){
   if(!cuttings.length){
     return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>La serre est vide</h2><p>Aucune bouture disponible pour l'instant.</p></div></section>`;
   }
-  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}${renderLocalWonder()}${renderPlayPrompt()}${renderPlayground()}</section>`;
+  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div>${renderDream()}<div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}${renderLocalWonder()}${renderPlayPrompt()}${renderPlayground()}</section>`;
 }
 
 function render(){
   if(state.step === "objective"){
     root.innerHTML = `${renderStatus()}${renderGreenhouse()}<div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
     bindGreenhouseActions();
-    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,playground:state.playground,authorized:false};render();});
+    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,playground:state.playground,authorized:false};render();});
     return;
   }
   if(state.step === "dialogue"){
