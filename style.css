@@ -34,6 +34,7 @@ h2 { font-size: clamp(1.6rem,4vw,3rem); }
 textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px solid rgba(255,255,255,.16); border-radius: 20px; padding: 18px; color: #f7efe4; background: rgba(0,0,0,.24); outline: none; }
 .primary,.ghost { border: 0; border-radius: 999px; padding: 13px 18px; cursor: pointer; font-weight: 900; }
 .primary { background: #ff6c3d; color: #140b07; }
+.primary:disabled { cursor: not-allowed; opacity: .55; }
 .ghost { background: rgba(255,255,255,.08); color: #f7efe4; }
 .gerard-chat { border: 1px solid rgba(255,255,255,.14); border-radius: 28px; padding: 20px; margin: 0 0 22px; background: radial-gradient(circle at top left, rgba(139,92,246,.18), rgba(255,255,255,.045)); }
 .chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
@@ -80,12 +81,17 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .play-prompt small { display: block; color: #c8b7aa; margin-top: 8px; line-height: 1.45; }
 .play-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .playground { margin-top: 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 20px; padding: 18px; background: rgba(0,0,0,.2); }
-.playground h3 { margin: 0 0 8px; font-size: 1.25rem; }
+.playground h3,.adventure-urge h3 { margin: 0 0 8px; font-size: 1.25rem; }
 .playground em { color: #fff1d8; font-style: normal; font-weight: 900; }
-.playground small { display: block; color: #c8b7aa; margin: 8px 0 14px; }
-.playground-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 16px 0; }
-.playground-grid article { border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 13px; background: rgba(255,255,255,.04); }
-.playground-grid strong { display: block; margin-bottom: 8px; }
+.playground small,.adventure-urge small { display: block; color: #c8b7aa; margin: 8px 0 14px; line-height: 1.45; }
+.playground-grid,.adventure-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 16px 0; }
+.adventure-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.playground-grid article,.adventure-grid article { border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 13px; background: rgba(255,255,255,.04); }
+.playground-grid strong,.adventure-grid strong { display: block; margin-bottom: 8px; }
 .playground-grid span { color: #d5c9bf; line-height: 1.4; }
+.adventure-grid ul { margin: 0; padding-left: 18px; color: #d5c9bf; line-height: 1.45; }
+.adventure-grid p { margin: 0; }
 .playground.mature { border-color: rgba(135,214,166,.24); background: rgba(54,116,87,.13); }
-@media(max-width:900px){ .grid,.plans,.cuttings,.playground-grid{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head,.chat-head{align-items:stretch;flex-direction:column}.objective{min-height:auto}.chat-message{width:100%}.chat-form{grid-template-columns:1fr}.chat-form input{min-height:48px}.chat-suggestions button{flex:1 1 auto} }
+.adventure-urge { margin-top: 16px; border: 1px solid rgba(255,200,87,.3); border-radius: 20px; padding: 18px; background: radial-gradient(circle at top left, rgba(255,200,87,.14), rgba(0,0,0,.16)); }
+.adventure-urge.prepared { border-color: rgba(255,108,61,.3); background: radial-gradient(circle at top left, rgba(255,108,61,.14), rgba(0,0,0,.18)); }
+@media(max-width:900px){ .grid,.plans,.cuttings,.playground-grid,.adventure-grid{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head,.chat-head{align-items:stretch;flex-direction:column}.objective{min-height:auto}.chat-message{width:100%}.chat-form{grid-template-columns:1fr}.chat-form input{min-height:48px}.chat-suggestions button{flex:1 1 auto} }
