@@ -27,6 +27,7 @@ h2 { font-size: clamp(1.6rem,4vw,3rem); }
 .objective span { display: block; font-size: 1.3rem; font-weight: 900; margin-bottom: 12px; }
 .objective small { display: block; color: #d5c9bf; line-height: 1.45; margin-bottom: 18px; }
 .objective em { display: block; color: #9f9188; font-style: normal; font-size: .9rem; line-height: 1.4; }
+.adventures-label { margin-top: 4px; }
 .panel { border: 1px solid rgba(255,255,255,.12); border-radius: 26px; padding: clamp(20px,4vw,42px); background: rgba(255,255,255,.055); }
 .progress,.actions { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
 .progress { color: #c8b7aa; font-weight: 800; margin-bottom: 22px; }
@@ -34,6 +35,18 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .primary,.ghost { border: 0; border-radius: 999px; padding: 13px 18px; cursor: pointer; font-weight: 900; }
 .primary { background: #ff6c3d; color: #140b07; }
 .ghost { background: rgba(255,255,255,.08); color: #f7efe4; }
+.gerard-chat { border: 1px solid rgba(255,255,255,.14); border-radius: 28px; padding: 20px; margin: 0 0 22px; background: radial-gradient(circle at top left, rgba(139,92,246,.18), rgba(255,255,255,.045)); }
+.chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.chat-head p { color: #d5c9bf; margin: 8px 0 0; line-height: 1.45; }
+.chat-messages { display: grid; gap: 10px; max-height: 360px; overflow: auto; padding-right: 4px; }
+.chat-message { width: min(82%, 720px); border: 1px solid rgba(255,255,255,.11); border-radius: 18px; padding: 12px 14px; background: rgba(0,0,0,.18); }
+.chat-message.user { justify-self: end; background: rgba(255,108,61,.12); border-color: rgba(255,108,61,.22); }
+.chat-message.gerard { justify-self: start; background: rgba(135,214,166,.09); border-color: rgba(135,214,166,.18); }
+.chat-message strong { display: block; margin-bottom: 6px; font-size: .82rem; color: #fff1d8; }
+.chat-message p { margin: 0; color: #e9ded2; line-height: 1.45; }
+.chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 14px; }
+.chat-form input { width: 100%; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 0 16px; color: #f7efe4; background: rgba(0,0,0,.24); outline: none; }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
 .analysis { text-align: center; }
 .spinner { width: 42px; height: 42px; border: 4px solid rgba(255,255,255,.16); border-top-color: #ff6c3d; border-radius: 50%; margin: 0 auto 20px; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -75,4 +88,4 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .playground-grid strong { display: block; margin-bottom: 8px; }
 .playground-grid span { color: #d5c9bf; line-height: 1.4; }
 .playground.mature { border-color: rgba(135,214,166,.24); background: rgba(54,116,87,.13); }
-@media(max-width:900px){ .grid,.plans,.cuttings,.playground-grid{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head{align-items:stretch;flex-direction:column}.objective{min-height:auto} }
+@media(max-width:900px){ .grid,.plans,.cuttings,.playground-grid{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head,.chat-head{align-items:stretch;flex-direction:column}.objective{min-height:auto}.chat-message{width:100%}.chat-form{grid-template-columns:1fr}.chat-form input{min-height:48px}.chat-suggestions button{flex:1 1 auto} }
