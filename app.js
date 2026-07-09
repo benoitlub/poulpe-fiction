@@ -1,5 +1,6 @@
 const OCTOPUS_API = "https://octopus-engine.onrender.com";
 const PUBLISHER_API = globalThis.PUBLISHER_API_URL || localStorage.getItem("PUBLISHER_API_URL") || "https://blacklace-publisher-api.onrender.com";
+const ATTRACTIONS_KEY = "poulpe-fiction:greenhouse-attractions:v1";
 
 const objectives = [
   ["clients","Trouver des clients","2 rendez-vous qualifiés par mois, sans usine à gaz.","J'ai une page Facebook avec 3 abonnés et je veux 1 à 2 clients qualifiés par mois."],
@@ -24,14 +25,57 @@ let state = {
   apiError:null,
   octopus:null,
   greenhouse:{ status:"loading", data:null, error:null },
+  attractions:loadAttractions(),
   authorized:false
 };
 const root = document.getElementById("root");
 
+function todayKey(){ return new Date().toISOString().slice(0,10); }
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,authorized:false}; render(); }
+function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,authorized:false}; render(); }
 function greenhouseCuttings(){ return Array.isArray(state.greenhouse?.data?.cuttings) ? state.greenhouse.data.cuttings : []; }
+
+function loadAttractions(){
+  try {
+    const stored = JSON.parse(localStorage.getItem(ATTRACTIONS_KEY) || "null");
+    if(stored?.date === todayKey() && stored.items && typeof stored.items === "object") return stored;
+  } catch (_) {}
+  return { date: todayKey(), items: {} };
+}
+
+function saveAttractions(attractions){
+  state.attractions = attractions;
+  localStorage.setItem(ATTRACTIONS_KEY, JSON.stringify(attractions));
+}
+
+function recordGreenhouseLook(cuttings){
+  if(!Array.isArray(cuttings) || !cuttings.length) return;
+  const current = loadAttractions();
+  const items = { ...current.items };
+  cuttings.slice(0,3).forEach((cutting, index) => {
+    const id = cutting.id || cutting.title;
+    if(!id) return;
+    const existing = items[id] || { id, title:cutting.title || id, count:0, lastSeen:null };
+    const increment = index === 0 ? 2 : 1;
+    items[id] = {
+      ...existing,
+      title:cutting.title || existing.title || id,
+      count:Math.min(9, (existing.count || 0) + increment),
+      lastSeen:new Date().toISOString()
+    };
+  });
+  saveAttractions({ date:todayKey(), items });
+}
+
+function attractionEntries(){
+  const current = loadAttractions();
+  return Object.values(current.items || {})
+    .sort((a,b)=>(b.count || 0) - (a.count || 0))
+    .slice(0,3);
+}
+
+function stars(count){ return "★".repeat(Math.max(1, Math.min(3, Number(count) || 1))); }
 
 async function loadOctopusStatus(){
   try {
@@ -56,7 +100,9 @@ async function loadGreenhouse(){
     render();
     const response = await fetch(`${PUBLISHER_API.replace(/\/$/, "")}/api/greenhouse`);
     if(!response.ok) throw new Error(`Publisher ${response.status} ${response.statusText}`);
-    state.greenhouse = { status:"ready", data:await response.json(), error:null };
+    const data = await response.json();
+    state.greenhouse = { status:"ready", data, error:null };
+    recordGreenhouseLook(data.cuttings);
   } catch (error) {
     state.greenhouse = {
       status:"error",
@@ -137,6 +183,12 @@ function renderStatus(){
   return `<p class="eyebrow">Octopus : ${esc(status)} · Mistral : ${esc(mistralStatus)}</p>`;
 }
 
+function renderAttractions(){
+  const entries = attractionEntries();
+  if(!entries.length || state.greenhouse.status !== "ready") return "";
+  return `<section class="attractions"><p class="eyebrow">Ce qui attire Gérard aujourd'hui</p><div class="attraction-list">${entries.map(entry=>`<article><span>${stars(entry.count)}</span><strong>${esc(entry.title || entry.id)}</strong></article>`).join("")}</div><p>Je ne sais pas encore pourquoi...</p></section>`;
+}
+
 function renderGreenhouse(){
   const greenhouse = state.greenhouse || { status:"unconfigured" };
   const cuttings = greenhouseCuttings();
@@ -152,7 +204,7 @@ function renderGreenhouse(){
   if(!cuttings.length){
     return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>La serre est vide</h2><p>Aucune bouture disponible pour l'instant.</p></div></section>`;
   }
-  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div></section>`;
+  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}</section>`;
 }
 
 function render(){
@@ -160,7 +212,7 @@ function render(){
     root.innerHTML = `${renderStatus()}${renderGreenhouse()}<div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
     const retry = document.getElementById("reloadGreenhouse");
     if(retry) retry.onclick=loadGreenhouse;
-    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,authorized:false};render();});
+    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,authorized:false};render();});
     return;
   }
   if(state.step === "dialogue"){
