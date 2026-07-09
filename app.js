@@ -75,6 +75,10 @@ function attractionEntries(){
     .slice(0,3);
 }
 
+function topIntrigue(){
+  return attractionEntries().find(entry => (entry.count || 0) >= 3) || null;
+}
+
 function stars(count){ return "★".repeat(Math.max(1, Math.min(3, Number(count) || 1))); }
 
 async function loadOctopusStatus(){
@@ -189,6 +193,12 @@ function renderAttractions(){
   return `<section class="attractions"><p class="eyebrow">Ce qui attire Gérard aujourd'hui</p><div class="attraction-list">${entries.map(entry=>`<article><span>${stars(entry.count)}</span><strong>${esc(entry.title || entry.id)}</strong></article>`).join("")}</div><p>Je ne sais pas encore pourquoi...</p></section>`;
 }
 
+function renderLocalWonder(){
+  const intrigue = topIntrigue();
+  if(!intrigue || state.greenhouse.status !== "ready") return "";
+  return `<section class="local-wonder"><p class="eyebrow">🐙 Ce qui m'intrigue</p><strong>Tiens...</strong><p>Je reviens souvent vers <em>« ${esc(intrigue.title || intrigue.id)} »</em>.</p><p>Je ne sais pas encore pourquoi.</p></section>`;
+}
+
 function renderGreenhouse(){
   const greenhouse = state.greenhouse || { status:"unconfigured" };
   const cuttings = greenhouseCuttings();
@@ -204,7 +214,7 @@ function renderGreenhouse(){
   if(!cuttings.length){
     return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>La serre est vide</h2><p>Aucune bouture disponible pour l'instant.</p></div></section>`;
   }
-  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}</section>`;
+  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}${renderLocalWonder()}</section>`;
 }
 
 function render(){
