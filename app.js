@@ -26,6 +26,7 @@ let state = {
   octopus:null,
   greenhouse:{ status:"loading", data:null, error:null },
   attractions:loadAttractions(),
+  playground:null,
   authorized:false
 };
 const root = document.getElementById("root");
@@ -33,7 +34,7 @@ const root = document.getElementById("root");
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,authorized:false}; render(); }
+function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,playground:state.playground,authorized:false}; render(); }
 function greenhouseCuttings(){ return Array.isArray(state.greenhouse?.data?.cuttings) ? state.greenhouse.data.cuttings : []; }
 
 function loadAttractions(){
@@ -80,6 +81,47 @@ function topIntrigue(){
 }
 
 function stars(count){ return "★".repeat(Math.max(1, Math.min(3, Number(count) || 1))); }
+
+function cuttingForEntry(entry){
+  if(!entry) return null;
+  return greenhouseCuttings().find(cutting => (cutting.id || cutting.title) === entry.id || cutting.title === entry.title) || null;
+}
+
+function playHypothesis(entry){
+  const id = String(entry?.id || entry?.title || "").toLowerCase();
+  const title = entry?.title || entry?.id || "cette bouture";
+  if(id.includes("linkedin")) return `cette bouture pouvait raconter une Harvest sous forme de post vivant, au lieu de seulement promouvoir quelque chose`;
+  if(id.includes("saas")) return `cette bouture servait à repérer les outils qui reviennent souvent dans la serre, comme des traces dans le sable`;
+  if(id.includes("github") || id.includes("repo")) return `cette bouture racontait l'évolution d'un projet à partir de ses commits, comme un petit carnet de mue`;
+  return `${title} pouvait appartenir à une autre parcelle que celle prévue au départ`;
+}
+
+function playObservation(entry){
+  const cutting = cuttingForEntry(entry);
+  const capabilities = cutting?.capabilities || [];
+  if(capabilities.length >= 2) return `Je peux la tenir doucement entre ${esc(capabilities[0])} et ${esc(capabilities[1])}, sans encore décider quoi en faire.`;
+  if(capabilities.length === 1) return `Elle a déjà une petite patte visible : ${esc(capabilities[0])}. Je peux tourner autour sans l'utiliser.`;
+  return "Je peux la regarder sous un autre angle, sans la transformer en mission.";
+}
+
+function startLocalPlay(){
+  const intrigue = topIntrigue();
+  if(!intrigue) return;
+  state.playground = { mode:"play", date:todayKey(), entry:intrigue, hypothesis:playHypothesis(intrigue) };
+  render();
+}
+
+function letIdeaMature(){
+  const intrigue = topIntrigue();
+  if(!intrigue) return;
+  state.playground = { mode:"mature", date:todayKey(), entry:intrigue, hypothesis:playHypothesis(intrigue) };
+  render();
+}
+
+function resetLocalPlay(){
+  state.playground = null;
+  render();
+}
 
 async function loadOctopusStatus(){
   try {
@@ -199,6 +241,33 @@ function renderLocalWonder(){
   return `<section class="local-wonder"><p class="eyebrow">🐙 Ce qui m'intrigue</p><strong>Tiens...</strong><p>Je reviens souvent vers <em>« ${esc(intrigue.title || intrigue.id)} »</em>.</p><p>Je ne sais pas encore pourquoi.</p></section>`;
 }
 
+function renderPlayPrompt(){
+  const intrigue = topIntrigue();
+  if(!intrigue || state.greenhouse.status !== "ready" || state.playground) return "";
+  return `<section class="play-prompt"><p class="eyebrow">🎲 Et si...</p><p>Et si ${esc(playHypothesis(intrigue))} ?</p><small>Je n'en sais rien. C'est juste une idée.</small><div class="play-actions"><button class="ghost" id="letIdeaMature">🌱 Laisser mûrir</button><button class="primary" id="startLocalPlay">🎲 Jouer avec cette idée</button></div></section>`;
+}
+
+function renderPlayground(){
+  if(!state.playground || state.greenhouse.status !== "ready") return "";
+  const entry = state.playground.entry || topIntrigue();
+  if(!entry) return "";
+  if(state.playground.mode === "mature"){
+    return `<section class="playground mature"><p class="eyebrow">🌱 Idée laissée à mûrir</p><p>Gérard garde <em>« ${esc(entry.title || entry.id)} »</em> dans un coin de son jardin.</p><small>Rien ne se passe. Il n'insiste pas.</small><button class="ghost" id="resetLocalPlay">Regarder à nouveau</button></section>`;
+  }
+  return `<section class="playground"><p class="eyebrow">🎲 Playground local</p><h3>Hypothèse</h3><p>Et si ${esc(state.playground.hypothesis || playHypothesis(entry))} ?</p><div class="playground-grid"><article><strong>Bouture</strong><span>${esc(entry.title || entry.id)}</span></article><article><strong>Observation</strong><span>${playObservation(entry)}</span></article><article><strong>Conclusion</strong><span>🐙 Vesht... je crois qu'il y a quelque chose ici, mais je ne le transforme pas encore en Seed.</span></article></div><button class="ghost" id="resetLocalPlay">Fermer le bac à sable</button></section>`;
+}
+
+function bindGreenhouseActions(){
+  const retry = document.getElementById("reloadGreenhouse");
+  if(retry) retry.onclick=loadGreenhouse;
+  const mature = document.getElementById("letIdeaMature");
+  if(mature) mature.onclick=letIdeaMature;
+  const play = document.getElementById("startLocalPlay");
+  if(play) play.onclick=startLocalPlay;
+  const reset = document.getElementById("resetLocalPlay");
+  if(reset) reset.onclick=resetLocalPlay;
+}
+
 function renderGreenhouse(){
   const greenhouse = state.greenhouse || { status:"unconfigured" };
   const cuttings = greenhouseCuttings();
@@ -214,15 +283,14 @@ function renderGreenhouse(){
   if(!cuttings.length){
     return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>La serre est vide</h2><p>Aucune bouture disponible pour l'instant.</p></div></section>`;
   }
-  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}${renderLocalWonder()}</section>`;
+  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div><div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}${renderLocalWonder()}${renderPlayPrompt()}${renderPlayground()}</section>`;
 }
 
 function render(){
   if(state.step === "objective"){
     root.innerHTML = `${renderStatus()}${renderGreenhouse()}<div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
-    const retry = document.getElementById("reloadGreenhouse");
-    if(retry) retry.onclick=loadGreenhouse;
-    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,authorized:false};render();});
+    bindGreenhouseActions();
+    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,playground:state.playground,authorized:false};render();});
     return;
   }
   if(state.step === "dialogue"){
