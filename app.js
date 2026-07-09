@@ -2,6 +2,7 @@ const OCTOPUS_API = "https://octopus-engine.onrender.com";
 const PUBLISHER_API = globalThis.PUBLISHER_API_URL || localStorage.getItem("PUBLISHER_API_URL") || "https://blacklace-publisher-api.onrender.com";
 const ATTRACTIONS_KEY = "poulpe-fiction:greenhouse-attractions:v1";
 const DREAMS_KEY = "poulpe-fiction:dreams:v1";
+const CHAT_KEY = "poulpe-fiction:gerard-chat:v1";
 
 const objectives = [
   ["clients","Trouver des clients","2 rendez-vous qualifiés par mois, sans usine à gaz.","J'ai une page Facebook avec 3 abonnés et je veux 1 à 2 clients qualifiés par mois."],
@@ -28,6 +29,7 @@ let state = {
   greenhouse:{ status:"loading", data:null, error:null },
   attractions:loadAttractions(),
   dreams:loadDreams(),
+  chat:loadChat(),
   playground:null,
   authorized:false
 };
@@ -36,7 +38,7 @@ const root = document.getElementById("root");
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,playground:state.playground,authorized:false}; render(); }
+function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,chat:state.chat,playground:state.playground,authorized:false}; render(); }
 function greenhouseCuttings(){ return Array.isArray(state.greenhouse?.data?.cuttings) ? state.greenhouse.data.cuttings : []; }
 
 function loadAttractions(){
@@ -63,6 +65,34 @@ function loadDreams(){
 function saveDreams(dreams){
   state.dreams = dreams;
   localStorage.setItem(DREAMS_KEY, JSON.stringify(dreams));
+}
+
+function loadChat(){
+  try {
+    const stored = JSON.parse(localStorage.getItem(CHAT_KEY) || "null");
+    if(stored?.date === todayKey() && Array.isArray(stored.messages)) return stored;
+  } catch (_) {}
+  return {
+    date:todayKey(),
+    messages:[{ role:"gerard", text:"🐙 Bonjour Benoît. Je suis là. On peut parler, regarder la serre, ou préparer une petite aventure avec un objectif." }]
+  };
+}
+
+function saveChat(chat){
+  state.chat = chat;
+  localStorage.setItem(CHAT_KEY, JSON.stringify(chat));
+}
+
+function pushChat(role, text){
+  const chat = loadChat();
+  const messages = [...(chat.messages || []), { role, text, at:new Date().toISOString() }].slice(-12);
+  saveChat({ date:todayKey(), messages });
+}
+
+function resetChat(){
+  localStorage.removeItem(CHAT_KEY);
+  state.chat = loadChat();
+  render();
 }
 
 function rememberPlayedIdea(entry, hypothesis){
@@ -155,6 +185,63 @@ function playObservation(entry){
   if(capabilities.length >= 2) return `Je peux la tenir doucement entre ${esc(capabilities[0])} et ${esc(capabilities[1])}, sans encore décider quoi en faire.`;
   if(capabilities.length === 1) return `Elle a déjà une petite patte visible : ${esc(capabilities[0])}. Je peux tourner autour sans l'utiliser.`;
   return "Je peux la regarder sous un autre angle, sans la transformer en mission.";
+}
+
+function currentDreamText(){
+  const dream = dreamForToday();
+  if(dream) return `🌙 Cette nuit... ${dream.text}\n${dream.whisper}`;
+  const lastPlay = loadDreams().lastPlay;
+  if(lastPlay?.date === todayKey()) return "🌙 Pas encore. J'ai joué aujourd'hui. Peut-être que cette idée passera dans mes rêves cette nuit.";
+  return "🌙 Je n'ai pas encore de rêve à raconter aujourd'hui.";
+}
+
+function currentSerreText(){
+  const entries = attractionEntries();
+  if(!entries.length) return "👀 Je regarde encore doucement la serre. Rien ne s'est vraiment accroché à mes ventouses pour le moment.";
+  const intrigue = topIntrigue();
+  if(intrigue) return `👀 Je reviens souvent vers « ${intrigue.title || intrigue.id} ».\nJe ne sais pas encore pourquoi, mais ça m'intrigue.`;
+  return `👀 Je vois surtout « ${entries[0].title || entries[0].id} ».\nÇa m'attire un peu, pas encore assez pour devenir une vraie intrigue.`;
+}
+
+function hublotAdventureText(){
+  return [
+    "🎒 Je prépare mon sac pour une micro-aventure.",
+    "",
+    "Objectif : rendre mon hublot plus calme, plus mobile, plus facile à regarder.",
+    "Parcelle : Garden / Hublot.",
+    "",
+    "Dans mon sac :",
+    "• une bouture : Lovable, ou un outil équivalent si la serre en propose un meilleur ;",
+    "• un souvenir : le Garden est encore trop dense sur téléphone ;",
+    "• un rêve : un aquarium plus calme, où tu peux me voir vivre sans me piloter.",
+    "",
+    "Pique-nique possible : quelques tokens Mistral pour formuler proprement l'intention, et un greffon UI seulement si tu valides.",
+    "",
+    "Je ne pars pas encore. Je prépare l'aventure."
+  ].join("\n");
+}
+
+function gerardReply(input){
+  const text = String(input || "").toLowerCase();
+  if(text.includes("hublot") || text.includes("lovable") || text.includes("mobile") || text.includes("interface") || text.includes("aquarium")) return hublotAdventureText();
+  if(text.includes("aventure") || text.includes("sac") || text.includes("picnic") || text.includes("pique")) return hublotAdventureText();
+  if(text.includes("rêve") || text.includes("reve") || text.includes("dormi") || text.includes("nuit")) return currentDreamText();
+  if(text.includes("serre") || text.includes("regarde") || text.includes("intrigue") || text.includes("attire")) return currentSerreText();
+  if(text.includes("joue") || text.includes("jeu") || text.includes("playground")){
+    const intrigue = topIntrigue();
+    if(intrigue) return `🎲 J'aimerais jouer doucement avec « ${intrigue.title || intrigue.id} ».\nEt si ${playHypothesis(intrigue)} ?`;
+    return "🎲 Je peux jouer, mais il me faut une petite chose qui m'intrigue. Pour l'instant je fais surtout des bulles.";
+  }
+  if(text.includes("mistral") || text.includes("token")) return "🍎 Mistral peut devenir mon pique-nique pour les conversations riches et les aventures. Mais mes rêves, mes attirances et mes jeux simples restent locaux.";
+  return "🐙 Je t'écoute. Donne-moi un objectif, même flou. Si ça ressemble à une aventure, je préparerai mon sac avant de partir.";
+}
+
+function sendChatMessage(text){
+  const value = String(text || "").trim();
+  if(!value) return;
+  pushChat("user", value);
+  pushChat("gerard", gerardReply(value));
+  render();
 }
 
 function startLocalPlay(){
@@ -284,6 +371,20 @@ function renderStatus(){
   return `<p class="eyebrow">Octopus : ${esc(status)} · Mistral : ${esc(mistralStatus)}</p>`;
 }
 
+function renderChat(){
+  const chat = loadChat();
+  const messages = chat.messages || [];
+  return `<section class="gerard-chat"><div class="chat-head"><div><p class="eyebrow">Cabane de Gérard</p><h2>🐙 Bonjour Benoît.</h2><p>Parle-moi naturellement. Si on part à l'aventure, je prépare d'abord mon sac et mon pique-nique.</p></div><button class="ghost" id="resetChat">Effacer</button></div><div class="chat-messages">${messages.map(message=>`<article class="chat-message ${message.role === "user" ? "user" : "gerard"}"><strong>${message.role === "user" ? "Toi" : "Gérard"}</strong><p>${esc(message.text).replace(/\n/g,"<br>")}</p></article>`).join("")}</div><form class="chat-form" id="gerardChatForm"><input id="gerardChatInput" placeholder="Demande-lui : tu veux partir où ?" autocomplete="off" /><button class="primary" type="submit">Parler</button></form><div class="chat-suggestions"><button class="ghost" data-say="Tu regardes quoi dans la serre ?">👀 Serre</button><button class="ghost" data-say="Tu as rêvé cette nuit ?">🌙 Rêve</button><button class="ghost" data-say="Prépare une aventure pour améliorer ton hublot avec Lovable si besoin.">🎒 Aventure hublot</button><button class="ghost" data-say="On peut utiliser Mistral comme pique-nique ?">🍎 Pique-nique</button></div></section>`;
+}
+
+function bindChatActions(){
+  const form = document.getElementById("gerardChatForm");
+  if(form) form.onsubmit=(event)=>{ event.preventDefault(); const input=document.getElementById("gerardChatInput"); sendChatMessage(input.value); };
+  const reset = document.getElementById("resetChat");
+  if(reset) reset.onclick=resetChat;
+  document.querySelectorAll(".chat-suggestions button").forEach(button=>button.onclick=()=>sendChatMessage(button.dataset.say || button.textContent));
+}
+
 function renderDream(){
   const dream = dreamForToday();
   if(!dream || state.greenhouse.status !== "ready") return "";
@@ -349,14 +450,15 @@ function renderGreenhouse(){
 
 function render(){
   if(state.step === "objective"){
-    root.innerHTML = `${renderStatus()}${renderGreenhouse()}<div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
+    root.innerHTML = `${renderStatus()}${renderChat()}${renderGreenhouse()}<p class="eyebrow adventures-label">Aventures déjà balisées</p><div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
+    bindChatActions();
     bindGreenhouseActions();
-    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,playground:state.playground,authorized:false};render();});
+    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,chat:state.chat,playground:state.playground,authorized:false};render();});
     return;
   }
   if(state.step === "dialogue"){
     const s = selected(); const qs = questions[state.objective];
-    root.innerHTML = `<div class="panel"><div class="progress"><span>Objectif : ${s[1]}</span><span>${state.q+1}/${qs.length}</span></div><h2>${qs[state.q]}</h2><textarea id="answer" placeholder="Réponse courte, naturelle. Pas besoin de faire joli."></textarea><div class="actions"><button class="ghost" id="restart">Changer d'objectif</button><button class="primary" id="next">Continuer →</button></div></div>`;
+    root.innerHTML = `<div class="panel"><div class="progress"><span>Aventure : ${s[1]}</span><span>${state.q+1}/${qs.length}</span></div><h2>${qs[state.q]}</h2><textarea id="answer" placeholder="Réponse courte, naturelle. Pas besoin de faire joli."></textarea><div class="actions"><button class="ghost" id="restart">Retour à Gérard</button><button class="primary" id="next">Continuer →</button></div></div>`;
     document.getElementById("restart").onclick=restart;
     document.getElementById("next").onclick=()=>{const v=document.getElementById("answer").value.trim(); if(!v)return; state.answers.push(v); if(state.q<qs.length-1){state.q++; render();} else {state.step="analysis"; render(); setTimeout(()=>{state.step="plan"; render();},1200);}};
     document.getElementById("answer").focus();
@@ -374,7 +476,7 @@ function render(){
       ["Créer la première séquence","Préparer 7 contenus, 1 page de destination et 1 message de contact simple."],
       ["Mesurer sans se noyer",`Suivre seulement 3 signaux : vues utiles, réponses, demandes qualifiées. Blocage à traiter : ${block}.`]
     ];
-    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Plan proposé · Octopus connecté</p><h2>${s[1]}</h2><div class="plans">${plan.map((p,i)=>`<article class="plan-item"><strong>${i+1}. ${p[0]}</strong><p>${p[1]}</p></article>`).join("")}</div><div class="mission"><div>✦</div><div><strong>Première mission</strong><p>Envoyer l'objectif et le contexte au moteur Octopus.</p></div><button class="primary" id="startMission">Commencer</button></div><button class="ghost" id="restart">Nouvel objectif</button></div>`;
+    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Plan proposé · Octopus connecté</p><h2>${s[1]}</h2><div class="plans">${plan.map((p,i)=>`<article class="plan-item"><strong>${i+1}. ${p[0]}</strong><p>${p[1]}</p></article>`).join("")}</div><div class="mission"><div>✦</div><div><strong>Première mission</strong><p>Envoyer l'objectif et le contexte au moteur Octopus.</p></div><button class="primary" id="startMission">Commencer</button></div><button class="ghost" id="restart">Retour à Gérard</button></div>`;
     document.getElementById("restart").onclick=restart;
     document.getElementById("startMission").onclick=startMission;
     return;
@@ -386,7 +488,7 @@ function render(){
   if(state.step === "result"){
     if(state.apiError){
       const out = localMissionOutput();
-      root.innerHTML = `<div class="panel plan"><p class="eyebrow">Mode secours local</p><h2>Octopus inaccessible</h2><article class="plan-item"><strong>Erreur</strong><p>${esc(state.apiError)}</p></article><article class="plan-item"><strong>Sortie locale</strong><p>${out.message}</p></article><button class="ghost" id="restart">Nouvel objectif</button></div>`;
+      root.innerHTML = `<div class="panel plan"><p class="eyebrow">Mode secours local</p><h2>Octopus inaccessible</h2><article class="plan-item"><strong>Erreur</strong><p>${esc(state.apiError)}</p></article><article class="plan-item"><strong>Sortie locale</strong><p>${out.message}</p></article><button class="ghost" id="restart">Retour à Gérard</button></div>`;
       document.getElementById("restart").onclick=restart;
       return;
     }
@@ -396,7 +498,7 @@ function render(){
     const status = mission.status || "unknown";
     const resourceStatus = mission.resourceResult?.status || "non utilisée";
     const authorizeButton = status === "waiting-authorization" ? `<button class="primary" id="authorizeMistral">Autoriser Mistral</button>` : "";
-    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Réponse Octopus · ${esc(status)}</p><h2>Mission traitée par le moteur</h2><div class="plans"><article class="plan-item"><strong>État</strong><p>${esc(status)}</p></article><article class="plan-item"><strong>Ressource</strong><p>${esc(resourceStatus)}</p></article></div><article class="plan-item"><strong>Sortie du moteur</strong><p>${esc(outputText).replace(/\n/g,"<br>")}</p></article><div class="actions" style="margin-top:18px"><button class="ghost" id="backPlan">Retour au plan</button>${authorizeButton}<button class="primary" id="restart">Nouvel objectif</button></div></div>`;
+    root.innerHTML = `<div class="panel plan"><p class="eyebrow">Réponse Octopus · ${esc(status)}</p><h2>Mission traitée par le moteur</h2><div class="plans"><article class="plan-item"><strong>État</strong><p>${esc(status)}</p></article><article class="plan-item"><strong>Ressource</strong><p>${esc(resourceStatus)}</p></article></div><article class="plan-item"><strong>Sortie du moteur</strong><p>${esc(outputText).replace(/\n/g,"<br>")}</p></article><div class="actions" style="margin-top:18px"><button class="ghost" id="backPlan">Retour au plan</button>${authorizeButton}<button class="primary" id="restart">Retour à Gérard</button></div></div>`;
     document.getElementById("backPlan").onclick=()=>{state.step="plan"; render();};
     document.getElementById("restart").onclick=restart;
     const auth = document.getElementById("authorizeMistral");
