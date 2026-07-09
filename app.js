@@ -3,6 +3,7 @@ const PUBLISHER_API = globalThis.PUBLISHER_API_URL || localStorage.getItem("PUBL
 const ATTRACTIONS_KEY = "poulpe-fiction:greenhouse-attractions:v1";
 const DREAMS_KEY = "poulpe-fiction:dreams:v1";
 const CHAT_KEY = "poulpe-fiction:gerard-chat:v1";
+const ADVENTURE_URGE_KEY = "poulpe-fiction:adventure-urge:v1";
 
 const objectives = [
   ["clients","Trouver des clients","2 rendez-vous qualifiés par mois, sans usine à gaz.","J'ai une page Facebook avec 3 abonnés et je veux 1 à 2 clients qualifiés par mois."],
@@ -31,6 +32,7 @@ let state = {
   dreams:loadDreams(),
   chat:loadChat(),
   playground:null,
+  adventureUrge:loadAdventureUrge(),
   authorized:false
 };
 const root = document.getElementById("root");
@@ -38,7 +40,8 @@ const root = document.getElementById("root");
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 function selected(){ return objectives.find(o=>o[0]===state.objective); }
 function esc(s){ return String(s || "").replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])); }
-function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,chat:state.chat,playground:state.playground,authorized:false}; render(); }
+function preservedState(){ return { octopus:state.octopus, greenhouse:state.greenhouse, attractions:state.attractions, dreams:state.dreams, chat:state.chat, playground:state.playground, adventureUrge:state.adventureUrge }; }
+function restart(){ state={step:"objective",objective:null,q:0,answers:[],mission:null,apiError:null,...preservedState(),authorized:false}; render(); }
 function greenhouseCuttings(){ return Array.isArray(state.greenhouse?.data?.cuttings) ? state.greenhouse.data.cuttings : []; }
 
 function loadAttractions(){
@@ -67,6 +70,20 @@ function saveDreams(dreams){
   localStorage.setItem(DREAMS_KEY, JSON.stringify(dreams));
 }
 
+function loadAdventureUrge(){
+  try {
+    const stored = JSON.parse(localStorage.getItem(ADVENTURE_URGE_KEY) || "null");
+    if(stored?.date === todayKey() && stored.entry) return stored;
+  } catch (_) {}
+  return null;
+}
+
+function saveAdventureUrge(urge){
+  state.adventureUrge = urge;
+  if(urge) localStorage.setItem(ADVENTURE_URGE_KEY, JSON.stringify(urge));
+  else localStorage.removeItem(ADVENTURE_URGE_KEY);
+}
+
 function loadChat(){
   try {
     const stored = JSON.parse(localStorage.getItem(CHAT_KEY) || "null");
@@ -74,7 +91,7 @@ function loadChat(){
   } catch (_) {}
   return {
     date:todayKey(),
-    messages:[{ role:"gerard", text:"🐙 Bonjour Benoît. Je suis là. On peut parler, regarder la serre, ou préparer une petite aventure avec un objectif." }]
+    messages:[{ role:"gerard", text:"🐙 Bonjour Benoît. Je suis là. On peut parler, regarder la serre, jouer avec une idée ou préparer une aventure quand l'envie grandit." }]
   };
 }
 
@@ -163,6 +180,12 @@ function topIntrigue(){
   return attractionEntries().find(entry => (entry.count || 0) >= 3) || null;
 }
 
+function adventureCandidate(){
+  const intrigue = topIntrigue();
+  if(!intrigue || (intrigue.count || 0) < 4) return null;
+  return intrigue;
+}
+
 function stars(count){ return "★".repeat(Math.max(1, Math.min(3, Number(count) || 1))); }
 
 function cuttingForEntry(entry){
@@ -185,6 +208,73 @@ function playObservation(entry){
   if(capabilities.length >= 2) return `Je peux la tenir doucement entre ${esc(capabilities[0])} et ${esc(capabilities[1])}, sans encore décider quoi en faire.`;
   if(capabilities.length === 1) return `Elle a déjà une petite patte visible : ${esc(capabilities[0])}. Je peux tourner autour sans l'utiliser.`;
   return "Je peux la regarder sous un autre angle, sans la transformer en mission.";
+}
+
+function adventureWish(entry){
+  const id = String(entry?.id || entry?.title || "").toLowerCase();
+  if(id.includes("linkedin")) return "comprendre si cette bouture peut devenir une petite histoire de récolte, pas seulement une promotion";
+  if(id.includes("saas")) return "comprendre pourquoi cet outil revient dans la serre et s'il peut aider le jardin";
+  if(id.includes("github") || id.includes("repo")) return "comprendre ce que les traces du dépôt racontent de l'évolution d'un projet";
+  return "aller voir un peu plus loin sans encore transformer l'idée en mission";
+}
+
+function suggestedGrafts(entry){
+  const id = String(entry?.id || entry?.title || "").toLowerCase();
+  const grafts = ["Dream Weaver"];
+  if(id.includes("github") || id.includes("repo")) grafts.push("GitHub");
+  if(id.includes("lovable") || id.includes("hublot") || id.includes("interface")) grafts.push("Lovable Builder");
+  if(id.includes("document") || id.includes("pdf")) grafts.push("Document AI");
+  return grafts;
+}
+
+function adventureBagFor(entry){
+  const cutting = cuttingForEntry(entry);
+  const dream = dreamForToday();
+  const lastPlay = loadDreams().lastPlay;
+  const bag = [
+    `la bouture : ${entry?.title || entry?.id || "une idée"}`,
+    `la curiosité : ${adventureWish(entry)}`,
+    `l'observation : ${playObservation(entry).replace(/<[^>]*>/g, "")}`
+  ];
+  if(lastPlay?.entry?.id === entry?.id) bag.push(`un jeu récent : Et si ${lastPlay.hypothesis} ?`);
+  if(dream?.title === (entry?.title || entry?.id)) bag.push(`un rêve : ${dream.text}`);
+  if(cutting?.capabilities?.length) bag.push(`des capacités visibles : ${cutting.capabilities.slice(0,3).join(" · ")}`);
+  return bag;
+}
+
+function prepareAdventureBag(){
+  const entry = adventureCandidate() || topIntrigue();
+  if(!entry) return;
+  const urge = {
+    date:todayKey(),
+    status:"bag-prepared",
+    entry:{ id:entry.id, title:entry.title || entry.id, count:entry.count || 0 },
+    wish:adventureWish(entry),
+    bag:adventureBagFor(entry),
+    picnic:["quelques tokens Mistral pour mettre l'intention en mots", ...suggestedGrafts(entry).map(graft => `greffon ${graft}`)],
+    note:"Je ne pars pas encore. Je prépare seulement l'envie d'aventure."
+  };
+  saveAdventureUrge(urge);
+  pushChat("gerard", `🎒 Je prépare mon sac pour « ${entry.title || entry.id} ». Je ne pars pas encore. Je rassemble ce qui pourrait m'aider à comprendre.`);
+  render();
+}
+
+function clearAdventureUrge(){
+  saveAdventureUrge(null);
+  const intrigue = topIntrigue();
+  if(intrigue) state.playground = { mode:"mature", date:todayKey(), entry:intrigue, hypothesis:playHypothesis(intrigue) };
+  render();
+}
+
+function currentAdventureText(){
+  const prepared = loadAdventureUrge();
+  if(prepared?.entry) return `🎒 J'ai préparé un sac autour de « ${prepared.entry.title || prepared.entry.id} ».
+Envie : ${prepared.wish}
+Je ne pars pas encore. Je te montre seulement ce que j'emporterais.`;
+  const entry = adventureCandidate();
+  if(entry) return `🎒 Je reviens souvent vers « ${entry.title || entry.id} ».
+Ça devient plus qu'une curiosité. J'ai peut-être envie d'aller voir plus loin, mais je dois préparer mon sac avant.`;
+  return "🎒 Pas encore. Je regarde, je joue peut-être, je rêve peut-être. L'envie d'aventure n'est pas assez forte.";
 }
 
 function currentDreamText(){
@@ -224,7 +314,7 @@ function hublotAdventureText(){
 function gerardReply(input){
   const text = String(input || "").toLowerCase();
   if(text.includes("hublot") || text.includes("lovable") || text.includes("mobile") || text.includes("interface") || text.includes("aquarium")) return hublotAdventureText();
-  if(text.includes("aventure") || text.includes("sac") || text.includes("picnic") || text.includes("pique")) return hublotAdventureText();
+  if(text.includes("aventure") || text.includes("sac") || text.includes("picnic") || text.includes("pique")) return currentAdventureText();
   if(text.includes("rêve") || text.includes("reve") || text.includes("dormi") || text.includes("nuit")) return currentDreamText();
   if(text.includes("serre") || text.includes("regarde") || text.includes("intrigue") || text.includes("attire")) return currentSerreText();
   if(text.includes("joue") || text.includes("jeu") || text.includes("playground")){
@@ -233,7 +323,7 @@ function gerardReply(input){
     return "🎲 Je peux jouer, mais il me faut une petite chose qui m'intrigue. Pour l'instant je fais surtout des bulles.";
   }
   if(text.includes("mistral") || text.includes("token")) return "🍎 Mistral peut devenir mon pique-nique pour les conversations riches et les aventures. Mais mes rêves, mes attirances et mes jeux simples restent locaux.";
-  return "🐙 Je t'écoute. Donne-moi un objectif, même flou. Si ça ressemble à une aventure, je préparerai mon sac avant de partir.";
+  return "🐙 Je t'écoute. Donne-moi un objectif, même flou, ou laisse-moi suivre une curiosité qui grandit. Si ça ressemble à une aventure, je préparerai mon sac avant de partir.";
 }
 
 function sendChatMessage(text){
@@ -374,7 +464,7 @@ function renderStatus(){
 function renderChat(){
   const chat = loadChat();
   const messages = chat.messages || [];
-  return `<section class="gerard-chat"><div class="chat-head"><div><p class="eyebrow">Cabane de Gérard</p><h2>🐙 Bonjour Benoît.</h2><p>Parle-moi naturellement. Si on part à l'aventure, je prépare d'abord mon sac et mon pique-nique.</p></div><button class="ghost" id="resetChat">Effacer</button></div><div class="chat-messages">${messages.map(message=>`<article class="chat-message ${message.role === "user" ? "user" : "gerard"}"><strong>${message.role === "user" ? "Toi" : "Gérard"}</strong><p>${esc(message.text).replace(/\n/g,"<br>")}</p></article>`).join("")}</div><form class="chat-form" id="gerardChatForm"><input id="gerardChatInput" placeholder="Demande-lui : tu veux partir où ?" autocomplete="off" /><button class="primary" type="submit">Parler</button></form><div class="chat-suggestions"><button class="ghost" data-say="Tu regardes quoi dans la serre ?">👀 Serre</button><button class="ghost" data-say="Tu as rêvé cette nuit ?">🌙 Rêve</button><button class="ghost" data-say="Prépare une aventure pour améliorer ton hublot avec Lovable si besoin.">🎒 Aventure hublot</button><button class="ghost" data-say="On peut utiliser Mistral comme pique-nique ?">🍎 Pique-nique</button></div></section>`;
+  return `<section class="gerard-chat"><div class="chat-head"><div><p class="eyebrow">Cabane de Gérard</p><h2>🐙 Bonjour Benoît.</h2><p>Parle-moi naturellement. Si l'envie d'aventure grandit, je prépare d'abord mon sac et mon pique-nique.</p></div><button class="ghost" id="resetChat">Effacer</button></div><div class="chat-messages">${messages.map(message=>`<article class="chat-message ${message.role === "user" ? "user" : "gerard"}"><strong>${message.role === "user" ? "Toi" : "Gérard"}</strong><p>${esc(message.text).replace(/\n/g,"<br>")}</p></article>`).join("")}</div><form class="chat-form" id="gerardChatForm"><input id="gerardChatInput" placeholder="Demande-lui : tu as envie de partir ?" autocomplete="off" /><button class="primary" type="submit">Parler</button></form><div class="chat-suggestions"><button class="ghost" data-say="Tu regardes quoi dans la serre ?">👀 Serre</button><button class="ghost" data-say="Tu as rêvé cette nuit ?">🌙 Rêve</button><button class="ghost" data-say="Tu as envie d'une aventure ?">🎒 Envie</button><button class="ghost" data-say="On peut utiliser Mistral comme pique-nique ?">🍎 Pique-nique</button></div></section>`;
 }
 
 function bindChatActions(){
@@ -403,6 +493,21 @@ function renderLocalWonder(){
   return `<section class="local-wonder"><p class="eyebrow">🐙 Ce qui m'intrigue</p><strong>Tiens...</strong><p>Je reviens souvent vers <em>« ${esc(intrigue.title || intrigue.id)} »</em>.</p><p>Je ne sais pas encore pourquoi.</p></section>`;
 }
 
+function renderAdventureUrge(){
+  if(state.greenhouse.status !== "ready") return "";
+  const prepared = loadAdventureUrge();
+  const candidate = adventureCandidate();
+  if(!prepared && !candidate) return "";
+  const entry = prepared?.entry || candidate;
+  const title = entry?.title || entry?.id || "cette bouture";
+
+  if(prepared?.status === "bag-prepared"){
+    return `<section class="adventure-urge prepared"><p class="eyebrow">🎒 Sac préparé</p><h3>Une envie d'aventure tient debout.</h3><p>Je voudrais ${esc(prepared.wish)}.</p><div class="adventure-grid"><article><strong>Dans mon sac</strong><ul>${prepared.bag.map(item=>`<li>${esc(item)}</li>`).join("")}</ul></article><article><strong>Pique-nique envisagé</strong><ul>${prepared.picnic.map(item=>`<li>${esc(item)}</li>`).join("")}</ul></article></div><small>${esc(prepared.note)}</small><div class="play-actions"><button class="ghost" id="clearAdventureUrge">🌱 Laisser au jardin</button><button class="primary" disabled title="Pas encore implémenté">🚶 Départ plus tard</button></div></section>`;
+  }
+
+  return `<section class="adventure-urge"><p class="eyebrow">🎒 Une envie d'aventure grandit</p><h3>Je reviens souvent vers « ${esc(title)} ».</h3><p>Ce n'est plus seulement une curiosité. J'ai peut-être envie de ${esc(adventureWish(candidate))}.</p><div class="adventure-grid"><article><strong>Si je partais...</strong><ul><li>j'emporterais cette bouture ;</li><li>je garderais mon dernier jeu ou rêve s'il existe ;</li><li>je reviendrais avec une proposition, une trace ou une question plus précise.</li></ul></article><article><strong>Pas encore une mission</strong><p>Je ne pars pas. Je sens seulement l'envie d'aventure apparaître.</p></article></div><div class="play-actions"><button class="ghost" id="clearAdventureUrge">👀 Continuer à observer</button><button class="primary" id="prepareAdventureBag">🎒 Préparer mon sac</button></div></section>`;
+}
+
 function renderPlayPrompt(){
   const intrigue = topIntrigue();
   if(!intrigue || state.greenhouse.status !== "ready" || state.playground) return "";
@@ -428,6 +533,10 @@ function bindGreenhouseActions(){
   if(play) play.onclick=startLocalPlay;
   const reset = document.getElementById("resetLocalPlay");
   if(reset) reset.onclick=resetLocalPlay;
+  const prepareBag = document.getElementById("prepareAdventureBag");
+  if(prepareBag) prepareBag.onclick=prepareAdventureBag;
+  const clearUrge = document.getElementById("clearAdventureUrge");
+  if(clearUrge) clearUrge.onclick=clearAdventureUrge;
 }
 
 function renderGreenhouse(){
@@ -445,7 +554,7 @@ function renderGreenhouse(){
   if(!cuttings.length){
     return `<section class="greenhouse"><div><p class="eyebrow">Serre Publisher</p><h2>La serre est vide</h2><p>Aucune bouture disponible pour l'instant.</p></div></section>`;
   }
-  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div>${renderDream()}<div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}${renderLocalWonder()}${renderPlayPrompt()}${renderPlayground()}</section>`;
+  return `<section class="greenhouse"><div class="greenhouse-head"><div><p class="eyebrow">Serre Publisher · ${esc(greenhouse.data?.source || "source")}</p><h2>🐙 Tiens... une bouture intéressante dans la serre.</h2><p>Gérard observe. Aucune greffe automatique.</p></div><span>${cuttings.length} bouture${cuttings.length > 1 ? "s" : ""}</span></div>${renderDream()}<div class="cuttings">${cuttings.slice(0,3).map(cutting=>`<article class="cutting"><strong>${esc(cutting.title || cutting.id)}</strong><p>${esc(cutting.description || cutting.notes || "Bouture candidate")}</p><small>${esc((cutting.capabilities || []).join(" · "))}</small></article>`).join("")}</div>${renderAttractions()}${renderLocalWonder()}${renderPlayPrompt()}${renderPlayground()}${renderAdventureUrge()}</section>`;
 }
 
 function render(){
@@ -453,7 +562,7 @@ function render(){
     root.innerHTML = `${renderStatus()}${renderChat()}${renderGreenhouse()}<p class="eyebrow adventures-label">Aventures déjà balisées</p><div class="grid">${objectives.map(o=>`<button class="objective" data-id="${o[0]}"><span>${o[1]}</span><small>${o[2]}</small><em>${o[3]}</em></button>`).join("")}</div>`;
     bindChatActions();
     bindGreenhouseActions();
-    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,octopus:state.octopus,greenhouse:state.greenhouse,attractions:state.attractions,dreams:state.dreams,chat:state.chat,playground:state.playground,authorized:false};render();});
+    document.querySelectorAll(".objective").forEach(btn=>btn.onclick=()=>{state={step:"dialogue",objective:btn.dataset.id,q:0,answers:[],mission:null,apiError:null,...preservedState(),authorized:false};render();});
     return;
   }
   if(state.step === "dialogue"){
