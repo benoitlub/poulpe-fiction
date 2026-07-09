@@ -51,6 +51,9 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .cutting strong { display: block; margin-bottom: 8px; }
 .cutting p { margin: 0 0 10px; }
 .cutting small { color: #9fe3bc; line-height: 1.35; }
+.dream { margin-top: 16px; border: 1px solid rgba(132,178,255,.28); border-radius: 18px; padding: 16px; background: radial-gradient(circle at top left, rgba(132,178,255,.16), rgba(0,0,0,.12)); }
+.dream p { margin: 8px 0 0; color: #e5ecff; }
+.dream small { display: block; color: #b9c7e8; margin-top: 8px; line-height: 1.45; }
 .attractions { margin-top: 18px; border-top: 1px solid rgba(135,214,166,.18); padding-top: 18px; }
 .attraction-list { display: grid; gap: 10px; margin-top: 12px; }
 .attraction-list article { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,.09); border-radius: 16px; padding: 12px; background: rgba(0,0,0,.14); }
