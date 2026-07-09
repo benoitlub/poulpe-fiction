@@ -56,4 +56,8 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .attraction-list article { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,.09); border-radius: 16px; padding: 12px; background: rgba(0,0,0,.14); }
 .attraction-list span { color: #b7f1c9; letter-spacing: .08em; }
 .attraction-list strong { line-height: 1.25; }
+.local-wonder { margin-top: 16px; border: 1px solid rgba(255,108,61,.22); border-radius: 18px; padding: 16px; background: rgba(255,108,61,.08); }
+.local-wonder strong { display: block; margin: 4px 0 8px; font-size: 1.1rem; }
+.local-wonder em { color: #fff1d8; font-style: normal; font-weight: 900; }
+.local-wonder p { margin: 6px 0 0; }
 @media(max-width:900px){ .grid,.plans,.cuttings{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head{align-items:stretch;flex-direction:column}.objective{min-height:auto} }
