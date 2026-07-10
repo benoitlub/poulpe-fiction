@@ -1,0 +1,3 @@
+.survivor-card{margin:18px 0;padding:20px;border:1px solid rgba(255,255,255,.15);border-radius:18px;background:linear-gradient(145deg,rgba(255,196,74,.12),rgba(255,255,255,.035));box-shadow:0 16px 45px rgba(0,0,0,.16)}
+.survivor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}.survivor-head h2{margin:.15rem 0 0}.survivor-head>strong{font-size:1.35rem;white-space:nowrap;padding:8px 12px;border-radius:999px;background:rgba(255,196,74,.16)}
+.survivor-card .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}.survivor-card .plan-item{height:100%}.survivor-card .actions{display:flex;flex-wrap:wrap;gap:10px}.survivor-limit{font-size:.82rem;opacity:.72;margin:14px 0 0}
