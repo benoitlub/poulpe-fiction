@@ -67,6 +67,73 @@
         "Les humains ont brûlé leur monde pour le traverser plus vite — mais ils ont aussi chanté dans leurs voitures.",
         "Et si notre univers était une vieille simulation oubliée, retrouvée par deux Gérard avec du Frunch ?"
       ]
+    },
+    "terra": {
+      version: 1,
+      verified: true,
+      source: "TERRA manuscript and validated editorial decisions",
+      title: "TERRA — Un récit d'observation, une fable cosmique",
+      author: "Benoît Lubert",
+      format: "fable cosmique, récit d'observation et science-fiction contemplative",
+      synopsis: "À travers plusieurs époques et plusieurs regards humains, une présence observe la Terre, ses catastrophes, ses guerres, ses centrales, ses volcans et ses gestes ordinaires. Séïne, sa grand-mère Lysse, Park Ji-woo, Frère Anselme, le lieutenant Harwick et d'autres témoins forment une mosaïque où une sonde verte et des lectures temporelles interrogent ce que l'humanité comprend — ou refuse de comprendre — de sa propre planète.",
+      themes: [
+        "observation de l'humanité à travers le temps",
+        "mémoire, transmission et perception",
+        "rapport entre phénomènes cosmiques et vies ordinaires",
+        "fragilité de la Terre et persistance humaine",
+        "disclosure, signes ambigus et interprétation"
+      ],
+      tone: [
+        "contemplatif",
+        "mystérieux",
+        "humain et sensible",
+        "cosmique sans grandiloquence",
+        "philosophique sans sermon écologique"
+      ],
+      recurringElements: [
+        "la sonde verte",
+        "les lectures temporelles",
+        "les apparitions près des volcans, centrales et conflits",
+        "la vaisselle de la grand-mère",
+        "les scènes de Lyon 2009",
+        "le disclosure day"
+      ],
+      audienceHypotheses: [
+        "lecteurs de science-fiction contemplative",
+        "lecteurs de récits mosaïques et de fables philosophiques",
+        "public attiré par les mystères cosmiques, les observations temporelles et les récits humains",
+        "lecteurs sensibles à une réflexion sur la Terre sans discours militant simplificateur"
+      ],
+      knownFacts: [
+        "Le sous-titre validé est : Un récit d'observation, une fable cosmique.",
+        "Le livre n'est pas présenté comme un thriller écologique ni comme un manuel d'action climatique.",
+        "Le récit traverse plusieurs périodes historiques et plusieurs personnages.",
+        "Séïne, Lysse, Park Ji-woo, Frère Anselme et le lieutenant Harwick font partie des personnages connus.",
+        "Aucun témoignage de lecteur, média, influenceur, chiffre de vente, prix littéraire ou citation critique n'est vérifié.",
+        "Aucun extrait inventé ne doit être attribué au manuscrit."
+      ],
+      allowedClaims: [
+        "fable cosmique",
+        "récit d'observation à travers plusieurs époques",
+        "mosaïque de vies humaines confrontées à des signes difficiles à interpréter",
+        "science-fiction contemplative sur la Terre, la mémoire et la perception"
+      ],
+      forbiddenClaims: [
+        "thriller écologique",
+        "roman d'effondrement haletant",
+        "fin du monde imminente",
+        "appel militant à agir pour le climat",
+        "comparaison affirmée à Mad Max, La Route, Les Furtifs ou Parable of the Sower",
+        "scène d'effondrement d'une ville non fournie",
+        "citation critique ou scène culte inventée",
+        "témoignage, preuve sociale, compte Instagram, podcast ou média présenté comme acquis sans vérification"
+      ],
+      campaignDirection: "Présenter TERRA comme une invitation à regarder notre planète depuis un point de vue plus vaste : partir d'un signe, d'une époque ou d'un geste humain minuscule, puis ouvrir sur la question de ce qu'une présence extérieure pourrait comprendre de nous.",
+      sampleAngles: [
+        "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
+        "Une sonde verte apparaît près de nos volcans, de nos guerres et de nos centrales. Elle ne juge pas. Elle regarde.",
+        "TERRA ne raconte pas la fin du monde. Elle demande ce qu'il reste visible de nous quand on nous observe de très loin."
+      ]
     }
   };
 
@@ -91,9 +158,9 @@
       `Allégations interdites: ${pack.forbiddenClaims.join(" | ")}`,
       `Direction de campagne: ${pack.campaignDirection}`,
       `Angles possibles: ${pack.sampleAngles.join(" | ")}`,
-      "RÈGLE: n'ajoute aucun chiffre, témoignage, urgence, bonus, avantage, caractéristique ou lien non présent dans ce dossier.",
+      "RÈGLE: n'ajoute aucun chiffre, témoignage, urgence, bonus, avantage, caractéristique, extrait ou lien non présent dans ce dossier.",
       "RÈGLE: lorsqu'une information commerciale manque, formule une question explicite au lieu de la compléter.",
-      "RÈGLE: toute sortie doit être fidèle au livre, à son humour tendre et à sa dimension philosophique."
+      "RÈGLE: toute sortie doit rester fidèle à la nature, au ton et aux thèmes du produit."
     ].join("\n");
   }
 
