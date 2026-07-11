@@ -17,6 +17,11 @@
     return global.BlacklaceParcel?.activeSeed?.() || null;
   }
 
+  function verifiedKnowledge(context) {
+    if (!context?.seedId) return null;
+    return global.ProductKnowledge?.get?.(context.seedId) || null;
+  }
+
   function toMissionPayload(draft) {
     if (!global.AdventureDraft?.isValid(draft)) {
       throw new Error("AdventureDraft invalide.");
@@ -27,14 +32,22 @@
 
     const title = draft.curiosity.title || draft.curiosity.id;
     const context = activeParcelContext();
+    const knowledge = verifiedKnowledge(context);
+    if (context?.parcelId === "blacklace-ecosystem" && !knowledge?.verified) {
+      throw new Error(`Dossier produit vérifié manquant pour « ${context.seedTitle || title} ». Gérard refuse d'inventer et demande d'abord un Knowledge Pack.`);
+    }
+
+    const knowledgePrompt = knowledge ? global.ProductKnowledge.toPrompt(knowledge) : "";
     const prompt = [
       "Tu exécutes une aventure préparée dans Poulpe Fiction.",
-      "Respecte strictement l'objectif, le sac, les limites et les ressources annoncées.",
-      "N'invente aucune autorisation supplémentaire et ne contourne aucune limite.",
+      "Respecte strictement l'objectif, le sac, les limites, les ressources annoncées et le dossier produit vérifié.",
+      "N'invente aucune autorisation, preuve, caractéristique, promesse commerciale, chiffre, témoignage, urgence ou réduction.",
+      "Si une information nécessaire manque, produis une question explicite au lieu de la fabriquer.",
       "Produis un résultat exploitable et une trace claire de ce qui a été appris.",
       context ? `Parcelle: ${context.parcelName} (${context.parcelId})` : "",
       context ? `Seed source: ${context.seedTitle} (${context.seedId})` : "",
       context ? `Première récolte attendue: ${context.firstHarvest}` : "",
+      knowledgePrompt,
       "",
       `AdventureDraft: ${draft.id}`,
       `Curiosité: ${title}`,
@@ -46,7 +59,7 @@
       `Validation du jardinier: ${draft.gardenerValidation.validatedAt}`,
       draft.gardenerValidation.note ? `Note du jardinier: ${draft.gardenerValidation.note}` : "",
       "",
-      "Retour attendu: une Harvest, une trace, une question plus précise ou un apprentissage explicite."
+      "Retour attendu: une Harvest fidèle aux sources, une question si une donnée manque, une trace ou un apprentissage explicite."
     ].filter(Boolean).join("\n");
 
     return {
@@ -117,7 +130,7 @@
           ? `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais l'aventure n'a rien rapporté d'exploitable. J'ai gardé la trace du retour.`
           : `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} » avec ${count} élément${count > 1 ? "s" : ""} à verser au jardin.`);
       } else {
-        pushChat("gerard", `🚶 Je suis parti avec le sac validé pour « ${draft.curiosity.title || draft.curiosity.id} ». Octopus Engine a reçu exactement l'objectif, le pique-nique, les greffons et les limites annoncés.`);
+        pushChat("gerard", `🚶 Je suis parti avec le sac validé pour « ${draft.curiosity.title || draft.curiosity.id} ». Octopus Engine a reçu exactement l'objectif, le dossier produit, le pique-nique, les greffons et les limites annoncés.`);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erreur inconnue pendant le départ";
