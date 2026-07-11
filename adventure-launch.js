@@ -54,6 +54,13 @@
     localStorage.setItem(RECEIPT_KEY, JSON.stringify(receipt));
   }
 
+  function processReturn(draft, result, errorMessage = "") {
+    if (!global.AdventureReturnProcessor) return null;
+    const status = String(result?.status || "");
+    if (!errorMessage && status === "waiting-authorization") return null;
+    return global.AdventureReturnProcessor.process(draft, result, errorMessage);
+  }
+
   async function launchValidatedAdventure() {
     const draft = global.AdventureDraft.load();
     if (!draft || draft.status !== "validated") return;
@@ -92,10 +99,22 @@
         missionId: result?.id || result?.missionId || null,
         missionStatus: result?.status || "unknown"
       });
-      pushChat("gerard", `🚶 Je suis parti avec le sac validé pour « ${draft.curiosity.title || draft.curiosity.id} ». Octopus Engine a reçu exactement l'objectif, le pique-nique, les greffons et les limites annoncés.`);
+
+      const bundle = processReturn(draft, result);
+      if (bundle) {
+        const count = bundle.harvests.length + bundle.seeds.length + bundle.questions.length + bundle.learnings.length;
+        pushChat("gerard", bundle.failure
+          ? `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais l'aventure n'a rien rapporté d'exploitable. J'ai gardé la trace du retour.`
+          : `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} » avec ${count} élément${count > 1 ? "s" : ""} à verser au jardin.`);
+      } else {
+        pushChat("gerard", `🚶 Je suis parti avec le sac validé pour « ${draft.curiosity.title || draft.curiosity.id} ». Octopus Engine a reçu exactement l'objectif, le pique-nique, les greffons et les limites annoncés.`);
+      }
     } catch (error) {
-      state.apiError = error instanceof Error ? error.message : "Erreur inconnue pendant le départ";
+      const message = error instanceof Error ? error.message : "Erreur inconnue pendant le départ";
+      state.apiError = message;
       state.step = "result";
+      processReturn(draft, { status: "failed", summary: message }, message);
+      pushChat("gerard", `🧺 Je suis revenu sans récolte de « ${draft.curiosity.title || draft.curiosity.id} ». L'échec est conservé dans le journal de retour.`);
     }
     render();
   }
