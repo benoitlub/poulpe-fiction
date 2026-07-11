@@ -28,7 +28,7 @@
   }
 
   function create(input) {
-    const entry = normalizeEntry(input?.entry);
+    const entry = normalizeEntry(input?.curiosity || input?.entry);
     if (!entry) throw new Error("AdventureDraft requires a curiosity entry.");
 
     const createdAt = typeof input.createdAt === "string" ? input.createdAt : nowIso();
@@ -139,7 +139,6 @@
 
   global.AdventureDraft = { STORAGE_KEY, create, isValid, load, save, validate, cancel };
 
-  // Compatibility bridge for the existing single-file interface.
   loadAdventureUrge = function loadAdventureDraftCompat() {
     return global.AdventureDraft.load();
   };
@@ -195,4 +194,5 @@
   };
 
   state.adventureUrge = global.AdventureDraft.load();
+  render();
 })(globalThis);
