@@ -54,14 +54,13 @@
     }
 
     try {
-      const response = await fetch(`${base}/knowledge-packs/${encodeURIComponent(seedId)}`, {
+      const response = await fetch(`${base}/api/knowledge-packs/${encodeURIComponent(seedId)}`, {
         headers: { Accept: "application/json" }
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload?.error || `Publisher ${response.status}`);
       if (!payload?.verified || !payload?.prompt) {
-        const fallback = cached(seedId) || localFallback(seedId, payload?.diagnostics?.error || "Pack Publisher non vérifié");
-        return fallback;
+        return cached(seedId) || localFallback(seedId, payload?.diagnostics?.error || "Pack Publisher non vérifié");
       }
       const result = { ...payload, source: "publisher" };
       writeCache(seedId, result);
