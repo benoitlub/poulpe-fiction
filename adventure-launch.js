@@ -2,6 +2,7 @@
   "use strict";
 
   const RECEIPT_KEY = "poulpe-fiction:adventure-departure:v1";
+  const COMPLETE_MARKER = "<!-- HARVEST_COMPLETE -->";
 
   function listSection(title, items) {
     const values = Array.isArray(items) ? items : [];
@@ -22,13 +23,37 @@
     return global.ProductKnowledge?.get?.(context.seedId) || null;
   }
 
+  function deliverableContract(context) {
+    if (context?.seedId === "terra") {
+      return [
+        "LIVRABLE UNIQUE DE CETTE AVENTURE:",
+        "Rédige une page de présentation complète et directement publiable pour TERRA.",
+        "Elle doit contenir: titre, accroche, résumé fidèle, 3 raisons de lire, public formulé comme hypothèse, section auteur, CTA Amazon avec [LIEN AMAZON À AJOUTER], et 3 métadonnées SEO.",
+        "Ne produis ni calendrier éditorial, ni liste de médias, ni rapport de positionnement séparé dans cette mission.",
+        "N'invente aucun extrait, aucune critique, aucun compte social, aucun partenaire et aucune comparaison promotionnelle.",
+        "Le texte final doit pouvoir être copié-collé tel quel après ajout du lien Amazon."
+      ].join("\n");
+    }
+    if (context?.seedId === "gerard-et-gerard") {
+      return [
+        "LIVRABLE UNIQUE DE CETTE AVENTURE:",
+        "Rédige une page de présentation complète et directement publiable pour Gérard & Gérard.",
+        "Elle doit contenir: titre, accroche, résumé fidèle, promesse de lecture, 3 raisons de lire, section auteur, CTA Amazon avec [LIEN AMAZON À AJOUTER], et 3 métadonnées SEO.",
+        "Ne produis ni calendrier éditorial ni campagne sociale dans cette mission.",
+        "Le texte final doit pouvoir être copié-collé tel quel après ajout du lien Amazon."
+      ].join("\n");
+    }
+    return [
+      "LIVRABLE UNIQUE DE CETTE AVENTURE:",
+      `Produis un seul livrable principal complet correspondant à: ${context?.firstHarvest || "la première récolte attendue"}.`,
+      "Ne remplace pas le livrable par une stratégie, un plan, des conseils ou une liste de choses à faire.",
+      "Le résultat doit être directement utilisable après validation humaine."
+    ].join("\n");
+  }
+
   function toMissionPayload(draft) {
-    if (!global.AdventureDraft?.isValid(draft)) {
-      throw new Error("AdventureDraft invalide.");
-    }
-    if (draft.status !== "validated" || !draft.gardenerValidation?.validatedAt) {
-      throw new Error("Seule une aventure explicitement validée peut partir.");
-    }
+    if (!global.AdventureDraft?.isValid(draft)) throw new Error("AdventureDraft invalide.");
+    if (draft.status !== "validated" || !draft.gardenerValidation?.validatedAt) throw new Error("Seule une aventure explicitement validée peut partir.");
 
     const title = draft.curiosity.title || draft.curiosity.id;
     const context = activeParcelContext();
@@ -43,11 +68,17 @@
       "Respecte strictement l'objectif, le sac, les limites, les ressources annoncées et le dossier produit vérifié.",
       "N'invente aucune autorisation, preuve, caractéristique, promesse commerciale, chiffre, témoignage, urgence ou réduction.",
       "Si une information nécessaire manque, produis une question explicite au lieu de la fabriquer.",
-      "Produis un résultat exploitable et une trace claire de ce qui a été appris.",
       context ? `Parcelle: ${context.parcelName} (${context.parcelId})` : "",
       context ? `Seed source: ${context.seedTitle} (${context.seedId})` : "",
       context ? `Première récolte attendue: ${context.firstHarvest}` : "",
       knowledgePrompt,
+      deliverableContract(context),
+      "RÈGLES DE COMPLÉTUDE:",
+      "- Un seul livrable principal, entièrement rédigé.",
+      "- Pas de placeholders sauf [LIEN AMAZON À AJOUTER] lorsqu'un lien vérifié manque.",
+      "- Pas de section commencée puis abandonnée.",
+      "- Termine obligatoirement la toute dernière ligne par le marqueur exact suivant:",
+      COMPLETE_MARKER,
       "",
       `AdventureDraft: ${draft.id}`,
       `Curiosité: ${title}`,
@@ -59,7 +90,7 @@
       `Validation du jardinier: ${draft.gardenerValidation.validatedAt}`,
       draft.gardenerValidation.note ? `Note du jardinier: ${draft.gardenerValidation.note}` : "",
       "",
-      "Retour attendu: une Harvest fidèle aux sources, une question si une donnée manque, une trace ou un apprentissage explicite."
+      "Retour attendu: le livrable final complet, puis le marqueur de complétude."
     ].filter(Boolean).join("\n");
 
     return {
@@ -107,9 +138,7 @@
         body: JSON.stringify(payload)
       });
       const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result?.message || `Octopus ${response.status} ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(result?.message || `Octopus ${response.status} ${response.statusText}`);
 
       result.parcelId = result.parcelId || payload.parcelId;
       state.mission = result;
@@ -126,11 +155,11 @@
       const bundle = processReturn(draft, result);
       if (bundle) {
         const count = bundle.harvests.length + bundle.seeds.length + bundle.questions.length + bundle.learnings.length;
-        pushChat("gerard", bundle.failure
-          ? `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais l'aventure n'a rien rapporté d'exploitable. J'ai gardé la trace du retour.`
-          : `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} » avec ${count} élément${count > 1 ? "s" : ""} à verser au jardin.`);
-      } else {
-        pushChat("gerard", `🚶 Je suis parti avec le sac validé pour « ${draft.curiosity.title || draft.curiosity.id} ». Octopus Engine a reçu exactement l'objectif, le dossier produit, le pique-nique, les greffons et les limites annoncés.`);
+        pushChat("gerard", bundle.status === "incomplete"
+          ? `✂️ Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais le livrable a été coupé. Je ne le compte pas comme récolte.`
+          : bundle.failure
+            ? `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais l'aventure n'a rien rapporté d'exploitable. J'ai gardé la trace du retour.`
+            : `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} » avec ${count} élément${count > 1 ? "s" : ""} à verser au jardin.`);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erreur inconnue pendant le départ";
@@ -142,7 +171,7 @@
     render();
   }
 
-  global.AdventureLaunch = { RECEIPT_KEY, toMissionPayload, launch: launchValidatedAdventure };
+  global.AdventureLaunch = { RECEIPT_KEY, COMPLETE_MARKER, toMissionPayload, launch: launchValidatedAdventure };
 
   const renderDraft = renderAdventureUrge;
   renderAdventureUrge = function renderLaunchableAdventureDraft() {
@@ -151,10 +180,7 @@
     if (!draft || draft.status !== "validated") return html;
     return html
       .replace("L'aventure est validée et attend son départ.", "L'aventure est validée. Le chemin vers Octopus est ouvert.")
-      .replace(
-        '<button class="primary" disabled title="Le branchement vers Octopus Engine arrive à l\'étape suivante">✅ Validée · Départ plus tard</button>',
-        '<button class="primary" id="launchValidatedAdventure">🚶 Partir avec ce sac</button>'
-      );
+      .replace('<button class="primary" disabled title="Le branchement vers Octopus Engine arrive à l\'étape suivante">✅ Validée · Départ plus tard</button>', '<button class="primary" id="launchValidatedAdventure">🚶 Partir avec ce sac</button>');
   };
 
   const bindDraftActions = bindGreenhouseActions;
