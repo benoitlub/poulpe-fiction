@@ -18,9 +18,17 @@
     return global.BlacklaceParcel?.activeSeed?.() || null;
   }
 
-  function verifiedKnowledge(context) {
+  async function verifiedKnowledge(context) {
     if (!context?.seedId) return null;
-    return global.ProductKnowledge?.get?.(context.seedId) || null;
+    return global.PublisherKnowledge?.load?.(context.seedId)
+      || global.ProductKnowledge?.get?.(context.seedId)
+      || null;
+  }
+
+  function knowledgePromptFor(knowledge) {
+    if (!knowledge) return "";
+    if (typeof knowledge.prompt === "string") return knowledge.prompt;
+    return global.ProductKnowledge?.toPrompt?.(knowledge) || "";
   }
 
   function deliverableContract(context) {
@@ -51,18 +59,18 @@
     ].join("\n");
   }
 
-  function toMissionPayload(draft) {
+  async function toMissionPayload(draft) {
     if (!global.AdventureDraft?.isValid(draft)) throw new Error("AdventureDraft invalide.");
     if (draft.status !== "validated" || !draft.gardenerValidation?.validatedAt) throw new Error("Seule une aventure explicitement validée peut partir.");
 
     const title = draft.curiosity.title || draft.curiosity.id;
     const context = activeParcelContext();
-    const knowledge = verifiedKnowledge(context);
+    const knowledge = await verifiedKnowledge(context);
     if (context?.parcelId === "blacklace-ecosystem" && !knowledge?.verified) {
-      throw new Error(`Dossier produit vérifié manquant pour « ${context.seedTitle || title} ». Gérard refuse d'inventer et demande d'abord un Knowledge Pack.`);
+      throw new Error(`Knowledge Pack Publisher vérifié manquant pour « ${context.seedTitle || title} ». Gérard refuse d'inventer.`);
     }
 
-    const knowledgePrompt = knowledge ? global.ProductKnowledge.toPrompt(knowledge) : "";
+    const knowledgePrompt = knowledgePromptFor(knowledge);
     const prompt = [
       "Tu exécutes une aventure préparée dans Poulpe Fiction.",
       "Respecte strictement l'objectif, le sac, les limites, les ressources annoncées et le dossier produit vérifié.",
@@ -71,6 +79,7 @@
       context ? `Parcelle: ${context.parcelName} (${context.parcelId})` : "",
       context ? `Seed source: ${context.seedTitle} (${context.seedId})` : "",
       context ? `Première récolte attendue: ${context.firstHarvest}` : "",
+      knowledge ? `Source de connaissance: ${knowledge.source || "inconnue"}` : "",
       knowledgePrompt,
       deliverableContract(context),
       "RÈGLES DE COMPLÉTUDE:",
@@ -119,15 +128,17 @@
 
     let payload;
     try {
-      payload = toMissionPayload(draft);
+      state.step = "mission";
+      state.apiError = null;
+      render();
+      payload = await toMissionPayload(draft);
     } catch (error) {
       state.apiError = error instanceof Error ? error.message : "Aventure invalide";
+      state.step = "result";
       render();
       return;
     }
 
-    state.step = "mission";
-    state.apiError = null;
     state.authorized = payload.authorize.includes("mistral");
     render();
 
