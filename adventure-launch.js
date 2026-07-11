@@ -13,6 +13,10 @@
       .some((item) => String(item).toLowerCase().includes("mistral"));
   }
 
+  function activeParcelContext() {
+    return global.BlacklaceParcel?.activeSeed?.() || null;
+  }
+
   function toMissionPayload(draft) {
     if (!global.AdventureDraft?.isValid(draft)) {
       throw new Error("AdventureDraft invalide.");
@@ -22,11 +26,15 @@
     }
 
     const title = draft.curiosity.title || draft.curiosity.id;
+    const context = activeParcelContext();
     const prompt = [
       "Tu exécutes une aventure préparée dans Poulpe Fiction.",
       "Respecte strictement l'objectif, le sac, les limites et les ressources annoncées.",
       "N'invente aucune autorisation supplémentaire et ne contourne aucune limite.",
       "Produis un résultat exploitable et une trace claire de ce qui a été appris.",
+      context ? `Parcelle: ${context.parcelName} (${context.parcelId})` : "",
+      context ? `Seed source: ${context.seedTitle} (${context.seedId})` : "",
+      context ? `Première récolte attendue: ${context.firstHarvest}` : "",
       "",
       `AdventureDraft: ${draft.id}`,
       `Curiosité: ${title}`,
@@ -42,7 +50,7 @@
     ].filter(Boolean).join("\n");
 
     return {
-      parcelId: "poulpe-fiction",
+      parcelId: context?.parcelId || "poulpe-fiction",
       title: `Aventure · ${title}`,
       objective: draft.objective,
       prompt,
@@ -90,11 +98,13 @@
         throw new Error(result?.message || `Octopus ${response.status} ${response.statusText}`);
       }
 
+      result.parcelId = result.parcelId || payload.parcelId;
       state.mission = result;
       state.step = "result";
       saveDepartureReceipt({
         version: 1,
         adventureDraftId: draft.id,
+        parcelId: payload.parcelId,
         departedAt: new Date().toISOString(),
         missionId: result?.id || result?.missionId || null,
         missionStatus: result?.status || "unknown"
@@ -113,7 +123,7 @@
       const message = error instanceof Error ? error.message : "Erreur inconnue pendant le départ";
       state.apiError = message;
       state.step = "result";
-      processReturn(draft, { status: "failed", summary: message }, message);
+      processReturn(draft, { status: "failed", summary: message, parcelId: payload.parcelId }, message);
       pushChat("gerard", `🧺 Je suis revenu sans récolte de « ${draft.curiosity.title || draft.curiosity.id} ». L'échec est conservé dans le journal de retour.`);
     }
     render();
