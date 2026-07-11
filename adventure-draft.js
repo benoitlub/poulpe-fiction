@@ -125,10 +125,11 @@
 
   function validate(draft, note = "") {
     if (!isValid(draft)) throw new Error("Cannot validate an invalid AdventureDraft.");
+    if (draft.status !== "prepared") throw new Error("Only a prepared AdventureDraft can be validated.");
     return save({
       ...draft,
       status: "validated",
-      gardenerValidation: { validatedAt: nowIso(), note },
+      gardenerValidation: { validatedAt: nowIso(), note: String(note || "").trim() },
     });
   }
 
@@ -178,6 +179,17 @@
     render();
   };
 
+  function validateAdventureDraft() {
+    const draft = global.AdventureDraft.load();
+    if (!draft || draft.status !== "prepared") return;
+    const note = global.prompt("Note de validation facultative", "Je valide ce sac, ce pique-nique, ces greffons et ces limites.");
+    if (note === null) return;
+    const validated = global.AdventureDraft.validate(draft, note);
+    state.adventureUrge = validated;
+    pushChat("gerard", `✅ Aventure validée par le jardinier : « ${validated.curiosity.title || validated.curiosity.id} ». Je garde mon sac fermé. Aucun départ n'est encore déclenché.`);
+    render();
+  }
+
   renderAdventureUrge = function renderAdventureDraft() {
     if (state.greenhouse.status !== "ready") return "";
     const draft = global.AdventureDraft.load();
@@ -186,11 +198,27 @@
 
     if (draft) {
       const title = draft.curiosity.title || draft.curiosity.id;
-      return `<section class="adventure-urge prepared"><p class="eyebrow">🎒 AdventureDraft · ${esc(draft.status)}</p><h3>Le brouillon d'aventure est prêt.</h3><p>Objectif : ${esc(draft.objective)}</p><div class="adventure-grid"><article><strong>Dans mon sac</strong><ul>${draft.bag.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article><article><strong>Pique-nique envisagé</strong><ul>${draft.picnic.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article><article><strong>Greffons proposés</strong><ul>${draft.grafts.map((item) => `<li>${esc(item)}</li>`).join("") || "<li>Aucun</li>"}</ul></article><article><strong>Limites</strong><ul>${draft.limits.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article></div><small>${esc(draft.note)}</small><div class="play-actions"><button class="ghost" id="clearAdventureUrge">🌱 Laisser au jardin</button><button class="primary" disabled title="La validation et le départ arrivent à l'étape suivante">Valider plus tard</button></div><p class="eyebrow">Curiosité : ${esc(title)} · Brouillon ${esc(draft.id)}</p></section>`;
+      const validation = draft.gardenerValidation;
+      const validationBlock = draft.status === "validated"
+        ? `<article><strong>Validation du jardinier</strong><p>Validée le ${esc(validation?.validatedAt || "date inconnue")}</p>${validation?.note ? `<small>${esc(validation.note)}</small>` : ""}</article>`
+        : "";
+      const primaryAction = draft.status === "validated"
+        ? `<button class="primary" disabled title="Le branchement vers Octopus Engine arrive à l'étape suivante">✅ Validée · Départ plus tard</button>`
+        : `<button class="primary" id="validateAdventureDraft">✅ Valider ce brouillon</button>`;
+      const heading = draft.status === "validated" ? "L'aventure est validée et attend son départ." : "Le brouillon d'aventure est prêt.";
+
+      return `<section class="adventure-urge prepared"><p class="eyebrow">🎒 AdventureDraft · ${esc(draft.status)}</p><h3>${heading}</h3><p>Objectif : ${esc(draft.objective)}</p><div class="adventure-grid"><article><strong>Dans mon sac</strong><ul>${draft.bag.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article><article><strong>Pique-nique envisagé</strong><ul>${draft.picnic.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article><article><strong>Greffons proposés</strong><ul>${draft.grafts.map((item) => `<li>${esc(item)}</li>`).join("") || "<li>Aucun</li>"}</ul></article><article><strong>Limites</strong><ul>${draft.limits.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article>${validationBlock}</div><small>${esc(draft.note)}</small><div class="play-actions"><button class="ghost" id="clearAdventureUrge">🌱 Laisser au jardin</button>${primaryAction}</div><p class="eyebrow">Curiosité : ${esc(title)} · Brouillon ${esc(draft.id)}</p></section>`;
     }
 
     const title = candidate?.title || candidate?.id || "cette bouture";
     return `<section class="adventure-urge"><p class="eyebrow">🎒 Une envie d'aventure grandit</p><h3>Je reviens souvent vers « ${esc(title)} ».</h3><p>Ce n'est plus seulement une curiosité. J'ai peut-être envie de ${esc(adventureWish(candidate))}.</p><div class="adventure-grid"><article><strong>Avant tout départ</strong><ul><li>préparer un objectif explicite ;</li><li>rassembler le sac ;</li><li>annoncer le pique-nique et les greffons ;</li><li>écrire les limites.</li></ul></article><article><strong>Pas encore une mission</strong><p>La prochaine action crée seulement un AdventureDraft.</p></article></div><div class="play-actions"><button class="ghost" id="clearAdventureUrge">👀 Continuer à observer</button><button class="primary" id="prepareAdventureBag">🎒 Préparer le brouillon</button></div></section>`;
+  };
+
+  const bindExistingGreenhouseActions = bindGreenhouseActions;
+  bindGreenhouseActions = function bindAdventureDraftActions() {
+    bindExistingGreenhouseActions();
+    const validateButton = document.getElementById("validateAdventureDraft");
+    if (validateButton) validateButton.onclick = validateAdventureDraft;
   };
 
   state.adventureUrge = global.AdventureDraft.load();
