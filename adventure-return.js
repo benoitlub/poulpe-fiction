@@ -2,120 +2,71 @@
   "use strict";
 
   const OUTBOX_KEY = "poulpe-fiction:garden-return-outbox:v1";
+  const COMPLETE_MARKER = "<!-- HARVEST_COMPLETE -->";
 
-  function nowIso() {
-    return new Date().toISOString();
-  }
-
-  function id(prefix) {
-    return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  }
-
-  function asRecord(value) {
-    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
-  }
-
-  function asArray(value) {
-    return Array.isArray(value) ? value : [];
-  }
-
+  function nowIso() { return new Date().toISOString(); }
+  function id(prefix) { return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`; }
+  function asRecord(value) { return value && typeof value === "object" && !Array.isArray(value) ? value : {}; }
+  function asArray(value) { return Array.isArray(value) ? value : []; }
   function textValue(value) {
     if (typeof value === "string") return value.trim();
     if (value === null || value === undefined) return "";
     try { return JSON.stringify(value); } catch (_) { return String(value); }
   }
-
   function outputText(mission) {
     const output = asRecord(mission?.output);
     return textValue(output.text || output.content || output.result || mission?.summary || output);
   }
+  function cleanOutput(text) { return String(text || "").replace(COMPLETE_MARKER, "").trim(); }
 
   function normalizeNamedItem(value, fallbackTitle) {
-    if (typeof value === "string") {
-      return { title: value.slice(0, 120) || fallbackTitle, description: value };
-    }
+    if (typeof value === "string") return { title: value.slice(0, 120) || fallbackTitle, description: value };
     const record = asRecord(value);
     const description = textValue(record.description || record.content || record.details || record.summary || record.text || record);
-    return {
-      title: textValue(record.title || record.name || record.label || fallbackTitle).slice(0, 120),
-      description,
-      ...record
-    };
+    return { title: textValue(record.title || record.name || record.label || fallbackTitle).slice(0, 120), description, ...record };
   }
 
   function normalizeHarvest(value, context) {
     const item = normalizeNamedItem(value, context.title || "Récolte d'aventure");
     return {
-      id: textValue(item.id) || id("harvest"),
-      kind: "harvest",
-      parcelId: context.parcelId,
-      adventureDraftId: context.adventureDraftId,
-      missionId: context.missionId,
-      title: item.title,
-      description: item.description,
+      id: textValue(item.id) || id("harvest"), kind: "harvest", parcelId: context.parcelId,
+      adventureDraftId: context.adventureDraftId, missionId: context.missionId,
+      title: item.title, description: item.description,
       artifactType: textValue(item.artifactType || item.type || "text"),
-      artifact: item.artifact ?? item.content ?? item.description,
-      createdAt: nowIso()
+      artifact: item.artifact ?? item.content ?? item.description, createdAt: nowIso()
     };
   }
 
   function normalizeSeed(value, context) {
     const item = normalizeNamedItem(value, "Nouvelle piste");
-    return {
-      id: textValue(item.id) || id("seed"),
-      kind: "seed",
-      parcelId: context.parcelId,
-      sourceAdventureDraftId: context.adventureDraftId,
-      sourceMissionId: context.missionId,
-      title: item.title,
-      description: item.description,
-      createdAt: nowIso()
-    };
+    return { id: textValue(item.id) || id("seed"), kind: "seed", parcelId: context.parcelId,
+      sourceAdventureDraftId: context.adventureDraftId, sourceMissionId: context.missionId,
+      title: item.title, description: item.description, createdAt: nowIso() };
   }
 
   function normalizeQuestion(value, context) {
     const item = normalizeNamedItem(value, "Décision nécessaire");
-    return {
-      id: textValue(item.id) || id("question"),
-      kind: "question",
-      parcelId: context.parcelId,
-      sourceAdventureDraftId: context.adventureDraftId,
-      sourceMissionId: context.missionId,
-      title: item.title,
-      context: item.description,
-      choices: asArray(item.choices).map(textValue).filter(Boolean),
-      createdAt: nowIso()
-    };
+    return { id: textValue(item.id) || id("question"), kind: "question", parcelId: context.parcelId,
+      sourceAdventureDraftId: context.adventureDraftId, sourceMissionId: context.missionId,
+      title: item.title, context: item.description,
+      choices: asArray(item.choices).map(textValue).filter(Boolean), createdAt: nowIso() };
   }
 
   function normalizeLearning(value, context) {
     const item = normalizeNamedItem(value, "Apprentissage");
-    return {
-      id: textValue(item.id) || id("learning"),
-      kind: "learning",
-      parcelId: context.parcelId,
-      sourceAdventureDraftId: context.adventureDraftId,
-      sourceMissionId: context.missionId,
-      summary: item.title,
-      details: item.description,
-      confidence: Number.isFinite(Number(item.confidence)) ? Number(item.confidence) : null,
-      createdAt: nowIso()
-    };
+    return { id: textValue(item.id) || id("learning"), kind: "learning", parcelId: context.parcelId,
+      sourceAdventureDraftId: context.adventureDraftId, sourceMissionId: context.missionId,
+      summary: item.title, details: item.description,
+      confidence: Number.isFinite(Number(item.confidence)) ? Number(item.confidence) : null, createdAt: nowIso() };
   }
 
   function loadOutbox() {
-    try {
-      const value = JSON.parse(localStorage.getItem(OUTBOX_KEY) || "[]");
-      return Array.isArray(value) ? value : [];
-    } catch (_) {
-      return [];
-    }
+    try { const value = JSON.parse(localStorage.getItem(OUTBOX_KEY) || "[]"); return Array.isArray(value) ? value : []; }
+    catch (_) { return []; }
   }
-
   function saveBundle(bundle) {
     const previous = loadOutbox().filter((item) => item.id !== bundle.id);
-    const next = [bundle, ...previous].slice(0, 50);
-    localStorage.setItem(OUTBOX_KEY, JSON.stringify(next));
+    localStorage.setItem(OUTBOX_KEY, JSON.stringify([bundle, ...previous].slice(0, 50)));
     return bundle;
   }
 
@@ -123,6 +74,7 @@
     if (!draft?.id) throw new Error("AdventureReturnProcessor requires an AdventureDraft.");
 
     const output = asRecord(mission?.output);
+    const rawText = outputText(mission);
     const missionId = textValue(mission?.id || mission?.missionId) || null;
     const status = textValue(mission?.status || (errorMessage ? "failed" : "unknown"));
     const context = {
@@ -133,21 +85,34 @@
     };
 
     const failed = Boolean(errorMessage) || ["failed", "error", "cancelled"].includes(status);
+    const requiresMarker = context.parcelId === "blacklace-ecosystem" && !failed;
+    const complete = !requiresMarker || rawText.includes(COMPLETE_MARKER);
+    const incomplete = requiresMarker && !complete;
+
     const harvestCandidates = asArray(output.harvests || output.artifacts || output.deliverables);
     const seedCandidates = asArray(output.seeds || output.opportunities || output.nextIdeas);
     const questionCandidates = asArray(output.questions || output.decisionsRequired);
     const learningCandidates = asArray(output.learnings || output.insights || output.lessons);
 
-    const harvests = harvestCandidates.map((item) => normalizeHarvest(item, context));
-    if (!failed && harvests.length === 0) {
-      const fallback = outputText(mission);
-      if (fallback) harvests.push(normalizeHarvest({ title: context.title, description: fallback, artifact: mission?.output || fallback }, context));
+    const harvests = incomplete ? [] : harvestCandidates.map((item) => normalizeHarvest(item, context));
+    if (!failed && !incomplete && harvests.length === 0) {
+      const fallback = cleanOutput(rawText);
+      if (fallback) harvests.push(normalizeHarvest({ title: context.title, description: fallback, artifact: fallback }, context));
+    }
+
+    const questions = questionCandidates.map((item) => normalizeQuestion(item, context));
+    if (incomplete) {
+      questions.unshift(normalizeQuestion({
+        title: "Livrable tronqué — reprise nécessaire",
+        description: "La réponse ne contient pas le marqueur de complétude. Le texte est conservé comme brouillon, mais ne devient pas une Harvest. Relancer une mission plus courte ou demander la suite à partir de la dernière section complète.",
+        choices: ["Relancer le livrable unique", "Réduire encore le périmètre", "Examiner le brouillon"]
+      }, context));
     }
 
     const bundle = {
       version: 1,
       id: `return_${draft.id}_${missionId || Date.now()}`,
-      status: failed ? "failed" : "ready",
+      status: failed ? "failed" : incomplete ? "incomplete" : "ready",
       deliveryStatus: "pending-adapter",
       parcelId: context.parcelId,
       adventureDraftId: draft.id,
@@ -155,24 +120,21 @@
       createdAt: nowIso(),
       harvests,
       seeds: seedCandidates.map((item) => normalizeSeed(item, context)),
-      questions: questionCandidates.map((item) => normalizeQuestion(item, context)),
+      questions,
       learnings: learningCandidates.map((item) => normalizeLearning(item, context)),
       failure: failed ? {
-        id: id("failure"),
-        kind: "failure",
+        id: id("failure"), kind: "failure",
         reason: errorMessage || textValue(mission?.summary || output.policyReason || "L'aventure n'a pas produit de résultat exploitable."),
-        details: outputText(mission),
-        createdAt: nowIso()
+        details: rawText, createdAt: nowIso()
       } : null,
+      incompleteDraft: incomplete ? cleanOutput(rawText) : null,
       rawMission: mission || null
     };
 
     return saveBundle(bundle);
   }
 
-  function latestForDraft(draftId) {
-    return loadOutbox().find((bundle) => bundle.adventureDraftId === draftId) || null;
-  }
+  function latestForDraft(draftId) { return loadOutbox().find((bundle) => bundle.adventureDraftId === draftId) || null; }
 
   function renderBundle(bundle) {
     if (!bundle) return "";
@@ -184,15 +146,17 @@
     ].filter(([, items]) => items?.length);
 
     const failure = bundle.failure
-      ? `<article class="plan-item"><strong>💀 Retour sans récolte</strong><p>${esc(bundle.failure.reason)}</p></article>`
-      : "";
+      ? `<article class="plan-item"><strong>💀 Retour sans récolte</strong><p>${esc(bundle.failure.reason)}</p></article>` : "";
+    const incomplete = bundle.status === "incomplete"
+      ? `<article class="plan-item"><strong>✂️ Livrable incomplet</strong><p>La sortie a été coupée avant le marqueur final. Elle reste un brouillon et n'est pas comptée comme Harvest.</p></article>` : "";
     const cards = sections.map(([title, items, label]) => `<article class="plan-item"><strong>${title}</strong><ul>${items.map((item) => `<li>${esc(label(item))}</li>`).join("")}</ul></article>`).join("");
     const count = (bundle.harvests?.length || 0) + (bundle.seeds?.length || 0) + (bundle.questions?.length || 0) + (bundle.learnings?.length || 0);
+    const heading = bundle.status === "incomplete" ? "Gérard est revenu avec un brouillon coupé." : bundle.failure ? "Gérard est revenu les tentacules presque vides." : `Gérard a rapporté ${count} élément${count > 1 ? "s" : ""}.`;
 
-    return `<section class="adventure-return"><p class="eyebrow">Retour d'aventure · ${esc(bundle.status)}</p><h2>${bundle.failure ? "Gérard est revenu les tentacules presque vides." : `Gérard a rapporté ${count} élément${count > 1 ? "s" : ""}.`}</h2><div class="plans">${cards}${failure}</div><small>Retour conservé dans l'outbox Poulpe Fiction · livraison Garden : ${esc(bundle.deliveryStatus)}</small></section>`;
+    return `<section class="adventure-return"><p class="eyebrow">Retour d'aventure · ${esc(bundle.status)}</p><h2>${heading}</h2><div class="plans">${cards}${incomplete}${failure}</div><small>Retour conservé dans l'outbox Poulpe Fiction · livraison Garden : ${esc(bundle.deliveryStatus)}</small></section>`;
   }
 
-  global.AdventureReturnProcessor = { OUTBOX_KEY, process, loadOutbox, latestForDraft, renderBundle };
+  global.AdventureReturnProcessor = { OUTBOX_KEY, COMPLETE_MARKER, process, loadOutbox, latestForDraft, renderBundle };
 
   const baseRender = render;
   render = function renderWithAdventureReturn() {
