@@ -36,6 +36,7 @@
   function load(){ try{ const v=JSON.parse(localStorage.getItem(STORE_KEY)||"[]"); return Array.isArray(v)?v:[]; }catch(_){ return []; } }
   function save(plan){ const previous=load().filter((item)=>item.id!==plan.id&&item.seedId!==plan.seedId); localStorage.setItem(STORE_KEY,JSON.stringify([plan,...previous].slice(0,50))); return plan; }
   function activeSeedDefinition(){ const context=global.BlacklaceParcel?.activeSeed?.(); const seeds=global.BlacklaceParcel?.parcel?.seeds||[]; return context?seeds.find((seed)=>seed.id===context.seedId)||{...context,type:"page"}:null; }
+  function isInternalProvider(provider){ return /^poulpe fiction html$/i.test(String(provider||"").trim()); }
 
   function chooseProvider(step,tools){
     const candidates=Array.isArray(tools)?tools:[];
@@ -47,8 +48,8 @@
     if(!seed) return null;
     const template=TEMPLATES[seed.type]||TEMPLATES.page;
     const tools=toolPack?.tools||[];
-    const steps=template.map((step)=>({ ...step, provider:chooseProvider(step,tools), providerStatus:"unresolved", status:step.dependsOn.length?"blocked":"ready-to-produce" }));
-    return save({ version:2,id:`production-plan-${seed.id}`,parcelId:global.BlacklaceParcel?.PARCEL_ID||"blacklace-ecosystem",seedId:seed.id,seedTitle:seed.title,goal:seed.objective,expectedHarvest:seed.firstHarvest,createdAt:nowIso(),updatedAt:nowIso(),toolPackSource:toolPack?.source||"template-fallback",brokerStatus:"pending",status:"planned",steps });
+    const steps=template.map((step)=>{ const provider=chooseProvider(step,tools); const internal=isInternalProvider(provider); return { ...step, provider, providerStatus:internal?"connected":"unresolved", connectionRoute:internal?"internal":"manual", authorization:internal?"granted":"required", creditStatus:internal?"not-applicable":"unknown", executable:internal, status:step.dependsOn.length?"blocked":"ready-to-produce" }; });
+    return save({ version:3,id:`production-plan-${seed.id}`,parcelId:global.BlacklaceParcel?.PARCEL_ID||"blacklace-ecosystem",seedId:seed.id,seedTitle:seed.title,goal:seed.objective,expectedHarvest:seed.firstHarvest,createdAt:nowIso(),updatedAt:nowIso(),toolPackSource:toolPack?.source||"template-fallback",brokerStatus:"pending",status:"planned",steps });
   }
 
   function current(){ const seed=activeSeedDefinition(); if(!seed) return null; return load().find((plan)=>plan.seedId===seed.id)||create(seed,null); }
@@ -59,10 +60,13 @@
     try{ if(global.BlacklaceParcel?.loadToolPack) toolPack=await global.BlacklaceParcel.loadToolPack(seed); }catch(_){}
     const plan=create(seed,toolPack);
     if(global.ConnectionBroker?.planAll){
-      const decisions=await global.ConnectionBroker.planAll(seed.id,plan.steps);
-      plan.steps=plan.steps.map((step,index)=>{
-        const decision=decisions[index]||null; const selected=decision?.selected||null;
-        return { ...step, provider:selected?.name||step.provider, providerStatus:selected?.connectionStatus||"not-configured", connectionRoute:selected?.route||"manual", authorization:selected?.authorization||"required", creditStatus:selected?.creditStatus||"unknown", freeTier:selected?.freeTier||null, trial:selected?.trial||null, fallbackProviders:(decision?.alternatives||[]).map((item)=>item.name), brokerDecisionMode:decision?.decisionMode||"unavailable", executable:Boolean(decision?.executable), status:decision?.executable&&!step.dependsOn.length?"ready-to-produce":step.dependsOn.length?"blocked":"waiting-adapter" };
+      const externalSteps=plan.steps.filter((step)=>!isInternalProvider(step.provider));
+      const decisions=await global.ConnectionBroker.planAll(seed.id,externalSteps);
+      let decisionIndex=0;
+      plan.steps=plan.steps.map((step)=>{
+        if(isInternalProvider(step.provider)) return { ...step, providerStatus:"connected", connectionRoute:"internal", authorization:"granted", creditStatus:"not-applicable", executable:true, status:step.dependsOn.length?"blocked":"ready-to-produce" };
+        const decision=decisions[decisionIndex++]||null; const selected=decision?.selected||null;
+        return { ...step, provider:selected?.name||step.provider, providerStatus:selected?.connectionStatus||"not-configured", connectionRoute:selected?.route||"manual", authorization:selected?.authorization||"required", creditStatus:selected?.creditStatus||"unknown", freeTier:selected?.freeTier||null, trial:selected?.trial||null, fallbackProviders:(decision?.alternatives||[]).map((item)=>item.name), brokerDecisionMode:decision?.decisionMode||"unavailable", executable:Boolean(decision?.executable), status:step.dependsOn.length?"blocked":decision?.executable?"ready-to-produce":"waiting-adapter" };
       });
       plan.brokerStatus="resolved"; plan.updatedAt=nowIso(); save(plan);
     }
@@ -71,9 +75,19 @@
   }
 
   function updateFromProductionPack(pack){
-    if(!pack) return null; const plan=load().find((item)=>item.seedId===pack.seedId)||current(); if(!plan) return null;
+    if(!pack) return null;
+    const plan=load().find((item)=>item.seedId===pack.seedId)||current(); if(!plan) return null;
     const states=new Map([...(pack.artifacts||[]).map((item)=>[item.id,item.status]),...(pack.publications||[]).map((item)=>[item.id,item.status])]);
-    plan.steps=plan.steps.map((step)=>({...step,status:states.get(step.id)||step.status})); plan.status=plan.steps.every((step)=>step.status==="ready"||step.status==="published")?"complete":"in-progress"; plan.updatedAt=nowIso(); return save(plan);
+    const completed=new Set([...states].filter(([,status])=>status==="ready"||status==="published").map(([id])=>id));
+    plan.steps=plan.steps.map((step)=>{
+      const producedStatus=states.get(step.id);
+      if(producedStatus==="ready"||producedStatus==="published") return { ...step, status:producedStatus, providerStatus:isInternalProvider(step.provider)?"connected":step.providerStatus, connectionRoute:isInternalProvider(step.provider)?"internal":step.connectionRoute, authorization:isInternalProvider(step.provider)?"granted":step.authorization, creditStatus:isInternalProvider(step.provider)?"not-applicable":step.creditStatus, executable:isInternalProvider(step.provider)||step.executable };
+      const dependenciesReady=(step.dependsOn||[]).every((id)=>completed.has(id));
+      if(!dependenciesReady) return { ...step, status:"blocked" };
+      return { ...step, status:step.executable?"ready-to-produce":"waiting-adapter" };
+    });
+    plan.status=plan.steps.every((step)=>step.status==="ready"||step.status==="published")?"complete":"in-progress";
+    plan.updatedAt=nowIso(); return save(plan);
   }
 
   function statusLabel(status){ return ({"ready-to-produce":"🟢 Prêt à produire",planned:"🧭 Planifié",ready:"✅ Produit",producing:"🟡 En production",blocked:"⏳ Dépendance en attente","waiting-adapter":"🔌 Adaptateur à brancher",published:"🚀 Publié"})[status]||status; }
@@ -82,10 +96,10 @@
     const broker=global.ConnectionBroker;
     const rows=plan.steps.map((step,index)=>{
       const dependencies=step.dependsOn.length?`Après : ${step.dependsOn.join(", ")}`:"Point de départ";
-      const connection=broker?.connectionLabel?.(step.providerStatus)||step.providerStatus||"non résolu";
-      const route=broker?.routeLabel?.(step.connectionRoute)||step.connectionRoute||"route inconnue";
-      const credits=broker?.creditLabel?.(step.creditStatus)||step.creditStatus||"crédits inconnus";
-      const fallbacks=step.fallbackProviders?.length?`Alternatives : ${step.fallbackProviders.join(", ")}`:"Aucune alternative mémorisée";
+      const connection=step.connectionRoute==="internal"?"✅ Producteur interne":broker?.connectionLabel?.(step.providerStatus)||step.providerStatus||"non résolu";
+      const route=step.connectionRoute==="internal"?"Poulpe Fiction":broker?.routeLabel?.(step.connectionRoute)||step.connectionRoute||"route inconnue";
+      const credits=step.creditStatus==="not-applicable"?"aucun crédit requis":broker?.creditLabel?.(step.creditStatus)||step.creditStatus||"crédits inconnus";
+      const fallbacks=step.fallbackProviders?.length?`Alternatives : ${step.fallbackProviders.join(", ")}`:isInternalProvider(step.provider)?"Disponible localement":"Aucune alternative mémorisée";
       const free=step.freeTier?.available?" · palier gratuit observé":"";
       return `<article class="production-item"><div><span class="production-status">${statusLabel(step.status)}</span><h3>${index+1}. ${esc(step.label)}</h3><p><strong>${esc(step.provider)}</strong> · ${esc(connection)} · ${esc(route)}</p><small>${esc(credits)}${free} · ${esc(dependencies)}<br>${esc(fallbacks)}</small></div><small>${esc(step.type)}</small></article>`;
     }).join("");
@@ -95,7 +109,7 @@
 
   function bind(){ document.querySelectorAll("[data-refresh-production-plan]").forEach((button)=>{ button.onclick=()=>{ button.disabled=true; button.textContent="Recherche…"; void refreshFromPublisher(); }; }); }
 
-  global.ProductionPlan={STORE_KEY,load,save,create,current,refreshFromPublisher,updateFromProductionPack,render,bind};
+  global.ProductionPlan={STORE_KEY,load,save,create,current,refreshFromPublisher,updateFromProductionPack,render,bind,isInternalProvider};
   const baseRenderAdventure=global.renderAdventureUrge;
   if(typeof baseRenderAdventure==="function") global.renderAdventureUrge=function(){ const html=baseRenderAdventure(); const plan=current(); setTimeout(bind,0); return plan?`${html}${render(plan)}`:html; };
 })(globalThis);
