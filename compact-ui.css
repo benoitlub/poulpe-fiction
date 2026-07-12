@@ -29,7 +29,7 @@
 }
 
 .garden-primary {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   padding: 14px;
   border: 1px solid rgba(135,214,166,.24);
   border-radius: 20px;
@@ -44,18 +44,10 @@
   gap: 14px;
 }
 
-.parcel-heading {
-  margin-bottom: 10px;
-}
-
-.parcel-heading strong {
-  font-size: 1rem;
-}
-
+.parcel-heading { margin-bottom: 10px; }
+.parcel-heading strong { font-size: 1rem; }
 .parcel-heading small,
-.active-seed small {
-  color: #bbaea4;
-}
+.active-seed small { color: #bbaea4; }
 
 .active-seed {
   padding: 14px;
@@ -75,10 +67,7 @@
   line-height: 1.35;
 }
 
-.seed-picker {
-  margin-top: 10px;
-}
-
+.seed-picker { margin-top: 10px; }
 .seed-picker summary {
   cursor: pointer;
   color: #c8b7aa;
@@ -115,21 +104,14 @@
   background: rgba(255,108,61,.08);
 }
 
-.seed-copy {
-  min-width: 0;
-}
-
+.seed-copy { min-width: 0; }
 .seed-copy strong,
-.seed-copy small {
-  display: block;
-}
-
+.seed-copy small { display: block; }
 .seed-copy strong {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .seed-copy small {
   margin-top: 3px;
   color: #a99c92;
@@ -137,11 +119,164 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .seed-action {
   color: #ffc9b6;
   font-size: .78rem;
   font-weight: 900;
+}
+
+.garden-runtime {
+  margin: 0 0 12px;
+  padding: 14px;
+  border: 1px solid rgba(132,178,255,.22);
+  border-radius: 20px;
+  background: radial-gradient(circle at top left,rgba(132,178,255,.1),rgba(0,0,0,.16));
+}
+
+.garden-runtime[data-garden-status="ready"] {
+  border-color: rgba(135,214,166,.34);
+  background: radial-gradient(circle at top left,rgba(54,116,87,.18),rgba(0,0,0,.16));
+}
+
+.garden-runtime[data-garden-status="blocked"],
+.garden-runtime[data-garden-status="failed"] {
+  border-color: rgba(255,200,87,.34);
+}
+
+.garden-runtime-head,
+.garden-harvest,
+.garden-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.garden-runtime h3 {
+  margin: 0;
+  font-size: clamp(1.15rem,2.4vw,1.65rem);
+}
+
+.garden-runtime-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.garden-runtime-meta span,
+.garden-status {
+  padding: 6px 9px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  color: #d9e5ff;
+  font-size: .76rem;
+  font-weight: 900;
+}
+
+.garden-activity {
+  margin: 10px 0;
+  color: #ddd1c6;
+  line-height: 1.4;
+}
+
+.garden-facts {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.garden-facts span {
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  color: #bbaea4;
+  font-size: .82rem;
+  background: rgba(0,0,0,.13);
+}
+
+.garden-facts strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #f7efe4;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.garden-alert,
+.garden-harvest {
+  margin: 10px 0;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+}
+
+.garden-alert {
+  display: grid;
+  gap: 8px;
+}
+
+.garden-alert.error { border-color: rgba(255,108,61,.35); }
+.garden-alert.warning { border-color: rgba(255,200,87,.35); }
+.garden-alert span,
+.garden-harvest small { color: #c8b7aa; }
+
+.garden-alert label,
+.garden-settings label {
+  display: grid;
+  gap: 5px;
+  color: #d9cdc3;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.garden-alert input,
+.garden-settings input {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: #f7efe4;
+  background: rgba(0,0,0,.24);
+}
+
+.garden-harvest strong,
+.garden-harvest small { display: block; }
+.garden-harvest small { margin-top: 4px; }
+
+.garden-actions {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.garden-settings {
+  margin-left: auto;
+  min-width: min(330px,100%);
+}
+
+.garden-settings summary {
+  cursor: pointer;
+  color: #9fc0ff;
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.garden-settings[open] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 12px;
+  background: rgba(0,0,0,.16);
+}
+
+.garden-settings small {
+  display: block;
+  margin-top: 7px;
+  color: #9f9188;
+  line-height: 1.4;
 }
 
 .gerard-chat,
@@ -152,34 +287,16 @@
 }
 
 .gerard-chat .chat-head,
-.greenhouse .greenhouse-head {
-  margin-bottom: 8px;
-}
-
+.greenhouse .greenhouse-head { margin-bottom: 8px; }
 .gerard-chat .chat-head h2,
-.greenhouse h2 {
-  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
-}
-
+.greenhouse h2 { font-size: clamp(1.2rem, 2.5vw, 1.75rem); }
 .gerard-chat .chat-head p,
-.greenhouse p {
-  line-height: 1.35;
-}
-
-.chat-messages {
-  max-height: 160px;
-}
-
-.chat-suggestions {
-  margin-top: 8px;
-  gap: 6px;
-}
-
+.greenhouse p { line-height: 1.35; }
+.chat-messages { max-height: 160px; }
+.chat-suggestions { margin-top: 8px; gap: 6px; }
 .chat-suggestions .ghost,
 .play-actions .ghost,
-.play-actions .primary {
-  padding: 9px 12px;
-}
+.play-actions .primary { padding: 9px 12px; }
 
 .greenhouse .cuttings,
 .greenhouse .attractions,
@@ -187,9 +304,7 @@
 .greenhouse .play-prompt,
 .greenhouse .playground,
 .greenhouse .adventure-urge,
-.greenhouse .dream {
-  display: none;
-}
+.greenhouse .dream { display: none; }
 
 .greenhouse::after {
   content: "La Serre, les rêves et le jeu seront accessibles depuis des vues secondaires compactes.";
@@ -200,9 +315,7 @@
 }
 
 .adventures-label,
-#root > .grid {
-  display: none;
-}
+#root > .grid { display: none; }
 
 .panel,
 .production-pack {
@@ -211,11 +324,7 @@
 }
 
 .plans,
-.production-grid {
-  margin: 14px 0;
-  gap: 10px;
-}
-
+.production-grid { margin: 14px 0; gap: 10px; }
 .plan-item,
 .mission,
 .production-item {
@@ -230,9 +339,16 @@
   .brand { gap: 10px; margin-bottom: 12px; }
   .brand .mark { width: 40px; height: 40px; }
   .parcel-heading,
-  .active-seed { align-items: flex-start; }
+  .active-seed,
+  .garden-runtime-head,
+  .garden-harvest { align-items: flex-start; }
   .parcel-heading > small { display: none; }
-  .seed-list { grid-template-columns: 1fr; }
+  .seed-list,
+  .garden-facts { grid-template-columns: 1fr; }
   .seed-row { min-height: 54px; }
   .chat-form { grid-template-columns: 1fr; }
+  .garden-runtime-head,
+  .garden-harvest { flex-direction: column; }
+  .garden-runtime-meta { justify-content: flex-start; }
+  .garden-settings { margin-left: 0; width: 100%; }
 }
