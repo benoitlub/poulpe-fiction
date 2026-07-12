@@ -3,6 +3,7 @@
 
   const RECEIPT_KEY = "poulpe-fiction:adventure-departure:v1";
   const COMPLETE_MARKER = "<!-- HARVEST_COMPLETE -->";
+  let launchInFlight = false;
 
   function listSection(title, items) {
     const values = Array.isArray(items) ? items : [];
@@ -64,10 +65,10 @@
     if (draft.status !== "validated" || !draft.gardenerValidation?.validatedAt) throw new Error("Seule une aventure explicitement validée peut partir.");
 
     const title = draft.curiosity.title || draft.curiosity.id;
-    const context = activeParcelContext();
-    const knowledge = await verifiedKnowledge(context);
-    if (context?.parcelId === "blacklace-ecosystem" && !knowledge?.verified) {
-      throw new Error(`Knowledge Pack Publisher vérifié manquant pour « ${context.seedTitle || title} ». Gérard refuse d'inventer.`);
+    const gardenContext = activeParcelContext();
+    const knowledge = await verifiedKnowledge(gardenContext);
+    if (gardenContext?.parcelId === "blacklace-ecosystem" && !knowledge?.verified) {
+      throw new Error(`Knowledge Pack Publisher vérifié manquant pour « ${gardenContext.seedTitle || title} ». Gérard refuse d'inventer.`);
     }
 
     const knowledgePrompt = knowledgePromptFor(knowledge);
@@ -76,12 +77,12 @@
       "Respecte strictement l'objectif, le sac, les limites, les ressources annoncées et le dossier produit vérifié.",
       "N'invente aucune autorisation, preuve, caractéristique, promesse commerciale, chiffre, témoignage, urgence ou réduction.",
       "Si une information nécessaire manque, produis une question explicite au lieu de la fabriquer.",
-      context ? `Parcelle: ${context.parcelName} (${context.parcelId})` : "",
-      context ? `Seed source: ${context.seedTitle} (${context.seedId})` : "",
-      context ? `Première récolte attendue: ${context.firstHarvest}` : "",
+      gardenContext ? `Parcelle: ${gardenContext.parcelName} (${gardenContext.parcelId})` : "",
+      gardenContext ? `Seed source: ${gardenContext.seedTitle} (${gardenContext.seedId})` : "",
+      gardenContext ? `Première récolte attendue: ${gardenContext.firstHarvest}` : "",
       knowledge ? `Source de connaissance: ${knowledge.source || "inconnue"}` : "",
       knowledgePrompt,
-      deliverableContract(context),
+      deliverableContract(gardenContext),
       "RÈGLES DE COMPLÉTUDE:",
       "- Un seul livrable principal, entièrement rédigé.",
       "- Pas de placeholders sauf [LIEN AMAZON À AJOUTER] lorsqu'un lien vérifié manque.",
@@ -102,12 +103,32 @@
       "Retour attendu: le livrable final complet, puis le marqueur de complétude."
     ].filter(Boolean).join("\n");
 
+    const contextId = gardenContext?.parcelId || "poulpe-fiction";
     return {
-      parcelId: context?.parcelId || "poulpe-fiction",
+      operationId: `adventure_${draft.id}`,
       title: `Aventure · ${title}`,
       objective: draft.objective,
+      context: {
+        id: contextId,
+        label: gardenContext?.parcelName || "Poulpe Fiction",
+        objective: gardenContext?.objective || draft.objective,
+        metadata: {
+          owner: "poulpe-fiction",
+          adventureDraftId: draft.id,
+          seedId: gardenContext?.seedId || null,
+          seedTitle: gardenContext?.seedTitle || null,
+          expectedHarvest: gardenContext?.firstHarvest || null
+        }
+      },
+      requiredCapabilities: ["campaign.generate"],
+      authorizationPolicy: {
+        internalWork: "allowed",
+        externalAction: "requires-human-approval"
+      },
       prompt,
-      authorize: usesMistral(draft) ? ["mistral"] : []
+      authorizedResources: usesMistral(draft) ? ["mistral"] : [],
+      authorize: usesMistral(draft) ? ["mistral"] : [],
+      parcelId: contextId
     };
   }
 
@@ -123,9 +144,12 @@
   }
 
   async function launchValidatedAdventure() {
+    if (launchInFlight) return;
+
     const draft = global.AdventureDraft.load();
     if (!draft || draft.status !== "validated") return;
 
+    launchInFlight = true;
     let payload;
     try {
       state.step = "mission";
@@ -135,11 +159,12 @@
     } catch (error) {
       state.apiError = error instanceof Error ? error.message : "Aventure invalide";
       state.step = "result";
+      launchInFlight = false;
       render();
       return;
     }
 
-    state.authorized = payload.authorize.includes("mistral");
+    state.authorized = payload.authorizedResources.includes("mistral");
     render();
 
     try {
@@ -151,15 +176,19 @@
       const result = await response.json();
       if (!response.ok) throw new Error(result?.message || `Octopus ${response.status} ${response.statusText}`);
 
-      result.parcelId = result.parcelId || payload.parcelId;
+      result.contextId = result.contextId || payload.context.id;
+      result.parcelId = result.parcelId || result.contextId;
+      result.operationId = result.operationId || result.missionId || payload.operationId;
       state.mission = result;
       state.step = "result";
       saveDepartureReceipt({
-        version: 1,
+        version: 2,
         adventureDraftId: draft.id,
-        parcelId: payload.parcelId,
+        contextId: payload.context.id,
+        parcelId: payload.context.id,
         departedAt: new Date().toISOString(),
-        missionId: result?.id || result?.missionId || null,
+        operationId: result.operationId,
+        missionId: result?.missionId || result?.id || null,
         missionStatus: result?.status || "unknown"
       });
 
@@ -176,13 +205,21 @@
       const message = error instanceof Error ? error.message : "Erreur inconnue pendant le départ";
       state.apiError = message;
       state.step = "result";
-      processReturn(draft, { status: "failed", summary: message, parcelId: payload.parcelId }, message);
+      processReturn(draft, { status: "failed", summary: message, contextId: payload.context.id, parcelId: payload.context.id, operationId: payload.operationId }, message);
       pushChat("gerard", `🧺 Je suis revenu sans récolte de « ${draft.curiosity.title || draft.curiosity.id} ». L'échec est conservé dans le journal de retour.`);
+    } finally {
+      launchInFlight = false;
+      render();
     }
-    render();
   }
 
-  global.AdventureLaunch = { RECEIPT_KEY, COMPLETE_MARKER, toMissionPayload, launch: launchValidatedAdventure };
+  global.AdventureLaunch = {
+    RECEIPT_KEY,
+    COMPLETE_MARKER,
+    toMissionPayload,
+    launch: launchValidatedAdventure,
+    isLaunching: () => launchInFlight
+  };
 
   const renderDraft = renderAdventureUrge;
   renderAdventureUrge = function renderLaunchableAdventureDraft() {
@@ -198,7 +235,10 @@
   bindGreenhouseActions = function bindAdventureLaunchActions() {
     bindDraftActions();
     const launchButton = document.getElementById("launchValidatedAdventure");
-    if (launchButton) launchButton.onclick = launchValidatedAdventure;
+    if (launchButton) {
+      launchButton.disabled = launchInFlight;
+      launchButton.onclick = launchValidatedAdventure;
+    }
   };
 
   render();

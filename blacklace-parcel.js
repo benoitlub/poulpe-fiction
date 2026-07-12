@@ -27,6 +27,14 @@
     ]
   };
 
+  function syncGardenDomain(context) {
+    try {
+      global.GardenStore?.replaceFromParcel?.(parcel, context || activeSeed());
+    } catch (error) {
+      console.warn("Poulpe Fiction Garden domain sync failed", error);
+    }
+  }
+
   function publisherBaseUrl() {
     try { return typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : ""; }
     catch (_) { return ""; }
@@ -50,6 +58,7 @@
       selectedAt: new Date().toISOString()
     };
     localStorage.setItem(ACTIVE_SEED_KEY, JSON.stringify(context));
+    try { global.GardenStore?.activateSeed?.(PARCEL_ID, seed.id); } catch (_) {}
     return context;
   }
 
@@ -86,6 +95,7 @@
       if (remote?.activeSeed?.parcelId === PARCEL_ID) {
         localStorage.setItem(ACTIVE_SEED_KEY, JSON.stringify(remote.activeSeed));
       }
+      syncGardenDomain(remote?.activeSeed || activeSeed());
       render();
       return true;
     } catch (_) {
@@ -93,6 +103,7 @@
         const cached = JSON.parse(localStorage.getItem(PARCEL_CACHE_KEY) || "null");
         if (cached?.id === PARCEL_ID && Array.isArray(cached.seeds)) Object.assign(parcel, cached);
       } catch (_) {}
+      syncGardenDomain(activeSeed());
       return false;
     }
   }
@@ -115,6 +126,7 @@
     if (!seed || !global.AdventureDraft) return;
 
     const context = saveActiveSeedLocal(seed);
+    syncGardenDomain(context);
     cacheParcel();
     void writeGlobalState(context);
     const toolPack = await loadToolPack(seed);
@@ -148,8 +160,8 @@
     global.AdventureDraft.save(draft);
     state.adventureUrge = draft;
     pushChat("gerard", suggestedTools.length
-      ? `🌱 J'ai choisi « ${seed.title} » dans la Parcelle 001 et consulté la mémoire globale de Publisher. ${suggestedTools.length} outil${suggestedTools.length > 1 ? "s" : ""} observé${suggestedTools.length > 1 ? "s" : ""} accompagne${suggestedTools.length > 1 ? "nt" : ""} le sac.`
-      : `🌱 J'ai choisi « ${seed.title} » dans la Parcelle 001. Aucun outil global pertinent n'est encore mémorisé, donc je pars avec le sac de base.`);
+      ? `🌱 J'ai choisi « ${seed.title} ». ${suggestedTools.length} outil${suggestedTools.length > 1 ? "s" : ""} pertinent${suggestedTools.length > 1 ? "s" : ""} est prêt à être utilisé si nécessaire.`
+      : `🌱 J'ai choisi « ${seed.title} ». Je pars de ce qui existe déjà, sans ajouter de plomberie dans ton chemin.`);
     render();
   }
 
@@ -157,29 +169,48 @@
 
   function renderParcel() {
     const active = activeSeed();
-    const seeds = parcel.seeds.slice().sort((a,b) => a.priority-b.priority).map((seed) =>
-      `<article class="plan-item"><strong>${icon(seed.type)} ${esc(seed.title)}</strong><p>${esc(seed.objective)}</p><small>Première récolte : ${esc(seed.firstHarvest)}</small><div class="play-actions"><button class="${active?.seedId === seed.id ? "ghost" : "primary"}" data-blacklace-seed="${esc(seed.id)}">${active?.seedId === seed.id ? "🎒 Sac préparé" : "🌱 Confier à Gérard"}</button></div></article>`
-    ).join("");
-    return `<section class="blacklace-parcel"><p class="eyebrow">🌱 ${parcel.code} · synchronisée</p><h2>${esc(parcel.name)}</h2><p>${esc(parcel.mission)}</p><div class="plans">${seeds}</div><small>Mobile et PC utilisent la même parcelle via Publisher. Le navigateur garde seulement un cache hors ligne.</small></section>`;
+    const activeDefinition = active ? parcel.seeds.find((seed) => seed.id === active.seedId) : null;
+    const sortedSeeds = parcel.seeds.slice().sort((a,b) => a.priority-b.priority);
+    const activeCard = activeDefinition
+      ? `<article class="active-seed"><div><p class="eyebrow">Parcelle active</p><h2>${icon(activeDefinition.type)} ${esc(activeDefinition.title)}</h2><p>${esc(activeDefinition.objective)}</p><small>Première récolte : ${esc(activeDefinition.firstHarvest)}</small></div><button class="ghost" type="button" data-toggle-seeds>Changer</button></article>`
+      : `<article class="active-seed empty"><div><p class="eyebrow">Parcelle active</p><h2>Choisis ce que Gérard doit regarder</h2><p>Une Seed suffit. Le reste du jardin peut rester replié.</p></div><button class="primary" type="button" data-toggle-seeds>Choisir</button></article>`;
+
+    const seedRows = sortedSeeds.map((seed) => {
+      const selected = active?.seedId === seed.id;
+      return `<button class="seed-row${selected ? " selected" : ""}" data-blacklace-seed="${esc(seed.id)}" type="button"><span class="seed-icon">${icon(seed.type)}</span><span class="seed-copy"><strong>${esc(seed.title)}</strong><small>${esc(seed.firstHarvest)}</small></span><span class="seed-action">${selected ? "Active" : "Confier"}</span></button>`;
+    }).join("");
+
+    return `<section class="blacklace-parcel garden-primary"><div class="parcel-heading"><div><p class="eyebrow">🌱 ${parcel.code} · synchronisée</p><strong>${esc(parcel.name)}</strong></div><small>Le navigateur conserve seulement un cache.</small></div>${activeCard}<details class="seed-picker"${active ? "" : " open"}><summary>Voir les ${sortedSeeds.length} Seeds</summary><div class="seed-list">${seedRows}</div></details></section>`;
   }
 
   function bindParcelActions() {
     document.querySelectorAll("[data-blacklace-seed]").forEach((button) => {
       button.onclick = () => { void prepareSeedAdventure(button.dataset.blacklaceSeed); };
     });
+    document.querySelectorAll("[data-toggle-seeds]").forEach((button) => {
+      button.onclick = () => {
+        const picker = document.querySelector(".seed-picker");
+        if (picker) picker.open = !picker.open;
+      };
+    });
   }
 
-  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, parcel, activeSeed, prepareSeedAdventure, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack };
+  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, parcel, activeSeed, prepareSeedAdventure, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain };
 
   const baseRender = render;
   render = function renderWithBlacklaceParcel() {
     baseRender();
     if (state.step !== "objective") return;
     const existing = root.querySelector(".blacklace-parcel");
-    if (!existing) root.insertAdjacentHTML("beforeend", renderParcel());
+    if (!existing) {
+      const chat = root.querySelector(".gerard-chat");
+      if (chat) chat.insertAdjacentHTML("beforebegin", renderParcel());
+      else root.insertAdjacentHTML("afterbegin", renderParcel());
+    }
     bindParcelActions();
   };
 
+  syncGardenDomain(activeSeed());
   render();
   void syncFromGlobal();
 })(globalThis);

@@ -1,20 +1,37 @@
 # Poulpe Fiction
 
-Interface simple pour démontrer le principe Octopus :
+Poulpe Fiction est l’interface relationnelle de Gérard et le propriétaire de son Garden.
 
-> Le client exprime un objectif. L'outil pose les bonnes questions. Le moteur prépare un plan. Le client voit un résultat clair.
+> L’utilisateur ouvre une parcelle. Gérard observe une Seed, prépare un travail interne, demande une exécution neutre à Octopus Engine puis transforme le résultat en récolte visible.
+
+## Responsabilités
+
+Poulpe Fiction possède :
+
+- le Garden ;
+- les parcelles ;
+- les Seeds, Sprouts, récoltes et compost ;
+- la curiosité, les aventures et les retours de Gérard ;
+- les Production Packs visibles ;
+- la traduction entre le vocabulaire vivant et les opérations neutres du moteur.
+
+Poulpe Fiction ne possède pas :
+
+- le catalogue des providers et leurs coûts, qui restent dans Blacklace Publisher ;
+- le moteur d’exécution, qui reste dans Octopus Engine ;
+- les clés, connexions OAuth et diagnostics techniques.
 
 ## Promesse
 
-- Pas de dashboard au premier contact.
-- Pas de jargon technique.
-- Pas de jardin visible.
-- Pas de poulpe visible côté client.
-- Une interface orientée résultat.
+- Pas de jargon moteur dans le parcours client.
+- Pas de dashboard technique au premier contact.
+- Gérard et les parcelles accessibles sont visibles.
+- L’activité, les obstacles et les récoltes sont compréhensibles.
+- Une validation humaine n’est demandée qu’avant une action extérieure.
 
 ## Convention Gérard
 
-Poulpe Fiction évolue aussi comme la cabane de départ de Gérard : l'espace où il discute avec le jardinier, prépare son sac, choisit son pique-nique et revient au jardin avec une récolte ou un apprentissage.
+Poulpe Fiction est la cabane et le Garden de Gérard : l’espace où il observe les parcelles, prépare son sac, utilise temporairement des greffons et revient avec une récolte ou un apprentissage.
 
 La convention est documentée dans [`ADR/ADR-0001-convention-poulpe-fiction.md`](ADR/ADR-0001-convention-poulpe-fiction.md).
 
@@ -22,18 +39,9 @@ Principes courts :
 
 - La curiosité grandit avec les observations.
 - Quand elle devient forte, elle peut devenir jeu, rêve, carnet, observation prolongée ou aventure.
-- Avant toute aventure, Gérard prépare son sac.
-- Les greffons sont des outils temporaires d'aventure.
+- Le sac et les greffons restent une mécanique interne, pas une corvée technique imposée à l’utilisateur.
 - Le LLM est le poète du poulpe, jamais son cerveau.
-- Toute aventure revient au jardin.
-
-## Parcours V1
-
-1. Choisir un objectif.
-2. Répondre à une question à la fois.
-3. Voir une phase d'analyse.
-4. Obtenir un plan clair.
-5. Lancer une première mission.
+- Toute aventure revient au Garden.
 
 ## Développement
 
