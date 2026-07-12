@@ -115,12 +115,14 @@
         metadata: {
           owner: "poulpe-fiction",
           adventureDraftId: draft.id,
+          parcelId: gardenContext?.parcelId || null,
           seedId: gardenContext?.seedId || null,
           seedTitle: gardenContext?.seedTitle || null,
-          expectedHarvest: gardenContext?.firstHarvest || null
+          expectedHarvest: gardenContext?.firstHarvest || null,
+          expectedHarvests: gardenContext?.seedId === "terra" ? ["landing-page", "instagram-visual"] : []
         }
       },
-      requiredCapabilities: ["campaign.generate"],
+      requiredCapabilities: gardenContext?.seedId === "terra" ? ["copy.generate"] : ["campaign.generate"],
       authorizationPolicy: {
         internalWork: "allowed",
         externalAction: "requires-human-approval"

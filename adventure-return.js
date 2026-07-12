@@ -89,7 +89,7 @@
     const complete = !requiresMarker || rawText.includes(COMPLETE_MARKER);
     const incomplete = requiresMarker && !complete;
 
-    const harvestCandidates = asArray(output.harvests || output.artifacts || output.deliverables);
+    const harvestCandidates = asArray(output.harvests || output.artifacts || output.deliverables || mission?.artifacts);
     const seedCandidates = asArray(output.seeds || output.opportunities || output.nextIdeas);
     const questionCandidates = asArray(output.questions || output.decisionsRequired);
     const learningCandidates = asArray(output.learnings || output.insights || output.lessons);
