@@ -27,6 +27,14 @@
     ]
   };
 
+  function syncGardenDomain(context) {
+    try {
+      global.GardenStore?.replaceFromParcel?.(parcel, context || activeSeed());
+    } catch (error) {
+      console.warn("Poulpe Fiction Garden domain sync failed", error);
+    }
+  }
+
   function publisherBaseUrl() {
     try { return typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : ""; }
     catch (_) { return ""; }
@@ -50,6 +58,7 @@
       selectedAt: new Date().toISOString()
     };
     localStorage.setItem(ACTIVE_SEED_KEY, JSON.stringify(context));
+    try { global.GardenStore?.activateSeed?.(PARCEL_ID, seed.id); } catch (_) {}
     return context;
   }
 
@@ -86,6 +95,7 @@
       if (remote?.activeSeed?.parcelId === PARCEL_ID) {
         localStorage.setItem(ACTIVE_SEED_KEY, JSON.stringify(remote.activeSeed));
       }
+      syncGardenDomain(remote?.activeSeed || activeSeed());
       render();
       return true;
     } catch (_) {
@@ -93,6 +103,7 @@
         const cached = JSON.parse(localStorage.getItem(PARCEL_CACHE_KEY) || "null");
         if (cached?.id === PARCEL_ID && Array.isArray(cached.seeds)) Object.assign(parcel, cached);
       } catch (_) {}
+      syncGardenDomain(activeSeed());
       return false;
     }
   }
@@ -115,6 +126,7 @@
     if (!seed || !global.AdventureDraft) return;
 
     const context = saveActiveSeedLocal(seed);
+    syncGardenDomain(context);
     cacheParcel();
     void writeGlobalState(context);
     const toolPack = await loadToolPack(seed);
@@ -183,7 +195,7 @@
     });
   }
 
-  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, parcel, activeSeed, prepareSeedAdventure, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack };
+  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, parcel, activeSeed, prepareSeedAdventure, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain };
 
   const baseRender = render;
   render = function renderWithBlacklaceParcel() {
@@ -198,6 +210,7 @@
     bindParcelActions();
   };
 
+  syncGardenDomain(activeSeed());
   render();
   void syncFromGlobal();
 })(globalThis);
