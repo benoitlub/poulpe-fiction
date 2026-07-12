@@ -1,0 +1,238 @@
+.app {
+  align-items: start;
+  padding: 14px;
+}
+
+.card {
+  width: min(1180px, 100%);
+  padding: clamp(16px, 3vw, 30px);
+  border-radius: 24px;
+}
+
+.brand {
+  margin-bottom: 18px;
+}
+
+.brand .mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  font-size: 23px;
+}
+
+.brand h1 {
+  font-size: clamp(1.8rem, 4vw, 3.6rem);
+}
+
+#root > .eyebrow:first-child {
+  display: none;
+}
+
+.garden-primary {
+  margin: 0 0 14px;
+  padding: 14px;
+  border: 1px solid rgba(135,214,166,.24);
+  border-radius: 20px;
+  background: linear-gradient(135deg,rgba(54,116,87,.2),rgba(255,255,255,.035));
+}
+
+.parcel-heading,
+.active-seed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.parcel-heading {
+  margin-bottom: 10px;
+}
+
+.parcel-heading strong {
+  font-size: 1rem;
+}
+
+.parcel-heading small,
+.active-seed small {
+  color: #bbaea4;
+}
+
+.active-seed {
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  background: rgba(0,0,0,.18);
+}
+
+.active-seed h2 {
+  margin: 0 0 6px;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+}
+
+.active-seed p {
+  margin: 0 0 6px;
+  color: #ddd1c6;
+  line-height: 1.35;
+}
+
+.seed-picker {
+  margin-top: 10px;
+}
+
+.seed-picker summary {
+  cursor: pointer;
+  color: #c8b7aa;
+  font-size: .86rem;
+  font-weight: 800;
+}
+
+.seed-list {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.seed-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 58px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  color: inherit;
+  text-align: left;
+  background: rgba(0,0,0,.16);
+  cursor: pointer;
+}
+
+.seed-row:hover,
+.seed-row.selected {
+  border-color: rgba(255,108,61,.6);
+  background: rgba(255,108,61,.08);
+}
+
+.seed-copy {
+  min-width: 0;
+}
+
+.seed-copy strong,
+.seed-copy small {
+  display: block;
+}
+
+.seed-copy strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seed-copy small {
+  margin-top: 3px;
+  color: #a99c92;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seed-action {
+  color: #ffc9b6;
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.gerard-chat,
+.greenhouse {
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 18px;
+}
+
+.gerard-chat .chat-head,
+.greenhouse .greenhouse-head {
+  margin-bottom: 8px;
+}
+
+.gerard-chat .chat-head h2,
+.greenhouse h2 {
+  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+}
+
+.gerard-chat .chat-head p,
+.greenhouse p {
+  line-height: 1.35;
+}
+
+.chat-messages {
+  max-height: 160px;
+}
+
+.chat-suggestions {
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.chat-suggestions .ghost,
+.play-actions .ghost,
+.play-actions .primary {
+  padding: 9px 12px;
+}
+
+.greenhouse .cuttings,
+.greenhouse .attractions,
+.greenhouse .local-wonder,
+.greenhouse .play-prompt,
+.greenhouse .playground,
+.greenhouse .adventure-urge,
+.greenhouse .dream {
+  display: none;
+}
+
+.greenhouse::after {
+  content: "La Serre, les rêves et le jeu seront accessibles depuis des vues secondaires compactes.";
+  display: block;
+  margin-top: 8px;
+  color: #9f9188;
+  font-size: .8rem;
+}
+
+.adventures-label,
+#root > .grid {
+  display: none;
+}
+
+.panel,
+.production-pack {
+  padding: clamp(16px, 3vw, 26px);
+  border-radius: 20px;
+}
+
+.plans,
+.production-grid {
+  margin: 14px 0;
+  gap: 10px;
+}
+
+.plan-item,
+.mission,
+.production-item {
+  padding: 13px;
+  border-radius: 15px;
+  min-height: auto;
+}
+
+@media (max-width: 760px) {
+  .app { padding: 8px; }
+  .card { padding: 12px; border-radius: 18px; }
+  .brand { gap: 10px; margin-bottom: 12px; }
+  .brand .mark { width: 40px; height: 40px; }
+  .parcel-heading,
+  .active-seed { align-items: flex-start; }
+  .parcel-heading > small { display: none; }
+  .seed-list { grid-template-columns: 1fr; }
+  .seed-row { min-height: 54px; }
+  .chat-form { grid-template-columns: 1fr; }
+}
