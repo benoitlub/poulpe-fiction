@@ -108,3 +108,185 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .production-item p { margin: 0; color: #c8b7aa; }
 .production-status { font-size: .82rem; font-weight: 900; color: #fff1d8; }
 @media(max-width:900px){ .grid,.plans,.cuttings,.playground-grid,.adventure-grid,.production-grid{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head,.chat-head,.production-head{align-items:stretch;flex-direction:column}.objective{min-height:auto}.chat-message{width:100%}.chat-form{grid-template-columns:1fr}.chat-form input{min-height:48px}.chat-suggestions button{flex:1 1 auto} }
+
+.garden-dashboard {
+  border: 1px solid rgba(135,214,166,.2);
+  border-radius: 28px;
+  padding: 18px;
+  margin: 0 0 22px;
+  background: linear-gradient(135deg, rgba(54,116,87,.18), rgba(255,255,255,.04));
+}
+.garden-dashboard-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+.garden-dashboard-top h2 { font-size: clamp(1.45rem, 3vw, 2.35rem); }
+.garden-dashboard-top a,
+.garden-link {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.garden-nav,
+.garden-filters,
+.notebook-tabs,
+.garden-actions.compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.garden-nav { margin: 16px 0; }
+.garden-nav-item,
+.garden-filter {
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  padding: 10px 13px;
+  color: #f7efe4;
+  background: rgba(0,0,0,.18);
+  font-weight: 900;
+  cursor: pointer;
+}
+.garden-nav-item.active,
+.garden-filter.active {
+  border-color: rgba(255,108,61,.65);
+  background: rgba(255,108,61,.16);
+}
+.garden-dashboard-view { display: grid; gap: 14px; }
+.hublot-grid,
+.garden-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.garden-list,
+.timeline {
+  display: grid;
+  gap: 12px;
+}
+.garden-card {
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(0,0,0,.18);
+  overflow: hidden;
+}
+.garden-card h3,
+.garden-card h2,
+.garden-card p,
+.garden-card small,
+.garden-card dd { overflow-wrap: anywhere; }
+.garden-card p { color: #d5c9bf; line-height: 1.45; }
+.garden-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.garden-card-head span {
+  border: 1px solid rgba(135,214,166,.24);
+  border-radius: 999px;
+  padding: 6px 9px;
+  color: #b7f1c9;
+  font-weight: 900;
+}
+.garden-card-head small { color: #c8b7aa; }
+.metric-card strong {
+  display: block;
+  font-size: clamp(1.4rem, 4vw, 2.5rem);
+  line-height: 1;
+}
+.metric-card span {
+  display: block;
+  margin: 8px 0;
+  font-weight: 900;
+}
+.connection-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.garden-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+}
+.garden-metrics div {
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 8px;
+}
+.garden-metrics dt {
+  color: #a99a91;
+  font-size: .76rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 900;
+}
+.garden-metrics dd { margin: 4px 0 0; color: #f7efe4; }
+.parcel-card { cursor: pointer; }
+.parcel-card:hover { border-color: rgba(135,214,166,.5); }
+.compact-back { width: max-content; }
+.notebook-tabs span {
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.04);
+}
+.notebook-tabs strong {
+  display: block;
+  font-size: 1.15rem;
+}
+.timeline-entry {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(0,0,0,.15);
+}
+.timeline-entry time {
+  color: #b7f1c9;
+  font-weight: 900;
+}
+.timeline-entry p { margin: 6px 0; color: #d5c9bf; line-height: 1.45; }
+.timeline-entry small { color: #a99a91; }
+.mission-card.overdue { border-color: rgba(255,108,61,.45); }
+.garden-alert.error {
+  margin-top: 12px;
+  border: 1px solid rgba(255,108,61,.35);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255,108,61,.1);
+}
+
+@media(max-width:900px) {
+  .hublot-grid,
+  .garden-card-grid,
+  .garden-metrics { grid-template-columns: 1fr; }
+  .garden-dashboard-top,
+  .connection-summary,
+  .timeline-entry {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .garden-dashboard-top a,
+  .garden-link,
+  .garden-nav-item,
+  .garden-filter,
+  .garden-actions.compact button {
+    width: 100%;
+    text-align: center;
+  }
+  .garden-dashboard {
+    padding: 14px;
+    border-radius: 22px;
+    overflow: hidden;
+  }
+}
