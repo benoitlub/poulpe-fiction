@@ -212,6 +212,9 @@
       type: "rapport",
       status: normalizeHarvestStatus(harvest.status),
       preview: harvest.preview,
+      content: harvest.content || null,
+      url: harvest.url || null,
+      downloadUrl: harvest.downloadUrl || null,
       link: null
     }));
 
@@ -224,6 +227,9 @@
       type: normalizeHarvestType(harvest.artifactType),
       status: bundle.status === "ready" ? "à-valider" : "brouillon",
       preview: harvest.description,
+      content: harvest.content || (harvest.artifactType === "landing-page" || harvest.artifactType === "text" ? { text: String(harvest.artifact || harvest.description || "") } : null),
+      url: harvest.url || harvest.artifact?.url || null,
+      downloadUrl: harvest.downloadUrl || harvest.artifact?.downloadUrl || null,
       link: null
     })));
 
@@ -236,6 +242,9 @@
       type: "landing-page",
       status: pack.artifacts?.some((item) => item.status === "ready") ? "prêt" : "brouillon",
       preview: `${pack.artifacts?.length || 0} artefact(s), ${pack.publications?.length || 0} publication(s)`,
+      content: pack.artifacts?.find((item) => item.type === "landing-page")?.content ? { text: pack.artifacts.find((item) => item.type === "landing-page")?.content } : null,
+      url: pack.artifacts?.find((item) => item.url || item.artifact?.url)?.url || pack.artifacts?.find((item) => item.url || item.artifact?.url)?.artifact?.url || null,
+      downloadUrl: pack.artifacts?.find((item) => item.downloadUrl || item.artifact?.downloadUrl)?.downloadUrl || pack.artifacts?.find((item) => item.downloadUrl || item.artifact?.downloadUrl)?.artifact?.downloadUrl || null,
       link: null
     }));
 
@@ -470,6 +479,17 @@
   }
 
   function harvestCard(data, harvest) {
+    const text = harvest.content?.text || "";
+    const canOpenText = Boolean(text);
+    const canOpenCanva = Boolean(harvest.url);
+    const actions = [
+      canOpenText ? `<button class="ghost" data-open-harvest="${esc(harvest.id)}">Ouvrir</button>` : "",
+      canOpenText ? `<button class="ghost" data-copy-harvest="${esc(harvest.id)}">Copier</button>` : "",
+      canOpenCanva ? `<a class="primary garden-link" href="${esc(harvest.url)}" target="_blank" rel="noopener">Ouvrir dans Canva</a>` : "",
+      harvest.downloadUrl ? `<a class="primary garden-link" href="${esc(harvest.downloadUrl)}" download>Télécharger</a>` : "",
+      `<button class="ghost" disabled>Marquer prêt</button>`,
+      `<button class="ghost" disabled>Rejeter</button>`
+    ].join("");
     return `<article class="garden-card harvest-card">
       <div class="garden-card-head"><span>${esc(harvest.status)}</span><small>${esc(harvest.type)}</small></div>
       <h3>${esc(harvest.title)}</h3>
@@ -479,7 +499,18 @@
         <div><dt>Mission source</dt><dd>${esc(harvest.missionId || "Non liée")}</dd></div>
         <div><dt>Date</dt><dd>${esc(dateLabel(harvest.date))}</dd></div>
       </dl>
+      <div class="garden-actions compact">${actions}</div>
     </article>`;
+  }
+
+  function openHarvestDetail(harvest) {
+    const text = harvest?.content?.text;
+    if (!text) return;
+    const preview = globalThis.open("", "_blank", "noopener,noreferrer");
+    if (!preview) return;
+    preview.document.open();
+    preview.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(harvest.title)}</title><style>body{font-family:system-ui,sans-serif;margin:0;background:#100c12;color:#f7efe4}.page{max-width:840px;margin:auto;padding:48px 22px;white-space:pre-wrap;line-height:1.65}</style></head><body><main class="page"><h1>${esc(harvest.title)}</h1>${esc(text)}</main></body></html>`);
+    preview.document.close();
   }
 
   function dreamsView(data) {
@@ -534,6 +565,20 @@
     });
     document.querySelectorAll("[data-mission-filter]").forEach((button) => {
       button.onclick = () => global.GardenPersistence.setMissionFilter(button.dataset.missionFilter);
+    });
+    document.querySelectorAll("[data-open-harvest]").forEach((button) => {
+      button.onclick = () => {
+        const data = global.GardenPersistence.snapshot();
+        openHarvestDetail(harvests(data).find((harvest) => harvest.id === button.dataset.openHarvest));
+      };
+    });
+    document.querySelectorAll("[data-copy-harvest]").forEach((button) => {
+      button.onclick = async () => {
+        const data = global.GardenPersistence.snapshot();
+        const harvest = harvests(data).find((item) => item.id === button.dataset.copyHarvest);
+        if (!harvest?.content?.text || !navigator.clipboard) return;
+        await navigator.clipboard.writeText(String(harvest.content.text));
+      };
     });
   }
 
