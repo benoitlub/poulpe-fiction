@@ -3,6 +3,7 @@
 
   const RECEIPT_KEY = "poulpe-fiction:adventure-departure:v1";
   const COMPLETE_MARKER = "<!-- HARVEST_COMPLETE -->";
+  let launchInFlight = false;
 
   function listSection(title, items) {
     const values = Array.isArray(items) ? items : [];
@@ -143,9 +144,12 @@
   }
 
   async function launchValidatedAdventure() {
+    if (launchInFlight) return;
+
     const draft = global.AdventureDraft.load();
     if (!draft || draft.status !== "validated") return;
 
+    launchInFlight = true;
     let payload;
     try {
       state.step = "mission";
@@ -155,6 +159,7 @@
     } catch (error) {
       state.apiError = error instanceof Error ? error.message : "Aventure invalide";
       state.step = "result";
+      launchInFlight = false;
       render();
       return;
     }
@@ -202,11 +207,19 @@
       state.step = "result";
       processReturn(draft, { status: "failed", summary: message, contextId: payload.context.id, parcelId: payload.context.id, operationId: payload.operationId }, message);
       pushChat("gerard", `🧺 Je suis revenu sans récolte de « ${draft.curiosity.title || draft.curiosity.id} ». L'échec est conservé dans le journal de retour.`);
+    } finally {
+      launchInFlight = false;
+      render();
     }
-    render();
   }
 
-  global.AdventureLaunch = { RECEIPT_KEY, COMPLETE_MARKER, toMissionPayload, launch: launchValidatedAdventure };
+  global.AdventureLaunch = {
+    RECEIPT_KEY,
+    COMPLETE_MARKER,
+    toMissionPayload,
+    launch: launchValidatedAdventure,
+    isLaunching: () => launchInFlight
+  };
 
   const renderDraft = renderAdventureUrge;
   renderAdventureUrge = function renderLaunchableAdventureDraft() {
@@ -222,7 +235,10 @@
   bindGreenhouseActions = function bindAdventureLaunchActions() {
     bindDraftActions();
     const launchButton = document.getElementById("launchValidatedAdventure");
-    if (launchButton) launchButton.onclick = launchValidatedAdventure;
+    if (launchButton) {
+      launchButton.disabled = launchInFlight;
+      launchButton.onclick = launchValidatedAdventure;
+    }
   };
 
   render();
