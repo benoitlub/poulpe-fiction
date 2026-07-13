@@ -1,0 +1,152 @@
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.app,
+.card,
+#root,
+#root > *,
+.garden-shell,
+.shell-content,
+.garden-hublot,
+.activity-echo,
+.ae-root,
+.ae-scene,
+.ae-svg,
+.garden-primary,
+.garden-runtime,
+.gerard-chat,
+.greenhouse {
+  width: 100%;
+  max-width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#root > :not(#gardenShell):not(.garden-hublot):not(.activity-echo):not(.garden-primary):not(.garden-runtime):not(.gerard-chat):not(.greenhouse) {
+  display: none !important;
+}
+
+.shell-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.shell-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.shell-nav button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.shell-list article,
+.shell-card,
+.hublot-now,
+.hublot-card,
+.garden-primary,
+.garden-runtime,
+.gerard-chat,
+.greenhouse {
+  overflow: hidden;
+}
+
+.shell-list strong,
+.shell-list p,
+.shell-card h3,
+.shell-card p,
+.hublot-now strong,
+.hublot-now p,
+.hublot-card h3,
+.hublot-card p,
+.garden-primary *,
+.garden-runtime *,
+.gerard-chat *,
+.greenhouse * {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.activity-echo .ae-scene,
+.ae-root .ae-scene {
+  overflow: hidden;
+}
+
+.activity-echo .ae-svg,
+.ae-root .ae-svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 720px) {
+  .app {
+    padding: 6px !important;
+  }
+
+  .card {
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .brand {
+    align-items: flex-start;
+  }
+
+  .brand h1 {
+    font-size: clamp(1.65rem, 8vw, 2.25rem) !important;
+    line-height: 1.05;
+  }
+
+  .garden-shell {
+    overflow: hidden;
+  }
+
+  .shell-content,
+  .garden-hublot,
+  .activity-echo,
+  .garden-primary,
+  .garden-runtime,
+  .gerard-chat,
+  .greenhouse {
+    margin-inline: 0 !important;
+  }
+
+  .ae-root {
+    overflow: hidden !important;
+  }
+
+  .ae-scene {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 300px !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .ae-svg {
+    position: absolute !important;
+    inset: 0 !important;
+    transform: none !important;
+  }
+
+  .production-grid,
+  .plans,
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+}
