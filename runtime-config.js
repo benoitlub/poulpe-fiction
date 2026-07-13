@@ -5,10 +5,10 @@
   const urls = {
     octopusApi: "https://octopus-engine.onrender.com",
     publisherApi: "https://blacklace-publisher-api.onrender.com",
-    publisherFrontend: "https://blacklace-publisher.onrender.com"
+    publisherFrontend: "https://blacklace-publisher-web.onrender.com"
   };
   const buildSha = String(global.POULPE_BUILD_SHA || global.RENDER_GIT_COMMIT || "local").slice(0, 7);
-  const MIGRATION_KEY = "poulpe-fiction:runtime-config-migration:v1";
+  const MIGRATION_KEY = "poulpe-fiction:runtime-config-migration:v2";
   const STALE_OVERRIDE_KEYS = [
     "PUBLISHER_API_URL",
     "OCTOPUS_API_URL",
@@ -53,7 +53,7 @@
       }
     });
     localStorage.setItem(MIGRATION_KEY, JSON.stringify({
-      version: 1,
+      version: 2,
       migratedAt: new Date().toISOString(),
       removedKeys: previous.map((entry) => entry.key)
     }));
@@ -90,10 +90,11 @@
   async function testConnections(timeoutMs = 8000) {
     const octopusHealthUrl = `${urls.octopusApi}/health`;
     const publisherDiagnosticsUrl = `${urls.publisherApi}/api/production/diagnostics`;
+    const publisherLocalTechniqueUrl = `${urls.publisherFrontend}/local-technique`;
     const [octopus, publisherApi, publisherFrontend] = await Promise.all([
       checkJson(octopusHealthUrl, timeoutMs),
       checkJson(publisherDiagnosticsUrl, timeoutMs),
-      checkReachable(urls.publisherFrontend, timeoutMs)
+      checkReachable(publisherLocalTechniqueUrl, timeoutMs)
     ]);
     const canvaConnected = Boolean(
       publisherApi.payload?.canva?.connected ||
