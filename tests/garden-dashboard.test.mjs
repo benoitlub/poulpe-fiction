@@ -193,3 +193,61 @@ test("uses live production diagnostics instead of stale pack connector status", 
   assert.equal(context.ProductionPack.connectionStatus("Canva", context.ProductionPack.loadConnections()), "Connecté");
   assert.equal(context.ProductionPack.artifactStatus(artifact, context.ProductionPack.loadConnections()), "authorization-required");
 });
+
+test("replaces legacy production pack block on result render", () => {
+  const context = createContext();
+  let panelHtml = `<section class="production-pack">ancien</section>`;
+  const panel = {
+    querySelector: (selector) => {
+      if (selector !== ".production-pack" || !panelHtml.includes("production-pack")) return null;
+      return {
+        set outerHTML(value) { panelHtml = value; }
+      };
+    },
+    insertAdjacentHTML: (_position, html) => { panelHtml += html; }
+  };
+  context.root = {
+    querySelector: (selector) => selector === ".panel" ? panel : null
+  };
+  context.state = { step: "result" };
+  context.fetch = async () => ({ ok: true, json: async () => ({}) });
+  context.document.querySelectorAll = () => [];
+  context.document.querySelector = () => null;
+  context.BlacklaceParcel = {
+    activeSeed: () => ({ parcelId: "terra", seedId: "terra", seedTitle: "TERRA" })
+  };
+  context.AdventureDraft = {
+    load: () => ({ id: "draft-terra" })
+  };
+  context.AdventureReturnProcessor = {
+    latestForDraft: () => ({
+      id: "return-terra",
+      status: "ready",
+      parcelId: "blacklace-ecosystem",
+      missionId: "mission-terra",
+      harvests: [{ id: "harvest-text", title: "TERRA", description: "Landing", artifactType: "text", artifact: "Landing text" }]
+    })
+  };
+  context.ProductionPlan = { current: () => null, updateFromProductionPack: () => null };
+  context.TerraHarvestLoop = {
+    latestTerraBundle: () => null,
+    landingHarvest: () => null,
+    visualHarvest: () => null
+  };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync("production-pack.js", "utf8"), context);
+  context.localStorage.setItem(context.ProductionPack.CONNECTION_KEY, JSON.stringify({
+    status: "ready",
+    payload: { canva: { connected: true }, elevenLabs: { connected: true }, mistral: { available: true } }
+  }));
+
+  context.render();
+  context.render();
+
+  assert.equal(panelHtml.includes("ancien"), false);
+  assert.match(panelHtml, /Produire maintenant/);
+  assert.match(panelHtml, /data-production-now/);
+  assert.match(panelHtml, /data-open-all-harvests/);
+  assert.match(panelHtml, /data-refresh-production-connections/);
+  assert.equal((panelHtml.match(/class="production-pack"/g) || []).length, 1);
+});

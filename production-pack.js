@@ -276,7 +276,14 @@
     const pack = bundle ? createFromReturn(bundle) : null;
     if (!pack) return;
     const panel = root.querySelector(".panel");
-    if (panel && !panel.querySelector(".production-pack")) panel.insertAdjacentHTML("beforeend", render(pack));
+    if (!panel) return;
+    const html = render(pack);
+    const existing = panel.querySelector(".production-pack");
+    if (existing) {
+      existing.outerHTML = html;
+    } else {
+      panel.insertAdjacentHTML("beforeend", html);
+    }
     bind(pack);
     if (!loadConnections()) void refreshConnections().then(() => global.render?.());
   };
