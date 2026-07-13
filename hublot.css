@@ -104,8 +104,53 @@
 }
 
 @media (max-width: 720px) {
-  .hublot-grid { grid-template-columns: 1fr; }
-  .hublot-card { min-height: auto; }
+  .garden-hublot {
+    margin-bottom: 14px;
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .hublot-head {
+    margin-bottom: 12px;
+  }
+
+  .hublot-head h2 {
+    font-size: 1.55rem;
+  }
+
+  .hublot-now {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+    border-radius: 17px;
+  }
+
+  .hublot-gerard {
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    font-size: 1.55rem;
+  }
+
+  .hublot-now strong {
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .hublot-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .hublot-card {
+    min-height: auto;
+    padding: 13px;
+    border-radius: 16px;
+  }
+
+  .hublot-card p:not(.eyebrow) {
+    margin-bottom: 8px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
