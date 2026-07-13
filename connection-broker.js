@@ -91,7 +91,7 @@
     return ({
       connected: "✅ Connecté",
       "authorization-required": "🔐 Autorisation requise",
-      "not-configured": "🔌 Non configuré",
+      "not-configured": "Autorisation nécessaire",
       unavailable: "⛔ Indisponible"
     })[status] || status || "inconnu";
   }

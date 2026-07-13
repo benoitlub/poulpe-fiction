@@ -27,8 +27,8 @@
   }
 
   function configuredApiUrl() {
-    const explicit = global.GARDEN_API_URL || localStorage.getItem(API_KEY) || "";
-    return String(explicit || publisherBaseUrl()).replace(/\/$/, "");
+    try { localStorage.removeItem(API_KEY); } catch (_) {}
+    return String(global.PoulpeRuntimeConfig?.urls?.publisherApi || publisherBaseUrl()).replace(/\/$/, "");
   }
 
   function activeContext() {
@@ -270,7 +270,7 @@
       ? `<div class="garden-harvest"><div><p class="eyebrow">🌾 Récolte</p><strong>${esc(harvest.title || "Production Pack disponible")}</strong><small>${Number(harvest.artifactsReady || 0)}/${Number(harvest.artifactsTotal || 0)} artefact(s) prêt(s)</small></div><button class="primary" data-garden-open-harvest>Ouvrir</button></div>`
       : "";
 
-    return `<section class="garden-runtime" data-garden-status="${esc(status)}"><div class="garden-runtime-head"><div><p class="eyebrow">Activité de Gérard</p><h3>${esc(context?.seedTitle || "Aucune Seed active")}</h3></div><div class="garden-runtime-meta"><span class="garden-status">${esc(statusLabel(status))}</span><span>${esc(sourceLabel(state.source || record.source))}</span></div></div><p class="garden-activity">${esc(record.activity || "Aucune activité enregistrée.")}</p><div class="garden-facts"><span><strong>Dernier changement</strong>${esc(timeLabel(record.updatedAt))}</span><span><strong>Opération</strong>${esc(record.operationId || "Pas encore créée")}</span></div>${errorHtml}${obstacleHtml}${harvestHtml}<div class="garden-actions"><button class="ghost" data-garden-refresh ${state.loading ? "disabled" : ""}>${state.loading ? "Actualisation…" : "Actualiser"}</button>${canPrepare ? `<button class="primary" data-garden-action="prepare">Préparer le travail</button>` : ""}${canResume ? `<button class="primary" data-garden-action="resume">Reprendre</button>` : ""}<details class="garden-settings"><summary>Connexion</summary><label>URL du service Garden<input id="gardenApiUrl" value="${esc(configuredApiUrl())}" placeholder="https://service.exemple.com" /></label><button class="ghost" data-garden-save-api>Enregistrer</button><small>Lecture : <code>/api/global-state/garden/:parcelId</code><br>Actions : <code>/api/garden/operations</code></small></details></div></section>`;
+    return `<section class="garden-runtime" data-garden-status="${esc(status)}"><div class="garden-runtime-head"><div><p class="eyebrow">Activité de Gérard</p><h3>${esc(context?.seedTitle || "Aucune Seed active")}</h3></div><div class="garden-runtime-meta"><span class="garden-status">${esc(statusLabel(status))}</span><span>${esc(sourceLabel(state.source || record.source))}</span></div></div><p class="garden-activity">${esc(record.activity || "Aucune activité enregistrée.")}</p><div class="garden-facts"><span><strong>Dernier changement</strong>${esc(timeLabel(record.updatedAt))}</span><span><strong>Opération</strong>${esc(record.operationId || "Pas encore créée")}</span></div>${errorHtml}${obstacleHtml}${harvestHtml}<div class="garden-actions"><button class="ghost" data-garden-refresh ${state.loading ? "disabled" : ""}>${state.loading ? "Actualisation…" : "Actualiser"}</button>${canPrepare ? `<button class="primary" data-garden-action="prepare">Préparer le travail</button>` : ""}${canResume ? `<button class="primary" data-garden-action="resume">Reprendre</button>` : ""}<details class="garden-settings"><summary>Connexion</summary><label>URL du service Garden<input id="gardenApiUrl" value="${esc(configuredApiUrl())}" readonly /></label><small>Production verrouillee sur Render. Les overrides localStorage sont ignores.</small></details></div></section>`;
   }
 
   function bind() {
@@ -291,10 +291,7 @@
 
     const saveApi = document.querySelector("[data-garden-save-api]");
     if (saveApi) saveApi.onclick = () => {
-      const input = document.getElementById("gardenApiUrl");
-      const value = String(input?.value || "").trim().replace(/\/$/, "");
-      if (value) localStorage.setItem(API_KEY, value);
-      else localStorage.removeItem(API_KEY);
+      localStorage.removeItem(API_KEY);
       refresh();
     };
 

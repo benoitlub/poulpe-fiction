@@ -6,13 +6,15 @@ The UI is remote-first and uses browser storage only as cache or offline fallbac
 
 ## Configuration
 
-The deployed service base URL is resolved in this order:
+The production service base URLs are resolved only from `runtime-config.js`.
 
-1. `globalThis.GARDEN_API_URL`;
-2. `localStorage["poulpe-fiction:garden-api-url:v1"]`;
-3. current Publisher API URL as a temporary shared-state host.
+Production URLs:
 
-The Garden UI exposes a compact connection field so a deployed backend can be switched without rebuilding the static frontend.
+- Octopus API: `https://octopus-engine.onrender.com`
+- Publisher API: `https://blacklace-publisher-api.onrender.com`
+- Publisher frontend: `https://blacklace-publisher.onrender.com`
+
+Production ignores browser API overrides. Stale keys are removed by the runtime-config migration.
 
 ## Read endpoint
 
