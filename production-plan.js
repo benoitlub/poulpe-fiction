@@ -48,8 +48,8 @@
     if(!seed) return null;
     const template=TEMPLATES[seed.type]||TEMPLATES.page;
     const tools=toolPack?.tools||[];
-    const steps=template.map((step)=>{ const provider=chooseProvider(step,tools); const internal=isInternalProvider(provider); return { ...step, provider, providerStatus:internal?"connected":"unresolved", connectionRoute:internal?"internal":"manual", authorization:internal?"granted":"required", creditStatus:internal?"not-applicable":"unknown", executable:internal, status:step.dependsOn.length?"blocked":"ready-to-produce" }; });
-    return save({ version:3,id:`production-plan-${seed.id}`,parcelId:global.BlacklaceParcel?.PARCEL_ID||"blacklace-ecosystem",seedId:seed.id,seedTitle:seed.title,goal:seed.objective,expectedHarvest:seed.firstHarvest,createdAt:nowIso(),updatedAt:nowIso(),toolPackSource:toolPack?.source||"template-fallback",brokerStatus:"pending",status:"planned",steps });
+    const steps=template.map((step)=>{ const provider=chooseProvider(step,tools); const internal=isInternalProvider(provider); return { ...step, provider, providerStatus:internal?"available":"unresolved", connectionRoute:internal?"internal":"manual", authorization:internal?"granted":"required", creditStatus:internal?"not-applicable":"unknown", executable:internal, status:step.dependsOn.length?"blocked":"ready-to-produce" }; });
+    return save({ version:4,id:`production-plan-${seed.id}`,parcelId:global.BlacklaceParcel?.PARCEL_ID||"blacklace-ecosystem",seedId:seed.id,seedTitle:seed.title,goal:seed.objective,expectedHarvest:seed.firstHarvest,createdAt:nowIso(),updatedAt:nowIso(),toolPackSource:toolPack?.source||"template-fallback",brokerStatus:"not-checked",status:"planned",steps });
   }
 
   function current(){ const seed=activeSeedDefinition(); if(!seed) return null; return load().find((plan)=>plan.seedId===seed.id)||create(seed,null); }
@@ -57,18 +57,21 @@
   async function refreshFromPublisher(){
     const seed=activeSeedDefinition(); if(!seed) return null;
     let toolPack=null;
-    try{ if(global.BlacklaceParcel?.loadToolPack) toolPack=await global.BlacklaceParcel.loadToolPack(seed); }catch(_){}
+    try{ if(global.BlacklaceParcel?.loadToolPack) toolPack=await global.BlacklaceParcel.loadToolPack(seed); }catch(error){ console.warn("Publisher tool pack unavailable",error); }
     const plan=create(seed,toolPack);
     if(global.ConnectionBroker?.planAll){
       const externalSteps=plan.steps.filter((step)=>!isInternalProvider(step.provider));
       const decisions=await global.ConnectionBroker.planAll(seed.id,externalSteps);
       let decisionIndex=0;
       plan.steps=plan.steps.map((step)=>{
-        if(isInternalProvider(step.provider)) return { ...step, providerStatus:"connected", connectionRoute:"internal", authorization:"granted", creditStatus:"not-applicable", executable:true, status:step.dependsOn.length?"blocked":"ready-to-produce" };
+        if(isInternalProvider(step.provider)) return { ...step, providerStatus:"available", connectionRoute:"internal", authorization:"granted", creditStatus:"not-applicable", executable:true, status:step.dependsOn.length?"blocked":"ready-to-produce" };
         const decision=decisions[decisionIndex++]||null; const selected=decision?.selected||null;
         return { ...step, provider:selected?.name||step.provider, providerStatus:selected?.connectionStatus||"not-configured", connectionRoute:selected?.route||"manual", authorization:selected?.authorization||"required", creditStatus:selected?.creditStatus||"unknown", freeTier:selected?.freeTier||null, trial:selected?.trial||null, fallbackProviders:(decision?.alternatives||[]).map((item)=>item.name), brokerDecisionMode:decision?.decisionMode||"unavailable", executable:Boolean(decision?.executable), status:step.dependsOn.length?"blocked":decision?.executable?"ready-to-produce":"waiting-adapter" };
       });
-      plan.brokerStatus="resolved"; plan.updatedAt=nowIso(); save(plan);
+      const external = plan.steps.filter((step)=>!isInternalProvider(step.provider));
+      const executableCount = external.filter((step)=>step.executable).length;
+      plan.brokerStatus = external.length === 0 ? "no-external-step" : executableCount === external.length ? "routes-confirmed" : executableCount > 0 ? "partially-connected" : "connections-required";
+      plan.updatedAt=nowIso(); save(plan);
     }
     if(typeof global.render==="function") global.render();
     return plan;
@@ -81,7 +84,7 @@
     const completed=new Set([...states].filter(([,status])=>status==="ready"||status==="published").map(([id])=>id));
     plan.steps=plan.steps.map((step)=>{
       const producedStatus=states.get(step.id);
-      if(producedStatus==="ready"||producedStatus==="published") return { ...step, status:producedStatus, providerStatus:isInternalProvider(step.provider)?"connected":step.providerStatus, connectionRoute:isInternalProvider(step.provider)?"internal":step.connectionRoute, authorization:isInternalProvider(step.provider)?"granted":step.authorization, creditStatus:isInternalProvider(step.provider)?"not-applicable":step.creditStatus, executable:isInternalProvider(step.provider)||step.executable };
+      if(producedStatus==="ready"||producedStatus==="published") return { ...step, status:producedStatus, providerStatus:isInternalProvider(step.provider)?"confirmed":step.providerStatus, connectionRoute:isInternalProvider(step.provider)?"internal":step.connectionRoute, authorization:isInternalProvider(step.provider)?"granted":step.authorization, creditStatus:isInternalProvider(step.provider)?"not-applicable":step.creditStatus, executable:isInternalProvider(step.provider)||step.executable };
       const dependenciesReady=(step.dependsOn||[]).every((id)=>completed.has(id));
       if(!dependenciesReady) return { ...step, status:"blocked" };
       return { ...step, status:step.executable?"ready-to-produce":"waiting-adapter" };
@@ -90,24 +93,25 @@
     plan.updatedAt=nowIso(); return save(plan);
   }
 
-  function statusLabel(status){ return ({"ready-to-produce":"Prêt",planned:"À préparer",ready:"Produit",producing:"En cours",blocked:"Bloqué","waiting-adapter":"À préparer",published:"Produit"})[status]||status; }
+  function statusLabel(status){ return ({"ready-to-produce":"Prêt à produire",planned:"À préparer",ready:"Produit confirmé",producing:"En cours",blocked:"En attente","waiting-adapter":"Connexion requise",published:"Publié confirmé"})[status]||status; }
+  function brokerLabel(status){ return ({"not-checked":"Connexions non vérifiées","routes-confirmed":"Routes confirmées","partially-connected":"Partiellement connecté","connections-required":"Connexions requises","no-external-step":"Aucune connexion externe"})[status]||status; }
   function render(plan){
     if(!plan) return "";
     const broker=global.ConnectionBroker;
     const rows=plan.steps.map((step,index)=>{
       const dependencies=step.dependsOn.length?`Après : ${step.dependsOn.join(", ")}`:"Point de départ";
-      const connection=step.connectionRoute==="internal"?"✅ Producteur interne":broker?.connectionLabel?.(step.providerStatus)||step.providerStatus||"non résolu";
+      const connection=step.connectionRoute==="internal"?(step.status==="ready"?"✅ Résultat confirmé":"Producteur disponible"):broker?.connectionLabel?.(step.providerStatus)||step.providerStatus||"non résolu";
       const route=step.connectionRoute==="internal"?"Poulpe Fiction":broker?.routeLabel?.(step.connectionRoute)||step.connectionRoute||"route inconnue";
       const credits=step.creditStatus==="not-applicable"?"aucun crédit requis":broker?.creditLabel?.(step.creditStatus)||step.creditStatus||"crédits inconnus";
-      const fallbacks=step.fallbackProviders?.length?`Alternatives : ${step.fallbackProviders.join(", ")}`:isInternalProvider(step.provider)?"Disponible localement":"Aucune alternative mémorisée";
+      const fallbacks=step.fallbackProviders?.length?`Alternatives : ${step.fallbackProviders.join(", ")}`:isInternalProvider(step.provider)?"Aucun résultat tant que la production n’a pas été lancée":"Aucune alternative mémorisée";
       const free=step.freeTier?.available?" · palier gratuit observé":"";
       return `<article class="production-item"><div><span class="production-status">${statusLabel(step.status)}</span><h3>${index+1}. ${esc(step.label)}</h3><p><strong>${esc(step.provider)}</strong> · ${esc(connection)} · ${esc(route)}</p><small>${esc(credits)}${free} · ${esc(dependencies)}<br>${esc(fallbacks)}</small></div><small>${esc(step.type)}</small></article>`;
     }).join("");
-    const refresh=`<button class="ghost" data-refresh-production-plan>🔎 Rechercher les connexions</button>`;
-    return `<section class="production-plan"><p class="eyebrow">🧭 Plan de production · Connection Broker</p><div class="production-head"><div><h2>${esc(plan.seedTitle)}</h2><p>${esc(plan.goal)}</p></div><span>${esc(plan.brokerStatus||plan.status)}</span></div><div class="production-sources"><strong>Récolte visée</strong><p>${esc(plan.expectedHarvest)}</p>${refresh}</div><div class="production-grid">${rows}</div><small>Mistral peut choisir une route ; Publisher connaît les outils, essais et crédits ; Composio ou une API directe n'exécute que si la connexion est réellement confirmée.</small></section>`;
+    const refresh=`<button class="ghost" data-refresh-production-plan>🔎 Vérifier les connexions</button>`;
+    return `<section class="production-plan"><p class="eyebrow">🧭 Plan de production · Connection Broker</p><div class="production-head"><div><h2>${esc(plan.seedTitle)}</h2><p>${esc(plan.goal)}</p></div><span>${esc(brokerLabel(plan.brokerStatus||plan.status))}</span></div><div class="production-sources"><strong>Récolte visée</strong><p>${esc(plan.expectedHarvest)}</p>${refresh}</div><div class="production-grid">${rows}</div><small>Une route n’est marquée confirmée que si Publisher et le serveur reconnaissent réellement la connexion.</small></section>`;
   }
 
-  function bind(){ document.querySelectorAll("[data-refresh-production-plan]").forEach((button)=>{ button.onclick=()=>{ button.disabled=true; button.textContent="Recherche…"; void refreshFromPublisher(); }; }); }
+  function bind(){ document.querySelectorAll("[data-refresh-production-plan]").forEach((button)=>{ button.onclick=()=>{ button.disabled=true; button.textContent="Vérification…"; void refreshFromPublisher(); }; }); }
 
   global.ProductionPlan={STORE_KEY,load,save,create,current,refreshFromPublisher,updateFromProductionPack,render,bind,isInternalProvider};
   const baseRenderAdventure=global.renderAdventureUrge;
