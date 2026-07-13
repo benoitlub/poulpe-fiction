@@ -2,12 +2,10 @@
   "use strict";
 
   const SEED_KINDS = ["intent", "idea", "opportunity", "weak-signal", "request", "book", "game", "app", "page"];
-  const SEED_STATUSES = ["seed", "resonating", "sprouted", "harvested", "composted"];
+  const SEED_STATUSES = ["planted", "observing", "growing", "bag-ready", "adventure", "sprouted", "harvested", "composted"];
   const OPERATION_STATUSES = ["idle", "queued", "running", "paused", "blocked", "ready", "failed"];
 
-  function nowIso() {
-    return new Date().toISOString();
-  }
+  function nowIso() { return new Date().toISOString(); }
 
   function clampSignal(value) {
     const number = Number(value);
@@ -26,13 +24,18 @@
     };
   }
 
+  function normalizeSeedStatus(status) {
+    if (status === "seed" || status === "resonating") return "planted";
+    return SEED_STATUSES.includes(status) ? status : "planted";
+  }
+
   function createSeed(input) {
     if (!input?.id) throw new Error("GardenDomain.createSeed requires an id");
     if (!input?.parcelId) throw new Error("GardenDomain.createSeed requires a parcelId");
 
     const timestamp = input.updatedAt || input.createdAt || nowIso();
+    const plantedAt = input.plantedAt || input.createdAt || timestamp;
     const kind = SEED_KINDS.includes(input.kind) ? input.kind : "idea";
-    const status = SEED_STATUSES.includes(input.status) ? input.status : "seed";
 
     return {
       id: String(input.id),
@@ -42,8 +45,11 @@
       content: String(input.content || input.objective || ""),
       objective: String(input.objective || input.content || ""),
       firstHarvest: String(input.firstHarvest || ""),
-      status,
-      createdAt: input.createdAt || timestamp,
+      status: normalizeSeedStatus(input.status),
+      gardener: String(input.gardener || "gerard"),
+      plantedBy: String(input.plantedBy || "gerard"),
+      plantedAt,
+      createdAt: input.createdAt || plantedAt,
       updatedAt: timestamp,
       signals: createSignals(input.signals),
       tags: Array.isArray(input.tags) ? input.tags.map(String) : [],
@@ -52,57 +58,20 @@
   }
 
   function createSprout(input) {
-    if (!input?.id || !input?.seedId || !input?.parcelId) {
-      throw new Error("GardenDomain.createSprout requires id, seedId and parcelId");
-    }
-    return {
-      id: String(input.id),
-      seedId: String(input.seedId),
-      parcelId: String(input.parcelId),
-      title: String(input.title || input.id),
-      createdAt: input.createdAt || nowIso(),
-      rationale: String(input.rationale || ""),
-      proposedCapabilities: Array.isArray(input.proposedCapabilities)
-        ? input.proposedCapabilities.map(String)
-        : []
-    };
+    if (!input?.id || !input?.seedId || !input?.parcelId) throw new Error("GardenDomain.createSprout requires id, seedId and parcelId");
+    return { id: String(input.id), seedId: String(input.seedId), parcelId: String(input.parcelId), title: String(input.title || input.id), createdAt: input.createdAt || nowIso(), rationale: String(input.rationale || ""), proposedCapabilities: Array.isArray(input.proposedCapabilities) ? input.proposedCapabilities.map(String) : [] };
   }
 
   function createHarvest(input) {
-    if (!input?.id || !input?.parcelId) {
-      throw new Error("GardenDomain.createHarvest requires id and parcelId");
-    }
-    return {
-      id: String(input.id),
-      parcelId: String(input.parcelId),
-      seedId: input.seedId ? String(input.seedId) : null,
-      operationId: input.operationId ? String(input.operationId) : null,
-      productionPackId: input.productionPackId ? String(input.productionPackId) : null,
-      title: String(input.title || "Récolte"),
-      preview: String(input.preview || ""),
-      status: String(input.status || "ready"),
-      createdAt: input.createdAt || nowIso()
-    };
+    if (!input?.id || !input?.parcelId) throw new Error("GardenDomain.createHarvest requires id and parcelId");
+    return { id: String(input.id), parcelId: String(input.parcelId), seedId: input.seedId ? String(input.seedId) : null, operationId: input.operationId ? String(input.operationId) : null, productionPackId: input.productionPackId ? String(input.productionPackId) : null, title: String(input.title || "Récolte"), preview: String(input.preview || ""), status: String(input.status || "ready"), createdAt: input.createdAt || nowIso() };
   }
 
   function createOperation(input) {
-    if (!input?.id || !input?.parcelId || !input?.seedId) {
-      throw new Error("GardenDomain.createOperation requires id, parcelId and seedId");
-    }
+    if (!input?.id || !input?.parcelId || !input?.seedId) throw new Error("GardenDomain.createOperation requires id, parcelId and seedId");
     const status = OPERATION_STATUSES.includes(input.status) ? input.status : "idle";
     const timestamp = input.updatedAt || input.createdAt || nowIso();
-    return {
-      id: String(input.id),
-      parcelId: String(input.parcelId),
-      seedId: String(input.seedId),
-      intent: String(input.intent || "prepare-harvest"),
-      status,
-      activity: String(input.activity || ""),
-      obstacle: input.obstacle || null,
-      createdAt: input.createdAt || timestamp,
-      updatedAt: timestamp,
-      attempt: Math.max(0, Number(input.attempt) || 0)
-    };
+    return { id: String(input.id), parcelId: String(input.parcelId), seedId: String(input.seedId), intent: String(input.intent || "prepare-harvest"), status, activity: String(input.activity || ""), obstacle: input.obstacle || null, createdAt: input.createdAt || timestamp, updatedAt: timestamp, attempt: Math.max(0, Number(input.attempt) || 0) };
   }
 
   function resonanceScore(signals) {
@@ -116,30 +85,8 @@
     const score = resonanceScore(seed?.signals);
     const limits = Object.assign({ sprout: 70, observe: 40 }, thresholds || {});
     const decision = score >= limits.sprout ? "sprout" : score >= limits.observe ? "observe" : "compost";
-    return {
-      seedId: seed?.id || null,
-      score,
-      decision,
-      reasons: [
-        `maturité ${clampSignal(seed?.signals?.maturity)}`,
-        `cohérence ${clampSignal(seed?.signals?.coherence)}`,
-        `utilité ${clampSignal(seed?.signals?.utility)}`,
-        `confiance ${clampSignal(seed?.signals?.confidence)}`
-      ],
-      evaluatedAt: nowIso()
-    };
+    return { seedId: seed?.id || null, score, decision, reasons: [`maturité ${clampSignal(seed?.signals?.maturity)}`, `cohérence ${clampSignal(seed?.signals?.coherence)}`, `utilité ${clampSignal(seed?.signals?.utility)}`, `confiance ${clampSignal(seed?.signals?.confidence)}`], evaluatedAt: nowIso() };
   }
 
-  global.GardenDomain = {
-    SEED_KINDS,
-    SEED_STATUSES,
-    OPERATION_STATUSES,
-    createSignals,
-    createSeed,
-    createSprout,
-    createHarvest,
-    createOperation,
-    resonanceScore,
-    evaluateSeed
-  };
+  global.GardenDomain = { SEED_KINDS, SEED_STATUSES, OPERATION_STATUSES, createSignals, createSeed, createSprout, createHarvest, createOperation, resonanceScore, evaluateSeed };
 })(globalThis);
