@@ -1,0 +1,115 @@
+.garden-hublot {
+  margin: 0 0 22px;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid rgba(132, 178, 255, .26);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(139, 92, 246, .2), transparent 28rem),
+    radial-gradient(circle at 88% 12%, rgba(135, 214, 166, .12), transparent 24rem),
+    rgba(6, 10, 18, .74);
+  box-shadow: inset 0 0 44px rgba(91, 132, 255, .06), 0 22px 60px rgba(0, 0, 0, .24);
+}
+
+.hublot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.hublot-head h2 { font-size: clamp(1.55rem, 4vw, 2.6rem); }
+
+.hublot-pulse {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #8fd6b1;
+  box-shadow: 0 0 0 0 rgba(143, 214, 177, .55);
+  animation: hublotPulse 3s ease-out infinite;
+}
+
+.hublot-now {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .045);
+}
+
+.hublot-gerard {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  font-size: 2rem;
+  background: radial-gradient(circle, rgba(255, 108, 61, .34), rgba(139, 92, 246, .18));
+  animation: hublotBreathe 4s ease-in-out infinite;
+}
+
+.hublot-now strong { display: block; font-size: 1.08rem; }
+.hublot-now p { margin: 6px 0 0; color: #c8b7aa; line-height: 1.45; }
+
+.hublot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.hublot-card {
+  min-height: 155px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 20px;
+  padding: 16px;
+  background: rgba(0, 0, 0, .18);
+}
+
+.hublot-card.growing { border-color: rgba(135, 214, 166, .24); }
+.hublot-card.ready { border-color: rgba(255, 200, 87, .28); }
+.hublot-card.thorn { border-color: rgba(255, 122, 122, .22); }
+.hublot-card.learned { border-color: rgba(132, 178, 255, .25); }
+.hublot-card h3 { margin: 0; font-size: 1.05rem; }
+.hublot-card p:not(.eyebrow) { margin: 8px 0 14px; color: #c8b7aa; line-height: 1.4; }
+
+.hublot-action {
+  margin-top: auto;
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 999px;
+  padding: 9px 13px;
+  color: #f7efe4;
+  background: rgba(255, 255, 255, .07);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.hublot-action:hover { border-color: rgba(255, 108, 61, .65); }
+
+@keyframes hublotPulse {
+  0% { box-shadow: 0 0 0 0 rgba(143, 214, 177, .48); }
+  70% { box-shadow: 0 0 0 13px rgba(143, 214, 177, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(143, 214, 177, 0); }
+}
+
+@keyframes hublotBreathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.03); }
+}
+
+@media (max-width: 720px) {
+  .hublot-grid { grid-template-columns: 1fr; }
+  .hublot-card { min-height: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hublot-pulse,
+  .hublot-gerard { animation: none; }
+  .hublot-action { scroll-behavior: auto; }
+}
