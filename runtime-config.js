@@ -69,10 +69,14 @@
 
   async function checkJson(url, timeoutMs) {
     try {
-      const response = await withTimeout(url, { headers: { Accept: "application/json" } }, timeoutMs);
+      const response = await withTimeout(url, { headers: { Accept: "application/json" }, cache: "no-store" }, timeoutMs);
+      const text = await response.text();
       let payload = null;
-      try { payload = await response.json(); } catch (_) {}
-      return { connected: response.ok, status: response.status, url, payload, error: response.ok ? null : `HTTP ${response.status}` };
+      if (text) {
+        try { payload = JSON.parse(text); }
+        catch (_) { return { connected: false, status: response.status, url, payload: null, error: `Réponse non JSON : ${text.slice(0, 180)}` }; }
+      }
+      return { connected: response.ok, status: response.status, url, payload, error: response.ok ? null : payload?.error || `HTTP ${response.status}` };
     } catch (error) {
       return { connected: false, status: null, url, payload: null, error: error instanceof Error ? error.message : "Request failed" };
     }
@@ -80,7 +84,7 @@
 
   async function checkReachable(url, timeoutMs) {
     try {
-      const response = await withTimeout(url, { mode: "no-cors" }, timeoutMs);
+      const response = await withTimeout(url, { mode: "no-cors", cache: "no-store" }, timeoutMs);
       return { connected: true, status: response.status || "opaque", url, error: null };
     } catch (error) {
       return { connected: false, status: null, url, error: error instanceof Error ? error.message : "Request failed" };
@@ -89,24 +93,44 @@
 
   async function testConnections(timeoutMs = 8000) {
     const octopusHealthUrl = `${urls.octopusApi}/health`;
+    const publisherHealthUrl = `${urls.publisherApi}/api/healthz`;
+    const publisherAiUrl = `${urls.publisherApi}/api/ai-gateway/status`;
     const publisherDiagnosticsUrl = `${urls.publisherApi}/api/production/diagnostics`;
-    const publisherLocalTechniqueUrl = `${urls.publisherFrontend}/local-technique`;
-    const [octopus, publisherApi, publisherFrontend] = await Promise.all([
+    const publisherLocalTechniqueUrl = `${urls.publisherFrontend}/connectors`;
+    const [octopus, publisherHealth, publisherAi, publisherProduction, publisherFrontend] = await Promise.all([
       checkJson(octopusHealthUrl, timeoutMs),
+      checkJson(publisherHealthUrl, timeoutMs),
+      checkJson(publisherAiUrl, timeoutMs),
       checkJson(publisherDiagnosticsUrl, timeoutMs),
       checkReachable(publisherLocalTechniqueUrl, timeoutMs)
     ]);
-    const canvaConnected = Boolean(
-      publisherApi.payload?.canva?.connected ||
-      publisherApi.payload?.composio?.canvaConnected
+
+    const healthAi = publisherHealth.payload?.integrations?.ai || {};
+    const mistralActive = Boolean(
+      publisherHealth.payload?.integrations?.mistral?.active ||
+      (String(healthAi.provider || publisherAi.payload?.provider || "").toLowerCase() === "mistral" && (healthAi.configured !== false))
     );
+    const canvaConnected = Boolean(
+      publisherProduction.payload?.canva?.connected ||
+      publisherProduction.payload?.composio?.canvaConnected
+    );
+
     return {
       checkedAt: new Date().toISOString(),
       environment,
       urls,
       octopus,
-      publisherApi,
+      publisherApi: publisherHealth,
+      publisherAi,
+      publisherProduction,
       publisherFrontend,
+      mistral: {
+        connected: publisherAi.connected && mistralActive,
+        status: mistralActive ? "Mistral actif via Publisher Render" : "Mistral non confirmé",
+        provider: healthAi.provider || publisherAi.payload?.provider || null,
+        model: healthAi.model || publisherAi.payload?.model || null,
+        url: publisherAiUrl
+      },
       canva: {
         connected: canvaConnected,
         status: canvaConnected ? "connecté via Composio" : "non connecté",
