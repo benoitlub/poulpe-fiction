@@ -2,6 +2,32 @@
   "use strict";
 
   const EMPTY_MESSAGE = "Le jardin est calme. Gérard l’a décidé.";
+  const POLES = [
+    { id: "radar", label: "Radar", x: 28, y: 38 },
+    { id: "observatoire", label: "Observatoire", x: 82, y: 24 },
+    { id: "publisher", label: "Publisher", x: 158, y: 46 },
+    { id: "octopus", label: "Octopus", x: 138, y: 112 },
+    { id: "garden", label: "Garden", x: 52, y: 110 },
+  ];
+  const LINKS = [
+    ["radar", "observatoire"],
+    ["observatoire", "publisher"],
+    ["publisher", "octopus"],
+    ["octopus", "garden"],
+    ["garden", "radar"],
+    ["observatoire", "octopus"],
+    ["publisher", "garden"],
+  ];
+  const STATUS_LABEL = {
+    calme: EMPTY_MESSAGE,
+    observation: "Gérard observe.",
+    reflexion: "Gérard réfléchit.",
+    preparation: "Gérard prépare.",
+    experimentation: "Gérard expérimente.",
+    recolte: "Gérard récolte.",
+    blocage: "Gérard est bloqué.",
+    reussite: "Gérard a réussi.",
+  };
 
   function esc(value) {
     return String(value || "").replace(/[&<>'"]/g, (char) => ({
@@ -17,24 +43,36 @@
     return String(value || "").trim();
   }
 
-  function event(input) {
-    return {
-      id: compact(input.id) || `${compact(input.type) || "activity"}_${compact(input.createdAt) || Date.now()}`,
-      type: compact(input.type) || "garden",
-      label: compact(input.label),
-      detail: compact(input.detail),
-      createdAt: compact(input.createdAt) || new Date().toISOString(),
-      tone: compact(input.tone) || "neutral"
-    };
+  function timestamp(value) {
+    const parsed = Date.parse(compact(value));
+    return Number.isFinite(parsed) ? parsed : Date.now();
   }
 
-  function stableTime(value) {
-    return compact(value) || new Date().toISOString();
+  function polePos(id) {
+    return POLES.find((pole) => pole.id === id) || POLES[4];
+  }
+
+  function linkKey(a, b) {
+    return [a, b].sort().join("-");
+  }
+
+  function poleName(pole) {
+    return { radar: "Radar", observatoire: "Observatoire", publisher: "Publisher", octopus: "Octopus", garden: "Garden" }[pole] || pole;
+  }
+
+  function event(input) {
+    return {
+      id: compact(input.id) || `${compact(input.pole) || "activity"}_${compact(input.at) || Date.now()}`,
+      pole: compact(input.pole) || "garden",
+      label: compact(input.label),
+      status: compact(input.status) || undefined,
+      at: Number.isFinite(Number(input.at)) ? Number(input.at) : timestamp(input.createdAt),
+    };
   }
 
   function addUnique(events, next) {
     if (!next?.label) return;
-    if (events.some((item) => item.id === next.id || (item.type === next.type && item.detail === next.detail))) return;
+    if (events.some((item) => item.id === next.id || (item.pole === next.pole && item.label === next.label))) return;
     events.push(next);
   }
 
@@ -52,79 +90,70 @@
     if (activeSeed?.id) {
       addUnique(events, event({
         id: `seed:${activeSeed.id}`,
-        type: "seed-spotted",
-        label: "Nouvelle graine repérée",
-        detail: activeSeed.title || activeSeed.seedTitle || activeSeed.id,
-        createdAt: stableTime(activeSeed.updatedAt || activeSeed.createdAt),
-        tone: "success"
+        pole: "radar",
+        status: "observation",
+        label: `Nouvelle graine repérée · ${activeSeed.title || activeSeed.seedTitle || activeSeed.id}`,
+        createdAt: activeSeed.updatedAt || activeSeed.createdAt,
       }));
     }
 
     if (runtimeState.loading) {
       addUnique(events, event({
         id: "garden:observing",
-        type: "garden-observing",
-        label: "Gérard observe",
-        detail: "Actualisation du Garden en cours.",
-        createdAt: new Date().toISOString(),
-        tone: "active"
+        pole: "observatoire",
+        status: "observation",
+        label: "Gérard observe · Actualisation du Garden",
+        at: Date.now(),
       }));
     }
 
     if (runtimeRecord?.activity) {
       const status = compact(runtimeRecord.status);
-      const label = ["queued", "running"].includes(status)
-        ? "Une tentative est en cours"
-        : ["blocked", "failed"].includes(status)
-          ? "Une épine bloque la sortie"
-          : "Gérard observe";
+      const isAttempt = ["queued", "running"].includes(status);
+      const isBlocked = ["blocked", "failed"].includes(status);
       addUnique(events, event({
         id: `garden:${runtimeRecord.operationId || runtimeRecord.updatedAt || status}`,
-        type: status ? `garden-${status}` : "garden-activity",
-        label,
-        detail: runtimeRecord.activity,
-        createdAt: stableTime(runtimeRecord.updatedAt),
-        tone: ["blocked", "failed"].includes(status) ? "error" : "active"
+        pole: isBlocked || isAttempt ? "octopus" : "observatoire",
+        status: isBlocked ? "blocage" : isAttempt ? "experimentation" : "observation",
+        label: `${isBlocked ? "Une épine bloque la sortie" : isAttempt ? "Une tentative est en cours" : "Gérard observe"} · ${runtimeRecord.activity}`,
+        createdAt: runtimeRecord.updatedAt,
       }));
     }
 
     if (runtimeRecord?.harvest) {
       addUnique(events, event({
         id: `harvest:${runtimeRecord.harvest.id || runtimeRecord.operationId || runtimeRecord.updatedAt}`,
-        type: "harvest-returned",
-        label: "Une récolte revient au Garden",
-        detail: runtimeRecord.harvest.title || "Récolte disponible",
-        createdAt: stableTime(runtimeRecord.updatedAt),
-        tone: "success"
+        pole: "garden",
+        status: "recolte",
+        label: `Une récolte revient au Garden · ${runtimeRecord.harvest.title || "Récolte disponible"}`,
+        createdAt: runtimeRecord.updatedAt,
       }));
     }
 
     if (runtimeError) {
       addUnique(events, event({
         id: `thorn:${runtimeError}`,
-        type: "thorn-blocking",
-        label: "Une épine bloque la sortie",
-        detail: runtimeError,
-        tone: "error"
+        pole: "octopus",
+        status: "blocage",
+        label: `Une épine bloque la sortie · ${runtimeError}`,
+        at: Date.now(),
       }));
     }
 
     if (draft?.id && draft.status !== "cancelled") {
       addUnique(events, event({
         id: `draft:${draft.id}`,
-        type: "bag-prepared",
-        label: "Gérard prépare son sac",
-        detail: draft.objective || draft.curiosity?.title || draft.id,
-        createdAt: stableTime(draft.updatedAt || draft.createdAt),
-        tone: draft.status === "validated" ? "success" : "active"
+        pole: "publisher",
+        status: "preparation",
+        label: `Gérard prépare son sac · ${draft.objective || draft.curiosity?.title || draft.id}`,
+        createdAt: draft.updatedAt || draft.createdAt,
       }));
       (draft.grafts || []).forEach((graft) => addUnique(events, event({
         id: `graft:${draft.id}:${graft}`,
-        type: "graft-consulted",
-        label: "Un greffon est consulté",
-        detail: graft,
-        createdAt: stableTime(draft.updatedAt || draft.createdAt),
-        tone: "neutral"
+        pole: "octopus",
+        status: "reflexion",
+        label: `Un greffon est consulté · ${graft}`,
+        createdAt: draft.updatedAt || draft.createdAt,
       })));
     }
 
@@ -132,40 +161,57 @@
       if (bundle.failure) {
         addUnique(events, event({
           id: `failure:${bundle.id}`,
-          type: "thorn-blocking",
-          label: "Une épine bloque la sortie",
-          detail: bundle.failure.reason,
-          createdAt: stableTime(bundle.createdAt),
-          tone: "error"
+          pole: "octopus",
+          status: "blocage",
+          label: `Une épine bloque la sortie · ${bundle.failure.reason}`,
+          createdAt: bundle.createdAt,
         }));
       }
       (bundle.harvests || []).forEach((harvest) => addUnique(events, event({
         id: `return-harvest:${harvest.id}`,
-        type: "harvest-returned",
-        label: "Une récolte revient au Garden",
-        detail: harvest.title,
-        createdAt: stableTime(harvest.createdAt || bundle.createdAt),
-        tone: "success"
+        pole: "garden",
+        status: "recolte",
+        label: `Une récolte revient au Garden · ${harvest.title}`,
+        createdAt: harvest.createdAt || bundle.createdAt,
       })));
       (bundle.seeds || []).forEach((seed) => addUnique(events, event({
         id: `return-seed:${seed.id}`,
-        type: "seed-spotted",
-        label: "Nouvelle graine repérée",
-        detail: seed.title,
-        createdAt: stableTime(seed.createdAt || bundle.createdAt),
-        tone: "success"
+        pole: "radar",
+        status: "observation",
+        label: `Nouvelle graine repérée · ${seed.title}`,
+        createdAt: seed.createdAt || bundle.createdAt,
       })));
     });
 
-    return events.sort((left, right) => String(right.createdAt).localeCompare(String(left.createdAt))).slice(0, 8);
+    return events.sort((left, right) => left.at - right.at).slice(-8);
+  }
+
+  function renderLinks(activeLink) {
+    return LINKS.map(([a, b]) => {
+      const pa = polePos(a);
+      const pb = polePos(b);
+      const key = linkKey(a, b);
+      return `<line class="ae-link ${activeLink === key ? "is-active" : ""}" x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" />`;
+    }).join("");
+  }
+
+  function renderPoles(activePole) {
+    return POLES.map((pole) => `<g class="ae-pole ${activePole === pole.id ? "is-active" : ""}" transform="translate(${pole.x} ${pole.y})" data-activity-pole="${esc(pole.id)}"><circle class="ae-pole-halo" r="14"></circle><circle class="ae-pole-ring" r="5"></circle><circle class="ae-pole-core" r="2.2"></circle><text class="ae-pole-label" y="-9" text-anchor="middle">${esc(pole.label)}</text></g>`).join("");
   }
 
   function render(events) {
     const items = Array.isArray(events) ? events : [];
-    if (items.length === 0) {
-      return `<section class="activity-echo"><p class="eyebrow">Écho du Garden</p><p class="activity-echo-empty">${esc(EMPTY_MESSAGE)}</p></section>`;
-    }
-    return `<section class="activity-echo"><p class="eyebrow">Écho du Garden</p><div class="activity-echo-list">${items.map((item) => `<article class="activity-echo-item ${esc(item.tone)}"><div><strong>${esc(item.label)}</strong>${item.detail ? `<p>${esc(item.detail)}</p>` : ""}</div><small>${esc(item.type)}</small></article>`).join("")}</div></section>`;
+    const lastEvent = items[items.length - 1];
+    const previousEvent = items[items.length - 2];
+    const status = lastEvent?.status || "calme";
+    const currentPole = lastEvent?.pole || "garden";
+    const pos = polePos(currentPole);
+    const leftPct = (pos.x / 200) * 100;
+    const topPct = (pos.y / 150) * 100;
+    const activeLink = previousEvent ? linkKey(previousEvent.pole, currentPole) : null;
+    const timeline = items.slice(-5).reverse();
+
+    return `<section class="activity-echo ae-root" data-status="${esc(status)}" role="group" aria-label="Écho d'activité de Gérard"><div class="ae-sr" aria-live="polite">${esc(STATUS_LABEL[status] || STATUS_LABEL.calme)}</div><div class="ae-scene"><svg class="ae-svg" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet"><defs><radialGradient id="ae-pole-grad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="currentColor" stop-opacity="0.9"></stop><stop offset="100%" stop-color="currentColor" stop-opacity="0"></stop></radialGradient></defs>${renderLinks(activeLink)}${renderPoles(currentPole)}</svg><div class="ae-creature-wrap" style="left:${leftPct}%;top:${topPct}%;" aria-hidden="true"><svg class="ae-creature" viewBox="-22 -22 44 44"><circle class="ae-creature-body" r="7"></circle><circle class="ae-creature-core" r="2.4"></circle><path class="ae-creature-tent" d="M -5 5 q -3 5 -8 6"></path><path class="ae-creature-tent" d="M  0 7 q  0 6  1 10"></path><path class="ae-creature-tent" d="M  5 5 q  4 5  8 5"></path></svg></div></div>${timeline.length === 0 ? `<div class="ae-veille">${esc(EMPTY_MESSAGE)}</div>` : `<ol class="ae-timeline" aria-label="Derniers événements">${timeline.map((item, index) => `<li class="ae-timeline-item" style="opacity:${1 - index * 0.18}" title="${esc(new Date(item.at).toLocaleTimeString())}"><strong>${esc(poleName(item.pole))}</strong><span>${esc(item.label)}</span>${index < timeline.length - 1 ? `<span class="ae-timeline-sep"> · </span>` : ""}</li>`).join("")}</ol>`}</section>`;
   }
 
   function mount() {
@@ -183,7 +229,7 @@
     else root.insertAdjacentHTML("beforeend", html);
   }
 
-  global.ActivityEcho = { EMPTY_MESSAGE, collectEvents, render, mount };
+  global.ActivityEcho = { EMPTY_MESSAGE, POLES, LINKS, collectEvents, render, mount };
 
   if (typeof global.render === "function") {
     const baseRender = global.render;

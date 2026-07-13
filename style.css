@@ -6,59 +6,6 @@ body {
   background: radial-gradient(circle at top left, rgba(255,108,61,.24), transparent 34rem), #100c12;
 }
 
-.activity-echo {
-  margin-top: 18px;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.activity-echo-empty {
-  margin: 8px 0 0;
-  color: #c8b7aa;
-}
-
-.activity-echo-list {
-  display: grid;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.activity-echo-item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.activity-echo-item p {
-  margin: 4px 0 0;
-  color: #c8b7aa;
-}
-
-.activity-echo-item small {
-  flex-shrink: 0;
-  color: #c8b7aa;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-}
-
-.activity-echo-item.active {
-  border-color: rgba(117, 180, 255, 0.35);
-}
-
-.activity-echo-item.success {
-  border-color: rgba(112, 215, 169, 0.35);
-}
-
-.activity-echo-item.error {
-  border-color: rgba(255, 122, 122, 0.4);
-}
 * { box-sizing: border-box; }
 .app { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
 .card {
