@@ -84,12 +84,7 @@
 
   function publisherUrl() {
     try {
-      const base = typeof global.PUBLISHER_API === "string" ? global.PUBLISHER_API : "";
-      const configured = localStorage.getItem("PUBLISHER_FRONTEND_URL") || "";
-      const fallback = base.includes("blacklace-publisher-api")
-        ? "https://blacklace-publisher.onrender.com"
-        : base;
-      return (configured || fallback || "https://blacklace-publisher.onrender.com").replace(/\/api$/, "").replace(/\/$/, "");
+      return global.PoulpeRuntimeConfig.urls.publisherFrontend.replace(/\/$/, "");
     } catch (_) {
       return "https://blacklace-publisher.onrender.com";
     }

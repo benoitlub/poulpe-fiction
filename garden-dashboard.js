@@ -391,7 +391,7 @@
       </div>
       <article class="garden-card connection-summary">
         <div><p class="eyebrow">Connexions</p><h3>${esc(connectionLabel)}</h3><p>Les clés et providers restent dans Publisher. Poulpe-Fiction affiche seulement l'état utile au jardin.</p></div>
-        <a class="primary garden-link" href="${esc(data.publisherUrl)}/local-technique" target="_blank" rel="noopener">Ouvrir le Local technique</a>
+        <a class="primary garden-link" href="${esc(data.publisherUrl)}/" target="_blank" rel="noopener">Ouvrir Publisher</a>
       </article>
     </section>`;
   }
@@ -536,7 +536,7 @@
     return `<section class="garden-dashboard">
       <div class="garden-dashboard-top">
         <div><p class="eyebrow">Garden</p><h2>${esc(VIEWS.find(([id]) => id === data.dashboard.selectedView)?.[1] || "Hublot")}</h2></div>
-        <a href="${esc(data.publisherUrl)}/local-technique" target="_blank" rel="noopener">Local technique ↗</a>
+        <a href="${esc(data.publisherUrl)}/" target="_blank" rel="noopener">Publisher ↗</a>
       </div>
       <nav class="garden-nav">${nav}</nav>
       ${viewContent(data)}

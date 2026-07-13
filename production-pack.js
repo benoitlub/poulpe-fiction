@@ -48,17 +48,20 @@
     return value;
   }
   async function refreshConnections() {
-    const base = publisherBaseUrl();
-    if (!base) return saveConnections({ status: "inaccessible", payload: null, error: "Publisher API non configuree." });
     try {
-      const response = await fetch(`${base}/api/production/diagnostics`);
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || "Diagnostic Publisher inaccessible.");
-      return saveConnections({ status: "ready", payload, error: null });
+      const runtime = await global.PoulpeRuntimeConfig.testConnections();
+      const payload = runtime.publisherApi.payload;
+      return saveConnections({
+        status: runtime.publisherApi.connected ? "ready" : "inaccessible",
+        payload,
+        runtime,
+        error: runtime.publisherApi.connected ? null : (runtime.publisherApi.error || "Diagnostic Publisher inaccessible.")
+      });
     } catch (error) {
       return saveConnections({
         status: "inaccessible",
         payload: null,
+        runtime: null,
         error: error instanceof Error ? error.message : "Diagnostic Publisher inaccessible."
       });
     }
@@ -206,6 +209,32 @@
     return `data:${mimeType || "text/plain"};charset=utf-8,${encodeURIComponent(content || "")}`;
   }
 
+  function runtimeDiagnostics(connections) {
+    const runtime = connections?.runtime;
+    const fallback = global.PoulpeRuntimeConfig;
+    const urls = runtime?.urls || fallback?.urls || {};
+    return {
+      octopus: runtime?.octopus || { connected: false, url: `${urls.octopusApi}/health`, error: connections?.error || "Non teste" },
+      publisherApi: runtime?.publisherApi || { connected: false, url: `${urls.publisherApi}/api/production/diagnostics`, error: connections?.error || "Non teste" },
+      publisherFrontend: runtime?.publisherFrontend || { connected: false, url: urls.publisherFrontend, error: "Non teste" },
+      canva: runtime?.canva || { connected: false, status: "non connecté", url: `${urls.publisherApi}/api/production/diagnostics` }
+    };
+  }
+
+  function diagnosticLine(label, status, url, detail) {
+    return `<article class="production-diagnostic"><strong>${escapeHtml(label)}</strong><span>${escapeHtml(status)}</span><small>${escapeHtml(url || "")}</small>${detail ? `<em>${escapeHtml(detail)}</em>` : ""}</article>`;
+  }
+
+  function renderRuntimeDiagnostics(connections) {
+    const diagnostics = runtimeDiagnostics(connections);
+    return `<div class="production-diagnostics">
+      ${diagnosticLine("Octopus", diagnostics.octopus.connected ? "connecté" : "indisponible", diagnostics.octopus.url, diagnostics.octopus.error)}
+      ${diagnosticLine("Publisher API", diagnostics.publisherApi.connected ? "connecté" : "indisponible", diagnostics.publisherApi.url, diagnostics.publisherApi.error)}
+      ${diagnosticLine("Publisher frontend", diagnostics.publisherFrontend.connected ? "accessible" : "inaccessible", diagnostics.publisherFrontend.url, diagnostics.publisherFrontend.error)}
+      ${diagnosticLine("Canva", diagnostics.canva.connected ? "connecté via Composio" : "non connecté", diagnostics.canva.url, diagnostics.canva.status)}
+    </div>`;
+  }
+
   function artifactCard(artifact, pack) {
     const connections = loadConnections();
     const status = artifactStatus(artifact, connections);
@@ -239,7 +268,7 @@
     const connectionSummary = connections?.status === "ready"
       ? `Canva ${connectionStatus("Canva", connections)} - ElevenLabs ${connectionStatus("ElevenLabs", connections)} - Mistral ${connectionStatus("Mistral", connections)}`
       : (connections?.error || "Diagnostic non charge.");
-    return `<section class="production-pack"><p class="eyebrow">Production Pack</p><div class="production-head"><div><h2>${escapeHtml(pack.title)}</h2><p>Les resultats concrets apparaissent ici. L'etat operationnel vient du diagnostic Publisher courant.</p></div><span>${escapeHtml(connectionSummary)}</span></div><div class="play-actions"><button class="primary" data-production-now>Produire maintenant</button><button class="ghost" data-open-all-harvests>Voir toutes les recoltes</button><button class="ghost" data-refresh-production-connections>Actualiser les connexions</button></div><div class="production-sources"><strong>Sources verifiees</strong><p>${sourceLinks || "Aucune source distante reliee."}</p></div><h3>Artefacts</h3><div class="production-grid">${pack.artifacts.map((item) => artifactCard(item, pack)).join("")}</div><h3>Publications</h3><div class="production-grid">${(pack.publications || []).map(publicationCard).join("")}</div></section>`;
+    return `<section class="production-pack"><p class="eyebrow">Production Pack</p><div class="production-head"><div><h2>${escapeHtml(pack.title)}</h2><p>Les resultats concrets apparaissent ici. L'etat operationnel vient des URLs Render officielles.</p></div><span>${escapeHtml(connectionSummary)}</span></div><div class="production-build"><strong>Build ${escapeHtml(global.PoulpeRuntimeConfig?.buildSha || "local")}</strong><span>Production</span></div>${renderRuntimeDiagnostics(connections)}<div class="play-actions"><button class="primary" data-production-now>Produire maintenant</button><button class="ghost" data-open-all-harvests>Voir toutes les recoltes</button><button class="ghost" data-refresh-production-connections>Tester les connexions</button></div><div class="production-sources"><strong>Sources verifiees</strong><p>${sourceLinks || "Aucune source distante reliee."}</p></div><h3>Artefacts</h3><div class="production-grid">${pack.artifacts.map((item) => artifactCard(item, pack)).join("")}</div><h3>Publications</h3><div class="production-grid">${(pack.publications || []).map(publicationCard).join("")}</div></section>`;
   }
 
   function bind(pack) {

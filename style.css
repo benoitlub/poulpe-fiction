@@ -37,6 +37,12 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .primary:disabled,.ghost:disabled { cursor: not-allowed; opacity: .55; }
 .ghost { background: rgba(255,255,255,.08); color: #f7efe4; }
 .production-link { display: inline-flex; align-items: center; text-decoration: none; }
+.production-build { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; color: #c8b7aa; font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; }
+.production-diagnostics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; margin: 16px 0; }
+.production-diagnostic { min-width: 0; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 12px; background: rgba(0,0,0,.16); }
+.production-diagnostic strong,.production-diagnostic span,.production-diagnostic small,.production-diagnostic em { display: block; min-width: 0; overflow-wrap: anywhere; }
+.production-diagnostic span { margin: 6px 0; color: #f7efe4; font-weight: 800; }
+.production-diagnostic small,.production-diagnostic em { color: #c8b7aa; font-style: normal; }
 .gerard-chat { border: 1px solid rgba(255,255,255,.14); border-radius: 28px; padding: 20px; margin: 0 0 22px; background: radial-gradient(circle at top left, rgba(139,92,246,.18), rgba(255,255,255,.045)); }
 .chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
 .chat-head p { color: #d5c9bf; margin: 8px 0 0; line-height: 1.45; }
@@ -107,7 +113,7 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
 .production-item h3 { margin: 10px 0 6px; }
 .production-item p { margin: 0; color: #c8b7aa; }
 .production-status { font-size: .82rem; font-weight: 900; color: #fff1d8; }
-@media(max-width:900px){ .grid,.plans,.cuttings,.playground-grid,.adventure-grid,.production-grid{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head,.chat-head,.production-head{align-items:stretch;flex-direction:column}.objective{min-height:auto}.chat-message{width:100%}.chat-form{grid-template-columns:1fr}.chat-form input{min-height:48px}.chat-suggestions button{flex:1 1 auto} }
+@media(max-width:900px){ .grid,.plans,.cuttings,.playground-grid,.adventure-grid,.production-grid,.production-diagnostics{grid-template-columns:1fr}.mission{grid-template-columns:1fr}.actions,.progress,.greenhouse-head,.chat-head,.production-head{align-items:stretch;flex-direction:column}.objective{min-height:auto}.chat-message{width:100%}.chat-form{grid-template-columns:1fr}.chat-form input{min-height:48px}.chat-suggestions button{flex:1 1 auto} }
 
 .garden-dashboard {
   border: 1px solid rgba(135,214,166,.2);

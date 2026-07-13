@@ -19,6 +19,7 @@ function createContext() {
     Number,
     Array,
     Object,
+    URL,
     localStorage: {
       getItem: (key) => store.has(key) ? store.get(key) : null,
       setItem: (key, value) => { store.set(key, String(value)); },
@@ -29,6 +30,10 @@ function createContext() {
       querySelector: () => null,
       querySelectorAll: () => [],
     },
+    fetch: async () => ({ ok: true, status: 200, json: async () => ({}) }),
+    AbortController,
+    setTimeout,
+    clearTimeout,
     render() {},
   };
   context.globalThis = context;
@@ -38,10 +43,61 @@ function createContext() {
 
 function loadModules(context) {
   vm.createContext(context);
+  vm.runInContext(fs.readFileSync("runtime-config.js", "utf8"), context);
   vm.runInContext(fs.readFileSync("garden-persistence.js", "utf8"), context);
   vm.runInContext(fs.readFileSync("garden-dashboard.js", "utf8"), context);
   return context;
 }
+
+function loadRuntimeConfig(context = createContext()) {
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync("runtime-config.js", "utf8"), context);
+  return context;
+}
+
+test("sanitizes local URLs to Render URLs in production", () => {
+  const context = loadRuntimeConfig();
+  const sanitize = context.PoulpeRuntimeConfig.sanitizeServiceUrl;
+  assert.equal(sanitize("http://localhost:5173", "https://octopus-engine.onrender.com", "production"), "https://octopus-engine.onrender.com");
+  assert.equal(sanitize("http://127.0.0.1:3000", "https://blacklace-publisher-api.onrender.com", "production"), "https://blacklace-publisher-api.onrender.com");
+  assert.equal(sanitize("http://0.0.0.0:3000", "https://blacklace-publisher.onrender.com", "production"), "https://blacklace-publisher.onrender.com");
+  assert.equal(sanitize("http://host.docker.internal:3000", "https://blacklace-publisher.onrender.com", "production"), "https://blacklace-publisher.onrender.com");
+});
+
+test("allows localhost in development only", () => {
+  const context = loadRuntimeConfig();
+  const sanitize = context.PoulpeRuntimeConfig.sanitizeServiceUrl;
+  assert.equal(sanitize("http://localhost:5173", "https://octopus-engine.onrender.com", "development"), "http://localhost:5173");
+});
+
+test("removes stale API localStorage overrides without clearing Garden data", () => {
+  const context = createContext();
+  context.localStorage.setItem("PUBLISHER_API_URL", "http://localhost:3000");
+  context.localStorage.setItem("OCTOPUS_API_URL", "http://127.0.0.1:3001");
+  context.localStorage.setItem("API_URL", "http://0.0.0.0:3002");
+  context.localStorage.setItem("poulpe-fiction:garden-runtime-cache:v1", "{\"status\":\"idle\"}");
+  loadRuntimeConfig(context);
+  assert.equal(context.localStorage.getItem("PUBLISHER_API_URL"), null);
+  assert.equal(context.localStorage.getItem("OCTOPUS_API_URL"), null);
+  assert.equal(context.localStorage.getItem("API_URL"), null);
+  assert.equal(context.localStorage.getItem("poulpe-fiction:garden-runtime-cache:v1"), "{\"status\":\"idle\"}");
+});
+
+test("uses official Render URLs and loads runtime config before app scripts", () => {
+  const context = loadRuntimeConfig();
+  assert.equal(context.PoulpeRuntimeConfig.urls.octopusApi, "https://octopus-engine.onrender.com");
+  assert.equal(context.PoulpeRuntimeConfig.urls.publisherApi, "https://blacklace-publisher-api.onrender.com");
+  assert.equal(context.PoulpeRuntimeConfig.urls.publisherFrontend, "https://blacklace-publisher.onrender.com");
+  const html = fs.readFileSync("index.html", "utf8");
+  assert.ok(html.indexOf("./build-info.js") < html.indexOf("./runtime-config.js"));
+  assert.ok(html.indexOf("./runtime-config.js") > -1);
+  assert.ok(html.indexOf("./runtime-config.js") < html.indexOf("./app.js"));
+});
+
+test("does not link Poulpe users to the Publisher local-technique path", () => {
+  const dashboard = fs.readFileSync("garden-dashboard.js", "utf8");
+  assert.equal(dashboard.includes("/local-technique"), false);
+});
 
 function loadProductionPack(context) {
   vm.runInContext(fs.readFileSync("production-pack.js", "utf8"), context);

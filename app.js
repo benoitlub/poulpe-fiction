@@ -1,5 +1,6 @@
-const OCTOPUS_API = "https://octopus-engine.onrender.com";
-const PUBLISHER_API = globalThis.PUBLISHER_API_URL || localStorage.getItem("PUBLISHER_API_URL") || "https://blacklace-publisher-api.onrender.com";
+const OCTOPUS_API = globalThis.PoulpeRuntimeConfig.urls.octopusApi;
+const PUBLISHER_API = globalThis.PoulpeRuntimeConfig.urls.publisherApi;
+const PUBLISHER_FRONTEND = globalThis.PoulpeRuntimeConfig.urls.publisherFrontend;
 const ATTRACTIONS_KEY = "poulpe-fiction:greenhouse-attractions:v1";
 const DREAMS_KEY = "poulpe-fiction:dreams:v1";
 const CHAT_KEY = "poulpe-fiction:gerard-chat:v1";
