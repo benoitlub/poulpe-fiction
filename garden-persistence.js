@@ -86,7 +86,7 @@
     try {
       return global.PoulpeRuntimeConfig.urls.publisherFrontend.replace(/\/$/, "");
     } catch (_) {
-      return "https://blacklace-publisher.onrender.com";
+      return "https://blacklace-publisher-web.onrender.com";
     }
   }
 
