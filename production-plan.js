@@ -90,7 +90,7 @@
     plan.updatedAt=nowIso(); return save(plan);
   }
 
-  function statusLabel(status){ return ({"ready-to-produce":"🟢 Prêt à produire",planned:"🧭 Planifié",ready:"✅ Produit",producing:"🟡 En production",blocked:"⏳ Dépendance en attente","waiting-adapter":"🔌 Adaptateur à brancher",published:"🚀 Publié"})[status]||status; }
+  function statusLabel(status){ return ({"ready-to-produce":"Prêt",planned:"À préparer",ready:"Produit",producing:"En cours",blocked:"Bloqué","waiting-adapter":"À préparer",published:"Produit"})[status]||status; }
   function render(plan){
     if(!plan) return "";
     const broker=global.ConnectionBroker;

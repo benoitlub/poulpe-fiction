@@ -138,6 +138,16 @@ textarea { width: 100%; min-height: 170px; margin: 26px 0 20px; border: 1px soli
   gap: 10px;
 }
 .garden-nav { margin: 16px 0; }
+.harvest-content {
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(0,0,0,.22);
+}
 .garden-nav-item,
 .garden-filter {
   border: 1px solid rgba(255,255,255,.12);

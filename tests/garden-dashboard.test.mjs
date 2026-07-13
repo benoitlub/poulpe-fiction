@@ -43,6 +43,11 @@ function loadModules(context) {
   return context;
 }
 
+function loadProductionPack(context) {
+  vm.runInContext(fs.readFileSync("production-pack.js", "utf8"), context);
+  return context;
+}
+
 function fixtureContext() {
   const context = createContext();
   context.GardenStore = {
@@ -137,4 +142,54 @@ test("mobile navigation styles are present", () => {
   assert.match(css, /@media\(max-width:900px\)/);
   assert.match(css, /\.garden-nav-item/);
   assert.match(css, /width:\s*100%/);
+});
+
+test("exposes produced harvest content and Canva URL", () => {
+  const context = createContext();
+  context.GardenStore = {
+    snapshot: () => ({ parcels: [], seeds: [], sprouts: [], harvests: [], operations: [] })
+  };
+  context.AdventureReturnProcessor = {
+    loadOutbox: () => [{
+      id: "return-production",
+      status: "ready",
+      parcelId: "blacklace-ecosystem",
+      missionId: "mission-production",
+      createdAt: "2026-07-06T10:00:00.000Z",
+      harvests: [
+        { id: "harvest-landing", title: "Landing page TERRA", description: "Landing ready", artifactType: "landing-page", artifact: "Full landing text", createdAt: "2026-07-06T10:00:00.000Z", missionId: "mission-production", parcelId: "blacklace-ecosystem" },
+        { id: "harvest-canva", title: "Canva TERRA", description: "Canva design", artifactType: "instagram-visual", artifact: { url: "https://canva.example/design" }, url: "https://canva.example/design", createdAt: "2026-07-06T11:00:00.000Z", missionId: "mission-production", parcelId: "blacklace-ecosystem" }
+      ]
+    }]
+  };
+  loadModules(context);
+  const harvests = context.GardenDashboard.harvests(context.GardenPersistence.snapshot());
+  assert.equal(harvests.find((harvest) => harvest.id === "harvest-landing").content.text, "Full landing text");
+  assert.equal(harvests.find((harvest) => harvest.id === "harvest-canva").url, "https://canva.example/design");
+});
+
+test("uses live production diagnostics instead of stale pack connector status", () => {
+  const context = createContext();
+  vm.createContext(context);
+  context.state = { step: "idle" };
+  context.root = { querySelector: () => null };
+  context.ProductionPlan = { updateFromProductionPack: () => null };
+  context.TerraHarvestLoop = {
+    latestTerraBundle: () => ({ harvests: [{ artifactType: "landing-page" }] }),
+    landingHarvest: () => ({ id: "landing" }),
+    visualHarvest: () => null
+  };
+  loadProductionPack(context);
+  context.localStorage.setItem(context.ProductionPack.CONNECTION_KEY, JSON.stringify({
+    status: "ready",
+    payload: {
+      canva: { connected: true },
+      composio: { canvaConnected: true },
+      elevenLabs: { connected: true },
+      mistral: { available: true }
+    }
+  }));
+  const artifact = { id: "social-visual", type: "social-visual", provider: "Canva", providerStatus: "not-configured" };
+  assert.equal(context.ProductionPack.connectionStatus("Canva", context.ProductionPack.loadConnections()), "Connecté");
+  assert.equal(context.ProductionPack.artifactStatus(artifact, context.ProductionPack.loadConnections()), "authorization-required");
 });

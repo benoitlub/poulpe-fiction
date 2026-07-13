@@ -494,6 +494,7 @@
       <div class="garden-card-head"><span>${esc(harvest.status)}</span><small>${esc(harvest.type)}</small></div>
       <h3>${esc(harvest.title)}</h3>
       <p>${esc(harvest.preview || "Aucun aperçu disponible.")}</p>
+      ${text ? `<pre class="harvest-content">${esc(text)}</pre>` : ""}
       <dl class="garden-metrics">
         <div><dt>Parcelle</dt><dd>${esc(parcelName(data, harvest.parcelId))}</dd></div>
         <div><dt>Mission source</dt><dd>${esc(harvest.missionId || "Non liée")}</dd></div>
@@ -578,6 +579,7 @@
         const harvest = harvests(data).find((item) => item.id === button.dataset.copyHarvest);
         if (!harvest?.content?.text || !navigator.clipboard) return;
         await navigator.clipboard.writeText(String(harvest.content.text));
+        button.textContent = "Copié";
       };
     });
   }
