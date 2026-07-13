@@ -64,16 +64,13 @@
     const harvests = data.harvests || [];
     const seeds = data.seeds || [];
     const operations = data.operations || [];
-    const current = events()[0];
-    return `<section class="shell-overview">
-      <article class="shell-hero"><div class="shell-gerard">🐙</div><div><p class="eyebrow">Gérard maintenant</p><h2>${esc(current?.label || "Le jardin est calme. Gérard l’a décidé.")}</h2><p>${esc(current?.detail || "Gérard veille sans inventer de fausse activité.")}</p></div></article>
+    return `<section class="shell-overview shell-overview-compact">
       <div class="shell-grid shell-stats">
         <article class="shell-card"><span>🌱</span><strong>${seeds.length}</strong><p>graine(s)</p></article>
         <article class="shell-card"><span>🐙</span><strong>${operations.length}</strong><p>mission(s)</p></article>
         <article class="shell-card"><span>🌾</span><strong>${harvests.length}</strong><p>récolte(s)</p></article>
         <article class="shell-card"><span>🗺️</span><strong>${(data.parcels || []).length}</strong><p>parcelle(s)</p></article>
       </div>
-      <div class="shell-subsection"><h3>Activité réelle</h3>${renderActivities()}</div>
     </section>`;
   }
 
@@ -95,14 +92,36 @@
     return renderGarden(data);
   }
 
+  function setVisible(selector, visible) {
+    document.querySelectorAll(selector).forEach((node) => {
+      node.toggleAttribute("hidden", !visible);
+    });
+  }
+
+  function applyViewVisibility(view) {
+    const isGarden = view === "garden";
+    const isActivity = view === "activity";
+    const isParcels = view === "parcels";
+    const isMissions = view === "missions";
+
+    setVisible(".garden-hublot", isGarden);
+    setVisible(".activity-echo", isActivity);
+    setVisible(".garden-primary", isGarden || isParcels);
+    setVisible(".garden-runtime", isMissions);
+    setVisible(".gerard-chat", isGarden);
+    setVisible(".greenhouse", isGarden);
+    setVisible(".production-pack, .panel", false);
+    setVisible(".survivor, .survivor-panel, .survivor-mode", false);
+  }
+
   function mount() {
     const root = document.getElementById("root");
     if (!root) return;
     const view = activeView();
     let shell = document.getElementById("gardenShell");
-    const html = `<section id="gardenShell" class="garden-shell">
+    const html = `<section id="gardenShell" class="garden-shell" data-active-view="${esc(view)}">
       <nav class="shell-nav" aria-label="Poulpe Fiction">
-        ${[["garden","Garden"],["activity","Activité"],["parcels","Parcelles"],["missions","Missions"],["technical","Local technique"]].map(([id,label]) => `<button data-shell-view="${id}" class="${view === id ? "active" : ""}">${label}</button>`).join("")}
+        ${[["garden","Hublot"],["activity","Activité"],["parcels","Parcelles"],["missions","Missions"],["technical","Local technique"]].map(([id,label]) => `<button data-shell-view="${id}" class="${view === id ? "active" : ""}">${label}</button>`).join("")}
       </nav>
       <div class="shell-content">${renderView(view, snapshot())}</div>
     </section>`;
@@ -113,12 +132,11 @@
       button.addEventListener("click", () => setActiveView(button.dataset.shellView || "garden"));
     });
 
-    // L’ancien mode Survivor n’est plus la porte d’entrée.
-    root.querySelectorAll(".survivor, .survivor-panel, .survivor-mode").forEach((node) => node.remove());
     const adventures = root.querySelector(".adventures-label");
     const objectiveGrid = adventures?.nextElementSibling;
     if (adventures) adventures.setAttribute("hidden", "");
     if (objectiveGrid?.classList.contains("grid")) objectiveGrid.setAttribute("hidden", "");
+    applyViewVisibility(view);
   }
 
   const baseRender = global.render;
