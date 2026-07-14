@@ -1,0 +1,170 @@
+/* Correctif ciblé pour les Récoltes sur petit écran.
+   Le dashboard historique applique display:flex à tous les articles imbriqués,
+   ce qui comprime le contenu en colonnes de quelques pixels. */
+
+.garden-dashboard,
+.garden-dashboard-view,
+.garden-list,
+.garden-list > article,
+.garden-card,
+.harvest-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.garden-list > article,
+.harvest-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  overflow: hidden;
+}
+
+.garden-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.garden-card-head > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.harvest-card h3,
+.harvest-card p,
+.harvest-card small,
+.harvest-card pre,
+.harvest-card dl,
+.harvest-card dt,
+.harvest-card dd {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.harvest-card h3,
+.harvest-card p {
+  margin: 0;
+}
+
+.harvest-excerpt {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 13px;
+  background: rgba(255,255,255,.035);
+  color: #cfc3ba;
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.harvest-content {
+  display: none !important;
+}
+
+.garden-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.garden-metrics > div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  background: rgba(0,0,0,.14);
+}
+
+.garden-metrics dt,
+.garden-metrics dd {
+  display: block;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.garden-metrics dt {
+  margin-bottom: 4px;
+  color: #998d85;
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.garden-metrics dd {
+  color: #eee5de;
+  line-height: 1.35;
+}
+
+.harvest-card .garden-actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.harvest-card .garden-actions > * {
+  max-width: 100%;
+}
+
+@media (max-width: 720px) {
+  .garden-dashboard {
+    gap: 12px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .garden-nav {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  .garden-nav::-webkit-scrollbar { display: none; }
+
+  .garden-nav button {
+    flex: 0 0 auto;
+  }
+
+  .garden-list,
+  .harvest-card {
+    gap: 10px !important;
+  }
+
+  .garden-list > article,
+  .garden-card,
+  .harvest-card {
+    padding: 13px !important;
+    border-radius: 16px !important;
+  }
+
+  .garden-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .harvest-card .garden-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .harvest-card .garden-actions > button,
+  .harvest-card .garden-actions > a {
+    width: 100%;
+    min-height: 44px;
+    text-align: center;
+  }
+}
