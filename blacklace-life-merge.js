@@ -24,10 +24,10 @@
   }
 
   async function refresh() {
-    if (!base || running || !global.BlacklaceParcel?.parcel) return;
+    if (!base || running || !global.BlacklaceParcel?.parcel) return null;
     running = true;
     try {
-      const response = await fetch(endpoint, { cache: "no-store" });
+      const response = await fetch(endpoint, { cache: "no-store", headers: { Accept: "application/json" } });
       if (!response.ok) throw new Error(`Publisher ${response.status}`);
       const data = await response.json();
       const remoteSeeds = Array.isArray(data?.seeds) ? data.seeds : [];
@@ -48,14 +48,21 @@
         refreshedAt: new Date().toISOString(),
       };
 
-      if (typeof global.render === "function") global.render();
-      global.MobileViewGuard?.apply?.();
+      global.dispatchEvent?.(new CustomEvent("blacklace-life-updated", {
+        detail: {
+          parcel: global.BlacklaceParcel.parcel,
+          seeds: remoteSeeds,
+          events: Array.isArray(data?.events) ? data.events : [],
+        },
+      }));
+      return data;
     } catch (error) {
       global.__blacklaceLifeStatus = {
         ready: false,
         error: error instanceof Error ? error.message : String(error),
         refreshedAt: new Date().toISOString(),
       };
+      return null;
     } finally {
       running = false;
     }
