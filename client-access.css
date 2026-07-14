@@ -1,0 +1,77 @@
+.access-home {
+  display: grid;
+  gap: 16px;
+}
+
+.access-hero {
+  padding: 18px;
+  border: 1px solid rgba(164,134,255,.28);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(54,35,88,.48), rgba(12,12,20,.88));
+}
+
+.access-hero h2 { margin: 4px 0 8px; }
+.access-hero p { margin: 0; color: #bdb1aa; line-height: 1.5; }
+
+.access-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px;
+}
+
+.access-action {
+  display: grid;
+  gap: 5px;
+  min-height: 92px;
+  padding: 14px;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  background: rgba(255,255,255,.035);
+  color: inherit;
+}
+
+.access-action strong { color: #f4eee8; }
+.access-action small { color: #aa9fa8; line-height: 1.35; }
+.access-action.primary { border-color: rgba(135,214,166,.32); background: rgba(70,130,90,.10); }
+
+.access-scope {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  background: rgba(0,0,0,.18);
+}
+
+.access-scope strong { display: block; }
+.access-scope small { color: #a99da6; }
+
+.access-project-form {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  background: rgba(0,0,0,.18);
+}
+
+.access-project-form input,
+.access-project-form textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  color: inherit;
+  font: inherit;
+}
+
+.access-project-form textarea { min-height: 92px; resize: vertical; }
+
+@media (max-width: 620px) {
+  .access-actions { grid-template-columns: 1fr; }
+}
