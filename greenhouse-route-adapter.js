@@ -4,14 +4,29 @@
   const previousFetch = global.fetch?.bind(global);
   if (!previousFetch || global.__greenhouseRouteAdapterInstalled) return;
 
-  function shouldAdapt(input) {
-    const url = typeof input === "string" ? input : input?.url;
-    return typeof url === "string" && /\/api\/greenhouse(?:\?|$)/.test(url);
+  function requestUrl(input) {
+    return typeof input === "string" ? input : input?.url || "";
   }
 
-  function stateUrl(input) {
-    const url = typeof input === "string" ? input : input.url;
-    return url.replace(/\/api\/greenhouse(?:\?.*)?$/, "/api/poulpe-life/state");
+  function isGreenhouse(url) {
+    return /\/api\/greenhouse(?:\?|$)/.test(url);
+  }
+
+  function isBlacklaceGlobalState(url) {
+    return /\/api\/global-state\/parcels\/blacklace-ecosystem(?:\?|$)/.test(url);
+  }
+
+  function persistentStateUrl(url) {
+    return url
+      .replace(/\/api\/greenhouse(?:\?.*)?$/, "/api/poulpe-life/state")
+      .replace(/\/api\/global-state\/parcels\/blacklace-ecosystem(?:\?.*)?$/, "/api/poulpe-life/state");
+  }
+
+  function jsonResponse(payload, status = 200) {
+    return new Response(JSON.stringify(payload), {
+      status,
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+    });
   }
 
   function toCutting(seed) {
@@ -34,31 +49,65 @@
     };
   }
 
-  async function adaptedFetch(input, init) {
-    if (!shouldAdapt(input)) return previousFetch(input, init);
+  function toLegacyParcel(state) {
+    const parcels = Array.isArray(state?.parcels) ? state.parcels : [];
+    const seeds = Array.isArray(state?.seeds) ? state.seeds : [];
+    const sourceParcel = parcels.find((parcel) => parcel?.id === "blacklace-ecosystem") || parcels[0] || {};
+    return {
+      id: "blacklace-ecosystem",
+      code: sourceParcel.code || "PARCEL-001",
+      name: sourceParcel.name || "Écosystème Blacklace",
+      mission: sourceParcel.mission,
+      priorities: sourceParcel.priorities,
+      seeds,
+    };
+  }
 
-    const response = await previousFetch(stateUrl(input), {
+  async function readPersistentState(url, init) {
+    return previousFetch(persistentStateUrl(url), {
       ...(init || {}),
+      method: "GET",
+      body: undefined,
       cache: "no-store",
     });
+  }
 
+  async function adaptedFetch(input, init = {}) {
+    const url = requestUrl(input);
+
+    if (isBlacklaceGlobalState(url)) {
+      const method = String(init.method || "GET").toUpperCase();
+      if (method !== "GET" && method !== "HEAD") {
+        return jsonResponse({ ok: true, ignored: "legacy-global-state", authority: "poulpe-life" });
+      }
+
+      const response = await readPersistentState(url, init);
+      if (!response.ok) return response;
+      const state = await response.json();
+      return jsonResponse({
+        value: {
+          parcel: toLegacyParcel(state),
+          activeSeed: null,
+          authority: "poulpe-life",
+        },
+      });
+    }
+
+    if (!isGreenhouse(url)) return previousFetch(input, init);
+
+    const response = await readPersistentState(url, init);
     if (!response.ok) return response;
 
     const state = await response.json();
     const seeds = Array.isArray(state?.seeds) ? state.seeds : [];
     const events = Array.isArray(state?.events) ? state.events : [];
-    const payload = {
+    return jsonResponse({
       source: "PostgreSQL · vie persistante",
       cuttings: seeds.map(toCutting),
       seeds,
       parcels: Array.isArray(state?.parcels) ? state.parcels : [],
       events,
       latestEvent: events[0] || null,
-    };
-
-    return new Response(JSON.stringify(payload), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
     });
   }
 
