@@ -1,0 +1,90 @@
+.gerard-tentacles-panel {
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid rgba(164, 134, 255, .28);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(45, 29, 70, .42), rgba(10, 11, 18, .78));
+}
+
+.tentacles-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.tentacles-heading strong {
+  display: block;
+  margin-top: 4px;
+  color: #f4eee8;
+}
+
+.tentacles-average {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: #c8bbb2;
+  font-size: .74rem;
+}
+
+.tentacles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tentacle-chip {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 13px;
+  background: rgba(0,0,0,.18);
+  opacity: .72;
+}
+
+.tentacle-chip.active {
+  border-color: rgba(145, 117, 255, .28);
+  opacity: 1;
+}
+
+.tentacle-chip > span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(145, 117, 255, .15);
+  color: #d8cbff;
+  font-weight: 800;
+  font-size: .78rem;
+}
+
+.tentacle-chip strong,
+.tentacle-chip small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.tentacle-chip strong {
+  color: #ede7f7;
+  font-size: .8rem;
+  text-transform: capitalize;
+}
+
+.tentacle-chip small {
+  margin-top: 2px;
+  color: #afa3b7;
+  line-height: 1.25;
+  font-size: .72rem;
+}
+
+@media (max-width: 620px) {
+  .tentacles-heading { flex-direction: column; }
+  .tentacles-grid { grid-template-columns: 1fr; }
+  .tentacles-average { align-self: flex-start; }
+}
