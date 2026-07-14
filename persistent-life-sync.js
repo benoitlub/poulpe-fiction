@@ -1,21 +1,22 @@
 (function persistentLifeSyncModule(global) {
   "use strict";
 
-  const API_BASE = global.PUBLISHER_API_URL || localStorage.getItem("PUBLISHER_API_URL") || "https://blacklace-publisher-api.onrender.com";
+  const API_BASE = global.PoulpeRuntimeConfig?.urls?.publisherApi || "https://blacklace-publisher-api.onrender.com";
   const EVENTS_KEY = "poulpe-fiction:server-life-events:v1";
   const REFRESH_MS = 60_000;
   const REQUEST_TIMEOUT_MS = 8_000;
   let syncing = false;
   let started = false;
 
-  async function request(path, options) {
+  async function request(path, options = {}) {
     const controller = new AbortController();
     const timeout = global.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
       const response = await fetch(`${API_BASE}${path}`, {
         ...options,
         signal: controller.signal,
-        headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
+        cache: "no-store",
+        headers: { Accept: "application/json", ...(options.headers || {}) },
       });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       return response.json();
@@ -24,47 +25,38 @@
     }
   }
 
-  function currentState() {
-    return global.GardenStore?.snapshot?.() || { parcels: [], seeds: [] };
-  }
-
-  async function pushLocalState() {
-    const state = currentState();
-    await request("/api/poulpe-life/sync", {
-      method: "POST",
-      body: JSON.stringify({ parcels: state.parcels || [], seeds: state.seeds || [] }),
-    });
-  }
-
   function mergeServerState(server) {
     (server.parcels || []).forEach((parcel) => {
       try { global.GardenStore?.registerParcel?.(parcel); } catch (_) {}
     });
-    (server.seeds || []).forEach((seed) => {
-      const local = currentState().seeds?.find((item) => item.id === seed.id);
-      if (local) global.GardenStore?.updateSeed?.(seed.id, seed);
-      else {
-        try { global.GardenStore?.plantSeed?.(seed, { silent: true }); } catch (_) {}
-      }
-    });
-    localStorage.setItem(EVENTS_KEY, JSON.stringify(server.events || []));
-    global.GardenStore?.persist?.();
 
-    if (document.readyState === "complete") {
-      global.render?.();
-    }
+    (server.seeds || []).forEach((seed) => {
+      try {
+        const snapshot = global.GardenStore?.snapshot?.() || { seeds: [] };
+        const local = snapshot.seeds?.find((item) => item.id === seed.id);
+        if (local) global.GardenStore?.updateSeed?.(seed.id, seed);
+        else global.GardenStore?.plantSeed?.(seed, { silent: true });
+      } catch (_) {}
+    });
+
+    try {
+      localStorage.setItem(EVENTS_KEY, JSON.stringify(server.events || []));
+      global.GardenStore?.persist?.();
+    } catch (_) {}
+
+    global.dispatchEvent?.(new CustomEvent("poulpe-life-sync", { detail: server }));
   }
 
   async function sync() {
-    if (syncing || !global.GardenStore) return;
+    if (syncing || !global.GardenStore) return null;
     syncing = true;
     try {
-      await pushLocalState();
       const server = await request("/api/poulpe-life/state");
       mergeServerState(server);
-      global.dispatchEvent?.(new CustomEvent("poulpe-life-sync", { detail: server }));
+      return server;
     } catch (error) {
-      console.warn("Persistent Poulpe life sync unavailable", error);
+      console.warn("Persistent Poulpe life read unavailable", error);
+      return null;
     } finally {
       syncing = false;
     }
@@ -73,7 +65,7 @@
   function start() {
     if (started) return;
     started = true;
-    global.setTimeout(() => void sync(), 2_000);
+    global.setTimeout(() => void sync(), 750);
     global.setInterval(() => void sync(), REFRESH_MS);
     global.addEventListener?.("focus", () => void sync());
   }
@@ -86,6 +78,9 @@
     },
   };
 
-  if (document.readyState === "complete") start();
-  else global.addEventListener?.("load", start, { once: true });
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
 })(globalThis);
