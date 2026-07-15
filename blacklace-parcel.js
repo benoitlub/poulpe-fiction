@@ -134,7 +134,19 @@
     } catch (_) { return { tools: [], source: "unavailable" }; }
   }
 
-  async function prepareSeedAdventure(seedId, options) {
+  function localToolPack(seed) {
+    const pack = global.ProductKnowledge?.get?.(seed.id);
+    if (!pack) return { tools: [], source: "local" };
+    return {
+      tools: [
+        { id: "publisher-knowledge", name: "Knowledge Pack local", reason: pack.title || seed.title },
+        { id: "poulpe-fiction", name: "Poulpe Fiction", reason: "Preparation locale du sac" }
+      ],
+      source: "local"
+    };
+  }
+
+  function prepareSeedAdventure(seedId, options) {
     const seed = parcel.seeds.find((item) => item.id === seedId);
     if (!seed || !global.AdventureDraft) return null;
 
@@ -150,7 +162,7 @@
     cacheParcel();
     void writeGlobalState(context);
 
-    const toolPack = await loadToolPack(seed);
+    const toolPack = localToolPack(seed);
     const suggestedTools = Array.isArray(toolPack.tools) ? toolPack.tools.slice(0, 6) : [];
     const draft = global.AdventureDraft.create({
       entry: { id: seed.id, title: seed.title, count: 9 },
@@ -212,24 +224,6 @@
     if (candidate) await prepareSeedAdventure(candidate.id, { silent: true });
   }
 
-  async function authorizeDeparture(seedId) {
-    const seed = parcel.seeds.find((item) => item.id === seedId);
-    let draft = global.AdventureDraft?.load?.();
-    if (!seed || !draft || draft.curiosity?.id !== seedId) draft = await prepareSeedAdventure(seedId, { silent: true });
-    if (!draft) return;
-
-    if (draft.status === "prepared") {
-      draft = global.AdventureDraft.validate(draft, "Départ autorisé explicitement par Benoît depuis la parcelle.");
-      state.adventureUrge = draft;
-    }
-
-    updateSeedStatus(seedId, "adventure", { departureAuthorizedAt: new Date().toISOString() });
-    pushChat("gerard", `🚶 Départ autorisé pour « ${seed.title} ». Je confie maintenant l'aventure à Octopus.`);
-    render();
-    await global.AdventureLaunch?.launch?.();
-    global.GardenShell?.setActiveView?.("missions");
-  }
-
   function icon(type) { return type === "book" ? "📚" : type === "game" ? "🎲" : type === "app" ? "📱" : "🌐"; }
 
   function statusInfo(status) {
@@ -285,18 +279,12 @@
         render();
       };
     });
-    document.querySelectorAll("[data-authorize-departure]").forEach((button) => {
-      button.onclick = () => { void authorizeDeparture(button.dataset.authorizeDeparture); };
-    });
-    document.querySelectorAll("[data-view-bag]").forEach((button) => {
-      button.onclick = () => global.GardenShell?.setActiveView?.("missions");
-    });
     document.querySelectorAll("[data-view-mission]").forEach((button) => {
       button.onclick = () => global.GardenShell?.setActiveView?.("missions");
     });
   }
 
-  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, parcel, activeSeed, prepareSeedAdventure, authorizeDeparture, ensureGerardCultivation, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain };
+  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, parcel, activeSeed, prepareSeedAdventure, ensureGerardCultivation, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain };
 
   const baseRender = render;
   render = function renderWithBlacklaceParcel() {

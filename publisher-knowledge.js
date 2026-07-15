@@ -54,9 +54,10 @@
     }
 
     try {
-      const response = await fetch(`${base}/api/knowledge-packs/${encodeURIComponent(seedId)}`, {
+      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
+      const response = await request(`${base}/api/knowledge-packs/${encodeURIComponent(seedId)}`, {
         headers: { Accept: "application/json" }
-      });
+      }, 5000);
       const payload = await response.json();
       if (!response.ok) throw new Error(payload?.error || `Publisher ${response.status}`);
       if (!payload?.verified || !payload?.prompt) {

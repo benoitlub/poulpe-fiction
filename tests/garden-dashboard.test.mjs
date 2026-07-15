@@ -87,7 +87,7 @@ test("uses official Render URLs and loads runtime config before app scripts", ()
   const context = loadRuntimeConfig();
   assert.equal(context.PoulpeRuntimeConfig.urls.octopusApi, "https://octopus-engine.onrender.com");
   assert.equal(context.PoulpeRuntimeConfig.urls.publisherApi, "https://blacklace-publisher-api.onrender.com");
-  assert.equal(context.PoulpeRuntimeConfig.urls.publisherFrontend, "https://blacklace-publisher.onrender.com");
+  assert.equal(context.PoulpeRuntimeConfig.urls.publisherFrontend, "https://blacklace-publisher-web.onrender.com");
   const html = fs.readFileSync("index.html", "utf8");
   assert.ok(html.indexOf("./build-info.js") < html.indexOf("./runtime-config.js"));
   assert.ok(html.indexOf("./runtime-config.js") > -1);
@@ -97,6 +97,40 @@ test("uses official Render URLs and loads runtime config before app scripts", ()
 test("does not link Poulpe users to the Publisher local-technique path", () => {
   const dashboard = fs.readFileSync("garden-dashboard.js", "utf8");
   assert.equal(dashboard.includes("/local-technique"), false);
+});
+
+test("keeps bag and departure actions owned by DepartureController", () => {
+  const parcel = fs.readFileSync("blacklace-parcel.js", "utf8");
+  const shell = fs.readFileSync("garden-shell.js", "utf8");
+  const controller = fs.readFileSync("departure-controller.js", "utf8");
+  assert.equal(parcel.includes("function authorizeDeparture"), false);
+  assert.equal(parcel.includes("data-view-bag].forEach"), false);
+  assert.equal(parcel.includes("data-authorize-departure].forEach"), false);
+  assert.match(controller, /document\.addEventListener\("click"/);
+  assert.match(controller, /stopImmediatePropagation\(\)/);
+  assert.match(shell, /DepartureController\?\.depart/);
+  assert.equal(shell.includes("AdventureLaunch?.launch"), false);
+});
+
+test("prepares the adventure bag locally without waiting for Publisher", () => {
+  const parcel = fs.readFileSync("blacklace-parcel.js", "utf8");
+  assert.match(parcel, /function prepareSeedAdventure\(seedId, options\)/);
+  assert.equal(parcel.includes("async function prepareSeedAdventure"), false);
+  assert.equal(parcel.includes("await loadToolPack(seed)"), false);
+  assert.match(parcel, /localToolPack\(seed\)/);
+});
+
+test("removes duplicate Garden action wrapper from the page", () => {
+  const html = fs.readFileSync("index.html", "utf8");
+  assert.equal(html.includes("garden-runtime-actions.js"), false);
+  assert.equal(fs.existsSync("garden-runtime-actions.js"), false);
+});
+
+test("critical provider knowledge calls can use the shared timeout", () => {
+  const runtime = fs.readFileSync("runtime-config.js", "utf8");
+  const knowledge = fs.readFileSync("publisher-knowledge.js", "utf8");
+  assert.match(runtime, /withTimeout,/);
+  assert.match(knowledge, /PoulpeRuntimeConfig\?\.withTimeout/);
 });
 
 function loadProductionPack(context) {
@@ -196,7 +230,7 @@ test("exposes blocked operations as user-facing issues", () => {
 test("mobile navigation styles are present", () => {
   const css = fs.readFileSync("style.css", "utf8");
   assert.match(css, /@media\(max-width:900px\)/);
-  assert.match(css, /\.garden-nav-item/);
+  assert.match(`${css}\n${fs.readFileSync("garden-dashboard.css", "utf8")}\n${fs.readFileSync("mobile-fix.css", "utf8")}`, /\.shell-nav/);
   assert.match(css, /width:\s*100%/);
 });
 
