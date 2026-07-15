@@ -37,6 +37,7 @@
   function persist() {
     state.updatedAt = new Date().toISOString();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    global.dispatchEvent(new CustomEvent("poulpe-garden-changed", { detail: snapshot() }));
     return snapshot();
   }
 
@@ -53,7 +54,17 @@
 
   function registerParcel(parcel) {
     if (!parcel?.id) throw new Error("GardenStore.registerParcel requires an id");
-    const record = { id: String(parcel.id), code: String(parcel.code || parcel.id), name: String(parcel.name || parcel.id), mission: String(parcel.mission || ""), priorities: Array.isArray(parcel.priorities) ? parcel.priorities.map(String) : [], version: Number(parcel.version || 1), updatedAt: new Date().toISOString() };
+    const record = {
+      id: String(parcel.id),
+      code: String(parcel.code || parcel.id),
+      name: String(parcel.name || parcel.id),
+      mission: String(parcel.mission || ""),
+      priorities: Array.isArray(parcel.priorities) ? parcel.priorities.map(String) : [],
+      client: parcel.client && typeof parcel.client === "object" ? clone(parcel.client) : null,
+      archived: Boolean(parcel.archived),
+      version: Number(parcel.version || 1),
+      updatedAt: new Date().toISOString()
+    };
     upsert("parcels", record, "id");
 
     if (Array.isArray(parcel.seeds)) {
