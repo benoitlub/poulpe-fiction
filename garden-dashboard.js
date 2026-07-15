@@ -56,10 +56,65 @@
       }
       return trimmed.replace(/\\n/g, "\n");
     }
+    if (Array.isArray(value)) {
+      return value.map(extractHarvestText).filter(Boolean).join("\n");
+    }
     if (!value || typeof value !== "object") return "";
     if (typeof value.text === "string") return extractHarvestText(value.text);
-    if (value.content && typeof value.content === "object" && typeof value.content.text === "string") return extractHarvestText(value.content.text);
+    if (typeof value.markdown === "string") return extractHarvestText(value.markdown);
+    if (typeof value.body === "string") return extractHarvestText(value.body);
+    if (typeof value.summary === "string") return extractHarvestText(value.summary);
+    if (typeof value.description === "string") return extractHarvestText(value.description);
+    if (value.content) return extractHarvestText(value.content);
+    if (value.payload) return extractHarvestText(value.payload);
     return "";
+  }
+
+  function firstHarvestText(...values) {
+    for (const value of values) {
+      const text = extractHarvestText(value);
+      if (text) return text;
+    }
+    return "";
+  }
+
+  function renderInlineMarkdown(text) {
+    return esc(text)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  }
+
+  function renderMarkdown(text) {
+    const lines = extractHarvestText(text).split("\n");
+    const html = [];
+    let list = [];
+    const flushList = () => {
+      if (!list.length) return;
+      html.push(`<ul>${list.map((item) => `<li>${renderInlineMarkdown(item)}</li>`).join("")}</ul>`);
+      list = [];
+    };
+    lines.forEach((line) => {
+      const value = line.trim();
+      if (!value) {
+        flushList();
+        return;
+      }
+      const bullet = value.match(/^[-*]\s+(.+)$/);
+      if (bullet) {
+        list.push(bullet[1]);
+        return;
+      }
+      flushList();
+      const heading = value.match(/^(#{1,3})\s+(.+)$/);
+      if (heading) {
+        const level = heading[1].length + 1;
+        html.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
+      } else {
+        html.push(`<p>${renderInlineMarkdown(value)}</p>`);
+      }
+    });
+    flushList();
+    return html.join("");
   }
 
   function priorityRank(priority) {
@@ -171,7 +226,7 @@
         parcelId: bundle.parcelId,
         title: bundle.harvests?.[0]?.title || bundle.questions?.[0]?.title || "Retour d'aventure",
         objective: bundle.rawMission?.objective || "Traiter le retour d'aventure",
-        expectedResult: bundle.harvests?.[0]?.description || "",
+        expectedResult: firstHarvestText(bundle.harvests?.[0]?.description),
         priority: bundle.failure ? "urgent" : "normal",
         dueAt: null,
         status: bundle.failure ? "failed" : bundle.status === "incomplete" ? "blocked" : "completed",
@@ -179,7 +234,7 @@
         createdAt: bundle.createdAt,
         startedAt: null,
         completedAt: bundle.status === "ready" ? bundle.createdAt : null,
-        result: bundle.harvests?.[0]?.description || bundle.failure?.reason || null,
+        result: firstHarvestText(bundle.harvests?.[0]?.description) || bundle.failure?.reason || null,
         error: bundle.failure?.reason || null
       });
     });
@@ -222,29 +277,34 @@
       id: harvest.id,
       title: harvest.title,
       parcelId: harvest.parcelId,
+      seedId: harvest.seedId,
       missionId: harvest.operationId,
       date: harvest.createdAt,
-      type: "rapport",
+      type: harvest.type || "rapport",
       status: accepted[harvest.id]?.status || normalizeHarvestStatus(harvest.status),
-      preview: extractHarvestText(harvest.preview || harvest.content),
-      content: { text: extractHarvestText(harvest.content || harvest.preview) },
+      preview: firstHarvestText(harvest.preview, harvest.content, harvest.payload),
+      content: { text: firstHarvestText(harvest.content, harvest.payload, harvest.preview) },
+      payload: harvest.payload || null,
       url: harvest.url || null,
       downloadUrl: harvest.downloadUrl || null,
       link: null
     }));
 
     const returnHarvests = (data.returns || []).flatMap((bundle) => (bundle.harvests || []).map((harvest) => {
-      const text = extractHarvestText(harvest.content || harvest.artifact || harvest.description);
+      const text = firstHarvestText(harvest.content, harvest.payload, harvest.artifact, harvest.description);
       return {
         id: harvest.id,
         title: harvest.title,
         parcelId: harvest.parcelId || bundle.parcelId,
+        seedId: harvest.seedId || bundle.seedId || bundle.rawMission?.seedId || null,
         missionId: harvest.missionId || bundle.missionId,
         date: harvest.createdAt || bundle.createdAt,
         type: normalizeHarvestType(harvest.artifactType),
+        artifactType: harvest.artifactType || null,
         status: accepted[harvest.id]?.status || (bundle.status === "ready" ? "à-valider" : "brouillon"),
-        preview: extractHarvestText(harvest.description || text),
+        preview: firstHarvestText(harvest.description, text),
         content: { text },
+        payload: harvest.payload || null,
         url: harvest.url || harvest.artifact?.url || null,
         downloadUrl: harvest.downloadUrl || harvest.artifact?.downloadUrl || null,
         link: null
@@ -255,18 +315,19 @@
       id: pack.id,
       title: pack.title,
       parcelId: pack.parcelId,
+      seedId: pack.seedId,
       missionId: pack.returnId,
       date: pack.createdAt,
       type: "landing-page",
       status: accepted[pack.id]?.status || (pack.artifacts?.some((item) => item.status === "ready") ? "prêt" : "brouillon"),
       preview: `${pack.artifacts?.length || 0} artefact(s), ${pack.publications?.length || 0} publication(s)`,
-      content: { text: extractHarvestText(pack.artifacts?.find((item) => item.type === "landing-page")?.content) },
+      content: { text: firstHarvestText(pack.artifacts?.find((item) => item.type === "landing-page")?.content, pack.artifacts?.find((item) => item.type === "landing-page")?.payload) },
       url: pack.artifacts?.find((item) => item.url || item.artifact?.url)?.url || pack.artifacts?.find((item) => item.url || item.artifact?.url)?.artifact?.url || null,
       downloadUrl: pack.artifacts?.find((item) => item.downloadUrl || item.artifact?.downloadUrl)?.downloadUrl || pack.artifacts?.find((item) => item.downloadUrl || item.artifact?.downloadUrl)?.artifact?.downloadUrl || null,
       link: null
     }));
 
-    return dedupeById([...packHarvests, ...returnHarvests, ...gardenHarvests])
+    return dedupeById([...gardenHarvests, ...returnHarvests, ...packHarvests])
       .sort((a, b) => timeValue(b.date) - timeValue(a.date));
   }
 
@@ -390,6 +451,7 @@
   function hublot(data) {
     const activeParcels = (data.garden.parcels || []).filter((parcel) => !parcel.archived);
     const allMissions = missions(data);
+    const completedMissions = allMissions.filter((mission) => mission.status === "completed").length;
     const urgentMission = allMissions.find((mission) => mission.priority === "urgent" || mission.status === "blocked");
     const nextDue = allMissions.filter((mission) => mission.dueAt).sort((a, b) => timeValue(a.dueAt) - timeValue(b.dueAt))[0];
     const latestHarvest = harvests(data)[0];
@@ -401,6 +463,7 @@
     return `<section class="garden-dashboard-view">
       <div class="hublot-grid">
         ${metricCard(`${activeParcels.length}`, "parcelles actives", activeParcels.map((parcel) => parcel.name).join(", ") || "Aucune parcelle chargée")}
+        ${metricCard(String(completedMissions), "missions terminées", completedMissions ? "Les retours acceptés mettent le Garden à jour." : "Aucune mission terminée")}
         ${metricCard(urgentMission ? "1" : "0", "mission urgente", urgentMission?.title || "Aucune urgence")}
         ${metricCard(nextDue ? dateLabel(nextDue.dueAt) : "Non définie", "prochaine échéance", nextDue ? `${parcelName(data, nextDue.parcelId)} · ${nextDue.title}` : "Aucune échéance locale")}
         ${metricCard(latestHarvest?.title || "Aucune récolte", "dernier résultat", latestHarvest?.preview || "Les retours apparaîtront ici")}
@@ -513,7 +576,7 @@
       <div class="garden-card-head"><span>${esc(harvest.status)}</span><small>${esc(harvest.type)}</small></div>
       <h3>${esc(harvest.title)}</h3>
       <p>${esc(harvest.preview || "Aucun aperçu disponible.")}</p>
-      ${text ? `<pre class="harvest-content">${esc(text)}</pre>` : ""}
+      ${text ? `<div class="harvest-content markdown-content">${renderMarkdown(text)}</div>` : ""}
       <dl class="garden-metrics">
         <div><dt>Parcelle</dt><dd>${esc(parcelName(data, harvest.parcelId))}</dd></div>
         <div><dt>Mission source</dt><dd>${esc(harvest.missionId || "Non liée")}</dd></div>
@@ -533,7 +596,7 @@
     document.querySelector(".harvest-detail-panel")?.remove?.();
     const root = document.querySelector(".garden-dashboard") || document.getElementById("root");
     if (!root) return;
-    root.insertAdjacentHTML("beforeend", `<aside class="harvest-detail-panel" role="dialog" aria-modal="false" aria-label="Récolte examinée"><article class="garden-card harvest-detail-card"><h2>${esc(harvest.title)}</h2><pre class="harvest-content">${esc(text)}</pre><div class="garden-actions compact"><button class="ghost" data-close-harvest-detail>Fermer</button><button class="primary" data-copy-open-harvest="${esc(harvest.id)}">Copier</button></div></article></aside>`);
+    root.insertAdjacentHTML("beforeend", `<aside class="harvest-detail-panel" role="dialog" aria-modal="false" aria-label="Récolte examinée"><article class="garden-card harvest-detail-card"><h2>${esc(harvest.title)}</h2><div class="harvest-content markdown-content">${renderMarkdown(text)}</div><div class="garden-actions compact"><button class="ghost" data-close-harvest-detail>Fermer</button><button class="primary" data-copy-open-harvest="${esc(harvest.id)}">Copier</button></div></article></aside>`);
     const panel = root.querySelector(".harvest-detail-panel");
     const close = panel?.querySelector("[data-close-harvest-detail]");
     if (close) close.onclick = () => panel.remove();
@@ -616,8 +679,11 @@
     });
     document.querySelectorAll("[data-accept-harvest]").forEach((button) => {
       button.onclick = () => {
-        global.GardenPersistence.acceptHarvest?.(button.dataset.acceptHarvest);
-        mount();
+        const data = global.GardenPersistence.snapshot();
+        const harvest = harvests(data).find((item) => item.id === button.dataset.acceptHarvest);
+        global.GardenPersistence.acceptHarvest?.(harvest || button.dataset.acceptHarvest);
+        if (typeof global.render === "function") global.render();
+        else mount();
       };
     });
     document.querySelectorAll("[data-improve-harvest]").forEach((button) => {

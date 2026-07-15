@@ -273,6 +273,8 @@ test("extracts clean harvest text from supported payloads", () => {
   const extract = context.GardenDashboard.extractHarvestText;
   assert.equal(extract({ text: "Ligne 1\\nLigne 2" }), "Ligne 1\nLigne 2");
   assert.equal(extract({ content: { text: "Texte imbriqué" } }), "Texte imbriqué");
+  assert.equal(extract({ payload: { text: "Texte payload" } }), "Texte payload");
+  assert.equal(extract({ markdown: "# Titre\n- point" }), "# Titre\n- point");
   assert.equal(extract(JSON.stringify({ text: "Texte JSON\\npropre" })), "Texte JSON\npropre");
   assert.equal(extract({ content: { html: "<p>Non</p>" } }), "");
   assert.notEqual(extract({ content: { html: "<p>Non</p>" } }), "[object Object]");
@@ -292,7 +294,8 @@ test("renders object harvest payloads without object wrappers", () => {
       createdAt: "2026-07-06T10:00:00.000Z",
       harvests: [
         { id: "harvest-object", title: "Objet", description: "Résumé", artifactType: "text", artifact: { text: "Texte humain" }, createdAt: "2026-07-06T10:00:00.000Z" },
-        { id: "harvest-json", title: "JSON", description: "Résumé", artifactType: "text", artifact: "{\"text\":\"Texte JSON\\\\nligne 2\"}", createdAt: "2026-07-06T11:00:00.000Z" }
+        { id: "harvest-json", title: "JSON", description: "Résumé", artifactType: "text", artifact: "{\"text\":\"Texte JSON\\\\nligne 2\"}", createdAt: "2026-07-06T11:00:00.000Z" },
+        { id: "harvest-payload", title: "Payload", description: "Résumé", artifactType: "text", payload: { text: "Texte payload" }, createdAt: "2026-07-06T12:00:00.000Z" }
       ]
     }]
   };
@@ -300,6 +303,7 @@ test("renders object harvest payloads without object wrappers", () => {
   const harvests = context.GardenDashboard.harvests(context.GardenPersistence.snapshot());
   assert.equal(harvests.find((harvest) => harvest.id === "harvest-object").content.text, "Texte humain");
   assert.equal(harvests.find((harvest) => harvest.id === "harvest-json").content.text, "Texte JSON\nligne 2");
+  assert.equal(harvests.find((harvest) => harvest.id === "harvest-payload").content.text, "Texte payload");
   assert.equal(harvests.some((harvest) => harvest.content.text === "[object Object]"), false);
 });
 
@@ -319,11 +323,14 @@ test("examines harvests inside the page instead of opening a blank popup", () =>
   context.document.querySelector = (selector) => selector === ".garden-dashboard" ? root : null;
   context.document.getElementById = () => root;
 
-  context.GardenDashboard.openHarvestDetail({ id: "h1", title: "Récolte", content: { text: "Texte visible" } });
+  context.GardenDashboard.openHarvestDetail({ id: "h1", title: "Récolte", content: { text: "# Titre\n\n- **Point fort**\n- Suite" } });
 
   assert.equal(opened, false);
   assert.match(inserted, /harvest-detail-panel/);
-  assert.match(inserted, /Texte visible/);
+  assert.match(inserted, /<h2>Titre<\/h2>/);
+  assert.match(inserted, /<li><strong>Point fort<\/strong><\/li>/);
+  assert.doesNotMatch(inserted, /\\n/);
+  assert.doesNotMatch(inserted, /\{"text":/);
   assert.match(inserted, /Fermer/);
   assert.match(inserted, /Copier/);
 });
@@ -335,6 +342,96 @@ test("accepts a harvest and persists the accepted status after reload", () => {
   reloaded.localStorage = context.localStorage;
   loadRealGardenModules(reloaded);
   assert.equal(reloaded.GardenPersistence.harvestState().accepted["harvest-accepted"].status, "accepted");
+});
+
+test("accepting a return harvest moves it into GardenStore", () => {
+  const context = loadRealGardenModules();
+  context.GardenPersistence.acceptHarvest({
+    id: "harvest-moved",
+    parcelId: "terra",
+    seedId: "seed-terra",
+    missionId: "mission-moved",
+    title: "Récolte déplacée",
+    preview: "Texte propre",
+    content: { text: "Texte propre" },
+    date: "2026-07-06T10:00:00.000Z"
+  });
+  const stored = context.GardenStore.snapshot().harvests.find((item) => item.id === "harvest-moved");
+  assert.equal(stored.title, "Récolte déplacée");
+  assert.equal(stored.preview, "Texte propre");
+  assert.equal(stored.content.text, "Texte propre");
+  assert.equal(stored.status, "accepted");
+});
+
+test("accepting a harvest closes the active bag and completes the mission in GardenStore", () => {
+  const context = createContext();
+  const activeKey = "poulpe-fiction:blacklace-active-seed:v1";
+  let draftCleared = false;
+  context.BlacklaceParcel = {
+    ACTIVE_SEED_KEY: activeKey,
+    activeSeed: () => ({ parcelId: "terra", seedId: "seed-terra" })
+  };
+  context.AdventureDraft = {
+    save: (value) => {
+      if (value === null) draftCleared = true;
+      return value;
+    }
+  };
+  loadRealGardenModules(context);
+  context.GardenStore.registerParcel({ id: "terra", name: "TERRA" });
+  context.GardenStore.plantSeed({ id: "seed-terra", parcelId: "terra", title: "TERRA", content: "Seed" });
+  context.GardenStore.activateSeed("terra", "seed-terra");
+  context.localStorage.setItem(activeKey, JSON.stringify({ parcelId: "terra", seedId: "seed-terra" }));
+
+  context.GardenPersistence.acceptHarvest({
+    id: "harvest-cycle",
+    parcelId: "terra",
+    seedId: "seed-terra",
+    missionId: "mission-cycle",
+    title: "Récolte cycle",
+    preview: "Cycle terminé",
+    content: { text: "Cycle terminé" },
+    date: "2026-07-06T10:00:00.000Z"
+  });
+
+  const state = context.GardenStore.snapshot();
+  assert.equal(draftCleared, true);
+  assert.equal(context.localStorage.getItem(activeKey), null);
+  assert.equal(state.activeSeedId, null);
+  assert.equal(state.harvests.some((item) => item.id === "harvest-cycle"), true);
+  assert.equal(state.operations.find((item) => item.id === "mission-cycle").status, "ready");
+});
+
+test("accepting a landing harvest notifies Publisher and unlocks Canva authorization state", () => {
+  const context = createContext();
+  const calls = [];
+  context.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  context.TerraHarvestLoop = { STATUS_KEY: "terra-status" };
+  loadRealGardenModules(context);
+  context.PoulpeRuntimeConfig.urls.publisherApi = "https://publisher.example";
+  context.GardenStore.registerParcel({ id: "terra", name: "TERRA" });
+  context.GardenStore.plantSeed({ id: "seed-terra", parcelId: "terra", title: "TERRA", content: "Seed" });
+
+  context.GardenPersistence.acceptHarvest({
+    id: "harvest-landing-cycle",
+    parcelId: "terra",
+    seedId: "seed-terra",
+    missionId: "mission-landing-cycle",
+    title: "Landing page TERRA",
+    type: "landing-page",
+    preview: "Landing prête",
+    content: { text: "Landing prête" },
+    date: "2026-07-06T10:00:00.000Z"
+  });
+
+  const status = JSON.parse(context.localStorage.getItem("terra-status"));
+  assert.equal(status.status, "waiting-authorization");
+  assert.equal(status.prerequisiteHarvestId, "harvest-landing-cycle");
+  assert.equal(calls[0].url, "https://publisher.example/api/production/available");
+  assert.match(calls[0].options.body, /harvest-landing-cycle/);
 });
 
 test("requesting a harvest improvement creates a linked seed without starting departure", () => {

@@ -123,9 +123,21 @@
     const domain = global.GardenDomain;
     if (!domain) throw new Error("GardenDomain is not loaded");
     const harvest = domain.createHarvest(input);
+    if (input?.content) harvest.content = input.content;
+    if (input?.payload) harvest.payload = input.payload;
+    if (input?.url) harvest.url = String(input.url);
+    if (input?.downloadUrl) harvest.downloadUrl = String(input.downloadUrl);
+    if (input?.type) harvest.type = String(input.type);
     upsert("harvests", harvest, "id");
     if (harvest.seedId) updateSeed(harvest.seedId, { status: "harvested" });
     return harvest;
+  }
+
+  function clearActiveSeed() {
+    state.activeParcelId = null;
+    state.activeSeedId = null;
+    persist();
+    return snapshot();
   }
 
   function upsertOperation(input) {
@@ -158,5 +170,5 @@
 
   persist();
 
-  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed };
+  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, clearActiveSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed };
 })(globalThis);
