@@ -48,6 +48,20 @@
     }
   }
 
+  function extractHarvestText(value) {
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+        try { return extractHarvestText(JSON.parse(trimmed)); } catch (_) {}
+      }
+      return trimmed.replace(/\\n/g, "\n");
+    }
+    if (!value || typeof value !== "object") return "";
+    if (typeof value.text === "string") return extractHarvestText(value.text);
+    if (value.content && typeof value.content === "object" && typeof value.content.text === "string") return extractHarvestText(value.content.text);
+    return "";
+  }
+
   function priorityRank(priority) {
     return ({ urgent: 4, high: 3, normal: 2, low: 1 })[priority] || 2;
   }
@@ -203,6 +217,7 @@
   }
 
   function harvests(data) {
+    const accepted = data.harvestState?.accepted || {};
     const gardenHarvests = (data.garden.harvests || []).map((harvest) => ({
       id: harvest.id,
       title: harvest.title,
@@ -210,28 +225,31 @@
       missionId: harvest.operationId,
       date: harvest.createdAt,
       type: "rapport",
-      status: normalizeHarvestStatus(harvest.status),
-      preview: harvest.preview,
-      content: harvest.content || null,
+      status: accepted[harvest.id]?.status || normalizeHarvestStatus(harvest.status),
+      preview: extractHarvestText(harvest.preview || harvest.content),
+      content: { text: extractHarvestText(harvest.content || harvest.preview) },
       url: harvest.url || null,
       downloadUrl: harvest.downloadUrl || null,
       link: null
     }));
 
-    const returnHarvests = (data.returns || []).flatMap((bundle) => (bundle.harvests || []).map((harvest) => ({
-      id: harvest.id,
-      title: harvest.title,
-      parcelId: harvest.parcelId,
-      missionId: harvest.missionId,
-      date: harvest.createdAt,
-      type: normalizeHarvestType(harvest.artifactType),
-      status: bundle.status === "ready" ? "à-valider" : "brouillon",
-      preview: harvest.description,
-      content: harvest.content || (harvest.artifactType === "landing-page" || harvest.artifactType === "text" ? { text: String(harvest.artifact || harvest.description || "") } : null),
-      url: harvest.url || harvest.artifact?.url || null,
-      downloadUrl: harvest.downloadUrl || harvest.artifact?.downloadUrl || null,
-      link: null
-    })));
+    const returnHarvests = (data.returns || []).flatMap((bundle) => (bundle.harvests || []).map((harvest) => {
+      const text = extractHarvestText(harvest.content || harvest.artifact || harvest.description);
+      return {
+        id: harvest.id,
+        title: harvest.title,
+        parcelId: harvest.parcelId || bundle.parcelId,
+        missionId: harvest.missionId || bundle.missionId,
+        date: harvest.createdAt || bundle.createdAt,
+        type: normalizeHarvestType(harvest.artifactType),
+        status: accepted[harvest.id]?.status || (bundle.status === "ready" ? "à-valider" : "brouillon"),
+        preview: extractHarvestText(harvest.description || text),
+        content: { text },
+        url: harvest.url || harvest.artifact?.url || null,
+        downloadUrl: harvest.downloadUrl || harvest.artifact?.downloadUrl || null,
+        link: null
+      };
+    }));
 
     const packHarvests = (data.productionPacks || []).map((pack) => ({
       id: pack.id,
@@ -240,9 +258,9 @@
       missionId: pack.returnId,
       date: pack.createdAt,
       type: "landing-page",
-      status: pack.artifacts?.some((item) => item.status === "ready") ? "prêt" : "brouillon",
+      status: accepted[pack.id]?.status || (pack.artifacts?.some((item) => item.status === "ready") ? "prêt" : "brouillon"),
       preview: `${pack.artifacts?.length || 0} artefact(s), ${pack.publications?.length || 0} publication(s)`,
-      content: pack.artifacts?.find((item) => item.type === "landing-page")?.content ? { text: pack.artifacts.find((item) => item.type === "landing-page")?.content } : null,
+      content: { text: extractHarvestText(pack.artifacts?.find((item) => item.type === "landing-page")?.content) },
       url: pack.artifacts?.find((item) => item.url || item.artifact?.url)?.url || pack.artifacts?.find((item) => item.url || item.artifact?.url)?.artifact?.url || null,
       downloadUrl: pack.artifacts?.find((item) => item.downloadUrl || item.artifact?.downloadUrl)?.downloadUrl || pack.artifacts?.find((item) => item.downloadUrl || item.artifact?.downloadUrl)?.artifact?.downloadUrl || null,
       link: null
@@ -479,7 +497,7 @@
   }
 
   function harvestCard(data, harvest) {
-    const text = harvest.content?.text || "";
+    const text = extractHarvestText(harvest.content);
     const canOpenText = Boolean(text);
     const canOpenCanva = Boolean(harvest.url);
     const actions = [
@@ -487,10 +505,10 @@
       canOpenText ? `<button class="ghost" data-copy-harvest="${esc(harvest.id)}">Copier</button>` : "",
       canOpenCanva ? `<a class="primary garden-link" href="${esc(harvest.url)}" target="_blank" rel="noopener">Ouvrir dans Canva</a>` : "",
       harvest.downloadUrl ? `<a class="primary garden-link" href="${esc(harvest.downloadUrl)}" download>Télécharger</a>` : "",
-      `<button class="ghost" disabled>Accepter</button>`,
-      `<button class="ghost" disabled>Demander une amélioration</button>`
+      `<button class="ghost" data-accept-harvest="${esc(harvest.id)}">${harvest.status === "accepted" ? "Récolte acceptée" : "Accepter"}</button>`,
+      `<button class="ghost" data-improve-harvest="${esc(harvest.id)}">Demander une amélioration</button>`
     ].join("");
-    return `<article class="garden-card harvest-card">
+    return `<article class="garden-card harvest-card" data-harvest-card="${esc(harvest.id)}">
       <p class="harvest-kicker">🌾 Nouvelle récolte</p>
       <div class="garden-card-head"><span>${esc(harvest.status)}</span><small>${esc(harvest.type)}</small></div>
       <h3>${esc(harvest.title)}</h3>
@@ -502,17 +520,29 @@
         <div><dt>Date</dt><dd>${esc(dateLabel(harvest.date))}</dd></div>
       </dl>
       <div class="garden-actions compact">${actions}</div>
+      <form class="harvest-improvement-form" data-improve-form="${esc(harvest.id)}" hidden>
+        <label>Consigne d'amélioration<textarea name="instruction" rows="3"></textarea></label>
+        <div class="garden-actions compact"><button class="primary" type="submit">Envoyer</button><button class="ghost" type="button" data-cancel-improve="${esc(harvest.id)}">Annuler</button></div>
+      </form>
     </article>`;
   }
 
   function openHarvestDetail(harvest) {
-    const text = harvest?.content?.text;
+    const text = extractHarvestText(harvest?.content);
     if (!text) return;
-    const preview = globalThis.open("", "_blank", "noopener,noreferrer");
-    if (!preview) return;
-    preview.document.open();
-    preview.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(harvest.title)}</title><style>body{font-family:system-ui,sans-serif;margin:0;background:#100c12;color:#f7efe4}.page{max-width:840px;margin:auto;padding:48px 22px;white-space:pre-wrap;line-height:1.65}</style></head><body><main class="page"><h1>${esc(harvest.title)}</h1>${esc(text)}</main></body></html>`);
-    preview.document.close();
+    document.querySelector(".harvest-detail-panel")?.remove?.();
+    const root = document.querySelector(".garden-dashboard") || document.getElementById("root");
+    if (!root) return;
+    root.insertAdjacentHTML("beforeend", `<aside class="harvest-detail-panel" role="dialog" aria-modal="false" aria-label="Récolte examinée"><article class="garden-card harvest-detail-card"><h2>${esc(harvest.title)}</h2><pre class="harvest-content">${esc(text)}</pre><div class="garden-actions compact"><button class="ghost" data-close-harvest-detail>Fermer</button><button class="primary" data-copy-open-harvest="${esc(harvest.id)}">Copier</button></div></article></aside>`);
+    const panel = root.querySelector(".harvest-detail-panel");
+    const close = panel?.querySelector("[data-close-harvest-detail]");
+    if (close) close.onclick = () => panel.remove();
+    const copy = panel?.querySelector("[data-copy-open-harvest]");
+    if (copy) copy.onclick = async () => {
+      if (!navigator.clipboard) return;
+      await navigator.clipboard.writeText(text);
+      copy.textContent = "Copié";
+    };
   }
 
   function dreamsView(data) {
@@ -578,14 +608,50 @@
       button.onclick = async () => {
         const data = global.GardenPersistence.snapshot();
         const harvest = harvests(data).find((item) => item.id === button.dataset.copyHarvest);
-        if (!harvest?.content?.text || !navigator.clipboard) return;
-        await navigator.clipboard.writeText(String(harvest.content.text));
+        const text = extractHarvestText(harvest?.content);
+        if (!text || !navigator.clipboard) return;
+        await navigator.clipboard.writeText(text);
         button.textContent = "Copié";
+      };
+    });
+    document.querySelectorAll("[data-accept-harvest]").forEach((button) => {
+      button.onclick = () => {
+        global.GardenPersistence.acceptHarvest?.(button.dataset.acceptHarvest);
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-improve-harvest]").forEach((button) => {
+      button.onclick = () => {
+        const form = document.querySelector(`[data-improve-form="${button.dataset.improveHarvest}"]`);
+        if (form) form.hidden = false;
+      };
+    });
+    document.querySelectorAll("[data-cancel-improve]").forEach((button) => {
+      button.onclick = () => {
+        const form = document.querySelector(`[data-improve-form="${button.dataset.cancelImprove}"]`);
+        if (form) form.hidden = true;
+      };
+    });
+    document.querySelectorAll("[data-improve-form]").forEach((form) => {
+      form.onsubmit = (event) => {
+        event.preventDefault();
+        const data = global.GardenPersistence.snapshot();
+        const harvest = harvests(data).find((item) => item.id === form.dataset.improveForm);
+        const instruction = String(form.elements?.instruction?.value || "").trim();
+        if (!instruction) return;
+        global.GardenPersistence.requestHarvestImprovement?.({
+          harvestId: harvest?.id,
+          missionId: harvest?.missionId,
+          parcelId: harvest?.parcelId,
+          title: harvest?.title,
+          content: instruction
+        });
+        mount();
       };
     });
   }
 
-  global.GardenDashboard = { mount, missions, harvests, notebookEntries, allIssues };
+  global.GardenDashboard = { mount, missions, harvests, notebookEntries, allIssues, extractHarvestText, openHarvestDetail };
 
   const baseRender = global.render;
   global.render = function renderWithGardenDashboard() {
