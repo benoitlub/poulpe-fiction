@@ -88,3 +88,46 @@ test("ActivityEcho renders the Lovable constellation instead of a simple list", 
   assert.match(html, /class="ae-creature"/);
   assert.match(html, /class="ae-timeline"/);
 });
+
+test("ActivityEcho renders an adventure notebook with read-only progress", () => {
+  const activityEcho = loadActivityEcho();
+  const html = activityEcho.render([
+    {
+      id: "seed:terra",
+      pole: "radar",
+      label: "Nouvelle graine repÃ©rÃ©e Â· TERRA",
+      title: "GÃ©rard explore la serre",
+      detail: "Une Seed attire son attention.",
+      status: "observation",
+      at: Date.parse("2026-07-13T10:00:00.000Z")
+    },
+    {
+      id: "draft:terra",
+      pole: "publisher",
+      label: "GÃ©rard prÃ©pare son sac Â· TERRA",
+      title: "GÃ©rard prÃ©pare son sac",
+      detail: "Les connaissances utiles sont sÃ©lectionnÃ©es.",
+      status: "preparation",
+      technical: true,
+      at: Date.parse("2026-07-13T10:01:00.000Z")
+    },
+    {
+      id: "harvest:terra",
+      pole: "garden",
+      label: "Une rÃ©colte revient au Garden Â· Landing page",
+      title: "RÃ©colte disponible",
+      detail: "Une nouvelle rÃ©colte peut Ãªtre examinÃ©e.",
+      status: "recolte",
+      at: Date.parse("2026-07-13T10:02:00.000Z")
+    }
+  ]);
+
+  assert.match(html, /aria-label="Carnet d'aventure de G.rard"/);
+  assert.match(html, /class="ae-progress"/);
+  assert.match(html, /Seed/);
+  assert.match(html, /Sac/);
+  assert.match(html, /D.part/);
+  assert.match(html, /Mistral/);
+  assert.match(html, /R.colte/);
+  assert.match(html, /D.tails techniques/);
+});

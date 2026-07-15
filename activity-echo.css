@@ -136,26 +136,39 @@
 }
 
 .ae-timeline {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 10px;
-  align-items: center;
   padding: 10px 14px 14px;
   overflow: hidden;
   min-height: 34px;
 }
 .ae-timeline-item {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ae-ink-dim);
-  white-space: nowrap;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
   animation: ae-fade-up 500ms ease-out both;
+}
+.ae-card {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 11px;
+  background: rgba(255, 255, 255, 0.035);
 }
 .ae-timeline-item strong {
   color: var(--ae-ink);
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-size: 10px;
-  margin-right: 6px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 12px;
+  margin-right: 0;
+}
+.ae-timeline-item span {
+  line-height: 1.35;
 }
 .ae-timeline-sep { color: var(--ae-ink-dim); opacity: 0.4; }
 .ae-veille {
@@ -164,6 +177,91 @@
   padding: 10px 14px 14px;
   font-style: italic;
   letter-spacing: 0.04em;
+}
+
+.ae-progress {
+  display: grid;
+  gap: 8px;
+  padding: 0 14px 8px;
+}
+.ae-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--ae-ink-dim);
+  font-size: 11px;
+}
+.ae-progress-head strong {
+  color: var(--ae-ink);
+  font-weight: 600;
+}
+.ae-progress-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+.ae-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ae-glow-warm), var(--ae-glow-harvest));
+}
+.ae-progress ol {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ae-step {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 6px 7px;
+  color: var(--ae-ink-dim);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.ae-step-done {
+  color: var(--ae-ink);
+  border-color: rgba(240, 194, 106, 0.32);
+  background: rgba(240, 194, 106, 0.08);
+}
+.ae-step-active {
+  color: var(--ae-ink);
+  border-color: rgba(106, 163, 255, 0.35);
+  background: rgba(106, 163, 255, 0.08);
+}
+.ae-debug {
+  margin: 0 14px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--ae-ink-dim);
+  font-size: 11px;
+}
+.ae-debug summary {
+  cursor: pointer;
+  padding: 10px 0 4px;
+}
+.ae-debug ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0 0 2px;
+  list-style: none;
+}
+.ae-debug li {
+  display: grid;
+  gap: 2px;
+  overflow-wrap: anywhere;
+}
+.ae-debug strong {
+  color: var(--ae-ink);
 }
 
 @keyframes ae-fade-up {
@@ -201,7 +299,6 @@
   }
 
   .ae-timeline {
-    display: grid;
     gap: 5px;
     padding: 10px 12px 13px;
     overflow: visible;
@@ -217,6 +314,23 @@
 
   .ae-timeline-sep {
     display: none;
+  }
+
+  .ae-progress {
+    padding-inline: 12px;
+  }
+
+  .ae-progress ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ae-step {
+    justify-content: flex-start;
+    border-radius: 12px;
+  }
+
+  .ae-debug {
+    margin-inline: 12px;
   }
 }
 
