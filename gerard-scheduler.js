@@ -35,13 +35,14 @@
 
   function emptyState() {
     return {
-      version: 1,
+      version: 2,
       cursor: 0,
       lastTickAt: null,
       totalTicks: 0,
       tentacles: Array.from({ length: TENTACLE_COUNT }, (_, index) => ({
         id: `tentacle-${index + 1}`,
         role: TENTACLE_ROLES[index],
+        parcelId: null,
         seedId: null,
         action: "disponible",
         updatedAt: null
@@ -54,8 +55,9 @@
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
       if (!saved || typeof saved !== "object") return emptyState();
       return Object.assign(emptyState(), saved, {
+        version: 2,
         tentacles: Array.isArray(saved.tentacles) && saved.tentacles.length === TENTACLE_COUNT
-          ? saved.tentacles
+          ? saved.tentacles.map((tentacle, index) => Object.assign({}, emptyState().tentacles[index], tentacle))
           : emptyState().tentacles
       });
     } catch (_) {
@@ -76,11 +78,25 @@
     return clamp(elapsed, 0.2, MAX_OFFLINE_MINUTES);
   }
 
+  function gardenSnapshot() {
+    try {
+      const snapshot = global.GardenStore?.snapshot?.();
+      return snapshot && typeof snapshot === "object" ? snapshot : { parcels: [], seeds: [] };
+    } catch (_) {
+      return { parcels: [], seeds: [] };
+    }
+  }
+
   function eligibleSeeds() {
-    const seeds = global.BlacklaceParcel?.parcel?.seeds;
-    if (!Array.isArray(seeds)) return [];
+    const snapshot = gardenSnapshot();
+    const archivedParcels = new Set((snapshot.parcels || []).filter((parcel) => parcel.archived).map((parcel) => parcel.id));
+    let seeds = Array.isArray(snapshot.seeds) ? snapshot.seeds : [];
+
+    // Compatibility fallback during first boot, before GardenStore receives the historical parcel.
+    if (!seeds.length) seeds = global.BlacklaceParcel?.parcel?.seeds || [];
+
     return seeds
-      .filter((seed) => !TERMINAL.has(seed.status))
+      .filter((seed) => seed?.id && !TERMINAL.has(seed.status) && !archivedParcels.has(seed.parcelId))
       .sort((a, b) => {
         const aMaturity = Number(a.maturity) || 0;
         const bMaturity = Number(b.maturity) || 0;
@@ -88,6 +104,11 @@
         const bScore = bMaturity + Math.max(0, 12 - Number(b.priority || 12));
         return bScore - aScore;
       });
+  }
+
+  function parcelName(parcelId) {
+    const snapshot = gardenSnapshot();
+    return (snapshot.parcels || []).find((parcel) => parcel.id === parcelId)?.name || parcelId || "Jardin";
   }
 
   function actionFor(role, seed) {
@@ -111,37 +132,81 @@
     const gain = clamp(minutes * (0.22 + priorityBoost) * roleBoost, 0.15, 8);
     const previousMaturity = Number(seed.maturity) || 8;
     const maturity = clamp(previousMaturity + gain, 0, 100);
+    const patch = {
+      status: seed.status === "bag-ready" ? "bag-ready" : (maturity < 28 ? "observing" : "growing"),
+      maturity: Math.round(maturity * 10) / 10,
+      knowledgeTouches: Math.max(0, Number(seed.knowledgeTouches) || 0) + 1,
+      lastCultivatedAt: timestamp,
+      lastTentacleId: tentacle.id,
+      lastTentacleRole: tentacle.role,
+      gardener: "gerard",
+      plantedBy: "gerard",
+      plantedAt: seed.plantedAt || timestamp
+    };
 
-    seed.maturity = Math.round(maturity * 10) / 10;
-    seed.knowledgeTouches = Math.max(0, Number(seed.knowledgeTouches) || 0) + 1;
-    seed.lastCultivatedAt = timestamp;
-    seed.lastTentacleId = tentacle.id;
-    seed.lastTentacleRole = tentacle.role;
-    seed.gardener = "gerard";
-    seed.plantedBy = "gerard";
-    seed.plantedAt = seed.plantedAt || timestamp;
+    Object.assign(seed, patch);
 
-    if (!["bag-ready"].includes(seed.status)) {
-      seed.status = maturity < 28 ? "observing" : "growing";
-    }
+    // Keep the historical in-memory parcel aligned while GardenStore remains the source of truth.
+    const legacySeed = global.BlacklaceParcel?.parcel?.seeds?.find?.((item) => item.id === seed.id);
+    if (legacySeed) Object.assign(legacySeed, patch);
 
+    tentacle.parcelId = seed.parcelId || global.BlacklaceParcel?.PARCEL_ID || null;
     tentacle.seedId = seed.id;
     tentacle.action = actionFor(tentacle.role, seed);
     tentacle.updatedAt = timestamp;
 
+    try { global.GardenStore?.updateSeed?.(seed.id, patch); } catch (_) {}
+  }
+
+  function createGardenDraft(seed) {
+    const snapshot = gardenSnapshot();
+    const parcel = (snapshot.parcels || []).find((item) => item.id === seed.parcelId) || null;
+    const context = {
+      parcelId: seed.parcelId,
+      parcelName: parcel?.name || seed.parcelId || "Jardin de Gérard",
+      seedId: seed.id,
+      seedTitle: seed.title,
+      objective: seed.objective || seed.content || "Faire progresser cette Seed",
+      firstHarvest: seed.firstHarvest || "Une récolte concrète et exploitable",
+      selectedAt: nowIso()
+    };
+
+    try { localStorage.setItem(global.BlacklaceParcel?.ACTIVE_SEED_KEY || "poulpe-fiction:blacklace-active-seed:v1", JSON.stringify(context)); } catch (_) {}
+    try { global.GardenStore?.activateSeed?.(context.parcelId, context.seedId); } catch (_) {}
+
+    const draft = global.AdventureDraft?.create?.({
+      entry: { id: seed.id, title: seed.title || seed.id, count: Number(seed.knowledgeTouches || 1) },
+      objective: context.objective,
+      bag: [
+        `la Seed plantée : ${context.seedTitle}`,
+        `la parcelle : ${context.parcelName}`,
+        `l'objectif réel : ${context.objective}`,
+        `la première récolte attendue : ${context.firstHarvest}`,
+        "les connaissances et ressources déjà conservées dans le Garden"
+      ],
+      picnic: [
+        "Publisher pour préparer les outils et Knowledge Packs utiles",
+        "quelques tokens Mistral si une rédaction riche est nécessaire"
+      ],
+      grafts: ["Publisher Curator", "Mistral"],
+      limits: [
+        "Aucune publication ni prise de contact sans validation explicite",
+        "Produire d'abord des livrables prêts à relire",
+        "Conserver les apprentissages au retour"
+      ],
+      note: `Gérard a cultivé cette Seed dans « ${context.parcelName} ». Première récolte visée : ${context.firstHarvest}.`
+    });
+    if (!draft) return null;
+
+    const saved = global.AdventureDraft?.save?.(draft) || draft;
     try {
       global.GardenStore?.updateSeed?.(seed.id, {
-        status: seed.status,
-        maturity: seed.maturity,
-        knowledgeTouches: seed.knowledgeTouches,
-        lastCultivatedAt: timestamp,
-        lastTentacleId: tentacle.id,
-        lastTentacleRole: tentacle.role,
-        gardener: "gerard",
-        plantedBy: "gerard",
-        plantedAt: seed.plantedAt
+        status: "bag-ready",
+        bagPreparedAt: nowIso(),
+        adventureDraftId: saved.id
       });
     } catch (_) {}
+    return saved;
   }
 
   async function prepareMatureSeed(seeds) {
@@ -155,11 +220,16 @@
       .sort((a, b) => (Number(b.maturity) || 0) - (Number(a.maturity) || 0))[0];
 
     if (!candidate) return;
-    await global.BlacklaceParcel?.prepareSeedAdventure?.(candidate.id, { silent: true });
+    const legacyParcelId = global.BlacklaceParcel?.PARCEL_ID;
+    if (!candidate.parcelId || candidate.parcelId === legacyParcelId) {
+      await global.BlacklaceParcel?.prepareSeedAdventure?.(candidate.id, { silent: true });
+      return;
+    }
+    createGardenDraft(candidate);
   }
 
   function renderTentacles() {
-    const host = document.querySelector(".blacklace-parcel .seed-life-summary");
+    const host = document.querySelector(".blacklace-parcel .seed-life-summary") || document.querySelector(".garden-dashboard");
     if (!host) return;
 
     let panel = document.querySelector(".gerard-tentacles-panel");
@@ -169,7 +239,8 @@
       host.insertAdjacentElement("afterend", panel);
     }
 
-    const seeds = global.BlacklaceParcel?.parcel?.seeds || [];
+    const snapshot = gardenSnapshot();
+    const seeds = snapshot.seeds || [];
     const active = scheduler.tentacles.filter((tentacle) => tentacle.seedId);
     const average = seeds.length
       ? Math.round(seeds.reduce((sum, seed) => sum + (Number(seed.maturity) || 0), 0) / seeds.length)
@@ -177,13 +248,14 @@
 
     const html = `
       <div class="tentacles-heading">
-        <div><span class="eyebrow">🐙 Gérard travaille en parallèle</span><strong>${active.length}/${TENTACLE_COUNT} tentacules actifs</strong></div>
-        <span class="tentacles-average">Maturité moyenne ${average}%</span>
+        <div><span class="eyebrow">🐙 Gérard travaille dans tout le Garden</span><strong>${active.length}/${TENTACLE_COUNT} tentacules actifs</strong></div>
+        <span class="tentacles-average">${snapshot.parcels?.length || 0} parcelle(s) · maturité moyenne ${average}%</span>
       </div>
       <div class="tentacles-grid">
         ${scheduler.tentacles.map((tentacle) => {
-          const seed = seeds.find((item) => item.id === tentacle.seedId);
-          return `<div class="tentacle-chip${seed ? " active" : ""}"><span>${tentacle.id.replace("tentacle-", "T")}</span><div><strong>${tentacle.role}</strong><small>${seed ? tentacle.action : "disponible"}</small></div></div>`;
+          const seed = seeds.find((item) => item.id === tentacle.seedId && (!tentacle.parcelId || item.parcelId === tentacle.parcelId));
+          const location = seed ? parcelName(seed.parcelId) : "";
+          return `<div class="tentacle-chip${seed ? " active" : ""}"><span>${tentacle.id.replace("tentacle-", "T")}</span><div><strong>${tentacle.role}</strong><small>${seed ? `${tentacle.action} · ${location}` : "disponible"}</small></div></div>`;
         }).join("")}
       </div>`;
 
@@ -204,6 +276,7 @@
         const seed = seeds[(start + index) % seeds.length];
         if (seed) cultivate(seed, tentacle, minutes);
         else {
+          tentacle.parcelId = null;
           tentacle.seedId = null;
           tentacle.action = "disponible";
           tentacle.updatedAt = nowIso();
@@ -217,13 +290,12 @@
 
       const interacting = hasActiveUserInteraction();
       if (!interacting) {
-        global.BlacklaceParcel?.syncGardenDomain?.(global.BlacklaceParcel?.activeSeed?.());
-        void global.BlacklaceParcel?.writeGlobalState?.(global.BlacklaceParcel?.activeSeed?.());
+        const active = global.GardenStore?.activeSeed?.() || global.BlacklaceParcel?.activeSeed?.();
+        global.BlacklaceParcel?.syncGardenDomain?.(active);
+        void global.BlacklaceParcel?.writeGlobalState?.(active);
         await prepareMatureSeed(seeds);
       }
 
-      // A scheduler tick only updates its own isolated panel.
-      // Forms, mission tracking and harvest details must never be remounted here.
       renderTentacles();
     } finally {
       ticking = false;
@@ -240,6 +312,7 @@
     STORAGE_KEY,
     TENTACLE_COUNT,
     snapshot: () => JSON.parse(JSON.stringify(scheduler)),
+    eligibleSeeds: () => JSON.parse(JSON.stringify(eligibleSeeds())),
     tick,
     start,
     renderTentacles,
