@@ -86,6 +86,7 @@
         <button type="button" data-constitution-view="atelier">🏭 Atelier</button>
         <button type="button" data-constitution-view="garden">🌱 Garden</button>
       </nav>
+      <button type="button" class="constitution-return${selected === "gerard" ? " constitution-hidden" : ""}" data-return-gerard>← Gérard</button>
       <article class="gerard-companion-card${selected === "gerard" ? "" : " constitution-hidden"}">
         <div class="gerard-companion-heading">
           <div><p class="eyebrow">🐙 Gérard maintenant</p><h2>${esc(seed?.title || "Le jardin")}</h2></div>
@@ -100,6 +101,8 @@
       button.classList.toggle("active", button.dataset.constitutionView === selected);
       button.onclick = () => setView(button.dataset.constitutionView);
     });
+    const back = shell.querySelector("[data-return-gerard]");
+    if (back) back.onclick = () => setView("gerard");
     const primary = shell.querySelector("[data-companion-primary]");
     if (primary) primary.onclick = () => setView(seed?.status === "harvested" ? "harvests" : "parcels");
   }
@@ -115,6 +118,28 @@
 
   function directRootSections(root) {
     return Array.from(root.children).filter((node) => node.nodeType === 1);
+  }
+
+  function compactGarden(root, selected) {
+    root.querySelectorAll(".constitution-redundant").forEach((node) => node.classList.remove("constitution-redundant"));
+    if (selected !== "garden") return;
+
+    const phrases = ["backend lisible", "garden · hublot technique", "serre publisher", "postgresql · vie persistante"];
+    root.querySelectorAll("h1,h2,h3,h4,p,.eyebrow,.kicker,strong").forEach((node) => {
+      const text = (node.textContent || "").trim().toLowerCase();
+      if (!phrases.some((phrase) => text.includes(phrase))) return;
+      const panel = node.closest("article,section,.panel,.card,.garden-card,.garden-summary") || node.parentElement;
+      if (panel && !panel.classList.contains("hublot") && !panel.classList.contains("garden-hublot")) {
+        panel.classList.add("constitution-redundant");
+      }
+    });
+
+    root.querySelectorAll(".garden-dashboard [class*='stat'], .garden-dashboard [class*='metric'], .garden-dashboard .summary-card").forEach((node) => {
+      node.classList.add("constitution-redundant");
+    });
+    root.querySelectorAll(".garden-dashboard nav, .garden-dashboard .garden-tabs, .garden-dashboard .view-tabs").forEach((node) => {
+      node.classList.add("constitution-redundant");
+    });
   }
 
   function apply(view) {
@@ -145,7 +170,6 @@
       markAll(plans, selected === "atelier");
       markAll(clientAdmin, selected === "parcels");
       markAll(activity, selected === "garden");
-
       markAll(dashboards, selected === "harvests" || selected === "garden");
       markAll(hublots, selected === "garden");
       markAll(gardenShells, selected === "garden");
@@ -166,9 +190,7 @@
         try { global.GardenPersistence?.saveDashboardState?.({ selectedView: "hublot" }); } catch (_) {}
       }
 
-      root.querySelectorAll(".garden-dashboard nav, .garden-dashboard .garden-tabs, .garden-dashboard .view-tabs").forEach((node) => {
-        mark(node, selected === "garden");
-      });
+      compactGarden(root, selected);
     } finally {
       applying = false;
     }
