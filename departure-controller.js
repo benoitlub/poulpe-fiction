@@ -27,7 +27,6 @@
       root.prepend(panel);
     }
     panel.innerHTML = `<div><p class="eyebrow">Départ de Gérard</p><h2>${kind === "error" ? "⚠️" : kind === "done" ? "🧺" : "🐙"} ${String(message)}</h2><p>${kind === "progress" ? "La page reste utilisable pendant que le moteur répond." : ""}</p></div>`;
-    panel.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function depart(seedId, button) {
@@ -55,25 +54,25 @@
       if (draft.status !== "validated") throw new Error("Le sac n’est pas validé.");
 
       setSeedStatus(seedId, "adventure", { departureAuthorizedAt: new Date().toISOString() });
-      global.GardenShell?.setActiveView?.("missions");
       showProgress("Gérard transmet l’aventure à Octopus…");
-      if (typeof global.render === "function") global.render();
 
       await Promise.race([
-        global.AdventureLaunch?.launch?.(),
+        Promise.resolve(global.AdventureLaunch?.launch?.()),
         timeoutPromise(),
       ]);
 
-      const error = global.state?.apiError || state?.apiError;
-      if (error) throw new Error(error);
+      const apiError = global.state?.apiError || null;
+      if (apiError) throw new Error(apiError);
       showProgress("Le départ a été traité. Le retour est inscrit dans la mission.", "done");
+      global.GardenShell?.setActiveView?.("missions");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Le départ a échoué.";
       setSeedStatus(seedId, "bag-ready");
       try {
-        state.apiError = message;
-        state.step = "result";
-        render();
+        if (global.state) {
+          global.state.apiError = message;
+          global.state.step = "result";
+        }
       } catch (_) {}
       showProgress(message, "error");
     } finally {
