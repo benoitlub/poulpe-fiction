@@ -1,7 +1,7 @@
 (function constitutionUxModule(global) {
   "use strict";
 
-  const VIEW_KEY = "poulpe-fiction:constitution-view:v1";
+  const VIEW_KEY = "poulpe-fiction:constitution-view:v2";
   const VALID_VIEWS = new Set(["gerard", "parcels", "harvests", "garden", "atelier"]);
   let applying = false;
 
@@ -18,6 +18,7 @@
     if (!VALID_VIEWS.has(view)) return;
     try { sessionStorage.setItem(VIEW_KEY, view); } catch (_) {}
     apply(view);
+    global.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function esc(value) {
@@ -51,7 +52,7 @@
       const harvests = Array.isArray(snapshot.harvests) ? snapshot.harvests : [];
       const operations = Array.isArray(snapshot.operations) ? snapshot.operations : [];
       const harvest = harvests.find((item) => item.seedId === seed?.id) || harvests[0];
-      if (harvest) return `Récolte : ${harvest.title || "nouveau résultat"}`;
+      if (harvest) return `Dernière récolte : ${harvest.title || "nouveau résultat"}`;
       const operation = operations.find((item) => item.seedId === seed?.id) || operations[0];
       if (operation) return operation.activity || operation.intent || "Mission en cours";
     } catch (_) {}
@@ -63,7 +64,7 @@
     return Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : 0;
   }
 
-  function ensureShell(root) {
+  function ensureShell(root, selected) {
     let shell = document.querySelector(".constitution-shell");
     if (!shell) {
       shell = document.createElement("section");
@@ -85,7 +86,7 @@
         <button type="button" data-constitution-view="atelier">🏭 Atelier</button>
         <button type="button" data-constitution-view="garden">🌱 Garden</button>
       </nav>
-      <article class="gerard-companion-card">
+      <article class="gerard-companion-card${selected === "gerard" ? "" : " constitution-hidden"}">
         <div class="gerard-companion-heading">
           <div><p class="eyebrow">🐙 Gérard maintenant</p><h2>${esc(seed?.title || "Le jardin")}</h2></div>
           <span>${activeTentacles || 0}/8 tentacules actives</span>
@@ -96,19 +97,24 @@
       </article>`;
 
     shell.querySelectorAll("[data-constitution-view]").forEach((button) => {
-      button.classList.toggle("active", button.dataset.constitutionView === currentView());
+      button.classList.toggle("active", button.dataset.constitutionView === selected);
       button.onclick = () => setView(button.dataset.constitutionView);
     });
     const primary = shell.querySelector("[data-companion-primary]");
-    if (primary) primary.onclick = () => {
-      if (seed?.status === "harvested") setView("harvests");
-      else setView("parcels");
-    };
+    if (primary) primary.onclick = () => setView(seed?.status === "harvested" ? "harvests" : "parcels");
   }
 
   function mark(node, visible) {
     if (!node) return;
     node.classList.toggle("constitution-hidden", !visible);
+  }
+
+  function markAll(nodes, visible) {
+    Array.from(nodes || []).forEach((node) => mark(node, visible));
+  }
+
+  function directRootSections(root) {
+    return Array.from(root.children).filter((node) => node.nodeType === 1);
   }
 
   function apply(view) {
@@ -118,37 +124,51 @@
     applying = true;
     try {
       const selected = VALID_VIEWS.has(view) ? view : currentView();
-      ensureShell(root);
       document.body.dataset.constitutionView = selected;
+      ensureShell(root, selected);
 
       const parcel = root.querySelector(".blacklace-parcel");
       const chat = root.querySelector(".gerard-chat");
       const tentacles = document.querySelector(".gerard-tentacles-panel");
       const plans = root.querySelectorAll(".production-plan, .production-pack");
-      const garden = root.querySelectorAll(".garden-dashboard, .garden-shell, .hublot, [data-garden-shell]");
+      const dashboards = root.querySelectorAll(".garden-dashboard");
+      const hublots = root.querySelectorAll(".hublot, .garden-hublot");
+      const gardenShells = root.querySelectorAll(".garden-shell, [data-garden-shell]");
       const clientAdmin = root.querySelectorAll(".client-access, .client-parcel-portal, .parcel-client-portal");
+      const activity = root.querySelectorAll(".activity-echo, .adventure-journal, .mission-timeline");
+
+      directRootSections(root).forEach((section) => section.classList.add("constitution-managed"));
 
       mark(parcel, selected === "gerard" || selected === "parcels");
       mark(chat, selected === "gerard");
       mark(tentacles, selected === "garden");
-      plans.forEach((node) => mark(node, selected === "atelier"));
-      garden.forEach((node) => mark(node, selected === "garden" || selected === "harvests"));
-      clientAdmin.forEach((node) => mark(node, selected === "parcels"));
+      markAll(plans, selected === "atelier");
+      markAll(clientAdmin, selected === "parcels");
+      markAll(activity, selected === "garden");
+
+      markAll(dashboards, selected === "harvests" || selected === "garden");
+      markAll(hublots, selected === "garden");
+      markAll(gardenShells, selected === "garden");
 
       if (parcel) {
         parcel.classList.toggle("constitution-home", selected === "gerard");
         const picker = parcel.querySelector(".seed-picker");
         const summary = parcel.querySelector(".seed-life-summary");
+        const plantedList = parcel.querySelector("details, .seed-list, .planted-seeds");
         mark(picker, selected === "parcels");
         mark(summary, selected === "parcels");
+        if (plantedList) mark(plantedList, selected === "parcels");
       }
 
       if (selected === "harvests") {
         try { global.GardenPersistence?.saveDashboardState?.({ selectedView: "harvests" }); } catch (_) {}
-      }
-      if (selected === "garden") {
+      } else if (selected === "garden") {
         try { global.GardenPersistence?.saveDashboardState?.({ selectedView: "hublot" }); } catch (_) {}
       }
+
+      root.querySelectorAll(".garden-dashboard nav, .garden-dashboard .garden-tabs, .garden-dashboard .view-tabs").forEach((node) => {
+        mark(node, selected === "garden");
+      });
     } finally {
       applying = false;
     }
