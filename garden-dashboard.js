@@ -483,14 +483,15 @@
     const canOpenText = Boolean(text);
     const canOpenCanva = Boolean(harvest.url);
     const actions = [
-      canOpenText ? `<button class="ghost" data-open-harvest="${esc(harvest.id)}">Ouvrir</button>` : "",
+      canOpenText ? `<button class="ghost" data-open-harvest="${esc(harvest.id)}">Examiner</button>` : "",
       canOpenText ? `<button class="ghost" data-copy-harvest="${esc(harvest.id)}">Copier</button>` : "",
       canOpenCanva ? `<a class="primary garden-link" href="${esc(harvest.url)}" target="_blank" rel="noopener">Ouvrir dans Canva</a>` : "",
       harvest.downloadUrl ? `<a class="primary garden-link" href="${esc(harvest.downloadUrl)}" download>Télécharger</a>` : "",
-      `<button class="ghost" disabled>Marquer prêt</button>`,
-      `<button class="ghost" disabled>Rejeter</button>`
+      `<button class="ghost" disabled>Accepter</button>`,
+      `<button class="ghost" disabled>Demander une amélioration</button>`
     ].join("");
     return `<article class="garden-card harvest-card">
+      <p class="harvest-kicker">🌾 Nouvelle récolte</p>
       <div class="garden-card-head"><span>${esc(harvest.status)}</span><small>${esc(harvest.type)}</small></div>
       <h3>${esc(harvest.title)}</h3>
       <p>${esc(harvest.preview || "Aucun aperçu disponible.")}</p>

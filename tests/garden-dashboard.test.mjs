@@ -258,6 +258,16 @@ test("exposes produced harvest content and Canva URL", () => {
   assert.equal(harvests.find((harvest) => harvest.id === "harvest-canva").url, "https://canva.example/design");
 });
 
+test("harvest cards keep Garden actions visible without new action owners", () => {
+  const dashboard = fs.readFileSync("garden-dashboard.js", "utf8");
+  assert.match(dashboard, /Nouvelle rÃ©colte|Nouvelle récolte/);
+  assert.match(dashboard, /Examiner/);
+  assert.match(dashboard, /Accepter/);
+  assert.match(dashboard, /Demander une amÃ©lioration|Demander une amélioration/);
+  assert.match(dashboard, /data-open-harvest/);
+  assert.equal(dashboard.includes("addEventListener"), false);
+});
+
 test("uses live production diagnostics instead of stale pack connector status", () => {
   const context = createContext();
   vm.createContext(context);
