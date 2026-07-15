@@ -176,9 +176,9 @@
       markAll(plans, selected === "atelier");
       markAll(clientAdmin, selected === "parcels");
       markAll(activity, selected === "garden");
-      markAll(dashboards, selected === "harvests" || selected === "garden");
+      markAll(dashboards, selected === "harvests" || selected === "garden" || selected === "atelier");
       markAll(hublots, selected === "garden");
-      markAll(gardenShells, selected === "garden");
+      markAll(gardenShells, selected === "garden" || selected === "atelier");
 
       if (parcel) {
         parcel.classList.toggle("constitution-home", false);
