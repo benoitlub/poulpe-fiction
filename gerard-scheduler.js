@@ -164,7 +164,7 @@
       ? Math.round(seeds.reduce((sum, seed) => sum + (Number(seed.maturity) || 0), 0) / seeds.length)
       : 0;
 
-    panel.innerHTML = `
+    const html = `
       <div class="tentacles-heading">
         <div><span class="eyebrow">🐙 Gérard travaille en parallèle</span><strong>${active.length}/${TENTACLE_COUNT} tentacules actifs</strong></div>
         <span class="tentacles-average">Maturité moyenne ${average}%</span>
@@ -175,6 +175,8 @@
           return `<div class="tentacle-chip${seed ? " active" : ""}"><span>${tentacle.id.replace("tentacle-", "T")}</span><div><strong>${tentacle.role}</strong><small>${seed ? tentacle.action : "disponible"}</small></div></div>`;
         }).join("")}
       </div>`;
+
+    if (panel.innerHTML !== html) panel.innerHTML = html;
   }
 
   async function tick() {
@@ -206,7 +208,7 @@
       void global.BlacklaceParcel?.writeGlobalState?.(global.BlacklaceParcel?.activeSeed?.());
       await prepareMatureSeed(seeds);
       global.render?.();
-      setTimeout(renderTentacles, 0);
+      global.setTimeout(renderTentacles, 0);
     } finally {
       ticking = false;
     }
@@ -228,11 +230,9 @@
   };
 
   start();
-  window.addEventListener("focus", () => void tick());
+  global.addEventListener("focus", () => void tick());
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") void tick();
   });
-
-  const observer = new MutationObserver(() => renderTentacles());
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  global.addEventListener("load", () => global.setTimeout(renderTentacles, 0), { once: true });
 })(globalThis);
