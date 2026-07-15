@@ -1,6 +1,7 @@
 .constitution-hidden,.constitution-redundant,.constitution-legacy-nav{display:none!important}
+body{padding-bottom:86px}
 .constitution-shell{display:grid;gap:18px;margin:0 0 24px}
-.constitution-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:4px 0 8px;position:sticky;top:0;z-index:30;background:rgba(13,9,16,.96);backdrop-filter:blur(14px)}
+.constitution-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:120;width:min(960px,calc(100vw - 20px));padding:8px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:rgba(13,9,16,.96);box-shadow:0 16px 44px rgba(0,0,0,.42);backdrop-filter:blur(16px)}
 .constitution-nav button{min-width:0;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.045);color:inherit;border-radius:999px;padding:10px 8px;font-weight:800;cursor:pointer;white-space:nowrap}
 .constitution-nav button.active{background:rgba(255,121,73,.18);border-color:rgba(255,121,73,.48);color:#ffd8c8}
 .gerard-companion-card{border:1px solid rgba(255,255,255,.1);background:linear-gradient(145deg,rgba(65,31,49,.72),rgba(24,17,28,.92));border-radius:24px;padding:24px;box-shadow:0 22px 54px rgba(0,0,0,.2)}
@@ -36,16 +37,19 @@ body[data-constitution-view="parcels"] .activity-echo{display:none!important}
 
 body[data-constitution-view="atelier"] .blacklace-parcel,
 body[data-constitution-view="atelier"] .gerard-chat,
-body[data-constitution-view="atelier"] .garden-dashboard,
-body[data-constitution-view="atelier"] .garden-shell,
 body[data-constitution-view="atelier"] .hublot,
+body[data-constitution-view="atelier"] .garden-hublot,
 body[data-constitution-view="atelier"] .gerard-tentacles-panel,
 body[data-constitution-view="atelier"] .client-access,
 body[data-constitution-view="atelier"] .client-parcel-portal,
 body[data-constitution-view="atelier"] .parcel-client-portal,
 body[data-constitution-view="atelier"] .activity-echo{display:none!important}
+body[data-constitution-view="atelier"] .garden-shell,
+body[data-constitution-view="atelier"] [data-garden-shell],
+body[data-constitution-view="atelier"] .garden-dashboard,
 body[data-constitution-view="atelier"] .production-plan,
 body[data-constitution-view="atelier"] .production-pack{display:block!important}
+body[data-constitution-view="atelier"] .garden-dashboard>:not(.production-plan):not(.production-pack){display:none!important}
 
 body[data-constitution-view="harvests"] .blacklace-parcel,
 body[data-constitution-view="harvests"] .gerard-chat,
@@ -79,9 +83,10 @@ body[data-constitution-view="garden"] .garden-shell,
 body[data-constitution-view="garden"] [data-garden-shell]{padding-top:0!important}
 
 @media(max-width:720px){
+  body{padding-bottom:78px}
   .constitution-shell{gap:12px;margin-bottom:16px}
-  .constitution-nav{grid-template-columns:repeat(3,minmax(0,1fr));padding:6px 0}
-  .constitution-nav button{padding:9px 6px;font-size:.76rem}
+  .constitution-nav{bottom:6px;width:calc(100vw - 12px);gap:4px;padding:6px;border-radius:18px}
+  .constitution-nav button{padding:9px 3px;font-size:.68rem;letter-spacing:-.02em}
   .gerard-companion-card{padding:18px;border-radius:19px}
   .gerard-companion-heading,.gerard-companion-foot{align-items:flex-start;flex-direction:column}
   .gerard-companion-heading>span{font-size:.72rem}
