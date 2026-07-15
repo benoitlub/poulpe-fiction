@@ -128,6 +128,14 @@
     }
   }
 
+  function publisherApiUrl() {
+    try {
+      return global.PoulpeRuntimeConfig.urls.publisherApi.replace(/\/$/, "");
+    } catch (_) {
+      return "";
+    }
+  }
+
   function snapshot() {
     syncReturnOperations();
     return {
@@ -162,6 +170,41 @@
     global.render?.();
   }
 
+  function notifyPublisherHarvestAvailable(harvest) {
+    const base = publisherApiUrl();
+    if (!base || !global.fetch || !harvest?.id) return;
+    try {
+      void global.fetch(`${base}/api/production/available`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source: "poulpe-fiction", harvest })
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  function clearActiveAdventure() {
+    try { global.AdventureDraft?.save?.(null); } catch (_) {}
+    try { global.GardenStore?.clearActiveSeed?.(); } catch (_) {}
+    try {
+      const key = global.BlacklaceParcel?.ACTIVE_SEED_KEY;
+      if (key) localStorage.removeItem(key);
+    } catch (_) {}
+  }
+
+  function unlockNextProductionStep(input) {
+    const type = String(input?.type || input?.artifactType || "").toLowerCase();
+    const title = String(input?.title || "").toLowerCase();
+    const isLanding = type === "landing-page" || title.includes("landing");
+    if (!isLanding) return;
+    const key = global.TerraHarvestLoop?.STATUS_KEY || "poulpe-fiction:terra-harvest-loop:v1";
+    const current = readJson(key, {});
+    writeJson(key, Object.assign({}, current, {
+      status: "waiting-authorization",
+      prerequisiteHarvestId: input.id,
+      updatedAt: new Date().toISOString()
+    }));
+  }
+
   function acceptHarvest(input) {
     const harvestId = String(input?.id || input || "");
     const state = harvestState();
@@ -175,10 +218,30 @@
           operationId: input.missionId || null,
           title: input.title || "Récolte",
           preview: input.preview || input.content?.text || "",
+          content: input.content,
+          payload: input.payload,
+          url: input.url || null,
+          downloadUrl: input.downloadUrl || null,
+          type: input.type || null,
           status: "accepted",
           createdAt: input.date || new Date().toISOString()
         });
+        if (input.missionId) {
+          global.GardenStore.upsertOperation?.({
+            id: input.missionId,
+            parcelId: input.parcelId,
+            seedId: input.seedId || `accepted-${harvestId}`,
+            intent: input.title || "Récolte acceptée",
+            status: "ready",
+            activity: "Récolte acceptée",
+            createdAt: input.date || new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+        }
       } catch (_) {}
+      clearActiveAdventure();
+      unlockNextProductionStep(input);
+      notifyPublisherHarvestAvailable(input);
     }
     saveHarvestState(state);
     return state.accepted[harvestId];

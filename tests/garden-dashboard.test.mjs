@@ -349,6 +349,7 @@ test("accepting a return harvest moves it into GardenStore", () => {
   context.GardenPersistence.acceptHarvest({
     id: "harvest-moved",
     parcelId: "terra",
+    seedId: "seed-terra",
     missionId: "mission-moved",
     title: "Récolte déplacée",
     preview: "Texte propre",
@@ -358,7 +359,79 @@ test("accepting a return harvest moves it into GardenStore", () => {
   const stored = context.GardenStore.snapshot().harvests.find((item) => item.id === "harvest-moved");
   assert.equal(stored.title, "Récolte déplacée");
   assert.equal(stored.preview, "Texte propre");
+  assert.equal(stored.content.text, "Texte propre");
   assert.equal(stored.status, "accepted");
+});
+
+test("accepting a harvest closes the active bag and completes the mission in GardenStore", () => {
+  const context = createContext();
+  const activeKey = "poulpe-fiction:blacklace-active-seed:v1";
+  let draftCleared = false;
+  context.BlacklaceParcel = {
+    ACTIVE_SEED_KEY: activeKey,
+    activeSeed: () => ({ parcelId: "terra", seedId: "seed-terra" })
+  };
+  context.AdventureDraft = {
+    save: (value) => {
+      if (value === null) draftCleared = true;
+      return value;
+    }
+  };
+  loadRealGardenModules(context);
+  context.GardenStore.registerParcel({ id: "terra", name: "TERRA" });
+  context.GardenStore.plantSeed({ id: "seed-terra", parcelId: "terra", title: "TERRA", content: "Seed" });
+  context.GardenStore.activateSeed("terra", "seed-terra");
+  context.localStorage.setItem(activeKey, JSON.stringify({ parcelId: "terra", seedId: "seed-terra" }));
+
+  context.GardenPersistence.acceptHarvest({
+    id: "harvest-cycle",
+    parcelId: "terra",
+    seedId: "seed-terra",
+    missionId: "mission-cycle",
+    title: "Récolte cycle",
+    preview: "Cycle terminé",
+    content: { text: "Cycle terminé" },
+    date: "2026-07-06T10:00:00.000Z"
+  });
+
+  const state = context.GardenStore.snapshot();
+  assert.equal(draftCleared, true);
+  assert.equal(context.localStorage.getItem(activeKey), null);
+  assert.equal(state.activeSeedId, null);
+  assert.equal(state.harvests.some((item) => item.id === "harvest-cycle"), true);
+  assert.equal(state.operations.find((item) => item.id === "mission-cycle").status, "ready");
+});
+
+test("accepting a landing harvest notifies Publisher and unlocks Canva authorization state", () => {
+  const context = createContext();
+  const calls = [];
+  context.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  context.TerraHarvestLoop = { STATUS_KEY: "terra-status" };
+  loadRealGardenModules(context);
+  context.PoulpeRuntimeConfig.urls.publisherApi = "https://publisher.example";
+  context.GardenStore.registerParcel({ id: "terra", name: "TERRA" });
+  context.GardenStore.plantSeed({ id: "seed-terra", parcelId: "terra", title: "TERRA", content: "Seed" });
+
+  context.GardenPersistence.acceptHarvest({
+    id: "harvest-landing-cycle",
+    parcelId: "terra",
+    seedId: "seed-terra",
+    missionId: "mission-landing-cycle",
+    title: "Landing page TERRA",
+    type: "landing-page",
+    preview: "Landing prête",
+    content: { text: "Landing prête" },
+    date: "2026-07-06T10:00:00.000Z"
+  });
+
+  const status = JSON.parse(context.localStorage.getItem("terra-status"));
+  assert.equal(status.status, "waiting-authorization");
+  assert.equal(status.prerequisiteHarvestId, "harvest-landing-cycle");
+  assert.equal(calls[0].url, "https://publisher.example/api/production/available");
+  assert.match(calls[0].options.body, /harvest-landing-cycle/);
 });
 
 test("requesting a harvest improvement creates a linked seed without starting departure", () => {

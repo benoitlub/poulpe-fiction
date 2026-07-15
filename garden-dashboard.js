@@ -277,12 +277,14 @@
       id: harvest.id,
       title: harvest.title,
       parcelId: harvest.parcelId,
+      seedId: harvest.seedId,
       missionId: harvest.operationId,
       date: harvest.createdAt,
-      type: "rapport",
+      type: harvest.type || "rapport",
       status: accepted[harvest.id]?.status || normalizeHarvestStatus(harvest.status),
       preview: firstHarvestText(harvest.preview, harvest.content, harvest.payload),
       content: { text: firstHarvestText(harvest.content, harvest.payload, harvest.preview) },
+      payload: harvest.payload || null,
       url: harvest.url || null,
       downloadUrl: harvest.downloadUrl || null,
       link: null
@@ -294,12 +296,15 @@
         id: harvest.id,
         title: harvest.title,
         parcelId: harvest.parcelId || bundle.parcelId,
+        seedId: harvest.seedId || bundle.seedId || bundle.rawMission?.seedId || null,
         missionId: harvest.missionId || bundle.missionId,
         date: harvest.createdAt || bundle.createdAt,
         type: normalizeHarvestType(harvest.artifactType),
+        artifactType: harvest.artifactType || null,
         status: accepted[harvest.id]?.status || (bundle.status === "ready" ? "à-valider" : "brouillon"),
         preview: firstHarvestText(harvest.description, text),
         content: { text },
+        payload: harvest.payload || null,
         url: harvest.url || harvest.artifact?.url || null,
         downloadUrl: harvest.downloadUrl || harvest.artifact?.downloadUrl || null,
         link: null
@@ -310,6 +315,7 @@
       id: pack.id,
       title: pack.title,
       parcelId: pack.parcelId,
+      seedId: pack.seedId,
       missionId: pack.returnId,
       date: pack.createdAt,
       type: "landing-page",
@@ -321,7 +327,7 @@
       link: null
     }));
 
-    return dedupeById([...packHarvests, ...returnHarvests, ...gardenHarvests])
+    return dedupeById([...gardenHarvests, ...returnHarvests, ...packHarvests])
       .sort((a, b) => timeValue(b.date) - timeValue(a.date));
   }
 
@@ -445,6 +451,7 @@
   function hublot(data) {
     const activeParcels = (data.garden.parcels || []).filter((parcel) => !parcel.archived);
     const allMissions = missions(data);
+    const completedMissions = allMissions.filter((mission) => mission.status === "completed").length;
     const urgentMission = allMissions.find((mission) => mission.priority === "urgent" || mission.status === "blocked");
     const nextDue = allMissions.filter((mission) => mission.dueAt).sort((a, b) => timeValue(a.dueAt) - timeValue(b.dueAt))[0];
     const latestHarvest = harvests(data)[0];
@@ -456,6 +463,7 @@
     return `<section class="garden-dashboard-view">
       <div class="hublot-grid">
         ${metricCard(`${activeParcels.length}`, "parcelles actives", activeParcels.map((parcel) => parcel.name).join(", ") || "Aucune parcelle chargée")}
+        ${metricCard(String(completedMissions), "missions terminées", completedMissions ? "Les retours acceptés mettent le Garden à jour." : "Aucune mission terminée")}
         ${metricCard(urgentMission ? "1" : "0", "mission urgente", urgentMission?.title || "Aucune urgence")}
         ${metricCard(nextDue ? dateLabel(nextDue.dueAt) : "Non définie", "prochaine échéance", nextDue ? `${parcelName(data, nextDue.parcelId)} · ${nextDue.title}` : "Aucune échéance locale")}
         ${metricCard(latestHarvest?.title || "Aucune récolte", "dernier résultat", latestHarvest?.preview || "Les retours apparaîtront ici")}
@@ -674,7 +682,8 @@
         const data = global.GardenPersistence.snapshot();
         const harvest = harvests(data).find((item) => item.id === button.dataset.acceptHarvest);
         global.GardenPersistence.acceptHarvest?.(harvest || button.dataset.acceptHarvest);
-        mount();
+        if (typeof global.render === "function") global.render();
+        else mount();
       };
     });
     document.querySelectorAll("[data-improve-harvest]").forEach((button) => {
