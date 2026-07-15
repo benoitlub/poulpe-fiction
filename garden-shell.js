@@ -127,7 +127,8 @@
     document.getElementById("journeyLaunch")?.addEventListener("click", async () => {
       const button = document.getElementById("journeyLaunch");
       if (button) { button.disabled = true; button.textContent = "🐙 Départ en cours…"; }
-      await global.AdventureLaunch?.launch?.();
+      const draft = global.AdventureDraft?.load?.();
+      await global.DepartureController?.depart?.(draft?.curiosity?.id, button);
       setTimeout(mount, 100);
     });
     document.getElementById("journeyPublisher")?.addEventListener("click", () => window.open("https://blacklace-publisher-web.onrender.com/local-technique", "_blank", "noopener,noreferrer"));

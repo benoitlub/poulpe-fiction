@@ -152,6 +152,7 @@
     staleOverrideKeys: STALE_OVERRIDE_KEYS,
     sanitizeServiceUrl,
     migrateLocalStorageOverrides,
+    withTimeout,
     testConnections
   };
   global.OCTOPUS_API = global.PoulpeRuntimeConfig.urls.octopusApi;
