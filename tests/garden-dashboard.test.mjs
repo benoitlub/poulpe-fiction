@@ -49,6 +49,16 @@ function loadModules(context) {
   return context;
 }
 
+function loadRealGardenModules(context = createContext()) {
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync("runtime-config.js", "utf8"), context);
+  vm.runInContext(fs.readFileSync("garden-domain.js", "utf8"), context);
+  vm.runInContext(fs.readFileSync("garden-store.js", "utf8"), context);
+  vm.runInContext(fs.readFileSync("garden-persistence.js", "utf8"), context);
+  vm.runInContext(fs.readFileSync("garden-dashboard.js", "utf8"), context);
+  return context;
+}
+
 function loadRuntimeConfig(context = createContext()) {
   vm.createContext(context);
   vm.runInContext(fs.readFileSync("runtime-config.js", "utf8"), context);
@@ -258,6 +268,112 @@ test("exposes produced harvest content and Canva URL", () => {
   assert.equal(harvests.find((harvest) => harvest.id === "harvest-canva").url, "https://canva.example/design");
 });
 
+test("extracts clean harvest text from supported payloads", () => {
+  const context = fixtureContext();
+  const extract = context.GardenDashboard.extractHarvestText;
+  assert.equal(extract({ text: "Ligne 1\\nLigne 2" }), "Ligne 1\nLigne 2");
+  assert.equal(extract({ content: { text: "Texte imbriqué" } }), "Texte imbriqué");
+  assert.equal(extract(JSON.stringify({ text: "Texte JSON\\npropre" })), "Texte JSON\npropre");
+  assert.equal(extract({ content: { html: "<p>Non</p>" } }), "");
+  assert.notEqual(extract({ content: { html: "<p>Non</p>" } }), "[object Object]");
+});
+
+test("renders object harvest payloads without object wrappers", () => {
+  const context = createContext();
+  context.GardenStore = {
+    snapshot: () => ({ parcels: [], seeds: [], sprouts: [], harvests: [], operations: [] })
+  };
+  context.AdventureReturnProcessor = {
+    loadOutbox: () => [{
+      id: "return-object",
+      status: "ready",
+      parcelId: "terra",
+      missionId: "mission-object",
+      createdAt: "2026-07-06T10:00:00.000Z",
+      harvests: [
+        { id: "harvest-object", title: "Objet", description: "Résumé", artifactType: "text", artifact: { text: "Texte humain" }, createdAt: "2026-07-06T10:00:00.000Z" },
+        { id: "harvest-json", title: "JSON", description: "Résumé", artifactType: "text", artifact: "{\"text\":\"Texte JSON\\\\nligne 2\"}", createdAt: "2026-07-06T11:00:00.000Z" }
+      ]
+    }]
+  };
+  loadModules(context);
+  const harvests = context.GardenDashboard.harvests(context.GardenPersistence.snapshot());
+  assert.equal(harvests.find((harvest) => harvest.id === "harvest-object").content.text, "Texte humain");
+  assert.equal(harvests.find((harvest) => harvest.id === "harvest-json").content.text, "Texte JSON\nligne 2");
+  assert.equal(harvests.some((harvest) => harvest.content.text === "[object Object]"), false);
+});
+
+test("examines harvests inside the page instead of opening a blank popup", () => {
+  const context = fixtureContext();
+  let inserted = "";
+  let opened = false;
+  const panel = {
+    querySelector: () => null,
+    remove: () => { inserted = ""; }
+  };
+  const root = {
+    insertAdjacentHTML: (_position, html) => { inserted += html; },
+    querySelector: (selector) => selector === ".harvest-detail-panel" && inserted ? panel : null
+  };
+  context.open = () => { opened = true; };
+  context.document.querySelector = (selector) => selector === ".garden-dashboard" ? root : null;
+  context.document.getElementById = () => root;
+
+  context.GardenDashboard.openHarvestDetail({ id: "h1", title: "Récolte", content: { text: "Texte visible" } });
+
+  assert.equal(opened, false);
+  assert.match(inserted, /harvest-detail-panel/);
+  assert.match(inserted, /Texte visible/);
+  assert.match(inserted, /Fermer/);
+  assert.match(inserted, /Copier/);
+});
+
+test("accepts a harvest and persists the accepted status after reload", () => {
+  const context = loadRealGardenModules();
+  context.GardenPersistence.acceptHarvest("harvest-accepted");
+  const reloaded = createContext();
+  reloaded.localStorage = context.localStorage;
+  loadRealGardenModules(reloaded);
+  assert.equal(reloaded.GardenPersistence.harvestState().accepted["harvest-accepted"].status, "accepted");
+});
+
+test("requesting a harvest improvement creates a linked seed without starting departure", () => {
+  const context = loadRealGardenModules();
+  let departureStarted = false;
+  context.AdventureLaunch = { launch: () => { departureStarted = true; } };
+  const seed = context.GardenPersistence.requestHarvestImprovement({
+    harvestId: "harvest-1",
+    missionId: "mission-1",
+    parcelId: "terra",
+    title: "Landing page",
+    content: "Rends le ton plus direct."
+  });
+  const stored = context.GardenStore.snapshot().seeds.find((item) => item.id === seed.id);
+  assert.equal(stored.title, "Amélioration · Landing page");
+  assert.equal(stored.content, "Rends le ton plus direct.");
+  assert.equal(stored.parentHarvestId, "harvest-1");
+  assert.equal(stored.parentMissionId, "mission-1");
+  assert.equal(departureStarted, false);
+});
+
+test("syncs completed return missions into GardenStore operations", () => {
+  const context = loadRealGardenModules();
+  context.AdventureReturnProcessor = {
+    loadOutbox: () => [{
+      id: "return-mission",
+      status: "ready",
+      parcelId: "terra",
+      missionId: "mission-return",
+      createdAt: "2026-07-06T10:00:00.000Z",
+      harvests: [{ id: "harvest-return", title: "Récolte", description: "Texte", artifactType: "text" }]
+    }]
+  };
+  context.GardenPersistence.snapshot();
+  const operation = context.GardenStore.snapshot().operations.find((item) => item.id === "mission-return");
+  assert.equal(operation.status, "ready");
+  assert.equal(operation.activity, "Récolte");
+});
+
 test("harvest cards keep Garden actions visible without new action owners", () => {
   const dashboard = fs.readFileSync("garden-dashboard.js", "utf8");
   assert.match(dashboard, /Nouvelle rÃ©colte|Nouvelle récolte/);
@@ -292,6 +408,76 @@ test("uses live production diagnostics instead of stale pack connector status", 
   const artifact = { id: "social-visual", type: "social-visual", provider: "Canva", providerStatus: "not-configured" };
   assert.equal(context.ProductionPack.connectionStatus("Canva", context.ProductionPack.loadConnections()), "Connecté");
   assert.equal(context.ProductionPack.artifactStatus(artifact, context.ProductionPack.loadConnections()), "authorization-required");
+});
+
+test("shows connected Canva as idle when no Canva operation exists", () => {
+  const context = createContext();
+  vm.createContext(context);
+  context.state = { step: "idle" };
+  context.root = { querySelector: () => null };
+  context.GardenStore = { snapshot: () => ({ operations: [] }) };
+  context.ProductionPlan = { updateFromProductionPack: () => null };
+  context.TerraHarvestLoop = {
+    latestTerraBundle: () => ({ harvests: [{ artifactType: "landing-page" }] }),
+    landingHarvest: () => ({ id: "landing" }),
+    visualHarvest: () => null
+  };
+  loadProductionPack(context);
+  context.localStorage.setItem(context.ProductionPack.CONNECTION_KEY, JSON.stringify({
+    status: "ready",
+    payload: { canva: { connected: true }, composio: { canvaConnected: true } }
+  }));
+  const pack = {
+    id: "pack-terra",
+    title: "Pack TERRA",
+    seedId: "seed-terra",
+    sourceManifest: {},
+    artifacts: [{ id: "social", type: "social-visual", label: "Visuel Instagram", provider: "Canva", dependencies: ["landing-page"] }],
+    publications: []
+  };
+  const html = context.ProductionPack.render(pack);
+  assert.match(html, /Canva est connect/);
+  assert.match(html, /Aucun travail Canva n'est actuellement en cours/);
+});
+
+test("shows real Canva operation status when one exists", () => {
+  const context = createContext();
+  vm.createContext(context);
+  context.state = { step: "idle" };
+  context.root = { querySelector: () => null };
+  context.GardenStore = { snapshot: () => ({ operations: [{ id: "canva-1", intent: "canva-design", status: "running", activity: "Création Canva" }] }) };
+  context.ProductionPlan = { updateFromProductionPack: () => null };
+  context.TerraHarvestLoop = {
+    latestTerraBundle: () => ({ harvests: [{ artifactType: "landing-page" }] }),
+    landingHarvest: () => ({ id: "landing" }),
+    visualHarvest: () => null
+  };
+  loadProductionPack(context);
+  context.localStorage.setItem(context.ProductionPack.CONNECTION_KEY, JSON.stringify({
+    status: "ready",
+    payload: { canva: { connected: true }, composio: { canvaConnected: true } }
+  }));
+  const pack = {
+    id: "pack-terra",
+    title: "Pack TERRA",
+    seedId: "seed-terra",
+    sourceManifest: {},
+    artifacts: [{ id: "social", type: "social-visual", label: "Visuel Instagram", provider: "Canva", dependencies: ["landing-page"] }],
+    publications: []
+  };
+  const html = context.ProductionPack.render(pack);
+  assert.match(html, /Canva/);
+  assert.match(html, /running/);
+  assert.match(html, /CrÃ©ation Canva|Création Canva/);
+});
+
+test("return presentation changes add no timers, global listeners or mutation observers", () => {
+  const changed = ["garden-dashboard.js", "garden-persistence.js", "garden-store.js", "production-pack.js"]
+    .map((file) => fs.readFileSync(file, "utf8"))
+    .join("\n");
+  assert.equal(changed.includes("MutationObserver"), false);
+  assert.equal(changed.includes("setInterval"), false);
+  assert.equal(changed.includes("addEventListener"), false);
 });
 
 test("replaces legacy production pack block on result render", () => {

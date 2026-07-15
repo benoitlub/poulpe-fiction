@@ -209,6 +209,11 @@
     return `data:${mimeType || "text/plain"};charset=utf-8,${encodeURIComponent(content || "")}`;
   }
 
+  function canvaOperation() {
+    const operations = global.GardenStore?.snapshot?.().operations || [];
+    return operations.find((operation) => /canva/i.test(`${operation.intent || ""} ${operation.activity || ""}`)) || null;
+  }
+
   function runtimeDiagnostics(connections) {
     const runtime = connections?.runtime;
     const fallback = global.PoulpeRuntimeConfig;
@@ -240,6 +245,10 @@
     const status = artifactStatus(artifact, connections);
     const harvest = producedHarvestFor(artifact);
     const connection = connectionStatus(artifact.provider, connections);
+    const canva = artifact.type === "social-visual" ? canvaOperation() : null;
+    const canvaNote = artifact.type === "social-visual" && connection === "Connecté" && !canva && !harvest
+      ? `<p class="production-note">Canva est connecté. Aucun travail Canva n'est actuellement en cours.</p>` : "";
+    const canvaStatus = canva ? `<p class="production-note">Canva · ${escapeHtml(canva.status)} · ${escapeHtml(canva.activity || "Opération en cours")}</p>` : "";
     const preview = (status === "produced" || status === "ready") && artifact.content
       ? `<button class="ghost" data-production-preview="${escapeHtml(artifact.id)}">Apercu</button>` : "";
     const download = status === "produced" && artifact.content
@@ -249,7 +258,7 @@
       ? `<button class="primary" data-authorize-canva>Autoriser Canva</button>` : "";
     const blocked = status === "blocked"
       ? `<button class="ghost" disabled>Dependance absente</button>` : "";
-    return `<article class="production-item"><div><span class="production-status">${statusLabel(status)}</span><h3>${escapeHtml(artifact.label)}</h3><p>${escapeHtml(artifact.provider)} - ${escapeHtml(connection)}</p></div><div class="play-actions">${openHarvest}${preview}${download}${authorize}${blocked}</div></article>`;
+    return `<article class="production-item"><div><span class="production-status">${statusLabel(status)}</span><h3>${escapeHtml(artifact.label)}</h3><p>${escapeHtml(artifact.provider)} - ${escapeHtml(connection)}</p>${canvaNote}${canvaStatus}</div><div class="play-actions">${openHarvest}${preview}${download}${authorize}${blocked}</div></article>`;
   }
 
   function publicationCard(publication) {

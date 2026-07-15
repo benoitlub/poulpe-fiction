@@ -81,6 +81,8 @@
       plantedBy: input?.plantedBy || "gerard",
       plantedAt: input?.plantedAt || input?.createdAt || new Date().toISOString()
     }));
+    if (input?.parentHarvestId) seed.parentHarvestId = String(input.parentHarvestId);
+    if (input?.parentMissionId) seed.parentMissionId = String(input.parentMissionId);
     const existing = state.seeds.find((item) => item.id === seed.id);
     if (existing) Object.assign(existing, seed, { createdAt: existing.createdAt || seed.createdAt, plantedAt: existing.plantedAt || seed.plantedAt, updatedAt: new Date().toISOString() });
     else state.seeds.push(seed);
