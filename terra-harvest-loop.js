@@ -14,11 +14,6 @@
     catch (_) { return ""; }
   }
 
-  function octopusBaseUrl() {
-    try { return typeof OCTOPUS_API === "string" ? OCTOPUS_API.replace(/\/$/, "") : ""; }
-    catch (_) { return ""; }
-  }
-
   function loadStatus() {
     try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "null") || {}; }
     catch (_) { return {}; }
@@ -75,30 +70,44 @@
     };
   }
 
-  function extractMissionText(payload) {
-    const result = payload?.result || payload;
-    const output = result?.output || result;
-    const artifacts = output?.artifacts || result?.artifacts || payload?.artifacts || [];
-    const landing = Array.isArray(artifacts)
-      ? artifacts.find((item) => item?.artifactType === "landing-page" || item?.type === "landing-page")
-      : null;
-    return String(
-      landing?.artifact ||
-      landing?.content ||
-      output?.text ||
-      result?.text ||
-      payload?.text ||
-      "Landing page TERRA\n\nTERRA est pret a etre presente avec une page claire, une promesse lisible et un appel a l'action vers la decouverte du livre."
+  function htmlDownloadUrl(content) {
+    const html = String(content || "");
+    if (!html.trim()) return null;
+    return `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
+  }
+
+  function landingText(landing) {
+    return String(landing?.content?.text || landing?.artifact?.content || landing?.artifact || landing?.description || "");
+  }
+
+  function extractProductionArtifact(payload) {
+    const artifact = payload?.artifact || payload?.artifacts?.[0] || payload;
+    const content = String(
+      artifact?.content ||
+      artifact?.text ||
+      payload?.content ||
+      "Landing page TERRA\n\nTERRA est prete a etre presente avec une page claire, une promesse lisible et un appel a l'action vers la decouverte du livre."
     );
+    return {
+      id: artifact?.id || `landing_${Date.now()}`,
+      title: artifact?.title || "Landing page TERRA",
+      content,
+      type: artifact?.type || "landing-page.html",
+      url: artifact?.url || null,
+      downloadUrl: artifact?.downloadUrl || htmlDownloadUrl(content),
+      mimeType: artifact?.mimeType || "text/html",
+      raw: artifact || null
+    };
   }
 
   function currentDraft() {
     return global.AdventureDraft?.load?.() || null;
   }
 
-  function landingBundleFromMission(operationId, payload) {
+  function landingBundleFromProduction(operationId, payload) {
     const draft = currentDraft();
-    const text = extractMissionText(payload);
+    const artifact = extractProductionArtifact(payload);
+    const text = artifact.content;
     const createdAt = new Date().toISOString();
     return {
       version: 1,
@@ -115,10 +124,23 @@
         parcelId: "blacklace-ecosystem",
         adventureDraftId: draft?.id || null,
         missionId: operationId,
-        title: "Landing page TERRA",
+        title: artifact.title,
         description: text.slice(0, 240),
         artifactType: "landing-page",
-        artifact: text,
+        artifact: {
+          id: artifact.id,
+          type: artifact.type,
+          title: artifact.title,
+          content: artifact.content,
+          url: artifact.url,
+          downloadUrl: artifact.downloadUrl,
+          mimeType: artifact.mimeType
+        },
+        content: { text },
+        payload: payload?.plan ? { plan: payload.plan, producer: payload.tool || "html-local" } : artifact.raw,
+        url: artifact.url,
+        downloadUrl: artifact.downloadUrl,
+        status: "ready",
         createdAt
       }],
       seeds: [],
@@ -157,53 +179,53 @@
       render();
       return existing;
     }
-    const base = octopusBaseUrl();
+    const base = publisherBaseUrl();
     if (!base) {
-      saveStatus({ status: "failed", error: "Octopus API indisponible.", action: "Verifier le Local technique" });
-      recordTransition("Octopus bloque", "Aucune URL Octopus disponible.");
+      saveStatus({ status: "failed", error: "Publisher API indisponible.", action: "Verifier le Local technique" });
+      recordTransition("Publisher bloque", "Aucune URL Publisher disponible pour Production Engine.");
       render();
       return null;
     }
 
     const operationId = `terra_production_${Date.now()}`;
     saveStatus({ status: "running", error: null, operationId });
-    recordTransition("Octopus analyse", "Production landing page TERRA.");
+    recordTransition("Publisher prepare", "Production Engine genere la landing page HTML TERRA.");
     render();
 
     try {
-      const response = await fetch(`${base}/mission`, {
+      const response = await fetch(`${base}/api/production/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           operationId,
-          title: "Produire la landing page TERRA",
-          objective: "Creer une landing page exploitable pour presenter TERRA.",
-          parcelId: "blacklace-ecosystem",
-          seedId: "terra",
-          requiredCapabilities: ["copy.generate"],
-          authorizedResources: ["mistral"],
-          metadata: {
-            parcelId: "blacklace-ecosystem",
-            seedId: "terra",
-            expectedHarvests: ["landing-page", "instagram-visual"]
-          },
-          prompt: "Produis une landing page structuree pour TERRA avec titre, promesse, resume, benefices, preuve/source et appel a l'action. Retourne un artefact landing-page."
+          requestId: operationId,
+          tool: "html-local",
+          action: "create_landing_page",
+          capability: "landing-page",
+          context: { parcelId: "blacklace-ecosystem", seedId: "terra" },
+          input: {
+            title: "TERRA",
+            objective: "Creer une landing page exploitable pour presenter TERRA.",
+            callToAction: "Decouvrir TERRA"
+          }
         })
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || "Octopus n'a pas produit la landing page.");
-      const bundle = saveBundle(landingBundleFromMission(operationId, payload));
+      if (!response.ok || payload.status !== "completed" || !payload.artifact?.content) {
+        throw new Error(payload?.error || "Production Engine n'a pas produit la landing page HTML.");
+      }
+      const bundle = saveBundle(landingBundleFromProduction(operationId, payload));
       saveStatus({ status: "waiting-authorization", error: null, operationId });
-      recordTransition("Landing page produite", "Harvest landing-page creee. Canva attend une autorisation humaine.");
+      recordTransition("Landing page HTML produite", "Harvest landing-page creee avec fichier telechargeable.");
       render();
       return bundle;
     } catch (error) {
       saveStatus({
         status: "failed",
-        error: error instanceof Error ? error.message : "Erreur Octopus",
+        error: error instanceof Error ? error.message : "Erreur Production Engine",
         action: "Relancer Produire maintenant"
       });
-      recordTransition("Octopus en echec", error instanceof Error ? error.message : "Erreur Octopus");
+      recordTransition("Production Engine en echec", error instanceof Error ? error.message : "Erreur Production Engine");
       render();
       return null;
     }
@@ -232,7 +254,7 @@
           tool: "canva",
           action: "create_design",
           context: { parcelId: bundle.parcelId, seedId: "terra" },
-          input: canvaInput(landing.artifact || landing.description)
+          input: canvaInput(landingText(landing))
         })
       });
       const payload = await response.json();
@@ -258,7 +280,7 @@
     const landing = landingHarvest(bundle);
     if (!bundle || !landing || visualHarvest(bundle)) return "";
     const status = loadStatus();
-    const text = String(landing.artifact || landing.description || "");
+    const text = landingText(landing);
     const input = canvaInput(text);
     const error = status.error ? `<div class="garden-alert error"><strong>Canva</strong><span>${esc(status.error)}</span><small>${esc(status.action || "Reessayer")}</small></div>` : "";
     return `<section class="terra-canva-authorization">

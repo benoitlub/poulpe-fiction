@@ -268,6 +268,83 @@ test("exposes produced harvest content and Canva URL", () => {
   assert.equal(harvests.find((harvest) => harvest.id === "harvest-canva").url, "https://canva.example/design");
 });
 
+test("produces landing page through Publisher Production Engine and stores downloadable HTML", async () => {
+  const context = createContext();
+  const calls = [];
+  context.AdventureDraft = { load: () => ({ id: "draft-terra" }) };
+  context.AdventureReturnProcessor = {
+    OUTBOX_KEY: "poulpe-fiction:adventure-return-outbox:v1",
+    loadOutbox: () => JSON.parse(context.localStorage.getItem("poulpe-fiction:adventure-return-outbox:v1") || "[]")
+  };
+  context.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return {
+      ok: true,
+      json: async () => ({
+        status: "completed",
+        tool: "html-local",
+        artifact: {
+          id: "artifact-landing",
+          title: "Landing page TERRA",
+          type: "landing-page.html",
+          content: "<main><h1>TERRA</h1></main>",
+          mimeType: "text/html"
+        },
+        plan: { id: "plan-landing", steps: [{ producerId: "html-local" }] }
+      })
+    };
+  };
+  loadRuntimeConfig(context);
+  vm.runInContext(fs.readFileSync("terra-harvest-loop.js", "utf8"), context);
+
+  const bundle = await context.TerraHarvestLoop.produceNow();
+  const landing = context.TerraHarvestLoop.landingHarvest(bundle);
+
+  assert.equal(calls[0].url, "https://blacklace-publisher-api.onrender.com/api/production/execute");
+  assert.match(calls[0].options.body, /html-local/);
+  assert.equal(landing.artifactType, "landing-page");
+  assert.equal(landing.content.text, "<main><h1>TERRA</h1></main>");
+  assert.match(landing.downloadUrl, /^data:text\/html/);
+  assert.equal(landing.payload.plan.id, "plan-landing");
+});
+
+test("parcel notebook exposes downloadable landing harvests", () => {
+  const context = createContext();
+  let html = "";
+  const root = { insertAdjacentHTML: (_position, value) => { html = value; } };
+  context.document.getElementById = (id) => id === "root" ? root : null;
+  context.document.querySelector = () => null;
+  context.GardenStore = {
+    snapshot: () => ({
+      parcels: [{ id: "terra", code: "P-1", name: "TERRA", mission: "Vendre TERRA", priorities: ["campagne"] }],
+      seeds: [],
+      sprouts: [],
+      operations: [],
+      harvests: [{
+        id: "harvest-html",
+        parcelId: "terra",
+        seedId: "terra",
+        operationId: "mission-html",
+        title: "Landing page TERRA",
+        preview: "HTML pret",
+        content: { text: "<main>TERRA</main>" },
+        downloadUrl: "data:text/html;charset=utf-8,%3Cmain%3ETERRA%3C%2Fmain%3E",
+        type: "landing-page",
+        status: "ready",
+        createdAt: "2026-07-15T10:00:00.000Z"
+      }]
+    })
+  };
+  context.localStorage.setItem("poulpe-fiction:garden-dashboard:v1", JSON.stringify({ selectedView: "parcels", selectedParcelId: "terra" }));
+
+  loadModules(context);
+
+  assert.match(html, /Récoltes de la parcelle/);
+  assert.match(html, /Landing page TERRA/);
+  assert.match(html, /Télécharger HTML/);
+  assert.match(html, /download="landing-page-terra\.html"/);
+});
+
 test("extracts clean harvest text from supported payloads", () => {
   const context = fixtureContext();
   const extract = context.GardenDashboard.extractHarvestText;
