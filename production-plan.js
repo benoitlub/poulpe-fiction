@@ -2,27 +2,28 @@
   "use strict";
 
   const STORE_KEY = "poulpe-fiction:production-plans:v1";
+  const autoRefreshedSeeds = new Set();
   const TEMPLATES = {
     book: [
       { id:"landing-page", type:"landing-page", label:"Landing page", role:"web", providers:["Poulpe Fiction HTML"], dependsOn:[] },
       { id:"social-visual", type:"social-visual", label:"Visuel Instagram", role:"visual", providers:["Canva","image-generator"], dependsOn:["landing-page"] },
       { id:"voice-over", type:"voice-over", label:"Voix off", role:"voice", providers:["ElevenLabs"], dependsOn:["landing-page"] },
-      { id:"vertical-video", type:"vertical-video", label:"Vidéo verticale 9:16", role:"video", providers:["Kling","Runway"], dependsOn:["social-visual","voice-over"] },
+      { id:"vertical-video", type:"vertical-video", label:"Video verticale 9:16", role:"video", providers:["Kling","Runway"], dependsOn:["social-visual","voice-over"] },
       { id:"instagram-publication", type:"publication", label:"Publication Instagram", role:"publish", providers:["Metricool"], dependsOn:["social-visual","vertical-video"] },
       { id:"tiktok-publication", type:"publication", label:"Publication TikTok", role:"publish", providers:["Metricool"], dependsOn:["vertical-video"] }
     ],
     game: [
       { id:"product-page", type:"landing-page", label:"Fiche produit", role:"web", providers:["Poulpe Fiction HTML"], dependsOn:[] },
-      { id:"demo-visual", type:"social-visual", label:"Visuel de démonstration", role:"visual", providers:["Canva","image-generator"], dependsOn:["product-page"] },
-      { id:"demo-video", type:"vertical-video", label:"Vidéo de démonstration", role:"video", providers:["Kling","Runway"], dependsOn:["demo-visual"] },
+      { id:"demo-visual", type:"social-visual", label:"Visuel de demonstration", role:"visual", providers:["Canva","image-generator"], dependsOn:["product-page"] },
+      { id:"demo-video", type:"vertical-video", label:"Video de demonstration", role:"video", providers:["Kling","Runway"], dependsOn:["demo-visual"] },
       { id:"prospect-pack", type:"prospect-pack", label:"Pack partenaires/prospects", role:"business", providers:["Publisher business-growth"], dependsOn:["product-page"] },
       { id:"outreach-draft", type:"email-draft", label:"Premier message de contact", role:"business", providers:["Publisher"], dependsOn:["prospect-pack"] }
     ],
     app: [
       { id:"landing-page", type:"landing-page", label:"Landing page", role:"web", providers:["Poulpe Fiction HTML"], dependsOn:[] },
       { id:"demo-visual", type:"social-visual", label:"Visuel produit", role:"visual", providers:["Canva","image-generator"], dependsOn:["landing-page"] },
-      { id:"demo-video", type:"vertical-video", label:"Démonstration verticale", role:"video", providers:["Kling","Runway"], dependsOn:["demo-visual"] },
-      { id:"beta-publication", type:"publication", label:"Appel à bêta-testeurs", role:"publish", providers:["Metricool"], dependsOn:["landing-page","demo-video"] }
+      { id:"demo-video", type:"vertical-video", label:"Demonstration verticale", role:"video", providers:["Kling","Runway"], dependsOn:["demo-visual"] },
+      { id:"beta-publication", type:"publication", label:"Appel a beta-testeurs", role:"publish", providers:["Metricool"], dependsOn:["landing-page","demo-video"] }
     ],
     page: [
       { id:"page-content", type:"landing-page", label:"Page publiable", role:"web", providers:["Poulpe Fiction HTML"], dependsOn:[] },
@@ -68,9 +69,9 @@
         const decision=decisions[decisionIndex++]||null; const selected=decision?.selected||null;
         return { ...step, provider:selected?.name||step.provider, providerStatus:selected?.connectionStatus||"not-configured", connectionRoute:selected?.route||"manual", authorization:selected?.authorization||"required", creditStatus:selected?.creditStatus||"unknown", freeTier:selected?.freeTier||null, trial:selected?.trial||null, fallbackProviders:(decision?.alternatives||[]).map((item)=>item.name), brokerDecisionMode:decision?.decisionMode||"unavailable", executable:Boolean(decision?.executable), status:step.dependsOn.length?"blocked":decision?.executable?"ready-to-produce":"waiting-adapter" };
       });
-      const external = plan.steps.filter((step)=>!isInternalProvider(step.provider));
-      const executableCount = external.filter((step)=>step.executable).length;
-      plan.brokerStatus = external.length === 0 ? "no-external-step" : executableCount === external.length ? "routes-confirmed" : executableCount > 0 ? "partially-connected" : "connections-required";
+      applyBusinessStatuses(plan);
+      const next=nextActionableStep(plan);
+      plan.brokerStatus=next?next.status:"planned";
       plan.updatedAt=nowIso(); save(plan);
     }
     if(typeof global.render==="function") global.render();
@@ -89,31 +90,69 @@
       if(!dependenciesReady) return { ...step, status:"blocked" };
       return { ...step, status:step.executable?"ready-to-produce":"waiting-adapter" };
     });
+    applyBusinessStatuses(plan);
     plan.status=plan.steps.every((step)=>step.status==="ready"||step.status==="published")?"complete":"in-progress";
     plan.updatedAt=nowIso(); return save(plan);
   }
 
-  function statusLabel(status){ return ({"ready-to-produce":"Prêt à produire",planned:"À préparer",ready:"Produit confirmé",producing:"En cours",blocked:"En attente","waiting-adapter":"Connexion requise",published:"Publié confirmé"})[status]||status; }
-  function brokerLabel(status){ return ({"not-checked":"Connexions non vérifiées","routes-confirmed":"Routes confirmées","partially-connected":"Partiellement connecté","connections-required":"Connexions requises","no-external-step":"Aucune connexion externe"})[status]||status; }
+  function completedStepIds(plan){ return new Set((plan.steps||[]).filter((step)=>step.status==="ready"||step.status==="published").map((step)=>step.id)); }
+  function dependenciesReady(step,completed){ return (step.dependsOn||[]).every((id)=>completed.has(id)); }
+  function applyBusinessStatuses(plan){
+    const completed=completedStepIds(plan);
+    plan.steps=(plan.steps||[]).map((step)=>{
+      if(step.status==="ready"||step.status==="published"||step.status==="producing") return step;
+      if(!dependenciesReady(step,completed)) return { ...step, status:"blocked" };
+      return { ...step, status:step.executable?"ready-to-produce":"waiting-adapter" };
+    });
+    return plan;
+  }
+  function nextActionableStep(plan){ const completed=completedStepIds(plan); return (plan.steps||[]).find((step)=>!["ready","published"].includes(step.status)&&dependenciesReady(step,completed))||null; }
+  function statusLabel(status){ return ({"ready-to-produce":"Pret a produire",planned:"A preparer",ready:"Produit",producing:"En cours",blocked:"Attend le prerequis","waiting-adapter":"Reglage necessaire",published:"Publie"})[status]||status; }
+  function brokerLabel(status){ return ({"not-checked":"Verification en cours","routes-confirmed":"Plan pret","partially-connected":"Plan partiellement pret","connections-required":"Reglage necessaire","no-external-step":"Production locale","ready-to-produce":"Production possible","waiting-adapter":"Reglage necessaire",blocked:"Attend le prerequis",planned:"Plan prepare"})[status]||status; }
+  function actionLabel(step,isNext){
+    if(!isNext) return "Aucune action maintenant";
+    if(step.status==="ready-to-produce") return isInternalProvider(step.provider)?"Produire cette etape":"Valider cette production";
+    if(step.status==="waiting-adapter") return `Ouvrir le Local technique sur ${step.provider||"ce producteur"}`;
+    return "Attendre le prerequis";
+  }
+  function readableState(step,isNext){
+    if(step.status==="blocked"){
+      if(step.providerStatus==="connected") return `${step.provider} connecte - attend le prerequis`;
+      return "Attend le prerequis";
+    }
+    if(step.status==="waiting-adapter") return isNext?"Reglage necessaire":"Reglage a verifier plus tard";
+    if(step.providerStatus==="connected") return `${step.provider} connecte`;
+    return statusLabel(step.status);
+  }
+  function maybeAutoRefresh(plan){
+    if(!plan||autoRefreshedSeeds.has(plan.seedId)||plan.brokerStatus!=="not-checked") return;
+    autoRefreshedSeeds.add(plan.seedId);
+    void refreshFromPublisher();
+  }
   function render(plan){
     if(!plan) return "";
     const broker=global.ConnectionBroker;
+    applyBusinessStatuses(plan);
+    const next=nextActionableStep(plan);
     const rows=plan.steps.map((step,index)=>{
-      const dependencies=step.dependsOn.length?`Après : ${step.dependsOn.join(", ")}`:"Point de départ";
-      const connection=step.connectionRoute==="internal"?(step.status==="ready"?"✅ Résultat confirmé":"Producteur disponible"):broker?.connectionLabel?.(step.providerStatus)||step.providerStatus||"non résolu";
+      const isNext=next&&next.id===step.id;
+      const dependencies=step.dependsOn.length?`Apres : ${step.dependsOn.join(", ")}`:"Point de depart";
+      const connection=step.connectionRoute==="internal"?(step.status==="ready"?"Resultat confirme":"Producteur disponible"):broker?.connectionLabel?.(step.providerStatus)||step.providerStatus||"non resolu";
       const route=step.connectionRoute==="internal"?"Poulpe Fiction":broker?.routeLabel?.(step.connectionRoute)||step.connectionRoute||"route inconnue";
-      const credits=step.creditStatus==="not-applicable"?"aucun crédit requis":broker?.creditLabel?.(step.creditStatus)||step.creditStatus||"crédits inconnus";
-      const fallbacks=step.fallbackProviders?.length?`Alternatives : ${step.fallbackProviders.join(", ")}`:isInternalProvider(step.provider)?"Aucun résultat tant que la production n’a pas été lancée":"Aucune alternative mémorisée";
-      const free=step.freeTier?.available?" · palier gratuit observé":"";
-      return `<article class="production-item"><div><span class="production-status">${statusLabel(step.status)}</span><h3>${index+1}. ${esc(step.label)}</h3><p><strong>${esc(step.provider)}</strong> · ${esc(connection)} · ${esc(route)}</p><small>${esc(credits)}${free} · ${esc(dependencies)}<br>${esc(fallbacks)}</small></div><small>${esc(step.type)}</small></article>`;
+      const credits=step.creditStatus==="not-applicable"?"aucun credit requis":broker?.creditLabel?.(step.creditStatus)||step.creditStatus||"credits inconnus";
+      const fallbacks=step.fallbackProviders?.length?`Alternatives : ${step.fallbackProviders.join(", ")}`:isInternalProvider(step.provider)?"Production locale":"Aucune alternative memorisee";
+      const free=step.freeTier?.available?" - palier gratuit observe":"";
+      const primary=isNext?`<button class="primary" data-production-plan-action="${esc(step.id)}">${esc(actionLabel(step,true))}</button>`:"";
+      return `<article class="production-item"><div><span class="production-status">${esc(statusLabel(step.status))}</span><h3>${index+1}. ${esc(step.label)}</h3><p>${esc(readableState(step,isNext))}</p><small>${esc(dependencies)} - ${esc(actionLabel(step,isNext))}</small>${primary}<details class="technical-details"><summary>Details techniques</summary><p><strong>${esc(step.provider)}</strong> - ${esc(connection)} - ${esc(route)}</p><small>${esc(credits)}${free} - ${esc(fallbacks)} - ${esc(step.type)}</small></details></div></article>`;
     }).join("");
-    const refresh=`<button class="ghost" data-refresh-production-plan>🔎 Vérifier les connexions</button>`;
-    return `<section class="production-plan"><p class="eyebrow">🧭 Plan de production · Connection Broker</p><div class="production-head"><div><h2>${esc(plan.seedTitle)}</h2><p>${esc(plan.goal)}</p></div><span>${esc(brokerLabel(plan.brokerStatus||plan.status))}</span></div><div class="production-sources"><strong>Récolte visée</strong><p>${esc(plan.expectedHarvest)}</p>${refresh}</div><div class="production-grid">${rows}</div><small>Une route n’est marquée confirmée que si Publisher et le serveur reconnaissent réellement la connexion.</small></section>`;
+    const refresh=`<button class="ghost" data-refresh-production-plan>Verifier les connexions</button>`;
+    const headlineStatus=plan.brokerStatus==="planned"&&next?next.status:(plan.brokerStatus||plan.status);
+    return `<section class="production-plan"><p class="eyebrow">Plan de production</p><div class="production-head"><div><h2>${esc(plan.seedTitle)}</h2><p>${esc(plan.goal)}</p></div><span>${esc(brokerLabel(headlineStatus))}</span></div><div class="production-sources"><strong>Recolte visee</strong><p>${esc(plan.expectedHarvest)}</p>${refresh}</div><div class="production-grid">${rows}</div><small>Les connexions viennent du Local technique Publisher. Les details techniques restent replies.</small></section>`;
   }
 
-  function bind(){ document.querySelectorAll("[data-refresh-production-plan]").forEach((button)=>{ button.onclick=()=>{ button.disabled=true; button.textContent="Vérification…"; void refreshFromPublisher(); }; }); }
+  function bind(){ document.querySelectorAll("[data-refresh-production-plan]").forEach((button)=>{ button.onclick=()=>{ button.disabled=true; button.textContent="Verification..."; void refreshFromPublisher(); }; }); }
 
   global.ProductionPlan={STORE_KEY,load,save,create,current,refreshFromPublisher,updateFromProductionPack,render,bind,isInternalProvider};
   const baseRenderAdventure=global.renderAdventureUrge;
-  if(typeof baseRenderAdventure==="function") global.renderAdventureUrge=function(){ const html=baseRenderAdventure(); const plan=current(); setTimeout(bind,0); return plan?`${html}${render(plan)}`:html; };
+  if(typeof baseRenderAdventure==="function") global.renderAdventureUrge=function(){ const html=baseRenderAdventure(); const plan=current(); maybeAutoRefresh(plan); setTimeout(bind,0); return plan?`${html}${render(plan)}`:html; };
 })(globalThis);

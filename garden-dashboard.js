@@ -493,6 +493,9 @@
     const parcelMissions = missions(data).filter((mission) => mission.parcelId === parcel.id);
     const parcelHarvests = harvests(data).filter((harvest) => harvest.parcelId === parcel.id);
     const issues = allIssues(data).filter((issue) => issue.parcelId === parcel.id);
+    const harvestSection = parcelHarvests.length
+      ? `<section class="parcel-harvests"><h3>Récoltes de la parcelle</h3><div class="garden-list">${parcelHarvests.map((harvest) => harvestCard(data, harvest)).join("")}</div></section>`
+      : "";
     return `<section class="garden-dashboard-view">
       <button class="ghost compact-back" data-open-parcel="">Retour aux parcelles</button>
       <article class="garden-card parcel-notebook">
@@ -507,6 +510,7 @@
           ${summaryPill("Erreurs", issues.length)}
         </div>
       </article>
+      ${harvestSection}
       <div class="timeline">${entries.map(timelineEntry).join("") || emptyState("Carnet vide", "Les observations, missions, récoltes et apprentissages apparaîtront ici.")}</div>
     </section>`;
   }
@@ -562,12 +566,14 @@
   function harvestCard(data, harvest) {
     const text = extractHarvestText(harvest.content);
     const canOpenText = Boolean(text);
-    const canOpenCanva = Boolean(harvest.url);
+    const canOpenUrl = Boolean(harvest.url);
+    const urlLabel = /canva|visual|instagram/i.test(`${harvest.type} ${harvest.artifactType || ""} ${harvest.url || ""}`) ? "Ouvrir dans Canva" : "Ouvrir l'artefact";
+    const downloadLabel = /html|landing/i.test(`${harvest.type} ${harvest.artifactType || ""}`) ? "Télécharger HTML" : "Télécharger";
     const actions = [
       canOpenText ? `<button class="ghost" data-open-harvest="${esc(harvest.id)}">Examiner</button>` : "",
       canOpenText ? `<button class="ghost" data-copy-harvest="${esc(harvest.id)}">Copier</button>` : "",
-      canOpenCanva ? `<a class="primary garden-link" href="${esc(harvest.url)}" target="_blank" rel="noopener">Ouvrir dans Canva</a>` : "",
-      harvest.downloadUrl ? `<a class="primary garden-link" href="${esc(harvest.downloadUrl)}" download>Télécharger</a>` : "",
+      canOpenUrl ? `<a class="primary garden-link" href="${esc(harvest.url)}" target="_blank" rel="noopener">${esc(urlLabel)}</a>` : "",
+      harvest.downloadUrl ? `<a class="primary garden-link" href="${esc(harvest.downloadUrl)}" download="${esc(downloadFilename(harvest))}">${esc(downloadLabel)}</a>` : "",
       `<button class="ghost" data-accept-harvest="${esc(harvest.id)}">${harvest.status === "accepted" ? "Récolte acceptée" : "Accepter"}</button>`,
       `<button class="ghost" data-improve-harvest="${esc(harvest.id)}">Demander une amélioration</button>`
     ].join("");
@@ -580,6 +586,8 @@
       <dl class="garden-metrics">
         <div><dt>Parcelle</dt><dd>${esc(parcelName(data, harvest.parcelId))}</dd></div>
         <div><dt>Mission source</dt><dd>${esc(harvest.missionId || "Non liée")}</dd></div>
+        <div><dt>URL</dt><dd>${harvest.url ? `<a href="${esc(harvest.url)}" target="_blank" rel="noopener">Disponible</a>` : "Aucune URL externe"}</dd></div>
+        <div><dt>Téléchargement</dt><dd>${harvest.downloadUrl ? "Disponible" : "Non fourni"}</dd></div>
         <div><dt>Date</dt><dd>${esc(dateLabel(harvest.date))}</dd></div>
       </dl>
       <div class="garden-actions compact">${actions}</div>
@@ -590,13 +598,21 @@
     </article>`;
   }
 
+  function downloadFilename(harvest) {
+    const base = String(harvest.title || harvest.id || "recolte").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "recolte";
+    const extension = /html|landing/i.test(`${harvest.type} ${harvest.artifactType || ""}`) ? "html" : "txt";
+    return `${base}.${extension}`;
+  }
+
   function openHarvestDetail(harvest) {
     const text = extractHarvestText(harvest?.content);
     if (!text) return;
     document.querySelector(".harvest-detail-panel")?.remove?.();
     const root = document.querySelector(".garden-dashboard") || document.getElementById("root");
     if (!root) return;
-    root.insertAdjacentHTML("beforeend", `<aside class="harvest-detail-panel" role="dialog" aria-modal="false" aria-label="Récolte examinée"><article class="garden-card harvest-detail-card"><h2>${esc(harvest.title)}</h2><div class="harvest-content markdown-content">${renderMarkdown(text)}</div><div class="garden-actions compact"><button class="ghost" data-close-harvest-detail>Fermer</button><button class="primary" data-copy-open-harvest="${esc(harvest.id)}">Copier</button></div></article></aside>`);
+    const download = harvest.downloadUrl ? `<a class="primary garden-link" href="${esc(harvest.downloadUrl)}" download="${esc(downloadFilename(harvest))}">Télécharger</a>` : "";
+    const external = harvest.url ? `<a class="ghost garden-link" href="${esc(harvest.url)}" target="_blank" rel="noopener">Ouvrir l'artefact</a>` : "";
+    root.insertAdjacentHTML("beforeend", `<aside class="harvest-detail-panel" role="dialog" aria-modal="false" aria-label="Récolte examinée"><article class="garden-card harvest-detail-card"><h2>${esc(harvest.title)}</h2><div class="harvest-content markdown-content">${renderMarkdown(text)}</div><div class="garden-actions compact"><button class="ghost" data-close-harvest-detail>Fermer</button><button class="primary" data-copy-open-harvest="${esc(harvest.id)}">Copier</button>${download}${external}</div></article></aside>`);
     const panel = root.querySelector(".harvest-detail-panel");
     const close = panel?.querySelector("[data-close-harvest-detail]");
     if (close) close.onclick = () => panel.remove();
