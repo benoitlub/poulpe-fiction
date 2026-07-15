@@ -162,11 +162,26 @@
     global.render?.();
   }
 
-  function acceptHarvest(harvestId) {
+  function acceptHarvest(input) {
+    const harvestId = String(input?.id || input || "");
     const state = harvestState();
-    state.accepted[String(harvestId)] = { status: "accepted", acceptedAt: new Date().toISOString() };
+    state.accepted[harvestId] = { status: "accepted", acceptedAt: new Date().toISOString() };
+    if (input && typeof input === "object" && global.GardenStore?.addHarvest && input.parcelId) {
+      try {
+        global.GardenStore.addHarvest({
+          id: harvestId,
+          parcelId: input.parcelId,
+          seedId: input.seedId || `accepted-${harvestId}`,
+          operationId: input.missionId || null,
+          title: input.title || "Récolte",
+          preview: input.preview || input.content?.text || "",
+          status: "accepted",
+          createdAt: input.date || new Date().toISOString()
+        });
+      } catch (_) {}
+    }
     saveHarvestState(state);
-    return state.accepted[String(harvestId)];
+    return state.accepted[harvestId];
   }
 
   function requestHarvestImprovement(input) {
