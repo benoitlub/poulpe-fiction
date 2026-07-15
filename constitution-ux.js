@@ -3,6 +3,7 @@
 
   const VIEW_KEY = "poulpe-fiction:constitution-view:v2";
   const VALID_VIEWS = new Set(["gerard", "parcels", "harvests", "garden", "atelier"]);
+  const LEGACY_NAV_LABELS = ["gérard", "parcelles", "activité", "missions", "récoltes", "rêves & jeux", "hublot"];
   let applying = false;
 
   function currentView() {
@@ -86,7 +87,6 @@
         <button type="button" data-constitution-view="atelier">🏭 Atelier</button>
         <button type="button" data-constitution-view="garden">🌱 Garden</button>
       </nav>
-      <button type="button" class="constitution-return${selected === "gerard" ? " constitution-hidden" : ""}" data-return-gerard>← Gérard</button>
       <article class="gerard-companion-card${selected === "gerard" ? "" : " constitution-hidden"}">
         <div class="gerard-companion-heading">
           <div><p class="eyebrow">🐙 Gérard maintenant</p><h2>${esc(seed?.title || "Le jardin")}</h2></div>
@@ -101,8 +101,6 @@
       button.classList.toggle("active", button.dataset.constitutionView === selected);
       button.onclick = () => setView(button.dataset.constitutionView);
     });
-    const back = shell.querySelector("[data-return-gerard]");
-    if (back) back.onclick = () => setView("gerard");
     const primary = shell.querySelector("[data-companion-primary]");
     if (primary) primary.onclick = () => setView(seed?.status === "harvested" ? "harvests" : "parcels");
   }
@@ -120,6 +118,17 @@
     return Array.from(root.children).filter((node) => node.nodeType === 1);
   }
 
+  function suppressNestedNavigation(root) {
+    root.querySelectorAll(".constitution-legacy-nav").forEach((node) => node.classList.remove("constitution-legacy-nav"));
+    const candidates = root.querySelectorAll("nav, [role='tablist'], .garden-tabs, .view-tabs, .tabs, .tab-bar, .subnav, .secondary-nav");
+    candidates.forEach((node) => {
+      if (node.classList.contains("constitution-nav") || node.closest(".constitution-shell")) return;
+      const text = (node.textContent || "").toLowerCase();
+      const matches = LEGACY_NAV_LABELS.filter((label) => text.includes(label)).length;
+      if (matches >= 2) node.classList.add("constitution-legacy-nav");
+    });
+  }
+
   function compactGarden(root, selected) {
     root.querySelectorAll(".constitution-redundant").forEach((node) => node.classList.remove("constitution-redundant"));
     if (selected !== "garden") return;
@@ -135,9 +144,6 @@
     });
 
     root.querySelectorAll(".garden-dashboard [class*='stat'], .garden-dashboard [class*='metric'], .garden-dashboard .summary-card").forEach((node) => {
-      node.classList.add("constitution-redundant");
-    });
-    root.querySelectorAll(".garden-dashboard nav, .garden-dashboard .garden-tabs, .garden-dashboard .view-tabs").forEach((node) => {
       node.classList.add("constitution-redundant");
     });
   }
@@ -164,7 +170,7 @@
 
       directRootSections(root).forEach((section) => section.classList.add("constitution-managed"));
 
-      mark(parcel, selected === "gerard" || selected === "parcels");
+      mark(parcel, selected === "parcels");
       mark(chat, selected === "gerard");
       mark(tentacles, selected === "garden");
       markAll(plans, selected === "atelier");
@@ -175,7 +181,7 @@
       markAll(gardenShells, selected === "garden");
 
       if (parcel) {
-        parcel.classList.toggle("constitution-home", selected === "gerard");
+        parcel.classList.toggle("constitution-home", false);
         const picker = parcel.querySelector(".seed-picker");
         const summary = parcel.querySelector(".seed-life-summary");
         const plantedList = parcel.querySelector("details, .seed-list, .planted-seeds");
@@ -190,6 +196,7 @@
         try { global.GardenPersistence?.saveDashboardState?.({ selectedView: "hublot" }); } catch (_) {}
       }
 
+      suppressNestedNavigation(root);
       compactGarden(root, selected);
     } finally {
       applying = false;
