@@ -24,6 +24,15 @@
   function nowIso() { return new Date().toISOString(); }
   function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
+  function hasActiveUserInteraction() {
+    const active = document.activeElement;
+    if (!active || active === document.body) return false;
+    return Boolean(
+      active.matches?.("input, textarea, select, [contenteditable='true']") ||
+      active.closest?.("form, [data-form-active], [data-mission-active], [data-harvest-detail]")
+    );
+  }
+
   function emptyState() {
     return {
       version: 1,
@@ -136,6 +145,7 @@
   }
 
   async function prepareMatureSeed(seeds) {
+    if (hasActiveUserInteraction()) return;
     if (global.DepartureController?.isRunning?.()) return;
     const draft = global.AdventureDraft?.load?.();
     if (draft && draft.status !== "cancelled") return;
@@ -205,12 +215,15 @@
       scheduler.totalTicks += 1;
       persist();
 
-      global.BlacklaceParcel?.syncGardenDomain?.(global.BlacklaceParcel?.activeSeed?.());
-      void global.BlacklaceParcel?.writeGlobalState?.(global.BlacklaceParcel?.activeSeed?.());
-      await prepareMatureSeed(seeds);
+      const interacting = hasActiveUserInteraction();
+      if (!interacting) {
+        global.BlacklaceParcel?.syncGardenDomain?.(global.BlacklaceParcel?.activeSeed?.());
+        void global.BlacklaceParcel?.writeGlobalState?.(global.BlacklaceParcel?.activeSeed?.());
+        await prepareMatureSeed(seeds);
+      }
 
-      // Important: a scheduler tick must never replace the page DOM.
-      // Bag and departure panels belong to DepartureController and must survive ticks.
+      // A scheduler tick only updates its own isolated panel.
+      // Forms, mission tracking and harvest details must never be remounted here.
       renderTentacles();
     } finally {
       ticking = false;
@@ -229,13 +242,13 @@
     snapshot: () => JSON.parse(JSON.stringify(scheduler)),
     tick,
     start,
-    renderTentacles
+    renderTentacles,
+    hasActiveUserInteraction
   };
 
   start();
-  global.addEventListener("focus", () => void tick());
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") void tick();
+    if (document.visibilityState === "visible" && !hasActiveUserInteraction()) void tick();
   });
   global.addEventListener("load", () => global.setTimeout(renderTentacles, 0), { once: true });
 })(globalThis);
