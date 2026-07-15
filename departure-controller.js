@@ -2,12 +2,59 @@
   "use strict";
 
   const TIMEOUT_MS = 20000;
+  const RECEIPT_KEY = "poulpe-fiction:adventure-departure:v1";
   let inFlight = false;
 
-  function timeoutPromise() {
-    return new Promise((_, reject) => {
-      global.setTimeout(() => reject(new Error("Le départ vers Octopus a dépassé 20 secondes.")), TIMEOUT_MS);
-    });
+  function esc(value) {
+    return String(value || "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[char]));
+  }
+
+  function request(url, init) {
+    const controller = new AbortController();
+    const timer = global.setTimeout(() => controller.abort(), TIMEOUT_MS);
+    return fetch(url, { ...(init || {}), signal: controller.signal })
+      .finally(() => global.clearTimeout(timer));
+  }
+
+  function getPanel() {
+    let node = document.getElementById("departureStatusPanel");
+    if (!node) {
+      node = document.createElement("section");
+      node.id = "departureStatusPanel";
+      node.className = "greenhouse departure-status";
+      const active = document.querySelector(".active-seed");
+      if (active) active.insertAdjacentElement("afterend", node);
+      else document.getElementById("root")?.prepend(node);
+    }
+    return node;
+  }
+
+  function show(message, kind = "progress", detail = "") {
+    const node = getPanel();
+    if (!node) return;
+    const icon = kind === "error" ? "⚠️" : kind === "done" ? "🧺" : kind === "bag" ? "🎒" : "🐙";
+    node.innerHTML = `<div><p class="eyebrow">${kind === "bag" ? "Sac de Gérard" : "Départ de Gérard"}</p><h2>${icon} ${esc(message)}</h2>${detail ? `<p style="white-space:pre-line">${esc(detail)}</p>` : ""}</div>`;
+    node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function showBag() {
+    const draft = global.AdventureDraft?.load?.();
+    if (!draft) {
+      show("Aucun sac disponible", "error", "Gérard doit d’abord préparer une aventure.");
+      return;
+    }
+    show(
+      draft.curiosity?.title || "Sac prêt",
+      "bag",
+      [
+        `Objectif : ${draft.objective || "aventure"}`,
+        `Dans le sac : ${(draft.bag || []).join(" · ") || "rien d’enregistré"}`,
+        `Pique-nique : ${(draft.picnic || []).join(" · ") || "aucun"}`,
+        `Limites : ${(draft.limits || []).join(" · ") || "aucune limite enregistrée"}`,
+      ].join("\n\n"),
+    );
   }
 
   function setSeedStatus(seedId, status, extra = {}) {
@@ -16,65 +63,70 @@
     try { global.GardenStore?.updateSeed?.(seedId, { status, ...extra }); } catch (_) {}
   }
 
-  function showProgress(message, kind = "progress") {
-    const root = document.getElementById("root");
-    if (!root) return;
-    let panel = document.getElementById("departureStatusPanel");
-    if (!panel) {
-      panel = document.createElement("section");
-      panel.id = "departureStatusPanel";
-      panel.className = "greenhouse departure-status";
-      root.prepend(panel);
-    }
-    panel.innerHTML = `<div><p class="eyebrow">Départ de Gérard</p><h2>${kind === "error" ? "⚠️" : kind === "done" ? "🧺" : "🐙"} ${String(message)}</h2><p>${kind === "progress" ? "La page reste utilisable pendant que le moteur répond." : ""}</p></div>`;
-  }
-
   async function depart(seedId, button) {
     if (inFlight) return;
     inFlight = true;
     const originalLabel = button?.textContent || "Autoriser le départ";
     if (button) {
       button.disabled = true;
-      button.textContent = "🐙 Gérard part…";
+      button.textContent = "🐙 Envoi à Octopus…";
     }
 
     try {
       let draft = global.AdventureDraft?.load?.();
       if (!draft || draft.curiosity?.id !== seedId) {
-        draft = await Promise.race([
-          global.BlacklaceParcel?.prepareSeedAdventure?.(seedId, { silent: true }),
-          timeoutPromise(),
-        ]);
+        throw new Error("Le sac affiché ne correspond pas à cette Seed.");
       }
-      draft = global.AdventureDraft?.load?.() || draft;
-      if (!draft) throw new Error("Le sac d’aventure est introuvable.");
       if (draft.status === "prepared") {
-        draft = global.AdventureDraft.validate(draft, "Départ autorisé explicitement par Benoît depuis la parcelle.");
+        draft = global.AdventureDraft.validate(draft, "Départ autorisé explicitement depuis la parcelle.");
       }
       if (draft.status !== "validated") throw new Error("Le sac n’est pas validé.");
 
-      setSeedStatus(seedId, "adventure", { departureAuthorizedAt: new Date().toISOString() });
-      showProgress("Gérard transmet l’aventure à Octopus…");
+      const payload = await global.AdventureLaunch?.toMissionPayload?.(draft);
+      if (!payload) throw new Error("La mission n’a pas pu être préparée.");
 
-      await Promise.race([
-        Promise.resolve(global.AdventureLaunch?.launch?.()),
-        timeoutPromise(),
-      ]);
+      const octopusBase = String(global.PoulpeRuntimeConfig?.urls?.octopusApi || "").replace(/\/$/, "");
+      if (!octopusBase) throw new Error("Octopus n’est pas configuré.");
 
-      const apiError = global.state?.apiError || null;
-      if (apiError) throw new Error(apiError);
-      showProgress("Le départ a été traité. Le retour est inscrit dans la mission.", "done");
-      global.GardenShell?.setActiveView?.("missions");
+      show("Transmission à Octopus…", "progress", "La page reste utilisable et ne change pas de vue.");
+      const response = await request(`${octopusBase}/mission`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result?.message || `Octopus ${response.status}`);
+
+      const operationId = result.operationId || result.missionId || result.id || payload.operationId;
+      localStorage.setItem(RECEIPT_KEY, JSON.stringify({
+        version: 3,
+        adventureDraftId: draft.id,
+        contextId: payload.context?.id,
+        parcelId: payload.context?.id,
+        departedAt: new Date().toISOString(),
+        operationId,
+        missionId: result.missionId || result.id || null,
+        missionStatus: result.status || "unknown",
+      }));
+
+      const waiting = result.status === "waiting-authorization";
+      setSeedStatus(seedId, waiting ? "bag-ready" : "adventure", {
+        departureAuthorizedAt: new Date().toISOString(),
+        operationId,
+      });
+      try { global.AdventureReturnProcessor?.process?.(draft, result, ""); } catch (_) {}
+
+      show(
+        waiting ? "Autorisation supplémentaire nécessaire" : "Mission reçue par Octopus",
+        waiting ? "error" : "done",
+        result.summary || result.output?.text || `État : ${result.status || "reçu"}`,
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Le départ a échoué.";
+      const message = error?.name === "AbortError"
+        ? "Octopus n’a pas répondu dans les 20 secondes."
+        : error instanceof Error ? error.message : "Le départ a échoué.";
       setSeedStatus(seedId, "bag-ready");
-      try {
-        if (global.state) {
-          global.state.apiError = message;
-          global.state.step = "result";
-        }
-      } catch (_) {}
-      showProgress(message, "error");
+      show(message, "error", "Le sac reste prêt et la page reste utilisable.");
     } finally {
       inFlight = false;
       if (button && button.isConnected) {
@@ -85,13 +137,22 @@
   }
 
   document.addEventListener("click", (event) => {
-    const button = event.target.closest?.("[data-authorize-departure]");
-    if (!button) return;
+    const bagButton = event.target.closest?.("[data-view-bag]");
+    if (bagButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      showBag();
+      return;
+    }
+
+    const departureButton = event.target.closest?.("[data-authorize-departure]");
+    if (!departureButton) return;
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    void depart(button.dataset.authorizeDeparture, button);
+    void depart(departureButton.dataset.authorizeDeparture, departureButton);
   }, true);
 
-  global.DepartureController = { depart, isRunning: () => inFlight };
+  global.DepartureController = { depart, showBag, isRunning: () => inFlight };
 })(globalThis);
