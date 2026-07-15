@@ -136,6 +136,7 @@
   }
 
   async function prepareMatureSeed(seeds) {
+    if (global.DepartureController?.isRunning?.()) return;
     const draft = global.AdventureDraft?.load?.();
     if (draft && draft.status !== "cancelled") return;
 
@@ -207,8 +208,10 @@
       global.BlacklaceParcel?.syncGardenDomain?.(global.BlacklaceParcel?.activeSeed?.());
       void global.BlacklaceParcel?.writeGlobalState?.(global.BlacklaceParcel?.activeSeed?.());
       await prepareMatureSeed(seeds);
-      global.render?.();
-      global.setTimeout(renderTentacles, 0);
+
+      // Important: a scheduler tick must never replace the page DOM.
+      // Bag and departure panels belong to DepartureController and must survive ticks.
+      renderTentacles();
     } finally {
       ticking = false;
     }
