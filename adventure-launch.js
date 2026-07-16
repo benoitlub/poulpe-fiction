@@ -29,43 +29,45 @@
     if (gardenContext?.parcelId === "blacklace-ecosystem" && !knowledge?.verified) throw new Error(`Knowledge Pack Publisher vérifié manquant pour « ${gardenContext.seedTitle || title} ». Gérard refuse d'inventer.`);
     const prompt = ["Tu exécutes une aventure préparée dans Poulpe Fiction.","Respecte strictement l'objectif, le sac, les limites, les ressources annoncées et le dossier produit vérifié.","N'invente aucune autorisation, preuve, caractéristique, promesse commerciale, chiffre, témoignage, urgence ou réduction.","Si une information nécessaire manque, produis une question explicite au lieu de la fabriquer.",gardenContext ? `Parcelle: ${gardenContext.parcelName} (${gardenContext.parcelId})` : "",gardenContext ? `Seed source: ${gardenContext.seedTitle} (${gardenContext.seedId})` : "",gardenContext ? `Première récolte attendue: ${gardenContext.firstHarvest}` : "",knowledge ? `Source de connaissance: ${knowledge.source || "inconnue"}` : "",knowledgePromptFor(knowledge),deliverableContract(gardenContext),"RÈGLES DE COMPLÉTUDE:","- Un seul livrable principal, entièrement rédigé.","- Pas de placeholders sauf [LIEN AMAZON À AJOUTER] lorsqu'un lien vérifié manque.","- Pas de section commencée puis abandonnée.","- Termine obligatoirement la toute dernière ligne par le marqueur exact suivant:",COMPLETE_MARKER,"",`AdventureDraft: ${draft.id}`,`Curiosité: ${title}`,`Objectif: ${draft.objective}`,listSection("Sac:", draft.bag),listSection("Pique-nique annoncé:", draft.picnic),listSection("Greffons proposés:", draft.grafts),listSection("Limites:", draft.limits),`Validation du jardinier: ${draft.gardenerValidation.validatedAt}`,draft.gardenerValidation.note ? `Note du jardinier: ${draft.gardenerValidation.note}` : "","","Retour attendu: le livrable final complet, puis le marqueur de complétude."].filter(Boolean).join("\n");
     const contextId = gardenContext?.parcelId || "poulpe-fiction";
-    return { operationId: `adventure_${draft.id}`, title: `Aventure · ${title}`, objective: draft.objective, context: { id: contextId, label: gardenContext?.parcelName || "Poulpe Fiction", objective: gardenContext?.objective || draft.objective, metadata: { owner: "poulpe-fiction", adventureDraftId: draft.id, parcelId: gardenContext?.parcelId || null, seedId: gardenContext?.seedId || draft.curiosity.id || null, seedTitle: gardenContext?.seedTitle || null, expectedHarvest: gardenContext?.firstHarvest || null, expectedHarvests: gardenContext?.seedId === "terra" ? ["landing-page", "instagram-visual"] : [] } }, requiredCapabilities: gardenContext?.seedId === "terra" ? ["copy.generate"] : ["campaign.generate"], authorizationPolicy: { internalWork: "allowed", externalAction: "requires-human-approval" }, prompt, authorizedResources: usesMistral(draft) ? ["mistral"] : [], authorize: usesMistral(draft) ? ["mistral"] : [], parcelId: contextId };
+    return { operationId: `adventure_${draft.id}`, title: `Aventure · ${title}`, objective: draft.objective, context: { id: contextId, label: gardenContext?.parcelName || "Poulpe Fiction", objective: gardenContext?.objective || draft.objective, metadata: { owner: "poulpe-fiction", adapter: "poulpe-octopus-v1", adventureDraftId: draft.id, parcelId: gardenContext?.parcelId || null, seedId: gardenContext?.seedId || draft.curiosity.id || null, seedTitle: gardenContext?.seedTitle || null, expectedHarvest: gardenContext?.firstHarvest || null, expectedHarvests: gardenContext?.seedId === "terra" ? ["landing-page", "instagram-visual"] : [] } }, requiredCapabilities: gardenContext?.seedId === "terra" ? ["copy.generate"] : ["campaign.generate"], authorizationPolicy: { internalWork: "allowed", externalAction: "requires-human-approval" }, prompt, authorizedResources: usesMistral(draft) ? ["mistral"] : [], authorize: usesMistral(draft) ? ["mistral"] : [], parcelId: contextId };
   }
 
   function saveDepartureReceipt(receipt) { localStorage.setItem(RECEIPT_KEY, JSON.stringify(receipt)); }
-  function recordMission(payload, status, extra) {
-    const seedId = payload?.context?.metadata?.seedId || global.BlacklaceParcel?.activeSeed?.()?.seedId || global.AdventureDraft?.load?.()?.curiosity?.id;
-    if (!payload?.operationId || !payload?.context?.id || !seedId) return null;
-    try { return global.GardenStore?.upsertOperation?.({ id: payload.operationId, parcelId: payload.context.id, seedId, intent: payload.objective || payload.title, activity: payload.title, status, ...(extra || {}) }); } catch (_) { return null; }
-  }
-  function processReturn(draft, result, errorMessage = "") { if (!global.AdventureReturnProcessor) return null; const status = String(result?.status || ""); if (!errorMessage && status === "waiting-authorization") return null; return global.AdventureReturnProcessor.process(draft, result, errorMessage); }
 
   async function launchValidatedAdventure() {
     if (launchInFlight) return;
     const draft = global.AdventureDraft.load();
     if (!draft || draft.status !== "validated") return;
+    if (!global.PoulpeOctopusAdapter) { state.apiError = "Adaptateur Poulpe → Octopus indisponible."; state.step = "result"; render(); return; }
+
     launchInFlight = true;
     let payload;
-    try { state.step = "mission"; state.apiError = null; render(); payload = await toMissionPayload(draft); recordMission(payload, "queued", { activity: "Mission envoyée vers Octopus" }); }
-    catch (error) { state.apiError = error instanceof Error ? error.message : "Aventure invalide"; state.step = "result"; launchInFlight = false; render(); return; }
-    state.authorized = payload.authorizedResources.includes("mistral"); render();
     try {
-      const response = await fetch(`${OCTOPUS_API}/mission`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const text = await response.text(); let result; try { result = text ? JSON.parse(text) : {}; } catch (_) { throw new Error(text || `Octopus ${response.status}`); }
-      if (!response.ok) throw new Error(result?.message || `Octopus ${response.status} ${response.statusText}`);
-      result.contextId = result.contextId || payload.context.id; result.parcelId = result.parcelId || result.contextId; result.operationId = result.operationId || result.missionId || payload.operationId;
-      state.mission = result; state.step = "result";
-      const normalizedStatus = ["completed","success","ready"].includes(String(result.status).toLowerCase()) ? "ready" : ["failed","error","blocked"].includes(String(result.status).toLowerCase()) ? "failed" : "running";
-      recordMission(payload, normalizedStatus, { activity: result.summary || `Mission reçue par Octopus · ${result.status || "running"}`, obstacle: normalizedStatus === "failed" ? { message: result.summary || "La mission a échoué." } : null });
-      saveDepartureReceipt({ version: 3, adventureDraftId: draft.id, contextId: payload.context.id, parcelId: payload.context.id, seedId: payload.context.metadata.seedId, departedAt: new Date().toISOString(), operationId: result.operationId, missionId: result?.missionId || result?.id || null, missionStatus: result?.status || "unknown" });
-      const bundle = processReturn(draft, result);
-      if (bundle) { const count = bundle.harvests.length + bundle.seeds.length + bundle.questions.length + bundle.learnings.length; pushChat("gerard", bundle.status === "incomplete" ? `✂️ Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais le livrable a été coupé. Je ne le compte pas comme récolte.` : bundle.failure ? `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais l'aventure n'a rien rapporté d'exploitable. J'ai gardé la trace du retour.` : `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} » avec ${count} élément${count > 1 ? "s" : ""} à verser au jardin.`); }
+      state.step = "mission";
+      state.apiError = null;
+      render();
+      payload = await toMissionPayload(draft);
+      state.authorized = payload.authorizedResources.includes("mistral");
+      render();
+
+      const { result, bundle } = await global.PoulpeOctopusAdapter.dispatch(payload, { draft, kind: "adventure" });
+      state.mission = result;
+      state.step = "result";
+      saveDepartureReceipt({ version: 4, adapter: "poulpe-octopus-v1", adventureDraftId: draft.id, contextId: payload.context.id, parcelId: payload.context.id, seedId: payload.context.metadata.seedId, departedAt: new Date().toISOString(), operationId: result.operationId, missionId: result.missionId || result.id || null, missionStatus: result.status || "unknown" });
+
+      if (bundle) {
+        const count = bundle.harvests.length + bundle.seeds.length + bundle.questions.length + bundle.learnings.length;
+        pushChat("gerard", bundle.status === "incomplete" ? `✂️ Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} », mais le livrable a été coupé.` : bundle.failure ? `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} » sans récolte exploitable.` : `🧺 Je suis revenu de « ${draft.curiosity.title || draft.curiosity.id} » avec ${count} élément${count > 1 ? "s" : ""}.`);
+      }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur inconnue pendant le départ"; state.apiError = message; state.step = "result";
-      recordMission(payload, "failed", { activity: "Mission interrompue", obstacle: { message } });
-      processReturn(draft, { status: "failed", summary: message, contextId: payload.context.id, parcelId: payload.context.id, operationId: payload.operationId }, message);
-      pushChat("gerard", `🧺 Je suis revenu sans récolte de « ${draft.curiosity.title || draft.curiosity.id} ». L'échec est conservé dans le journal de retour.`);
-    } finally { launchInFlight = false; render(); global.GardenShell?.mount?.(); }
+      state.apiError = error instanceof Error ? error.message : "Erreur inconnue pendant le départ";
+      state.step = "result";
+      pushChat("gerard", `🐙 Octopus n’a pas pu terminer « ${draft.curiosity.title || draft.curiosity.id} ». Le blocage est inscrit dans la mission.`);
+    } finally {
+      launchInFlight = false;
+      render();
+      global.GardenShell?.mount?.();
+    }
   }
 
   global.AdventureLaunch = { RECEIPT_KEY, COMPLETE_MARKER, toMissionPayload, launch: launchValidatedAdventure, isLaunching: () => launchInFlight };
