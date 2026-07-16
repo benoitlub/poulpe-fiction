@@ -10,7 +10,23 @@
     return [title, ...(values.length ? values.map((item) => `- ${item}`) : ["- aucun élément déclaré"])].join("\n");
   }
   function usesMistral(draft) { return [...(draft.picnic || []), ...(draft.grafts || [])].some((item) => String(item).toLowerCase().includes("mistral")); }
-  function activeParcelContext() { return global.BlacklaceParcel?.activeSeed?.() || null; }
+  function activeParcelContext(draft) {
+    const curiosityId = draft?.curiosity?.id;
+    const snapshot = global.GardenStore?.snapshot?.();
+    const seed = snapshot?.seeds?.find?.((item) => item.id === curiosityId);
+    if (seed) {
+      const parcel = snapshot?.parcels?.find?.((item) => item.id === seed.parcelId);
+      return {
+        parcelId: seed.parcelId,
+        parcelName: parcel?.name || seed.parcelId,
+        seedId: seed.id,
+        seedTitle: seed.title || seed.id,
+        objective: seed.objective || seed.content || draft?.objective || "",
+        firstHarvest: seed.firstHarvest || parcel?.priorities?.[0] || "Une récolte concrète et exploitable"
+      };
+    }
+    return global.BlacklaceParcel?.activeSeed?.() || null;
+  }
   async function verifiedKnowledge(context) { if (!context?.seedId) return null; return global.PublisherKnowledge?.load?.(context.seedId) || global.ProductKnowledge?.get?.(context.seedId) || null; }
   function knowledgePromptFor(knowledge) { if (!knowledge) return ""; if (typeof knowledge.prompt === "string") return knowledge.prompt; return global.ProductKnowledge?.toPrompt?.(knowledge) || ""; }
 
@@ -40,7 +56,7 @@
     if (!global.AdventureDraft?.isValid(draft)) throw new Error("AdventureDraft invalide.");
     if (draft.status !== "validated" || !draft.gardenerValidation?.validatedAt) throw new Error("Seule une aventure explicitement validée peut partir.");
     const title = draft.curiosity.title || draft.curiosity.id;
-    const gardenContext = activeParcelContext();
+    const gardenContext = activeParcelContext(draft);
     const knowledge = await verifiedKnowledge(gardenContext);
     const isYaelTextMission = gardenContext?.seedId === "yael-prospection";
     if (gardenContext?.parcelId === "blacklace-ecosystem" && !knowledge?.verified && !isYaelTextMission) throw new Error(`Knowledge Pack Publisher vérifié manquant pour « ${gardenContext.seedTitle || title} ». Gérard refuse d'inventer.`);
