@@ -39,7 +39,7 @@
       content,
       type: artifact?.type || step.type,
       mimeType: artifact?.mimeType || (step.type === "landing-page" ? "text/html" : "text/plain"),
-      url: artifact?.url || null,
+      url: artifact?.url || artifact?.viewUrl || payload?.url || null,
       downloadUrl: artifact?.downloadUrl || (content ? htmlDownloadUrl(content) : null),
       raw: artifact
     };
@@ -57,7 +57,7 @@
       status: "ready",
       type: step.type,
       content: { text: artifact.content },
-      payload: { plan: payload?.plan || null, producer: payload?.tool || "html-local", artifact: artifact.raw },
+      payload: { plan: payload?.plan || null, producer: payload?.tool || step.provider || "publisher", artifact: artifact.raw },
       url: artifact.url,
       downloadUrl: artifact.downloadUrl
     });
@@ -76,6 +76,34 @@
     alert.textContent = message;
   }
 
+  function openLocalTechnique(button, message) {
+    const frontend = global.PoulpeRuntimeConfig?.urls?.publisherFrontend;
+    if (!frontend) return showError(button, message || "Le Local technique Publisher est indisponible.");
+    global.location.href = `${frontend.replace(/\/$/, "")}/local-technique`;
+  }
+
+  function executionFor(step) {
+    const provider = String(step?.provider || "").toLowerCase();
+    const type = String(step?.type || "").toLowerCase();
+
+    if (global.ProductionPlan?.isInternalProvider?.(step.provider) || type === "landing-page") {
+      return { tool: "html-local", action: "create_landing_page", capability: "landing-page" };
+    }
+    if (provider.includes("canva") || type === "social-visual") {
+      return { tool: "canva", action: "create_design", capability: "social-visual" };
+    }
+    if (provider.includes("eleven") || type === "voice-over") {
+      return { tool: "elevenlabs", action: "create_voice_over", capability: "voice-over" };
+    }
+    if (provider.includes("kling") || provider.includes("runway") || type === "vertical-video") {
+      return { tool: provider.includes("runway") ? "runway" : "kling", action: "create_video", capability: "video" };
+    }
+    if (provider.includes("metricool") || type === "publication") {
+      return { tool: "metricool", action: "publish", capability: "publish" };
+    }
+    return null;
+  }
+
   async function executeStep(button) {
     const plan = global.ProductionPlan?.current?.();
     const stepId = button.dataset.productionPlanAction;
@@ -83,12 +111,15 @@
     const seed = activeSeed(plan);
     if (!plan || !step || !seed) return showError(button, "Plan ou Seed introuvable.");
 
-    if (!global.ProductionPlan?.isInternalProvider?.(step.provider)) {
-      const frontend = global.PoulpeRuntimeConfig?.urls?.publisherFrontend;
-      if (frontend) global.location.href = `${frontend.replace(/\/$/, "")}/local-technique`;
-      else showError(button, "Le Local technique Publisher est indisponible.");
+    const internal = global.ProductionPlan?.isInternalProvider?.(step.provider);
+    const authorized = internal || (step.executable === true && step.authorization === "granted" && ["connected", "confirmed", "available"].includes(String(step.providerStatus)));
+    if (!authorized) {
+      openLocalTechnique(button, `${step.provider || "Ce producteur"} n’est pas encore autorisé.`);
       return;
     }
+
+    const execution = executionFor(step);
+    if (!execution) return showError(button, `Aucune action Publisher n’est encore définie pour ${step.provider || step.type}.`);
 
     const base = publisherBaseUrl();
     if (!base) return showError(button, "Publisher API indisponible.");
@@ -105,9 +136,9 @@
         body: JSON.stringify({
           operationId,
           requestId: operationId,
-          tool: "html-local",
-          action: "create_landing_page",
-          capability: step.type,
+          tool: execution.tool,
+          action: execution.action,
+          capability: execution.capability,
           context: {
             parcelId: seed.parcelId || plan.parcelId || "blacklace-ecosystem",
             seedId: seed.id || plan.seedId,
@@ -118,14 +149,15 @@
             title: seed.title || plan.seedTitle,
             objective: seed.objective || plan.goal,
             expectedHarvest: seed.firstHarvest || plan.expectedHarvest,
+            format: step.type === "social-visual" ? "instagram-post" : step.type,
             callToAction: "Découvrir le projet"
           }
         })
       });
 
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok || payload.status !== "completed") {
-        throw new Error(payload?.error || `Publisher a répondu ${response.status}.`);
+      if (!response.ok || !["completed", "ready"].includes(String(payload.status))) {
+        throw new Error(payload?.error || payload?.summary || `Publisher a répondu ${response.status}.`);
       }
 
       const artifact = extractArtifact(payload, seed, step);
