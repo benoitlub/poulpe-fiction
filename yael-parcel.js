@@ -2,8 +2,10 @@
   "use strict";
 
   const SEED_ID = "yael-prospection";
+  const PARCEL_ID = "project-yael-prospection";
   const seed = {
     id: SEED_ID,
+    parcelId: PARCEL_ID,
     type: "service",
     title: "Yael · Préqualification de prospects",
     objective: "Préparer pour Yael un dispositif directement exploitable de préqualification commerciale : critères, score, informations à vérifier, messages de premier contact et tableau de suivi, sans contacter personne automatiquement.",
@@ -22,7 +24,7 @@
 
   function install() {
     const parcel = global.BlacklaceParcel?.parcel;
-    if (!parcel || !Array.isArray(parcel.seeds)) return false;
+    if (!parcel || !Array.isArray(parcel.seeds) || !global.GardenStore) return false;
 
     const existing = parcel.seeds.find((item) => item.id === SEED_ID);
     if (existing) Object.assign(existing, seed, {
@@ -30,7 +32,17 @@
       maturity: Math.max(Number(existing.maturity) || 0, seed.maturity),
       plantedAt: existing.plantedAt || seed.plantedAt
     });
-    else parcel.seeds.unshift(seed);
+    else parcel.seeds.unshift({ ...seed });
+
+    global.GardenStore.registerParcel({
+      id: PARCEL_ID,
+      code: "PROJECT-YAEL",
+      name: seed.title,
+      mission: seed.objective,
+      priorities: [seed.firstHarvest, "récolte textuelle", "aucune dépendance Canva"],
+      version: 1,
+      seeds: [{ ...seed }]
+    });
 
     try { global.BlacklaceParcel.syncGardenDomain?.(global.BlacklaceParcel.activeSeed?.()); } catch (_) {}
     try { void global.BlacklaceParcel.writeGlobalState?.(global.BlacklaceParcel.activeSeed?.()); } catch (_) {}
@@ -38,7 +50,7 @@
     return true;
   }
 
-  global.YaelParcel = { SEED_ID, seed, install };
+  global.YaelParcel = { PARCEL_ID, SEED_ID, seed, install };
 
   if (!install()) {
     global.addEventListener("load", install, { once: true });
