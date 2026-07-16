@@ -14,7 +14,7 @@
     const requestedMode = params.get("mode");
     const parcelId = params.get("parcel") || params.get("parcelId");
     const clientId = params.get("client") || params.get("clientId");
-    const mode = requestedMode === "owner" ? "owner" : parcelId ? "client" : null;
+    const mode = requestedMode === "owner" ? "owner" : requestedMode === "client" && parcelId ? "client" : null;
     return mode ? { mode, parcelId: parcelId || null, clientId: clientId || null } : null;
   }
 
@@ -31,7 +31,9 @@
     };
   }
 
-  let context = normalize(fromLocation() || readStored() || { mode: "owner" });
+  const locationContext = fromLocation();
+  const storedContext = readStored();
+  let context = normalize(locationContext || { mode: "owner", ownerId: storedContext?.ownerId || DEFAULT_OWNER_ID });
   localStorage.setItem(ACCESS_KEY, JSON.stringify(context));
 
   function setContext(next) {
@@ -59,7 +61,11 @@
   }
 
   function createClientLink(parcelId, clientId) {
-    return scopedUrl(location.origin, location.pathname, { mode: "client", parcel: parcelId, client: clientId });
+    const url = new URL(location.pathname || "/", location.origin);
+    url.searchParams.set("mode", "client");
+    url.searchParams.set("parcel", parcelId);
+    if (clientId) url.searchParams.set("client", clientId);
+    return url.toString();
   }
 
   global.PoulpeAccess = {
