@@ -76,20 +76,28 @@
   }
 
   function extractMissionText(payload) {
+    function textValue(value) {
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        if (trimmed.startsWith("{")) {
+          try { return textValue(JSON.parse(trimmed)); } catch (_) {}
+        }
+        return trimmed.replace(/\\n/g, "\n");
+      }
+      if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+      return textValue(value.text) || textValue(value.content) || textValue(value.artifact) || textValue(value.markdown);
+    }
     const result = payload?.result || payload;
     const output = result?.output || result;
     const artifacts = output?.artifacts || result?.artifacts || payload?.artifacts || [];
     const landing = Array.isArray(artifacts)
-      ? artifacts.find((item) => item?.artifactType === "landing-page" || item?.type === "landing-page")
+      ? artifacts.find((item) => item?.artifactType === "landing-page" || item?.type === "landing-page" || item?.kind === "landing-page" || item?.artifactType === "markdown" || item?.type === "markdown")
       : null;
-    return String(
-      landing?.artifact ||
-      landing?.content ||
-      output?.text ||
-      result?.text ||
-      payload?.text ||
+    return textValue(landing) ||
+      textValue(output?.text) ||
+      textValue(result?.text) ||
+      textValue(payload?.text) ||
       "Landing page TERRA\n\nTERRA est pret a etre presente avec une page claire, une promesse lisible et un appel a l'action vers la decouverte du livre."
-    );
   }
 
   function currentDraft() {
@@ -210,46 +218,12 @@
   }
 
   async function authorizeCanva() {
-    const bundle = latestTerraBundle();
-    const landing = landingHarvest(bundle);
-    if (!bundle || !landing) return;
-    const base = publisherBaseUrl();
-    if (!base) {
-      saveStatus({ status: "failed", error: "Publisher indisponible.", action: "Ouvrir le Local technique" });
-      render();
-      return;
-    }
-
-    saveStatus({ status: "running", error: null, authorizedAt: new Date().toISOString() });
-    recordTransition("Octopus consulte Canva", "Creation du visuel Instagram.");
-    render();
-    try {
-      const response = await fetch(`${base}/api/production/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          operationId: bundle.missionId,
-          tool: "canva",
-          action: "create_design",
-          context: { parcelId: bundle.parcelId, seedId: "terra" },
-          input: canvaInput(landing.artifact || landing.description)
-        })
-      });
-      const payload = await response.json();
-      if (!response.ok || payload.status !== "completed" || !payload.artifact?.url) {
-        throw new Error(payload.error || "Aucun artefact Canva retourne.");
-      }
-      addVisualHarvest(bundle, payload.artifact);
-      saveStatus({ status: "completed", canvaUrl: payload.artifact.url, error: null });
-      recordTransition("Visuel Canva produit", payload.artifact.url);
-    } catch (error) {
-      saveStatus({
-        status: "failed",
-        error: error instanceof Error ? error.message : "Erreur Canva",
-        action: "Relancer uniquement l'etape Canva"
-      });
-      recordTransition("Canva en echec", error instanceof Error ? error.message : "Erreur Canva");
-    }
+    saveStatus({
+      status: "waiting-authorization",
+      error: "La production Canva doit passer par Octopus avant Publisher.",
+      action: "Relancer via une mission Octopus lorsque l'etape Canva est disponible."
+    });
+    recordTransition("Canva en attente", "Aucun appel direct Publisher n'est lance depuis Poulpe Fiction.");
     render();
   }
 

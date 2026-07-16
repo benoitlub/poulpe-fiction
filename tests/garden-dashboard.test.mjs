@@ -32,8 +32,15 @@ function createContext() {
     },
     fetch: async () => ({ ok: true, status: 200, json: async () => ({}) }),
     AbortController,
+    CustomEvent: class CustomEvent {
+      constructor(type, init = {}) {
+        this.type = type;
+        this.detail = init.detail;
+      }
+    },
     setTimeout,
     clearTimeout,
+    dispatchEvent: () => true,
     render() {},
   };
   context.globalThis = context;
@@ -633,4 +640,51 @@ test("replaces legacy production pack block on result render", () => {
   assert.match(panelHtml, /data-open-all-harvests/);
   assert.match(panelHtml, /data-refresh-production-connections/);
   assert.equal((panelHtml.match(/class="production-pack"/g) || []).length, 1);
+});
+
+test("Yael copy.generate returns through Octopus as Markdown without direct Publisher production fetch", async () => {
+  const context = createContext();
+  const outboxKey = "poulpe-fiction:adventure-return-outbox:v1";
+  const calls = [];
+  context.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    assert.equal(String(url).includes("/api/production/execute"), false);
+    return {
+      ok: true,
+      json: async () => ({
+        status: "completed",
+        missionId: "mission-yael",
+        output: {
+          artifacts: [{
+            artifactType: "markdown",
+            title: "Récolte Yael",
+            content: { text: "# Récolte Yael\n\nUn prospect local exploitable." },
+            mimeType: "text/markdown",
+            status: "completed"
+          }]
+        }
+      })
+    };
+  };
+  context.render = () => {};
+  context.AdventureDraft = { load: () => ({ id: "draft-yael" }) };
+  context.AdventureReturnProcessor = {
+    OUTBOX_KEY: outboxKey,
+    loadOutbox: () => JSON.parse(context.localStorage.getItem(outboxKey) || "[]")
+  };
+
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync("runtime-config.js", "utf8"), context);
+  vm.runInContext(fs.readFileSync("terra-harvest-loop.js", "utf8"), context);
+
+  const bundle = await context.TerraHarvestLoop.produceNow();
+  const harvest = bundle.harvests[0];
+
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].url, /\/mission$/);
+  assert.match(calls[0].options.body, /copy\.generate/);
+  assert.equal(harvest.status, undefined);
+  assert.equal(harvest.title, "Landing page TERRA");
+  assert.equal(harvest.artifact, "# Récolte Yael\n\nUn prospect local exploitable.");
+  assert.notEqual(harvest.artifact, "Failed to fetch");
 });
