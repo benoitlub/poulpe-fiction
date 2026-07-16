@@ -3,6 +3,7 @@
 
   let applying = false;
   let observer = null;
+  let scheduled = false;
 
   function selectedView() {
     return document.body?.dataset?.constitutionView
@@ -10,24 +11,35 @@
       || "gerard";
   }
 
+  function exposeShell(shell) {
+    if (!shell) return;
+    shell.classList.remove("constitution-hidden", "constitution-managed");
+    shell.hidden = false;
+    shell.style.removeProperty("display");
+    shell.style.removeProperty("visibility");
+    shell.style.removeProperty("opacity");
+    shell.dataset.activeView = "parcels";
+
+    shell.querySelectorAll(".constitution-hidden").forEach((node) => {
+      if (node.closest(".production-plan, .production-pack")) return;
+      node.classList.remove("constitution-hidden");
+      node.hidden = false;
+    });
+  }
+
   function apply() {
+    scheduled = false;
     if (applying || selectedView() !== "parcels") return;
     applying = true;
     try {
-      try {
-        const current = localStorage.getItem("poulpe-fiction:main-view:v1");
-        if (current !== "parcels") localStorage.setItem("poulpe-fiction:main-view:v1", "parcels");
-      } catch (_) {}
+      try { localStorage.setItem("poulpe-fiction:main-view:v1", "parcels"); } catch (_) {}
 
-      global.GardenShell?.mount?.();
-
-      const shell = document.getElementById("gardenShell");
-      if (shell) {
-        shell.classList.remove("constitution-hidden", "constitution-managed");
-        shell.hidden = false;
-        shell.style.removeProperty("display");
-        shell.dataset.activeView = "parcels";
+      let shell = document.getElementById("gardenShell");
+      if (!shell || shell.dataset.activeView !== "parcels" || !shell.querySelector(".shell-content")) {
+        global.GardenShell?.mount?.();
+        shell = document.getElementById("gardenShell");
       }
+      exposeShell(shell);
 
       document.querySelectorAll("#root > .blacklace-parcel, #root > [data-blacklace-parcel]").forEach((node) => {
         node.classList.add("constitution-hidden");
@@ -43,8 +55,9 @@
   }
 
   function schedule() {
+    if (scheduled || selectedView() !== "parcels") return;
+    scheduled = true;
     requestAnimationFrame(apply);
-    global.setTimeout(apply, 50);
   }
 
   document.addEventListener("click", (event) => {
@@ -53,6 +66,7 @@
     try { sessionStorage.setItem("poulpe-fiction:constitution-view:v2", "parcels"); } catch (_) {}
     try { localStorage.setItem("poulpe-fiction:main-view:v1", "parcels"); } catch (_) {}
     schedule();
+    global.setTimeout(apply, 60);
   }, true);
 
   global.addEventListener("poulpe-garden-changed", schedule);
@@ -64,11 +78,26 @@
     schedule();
   }
 
-  observer = new MutationObserver(() => {
-    if (selectedView() === "parcels") schedule();
-  });
   const root = document.getElementById("root");
-  if (root) observer.observe(root, { childList: true, subtree: false, attributes: true, attributeFilter: ["class", "hidden"] });
+  if (root) {
+    observer = new MutationObserver((mutations) => {
+      if (applying || selectedView() !== "parcels") return;
+      const erased = mutations.some((mutation) => {
+        if (mutation.type === "childList") return true;
+        const target = mutation.target;
+        return target?.id === "gardenShell"
+          || target?.closest?.("#gardenShell")
+          || target?.classList?.contains("garden-shell");
+      });
+      if (erased) schedule();
+    });
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "hidden", "style"],
+    });
+  }
 
   global.ParcelsViewLock = { apply, schedule };
 })(globalThis);
