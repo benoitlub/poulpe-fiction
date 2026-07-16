@@ -1,4 +1,5 @@
 import type { PoulpeRuntimeAdapter } from "./PoulpeRuntimeAdapter";
+import { browserPoulpeRuntimeAdapter } from "./browserPoulpeRuntimeAdapter";
 
 declare global {
   interface Window {
@@ -7,9 +8,5 @@ declare global {
 }
 
 export function createRuntimeAdapter(): PoulpeRuntimeAdapter {
-  const adapter = window.__POULPE_RUNTIME_ADAPTER__;
-  if (!adapter) {
-    throw new Error("L’adaptateur Poulpe → Octopus existant n’est pas encore injecté dans la nouvelle façade.");
-  }
-  return adapter;
+  return window.__POULPE_RUNTIME_ADAPTER__ ?? browserPoulpeRuntimeAdapter;
 }
