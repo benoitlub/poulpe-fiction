@@ -2,6 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "poulpe-fiction:garden-domain:v1";
+  const LEGACY_ECOSYSTEM_ID = "blacklace-ecosystem";
 
   function emptyState() {
     return { version: 2, parcels: [], seeds: [], sprouts: [], harvests: [], operations: [], compost: [], activeParcelId: null, activeSeedId: null, updatedAt: null };
@@ -171,7 +172,38 @@
     return entry;
   }
 
+  function projectParcelId(seedId) {
+    return `project-${String(seedId)}`;
+  }
+
+  function materializeLegacyProjects(parcel, activeContext) {
+    state.parcels = state.parcels.filter((item) => item.id !== LEGACY_ECOSYSTEM_ID);
+
+    parcel.seeds.forEach((seed, index) => {
+      registerParcel({
+        id: projectParcelId(seed.id),
+        code: `PROJECT-${String(index + 1).padStart(3, "0")}`,
+        name: seed.title || seed.id,
+        mission: seed.objective || parcel.mission || "",
+        priorities: [seed.firstHarvest || "récolte concrète", ...(parcel.priorities || [])],
+        version: Number(parcel.version || 1),
+        seeds: [seed]
+      });
+    });
+
+    if (activeContext?.seedId) {
+      try { activateSeed(projectParcelId(activeContext.seedId), activeContext.seedId); } catch (_) {}
+    }
+
+    persist();
+    return snapshot();
+  }
+
   function replaceFromParcel(parcel, activeContext) {
+    if (parcel?.id === LEGACY_ECOSYSTEM_ID && Array.isArray(parcel.seeds) && parcel.seeds.length > 1) {
+      return materializeLegacyProjects(parcel, activeContext);
+    }
+
     registerParcel(parcel);
     if (activeContext?.parcelId && activeContext?.seedId) {
       try { activateSeed(activeContext.parcelId, activeContext.seedId); } catch (_) {}
