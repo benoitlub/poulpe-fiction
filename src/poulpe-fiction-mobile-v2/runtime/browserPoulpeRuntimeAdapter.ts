@@ -47,6 +47,19 @@ function parcelDescription(parcel: UnknownRecord): string {
   return text(parcel.mission) || text(parcel.description) || "Parcelle confiée à Gérard";
 }
 
+function knowledgeSlugFor(parcel: UnknownRecord, fallback: string): string {
+  const metadata = record(parcel.metadata);
+  const explicit = text(parcel.knowledgeSlug) || text(metadata.knowledgeSlug);
+  return (explicit || text(parcel.name) || fallback)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " et ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .replace(/-+/g, "-");
+}
+
 function toParcel(parcel: UnknownRecord): Parcel {
   return {
     id: text(parcel.id),
@@ -166,8 +179,10 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
     if (!runtime?.dispatch) throw new Error("Le lien existant vers Octopus n’est pas chargé.");
     const missionId = `mobile-v2-${Date.now()}`;
     missions.set(missionId, { intent });
-    const parcel = (garden().parcels ?? []).map(record).find((item) => text(item.id) === intent.parcelId);
+    const parcel = (garden().parcels ?? []).map(record).find((item) => text(item.id) === intent.parcelId) ?? {};
     const capability = capabilityFor(intent);
+    const knowledgeSlug = knowledgeSlugFor(parcel, intent.parcelId);
+    const projectName = text(parcel.name) || intent.parcelId;
     const payload: UnknownRecord = {
       operationId: missionId,
       parcelId: intent.parcelId,
@@ -176,12 +191,18 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
       intent: intent.goal,
       context: {
         id: intent.parcelId,
-        label: text(parcel?.name) || intent.parcelId,
+        label: projectName,
         objective: intent.goal,
         metadata: {
           owner: "poulpe-fiction-mobile-v2",
           adapter: "poulpe-octopus-v1",
           parcelId: intent.parcelId,
+          knowledgeSlug,
+          knowledgeRequest: {
+            subject: projectName,
+            purpose: capability,
+            requiredFacts: ["concept", "positionnement", "promesse", "personnages ou éléments distinctifs", "appel à l’action vérifiable"],
+          },
           requestedCapability: capability,
           audience: intent.audience,
           format: intent.format,
@@ -195,12 +216,14 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
       prompt: [
         "Poulpe Fiction demande cette production par l’intermédiaire exclusif d’Octopus.",
         `Capacité demandée: ${capability}`,
-        `Projet: ${text(parcel?.name) || intent.parcelId}`,
-        `Contexte connu: ${parcelDescription(parcel ?? {})}`,
+        `Projet: ${projectName}`,
+        `Knowledge Package demandé: ${knowledgeSlug}`,
+        `Contexte connu: ${parcelDescription(parcel)}`,
         `Demande: ${intent.goal}`,
         intent.audience ? `Public: ${intent.audience}` : "",
         intent.format ? `Ton ou format: ${intent.format}` : "",
         intent.details ? `Détails: ${intent.details}` : "",
+        "Publisher doit résoudre et utiliser le Knowledge Package vérifié de cette parcelle avant toute rédaction.",
         "N’invente aucune donnée professionnelle, aucun contact et aucune source. Si une information indispensable manque, retourne needs-input avec une question précise.",
         "Retourne un artefact exploitable avec son contenu ou son URL, ou un blocage explicite.",
       ].filter(Boolean).join("\n"),
@@ -225,6 +248,8 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
     if (!current || !runtime?.dispatch) throw new Error("La mission à reprendre est introuvable.");
     const resumeId = `${missionId}-resume-${Date.now()}`;
     const capability = capabilityFor(current.intent);
+    const parcel = (garden().parcels ?? []).map(record).find((item) => text(item.id) === current.intent.parcelId) ?? {};
+    const knowledgeSlug = knowledgeSlugFor(parcel, current.intent.parcelId);
     const response = await runtime.dispatch({
       operationId: resumeId,
       parentMissionId: missionId,
@@ -237,8 +262,19 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
       authorizedResources: ["publisher"],
       authorize: ["publisher"],
       authorizationPolicy: { internalWork: "allowed", externalAction: "requires-human-approval" },
-      context: { id: current.intent.parcelId, metadata: { missionId, questionId, requestedCapability: capability } },
-      prompt: `Reprends la mission ${missionId}. Réponse à ${questionId}: ${String(answer)}. N’invente pas les autres informations manquantes.`,
+      context: {
+        id: current.intent.parcelId,
+        label: text(parcel.name) || current.intent.parcelId,
+        metadata: {
+          missionId,
+          questionId,
+          parcelId: current.intent.parcelId,
+          knowledgeSlug,
+          knowledgeRequest: { subject: text(parcel.name) || current.intent.parcelId, purpose: capability },
+          requestedCapability: capability,
+        },
+      },
+      prompt: `Reprends la mission ${missionId} avec le Knowledge Package ${knowledgeSlug}. Réponse à ${questionId}: ${String(answer)}. N’invente pas les autres informations manquantes.`,
     }, { kind: "mission-input" });
     missions.set(missionId, { ...current, result: record(record(response).result) });
     return progressFor(missionId);
