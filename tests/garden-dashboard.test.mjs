@@ -32,8 +32,15 @@ function createContext() {
     },
     fetch: async () => ({ ok: true, status: 200, json: async () => ({}) }),
     AbortController,
+    CustomEvent: class CustomEvent {
+      constructor(type, init = {}) {
+        this.type = type;
+        this.detail = init.detail;
+      }
+    },
     setTimeout,
     clearTimeout,
+    dispatchEvent: () => true,
     render() {},
   };
   context.globalThis = context;
