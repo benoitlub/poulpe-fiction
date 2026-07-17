@@ -138,6 +138,14 @@ function harvestFromRaw(raw: UnknownRecord): Harvest | null {
   return null;
 }
 
+function capabilityFor(intent: CultivationIntent): string {
+  const request = `${intent.goal} ${intent.format ?? ""}`.toLowerCase();
+  if (request.includes("contact") || request.includes("prospect")) return "contacts.research";
+  if (request.includes("visuel") || request.includes("image") || request.includes("instagram")) return "image.generate";
+  if (request.includes("landing") || request.includes("page")) return "landing.generate";
+  return "copy.generate";
+}
+
 export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
   async getClientContext() {
     return clientContext();
@@ -159,6 +167,7 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
     const missionId = `mobile-v2-${Date.now()}`;
     missions.set(missionId, { intent });
     const parcel = (garden().parcels ?? []).map(record).find((item) => text(item.id) === intent.parcelId);
+    const capability = capabilityFor(intent);
     const payload: UnknownRecord = {
       operationId: missionId,
       parcelId: intent.parcelId,
@@ -169,11 +178,23 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
         id: intent.parcelId,
         label: text(parcel?.name) || intent.parcelId,
         objective: intent.goal,
-        metadata: { owner: "poulpe-fiction-mobile-v2", audience: intent.audience, format: intent.format, details: intent.details },
+        metadata: {
+          owner: "poulpe-fiction-mobile-v2",
+          adapter: "poulpe-octopus-v1",
+          parcelId: intent.parcelId,
+          requestedCapability: capability,
+          audience: intent.audience,
+          format: intent.format,
+          details: intent.details,
+        },
       },
+      requiredCapabilities: [capability],
       authorizedResources: ["publisher"],
+      authorize: ["publisher"],
       authorizationPolicy: { internalWork: "allowed", externalAction: "requires-human-approval" },
       prompt: [
+        "Poulpe Fiction demande cette production par l’intermédiaire exclusif d’Octopus.",
+        `Capacité demandée: ${capability}`,
         `Projet: ${text(parcel?.name) || intent.parcelId}`,
         `Contexte connu: ${parcelDescription(parcel ?? {})}`,
         `Demande: ${intent.goal}`,
@@ -181,6 +202,7 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
         intent.format ? `Ton ou format: ${intent.format}` : "",
         intent.details ? `Détails: ${intent.details}` : "",
         "N’invente aucune donnée professionnelle, aucun contact et aucune source. Si une information indispensable manque, retourne needs-input avec une question précise.",
+        "Retourne un artefact exploitable avec son contenu ou son URL, ou un blocage explicite.",
       ].filter(Boolean).join("\n"),
     };
     void runtime.dispatch(payload, { kind: "mobile-v2" }).then((response) => {
@@ -202,6 +224,7 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
     const runtime = window.PoulpeOctopusAdapter;
     if (!current || !runtime?.dispatch) throw new Error("La mission à reprendre est introuvable.");
     const resumeId = `${missionId}-resume-${Date.now()}`;
+    const capability = capabilityFor(current.intent);
     const response = await runtime.dispatch({
       operationId: resumeId,
       parentMissionId: missionId,
@@ -210,7 +233,11 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
       objective: current.intent.goal,
       type: "mission.input",
       answers: { [questionId]: answer },
-      context: { id: current.intent.parcelId, metadata: { missionId, questionId } },
+      requiredCapabilities: [capability],
+      authorizedResources: ["publisher"],
+      authorize: ["publisher"],
+      authorizationPolicy: { internalWork: "allowed", externalAction: "requires-human-approval" },
+      context: { id: current.intent.parcelId, metadata: { missionId, questionId, requestedCapability: capability } },
       prompt: `Reprends la mission ${missionId}. Réponse à ${questionId}: ${String(answer)}. N’invente pas les autres informations manquantes.`,
     }, { kind: "mission-input" });
     missions.set(missionId, { ...current, result: record(record(response).result) });
