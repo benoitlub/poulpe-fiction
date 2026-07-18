@@ -13,15 +13,20 @@
   const state = () => { try { return rec(JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (_) { return {}; } };
   const save = (patch) => { const next = { ...state(), ...patch, updatedAt: now() }; try { localStorage.setItem(KEY, JSON.stringify(next)); } catch (_) {} return next; };
   const isOwner = () => text(rec(global.PoulpeAccess?.snapshot?.()).mode) !== "client";
-  const seedSlug = (seed) => text(seed.knowledgeSlug) || slug(seed.title || seed.id);
+  const seedSlug = (seed) => {
+    const data = garden();
+    const parcel = data.parcels.find((item) => item.id === seed?.parcelId);
+    return text(parcel?.knowledgeSlug) || slug(parcel?.name || parcel?.id || seed?.title || seed?.id);
+  };
 
   async function loadPack(seed) {
     const requestedAt = now();
-    global.GardenStore.updateSeed(seed.id, { knowledgeSlug: seedSlug(seed), knowledgeStatus: "requesting", knowledgeRequestedAt: requestedAt, knowledgeError: null });
-    const pack = await global.PublisherKnowledge.load(seedSlug(seed));
+    const knowledgeSlug = seedSlug(seed);
+    global.GardenStore.updateSeed(seed.id, { knowledgeSlug, knowledgeStatus: "requesting", knowledgeRequestedAt: requestedAt, knowledgeError: null });
+    const pack = await global.PublisherKnowledge.load(knowledgeSlug, { forceRefresh: true });
     const verified = Boolean(pack?.verified && pack?.prompt);
     global.GardenStore.updateSeed(seed.id, {
-      knowledgeSlug: seedSlug(seed), knowledgeStatus: verified ? "ready" : "missing", knowledgeVerified: verified,
+      knowledgeSlug, knowledgeStatus: verified ? "ready" : "missing", knowledgeVerified: verified,
       knowledgeSource: text(pack?.source) || null, knowledgeFetchedAt: text(pack?.fetchedAt) || requestedAt,
       knowledgeDiagnostics: pack?.diagnostics || null, knowledgeError: verified ? null : text(pack?.diagnostics?.error) || "Aucun Knowledge Pack vérifié"
     });
@@ -79,7 +84,8 @@
     if (!title || !objective) throw new Error("Le nom et l'objectif de la graine sont nécessaires");
     const root = slug(title); let id = root, n = 2;
     while (data.seeds.some((seed) => seed.id === id)) id = `${root}-${n++}`;
-    const seed = global.GardenStore.plantSeed({ id, parcelId, title, objective, content: objective, kind: text(input?.kind) || "idea", firstHarvest: text(input?.firstHarvest) || "Une première récolte concrète proposée par Gérard", source: "poulpe-fiction-proposal", status: "proposed", plantedBy: "benoit", gardener: "gerard", knowledgeSlug: slug(title), proposedAt: now() });
+    const knowledgeSlug = text(parcel.knowledgeSlug) || slug(parcel.name || parcel.id);
+    const seed = global.GardenStore.plantSeed({ id, parcelId, title, objective, content: objective, kind: text(input?.kind) || "idea", firstHarvest: text(input?.firstHarvest) || "Une première récolte concrète proposée par Gérard", source: "poulpe-fiction-proposal", status: "proposed", plantedBy: "benoit", gardener: "gerard", knowledgeSlug, proposedAt: now() });
     global.GardenStore.activateSeed(parcelId, seed.id);
     global.GardenStore.updateSeed(seed.id, { autonomyStatus: "consulting-publisher" });
     let dispatchResult;
