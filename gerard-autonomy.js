@@ -4,7 +4,6 @@
   if (global.__gerardAutonomyStarted) return;
   global.__gerardAutonomyStarted = true;
 
-  const RECEIPT_KEY = "poulpe-fiction:adventure-departure:v1";
   const STATE_KEY = "poulpe-fiction:gerard-autonomy:v1";
   const RETRY_DELAY_MS = 2 * 60 * 1000;
   const POLL_MS = 5_000;
@@ -28,11 +27,6 @@
 
   function persist() {
     try { localStorage.setItem(STATE_KEY, JSON.stringify(autonomy)); } catch (_) {}
-  }
-
-  function receipt() {
-    try { return JSON.parse(localStorage.getItem(RECEIPT_KEY) || "null"); }
-    catch (_) { return null; }
   }
 
   function activeSeedFor(draft) {
@@ -65,9 +59,9 @@
     return !Number.isFinite(elapsed) || elapsed >= RETRY_DELAY_MS;
   }
 
-  function alreadyDispatched(draft) {
-    const current = receipt();
-    return Boolean(current && current.adventureDraftId === draft.id && current.operationId);
+  function alreadyCompleted(draft) {
+    const bundle = global.AdventureReturnProcessor?.latestForDraft?.(draft.id);
+    return Boolean(bundle?.status === "ready" && bundle?.harvests?.length);
   }
 
   async function advance() {
@@ -77,17 +71,17 @@
 
     let draft = global.AdventureDraft?.load?.();
     if (!draft || draft.status === "cancelled") return;
-    if (alreadyDispatched(draft)) {
+    if (alreadyCompleted(draft)) {
       autonomy.lastDraftId = draft.id;
-      autonomy.lastStatus = "dispatched";
+      autonomy.lastStatus = "harvest-ready";
       autonomy.lastError = null;
       persist();
       return;
     }
     if (!retryAllowed(draft)) return;
 
-    if (!global.AdventureLaunch?.launch || !global.PoulpeOctopusAdapter) {
-      autonomy.lastStatus = "waiting-runtime";
+    if (!global.GerardLocalHarvester?.harvest) {
+      autonomy.lastStatus = "waiting-local-runtime";
       persist();
       return;
     }
@@ -108,36 +102,25 @@
           autonomyStatus: "validated",
           adventureDraftId: draft.id
         });
-        push(`🐙 « ${draft.curiosity.title || draft.curiosity.id} » est mûre. Je prépare et lance le travail interne sans te demander de porter mon sac.`);
+        push(`🐙 « ${draft.curiosity.title || draft.curiosity.id} » est mûre. Je travaille localement sans te demander de porter mon sac.`);
       }
 
-      autonomy.lastStatus = "launching";
+      autonomy.lastStatus = "harvesting-locally";
       persist();
-      patchSeed(draft, { status: "adventure", autonomyStatus: "launching" });
+      patchSeed(draft, { status: "adventure", autonomyStatus: "harvesting-locally" });
       refresh();
 
-      await global.AdventureLaunch.launch();
+      const bundle = await global.GerardLocalHarvester.harvest(draft, "autonomous-local-first");
+      if (!bundle?.harvests?.length) throw new Error("La récolte locale est revenue vide.");
 
-      const current = receipt();
-      if (current?.adventureDraftId === draft.id && current.operationId) {
-        autonomy.lastStatus = "dispatched";
-        autonomy.lastError = null;
-        patchSeed(draft, {
-          status: "adventure",
-          autonomyStatus: "dispatched",
-          operationId: current.operationId,
-          missionId: current.missionId || null,
-          departedAt: current.departedAt || nowIso()
-        });
-      } else {
-        autonomy.lastStatus = "blocked";
-        autonomy.lastError = "Octopus n'a pas confirmé le départ.";
-        patchSeed(draft, {
-          status: "blocked",
-          autonomyStatus: "blocked",
-          autonomyError: autonomy.lastError
-        });
-      }
+      autonomy.lastStatus = "harvest-ready";
+      autonomy.lastError = null;
+      patchSeed(draft, {
+        status: "harvest-ready",
+        autonomyStatus: "local-harvest-ready",
+        operationId: bundle.operationId || bundle.missionId || null,
+        harvestedAt: bundle.createdAt || nowIso()
+      });
     } catch (error) {
       autonomy.lastStatus = "blocked";
       autonomy.lastError = error instanceof Error ? error.message : "Blocage inconnu";
@@ -146,7 +129,7 @@
         autonomyStatus: "blocked",
         autonomyError: autonomy.lastError
       });
-      push(`⏸ « ${draft.curiosity.title || draft.curiosity.id} » demande une vraie intervention : ${autonomy.lastError}`);
+      push(`⏸ « ${draft.curiosity.title || draft.curiosity.id} » est bloquée localement : ${autonomy.lastError}`);
     } finally {
       inFlight = false;
       persist();
