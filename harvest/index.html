@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Récoltes · Poulpe Fiction</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark}
+    body{margin:0;background:#0b1024;color:#f6f0dc}
+    main{max-width:860px;margin:auto;padding:28px 16px 70px}
+    header{margin-bottom:28px}.brand{font-family:Georgia,serif;color:#f5ddb0;font-size:2rem;margin:0}.muted{color:#aab4cc}
+    article{background:#11182d;border:1px solid #2b3552;border-radius:22px;padding:24px;margin:18px 0;box-shadow:0 20px 70px rgba(0,0,0,.25)}
+    h1,h2,h3{font-family:Georgia,serif;color:#f5ddb0}.status{display:inline-block;padding:.35rem .7rem;border-radius:999px;background:#202944;margin-bottom:10px}
+    .content{white-space:pre-wrap;line-height:1.65}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    a,button{border:0;border-radius:999px;padding:.7rem 1rem;text-decoration:none;font:inherit;cursor:pointer}.primary{background:#7ee0cf;color:#08121b}.ghost{background:#202944;color:#f6f0dc}
+    .empty{padding:50px 20px;text-align:center;border:1px dashed #34405f;border-radius:22px}
+  </style>
+</head>
+<body>
+<main>
+  <header><h1 class="brand">Poulpe-Fiction · Récoltes</h1><p class="muted">Artefacts HTML produits par Octopus et Publisher.</p></header>
+  <div id="root" class="empty">Chargement de la dernière récolte…</div>
+</main>
+<script src="../harvest-html.js?v=20260721-html-harvest"></script>
+<script>
+(function(){
+  const FEED='https://raw.githubusercontent.com/benoitlub/octopus-engine/main/garden-feed/latest.json';
+  const root=document.getElementById('root');
+  const text=v=>typeof v==='string'?v.trim():'';
+  const rec=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function artifact(entry){
+    const result=rec(entry.result), output=rec(result.output);
+    const groups=[output.artifacts,output.harvests,result.artifacts,result.harvests].filter(Array.isArray).flat().map(rec);
+    const item=groups.find(x=>text(x.content)||text(x.artifact)||text(x.text)||text(x.url)||text(x.downloadUrl))||{};
+    const content=text(item.content)||text(item.artifact)||text(item.text)||text(output.text)||text(result.content)||text(result.text);
+    const title=text(item.title)||text(entry.title)||'Récolte';
+    const built=content?window.PoulpeHarvestHtml?.artifact?.({title,content,operationId:entry.operationId,createdAt:entry.completedAt}):null;
+    return {title,content,url:text(item.url)||text(item.downloadUrl)||text(result.url)||built?.url||'',downloadUrl:text(item.downloadUrl)||built?.downloadUrl||''};
+  }
+  function render(feed){
+    const entries=Array.isArray(feed.harvests)?feed.harvests:[];
+    const usable=entries.map(e=>({entry:e,artifact:artifact(e)})).filter(x=>x.artifact.content||x.artifact.url);
+    if(!usable.length){root.className='empty';root.innerHTML='<h2>Pas encore de récolte exploitable</h2><p>Le feed existe, mais aucun contenu ou artefact HTML n\'y est publié.</p>';return;}
+    root.className='';root.innerHTML=usable.map(({entry,artifact:a})=>`<article><span class="status">${esc(entry.status||'ready')}</span><h2>${esc(a.title)}</h2><p class="muted">${esc(entry.parcelId||'poulpe-fiction')} · ${esc(entry.completedAt||feed.generatedAt||'')}</p><div class="content">${esc(a.content).slice(0,5000)}</div><div class="actions">${a.url?`<a class="primary" href="${esc(a.url)}" target="_blank" rel="noopener">Ouvrir l’artefact HTML</a>`:''}${a.downloadUrl?`<a class="ghost" href="${esc(a.downloadUrl)}" download>Télécharger HTML</a>`:''}</div></article>`).join('');
+  }
+  fetch(FEED+'?t='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(render).catch(err=>{root.className='empty';root.innerHTML='<h2>Récolte indisponible</h2><p>'+esc(err.message)+'</p>'});
+})();
+</script>
+</body>
+</html>
