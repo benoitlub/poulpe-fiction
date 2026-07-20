@@ -29,7 +29,7 @@
   }
 
   function harvestText(seed, parcel, pack) {
-    const objective = text(seed?.objective || seed?.content || draft?.objective);
+    const objective = text(seed?.objective || seed?.content);
     if (pack) {
       const angles = Array.isArray(pack.sampleAngles) ? pack.sampleAngles.slice(0, 3) : [];
       const audiences = Array.isArray(pack.audienceHypotheses) ? pack.audienceHypotheses.slice(0, 3) : [];
