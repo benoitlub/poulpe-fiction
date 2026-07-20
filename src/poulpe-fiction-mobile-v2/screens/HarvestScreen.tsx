@@ -1,3 +1,4 @@
+import "../styles/html-harvest.css";
 import { HarvestActions } from "../components/HarvestActions";
 import type { HarvestBundle, HarvestStatus } from "../types";
 
