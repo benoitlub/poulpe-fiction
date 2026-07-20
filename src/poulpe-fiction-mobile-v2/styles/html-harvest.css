@@ -1,0 +1,9 @@
+.pf-html-harvest {
+  display: block;
+  width: 100%;
+  min-height: 58vh;
+  border: 1px solid rgba(170, 180, 204, 0.28);
+  border-radius: 20px;
+  background: #0b1024;
+  margin: 18px 0;
+}
