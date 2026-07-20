@@ -6,15 +6,58 @@
   const ISSUE_BASE = "https://github.com/benoitlub/octopus-engine/issues/new";
   const FEED_URL = "https://raw.githubusercontent.com/benoitlub/octopus-engine/main/garden-feed/latest.json";
   const POLL_MS = 60 * 1000;
+  const MAX_ISSUE_URL = 7000;
 
   const text = (value) => typeof value === "string" ? value.trim() : "";
   const record = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} };
+  const cut = (value, limit) => text(value).slice(0, limit);
+
+  function compactMission(payload) {
+    const context = record(payload?.context);
+    const metadata = record(context.metadata);
+    return {
+      operationId: text(payload?.operationId) || `poulpe_${Date.now()}`,
+      title: cut(payload?.title, 180) || "Mission Gérard",
+      objective: cut(payload?.objective || payload?.intent, 900),
+      requiredCapabilities: Array.isArray(payload?.requiredCapabilities) ? payload.requiredCapabilities.slice(0, 8).map(String) : [],
+      authorizedResources: Array.isArray(payload?.authorizedResources) ? payload.authorizedResources.slice(0, 8).map(String) : ["publisher"],
+      parcelId: text(payload?.parcelId) || text(context.id) || "poulpe-fiction",
+      context: {
+        id: text(context.id) || text(payload?.parcelId) || "poulpe-fiction",
+        label: cut(context.label, 120),
+        metadata: {
+          parcelId: text(metadata.parcelId) || text(payload?.parcelId) || text(context.id),
+          seedId: text(metadata.seedId) || text(payload?.seedId),
+          knowledgeSlug: text(metadata.knowledgeSlug),
+          requestedProducer: text(metadata.requestedProducer),
+          requestedAction: text(metadata.requestedAction),
+          requestedCapability: text(metadata.requestedCapability),
+          expectedHarvest: cut(metadata.expectedHarvest, 300),
+          platform: text(metadata.platform),
+          trigger: "poulpe-github-runtime"
+        }
+      },
+      prompt: cut(payload?.prompt, 2600)
+    };
+  }
 
   function issueUrl(payload) {
-    const title = `[POULPE] ${text(payload.title) || text(payload.operationId) || "Mission Gérard"}`;
-    return `${ISSUE_BASE}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
+    const compact = compactMission(payload);
+    const title = `[POULPE] ${text(compact.title) || text(compact.operationId) || "Mission Gérard"}`;
+    const body = JSON.stringify(compact);
+    const full = `${ISSUE_BASE}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+    return { url: full, body, title, compact, tooLong: full.length > MAX_ISSUE_URL };
+  }
+
+  async function copyBody(body) {
+    try {
+      await navigator.clipboard.writeText(body);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   function queue(payload, options = {}) {
@@ -30,18 +73,34 @@
       status: "waiting-github-submit"
     };
     write(PENDING_KEY, pending);
-    const url = issueUrl(normalized);
-    if (options.open !== false) global.open(url, "_blank", "noopener,noreferrer");
-    try { global.pushChat?.("gerard", "🐙 La mission est prête dans GitHub. Valide l’ouverture de l’issue : je la traiterai avec Octopus, Publisher et Mistral."); } catch (_) {}
+
+    const issue = issueUrl(normalized);
+    if (options.open !== false) {
+      if (issue.tooLong) {
+        void copyBody(issue.body).then((copied) => {
+          const shortUrl = `${ISSUE_BASE}?title=${encodeURIComponent(issue.title)}`;
+          global.open(shortUrl, "_blank", "noopener,noreferrer");
+          try {
+            global.pushChat?.("gerard", copied
+              ? "🐙 La mission dépassait la limite GitHub. Son JSON est copié : colle-le dans le corps de l’issue puis valide."
+              : "🐙 La mission dépassait la limite GitHub. Ouvre l’issue et colle le JSON de mission depuis Poulpe.");
+          } catch (_) {}
+        });
+      } else {
+        global.open(issue.url, "_blank", "noopener,noreferrer");
+      }
+    }
+
+    try { global.pushChat?.("gerard", issue.tooLong ? "🐙 Mission compacte préparée pour GitHub." : "🐙 La mission est prête dans GitHub. Valide l’ouverture de l’issue : je la traiterai avec Octopus, Publisher et Mistral."); } catch (_) {}
     return {
       result: {
         status: "queued",
         operationId,
         parcelId: pending[operationId].parcelId,
         contextId: pending[operationId].parcelId,
-        summary: "Mission préparée pour le runtime GitHub. Une issue préremplie a été ouverte pour validation.",
+        summary: issue.tooLong ? "Mission préparée pour GitHub avec copie de secours du JSON." : "Mission préparée pour le runtime GitHub. Une issue préremplie a été ouverte pour validation.",
         source: "github-issue",
-        issueUrl: url
+        issueUrl: issue.tooLong ? `${ISSUE_BASE}?title=${encodeURIComponent(issue.title)}` : issue.url
       },
       bundle: null,
       context: payload?.context || {}
@@ -111,7 +170,7 @@
     }
   }
 
-  global.PoulpeGitHubRuntime = { version: 1, queue, sync, issueUrl, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
+  global.PoulpeGitHubRuntime = { version: 2, queue, sync, issueUrl, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
   global.setTimeout(() => void sync(), 1500);
   global.setInterval(() => void sync(), POLL_MS);
   global.addEventListener?.("focus", () => void sync());
