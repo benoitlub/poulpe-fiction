@@ -1,5 +1,5 @@
 import type { PoulpeRuntimeAdapter } from "./PoulpeRuntimeAdapter";
-import { browserPoulpeRuntimeAdapter } from "./browserPoulpeRuntimeAdapter";
+import { htmlHarvestRuntimeAdapter } from "./htmlHarvestRuntimeAdapter";
 
 declare global {
   interface Window {
@@ -8,5 +8,5 @@ declare global {
 }
 
 export function createRuntimeAdapter(): PoulpeRuntimeAdapter {
-  return window.__POULPE_RUNTIME_ADAPTER__ ?? browserPoulpeRuntimeAdapter;
+  return window.__POULPE_RUNTIME_ADAPTER__ ?? htmlHarvestRuntimeAdapter;
 }
