@@ -3,7 +3,7 @@
 
   const CACHE_KEY = "poulpe-fiction:publisher-knowledge-cache:v2";
   const LEGACY_CACHE_KEYS = ["poulpe-fiction:publisher-knowledge-cache:v1"];
-  const MAX_AGE_MS = 15 * 60 * 1000;
+  const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
   function publisherBaseUrl() {
     try {
@@ -36,10 +36,27 @@
 
   function cached(seedId) {
     const value = readCache()[seedId] || null;
-    if (!value?.verified || !value?.prompt || value?.source !== "publisher") return null;
+    if (!value?.verified || !value?.prompt) return null;
     const fetchedAt = Date.parse(value.fetchedAt || "");
     if (!Number.isFinite(fetchedAt) || Date.now() - fetchedAt > MAX_AGE_MS) return null;
     return value;
+  }
+
+  function localPack(seedId) {
+    const pack = global.ProductKnowledge?.get?.(seedId);
+    if (!pack?.verified) return null;
+    const prompt = global.ProductKnowledge?.toPrompt?.(pack) || "";
+    if (!prompt) return null;
+    return {
+      version: 2,
+      slug: seedId,
+      verified: true,
+      source: "local-product-knowledge",
+      fetchedAt: new Date().toISOString(),
+      prompt,
+      items: [pack],
+      diagnostics: { connected: false, local: true }
+    };
   }
 
   function unavailable(seedId, reason, diagnostics) {
@@ -59,13 +76,19 @@
     if (!seedId) return null;
     clearLegacyCaches();
 
-    const base = publisherBaseUrl();
-    if (!base) return unavailable(seedId, "PUBLISHER_API non configuré");
+    const fresh = cached(seedId);
+    if (fresh && !options.forceRefresh) return fresh;
 
-    if (!options.forceRefresh) {
-      const fresh = cached(seedId);
-      if (fresh) return fresh;
+    const local = localPack(seedId);
+    const base = publisherBaseUrl();
+
+    // Local-first: Gérard continues to work even when Publisher is absent.
+    if (local && (!base || !options.forceRefresh)) {
+      writeCache(seedId, local);
+      return local;
     }
+
+    if (!base) return local || unavailable(seedId, "PUBLISHER_API non configuré");
 
     try {
       const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
@@ -76,13 +99,13 @@
       const payload = await response.json();
       if (!response.ok) throw new Error(payload?.error || `Publisher ${response.status}`);
       if (!payload?.verified || !payload?.prompt) {
-        return unavailable(seedId, payload?.diagnostics?.error || "Pack Publisher non vérifié", payload?.diagnostics);
+        return local || unavailable(seedId, payload?.diagnostics?.error || "Pack Publisher non vérifié", payload?.diagnostics);
       }
       const result = { ...payload, source: "publisher", fetchedAt: payload.fetchedAt || new Date().toISOString() };
       writeCache(seedId, result);
       return result;
     } catch (error) {
-      return unavailable(seedId, error instanceof Error ? error.message : "Publisher indisponible");
+      return local || unavailable(seedId, error instanceof Error ? error.message : "Publisher indisponible");
     }
   }
 
@@ -94,5 +117,5 @@
   }
 
   clearLegacyCaches();
-  global.PublisherKnowledge = { CACHE_KEY, load, cached, clear };
+  global.PublisherKnowledge = { CACHE_KEY, load, cached, clear, localPack };
 })(globalThis);
