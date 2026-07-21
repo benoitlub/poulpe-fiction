@@ -82,9 +82,19 @@ export type Harvest =
   | { kind: "landing"; status: HarvestStatus; title: string; previewUrl: string; copy: string; html: string }
   | { kind: "text"; status: HarvestStatus; title: string; body: string };
 
+export interface EditorialSource {
+  provider: "notion";
+  pageId?: string;
+  url: string;
+  databaseId?: string;
+  status?: "draft" | "review" | "validated" | "archived";
+  lastSyncedAt?: string;
+}
+
 export interface HarvestBundle {
   missionId: MissionId;
   createdAt: string;
   intent: CultivationIntent;
   harvest: Harvest;
+  editorialSource?: EditorialSource;
 }
