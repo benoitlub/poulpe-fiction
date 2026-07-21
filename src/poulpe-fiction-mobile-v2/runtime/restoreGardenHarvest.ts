@@ -1,4 +1,4 @@
-import type { HarvestBundle, MissionProgress } from "../types";
+import type { EditorialSource, HarvestBundle, MissionProgress } from "../types";
 
 type UnknownRecord = Record<string, unknown>;
 type GardenSnapshot = { harvests?: UnknownRecord[]; parcels?: UnknownRecord[] };
@@ -32,6 +32,23 @@ function htmlDocument(title: string, content: string) {
 
 function dateValue(item: UnknownRecord) {
   return Date.parse(text(item.createdAt) || text(item.completedAt) || text(item.date) || "") || 0;
+}
+
+function editorialSource(harvest: UnknownRecord, payload: UnknownRecord, result: UnknownRecord): EditorialSource | undefined {
+  const harvestEditorial = record(harvest.editorialSource);
+  const payloadEditorial = record(payload.editorialSource);
+  const resultEditorial = record(result.editorialSource);
+  const notion = record(result.notion);
+  const url = text(harvest.notionUrl) || text(harvestEditorial.url) || text(payload.notionUrl) || text(payloadEditorial.url) || text(result.notionUrl) || text(resultEditorial.url) || text(notion.url);
+  if (!url) return undefined;
+  return {
+    provider: "notion",
+    url,
+    pageId: text(harvest.notionPageId) || text(harvestEditorial.pageId) || text(payload.notionPageId) || text(payloadEditorial.pageId) || text(result.notionPageId) || text(resultEditorial.pageId) || text(notion.pageId) || undefined,
+    databaseId: text(harvestEditorial.databaseId) || text(payloadEditorial.databaseId) || text(resultEditorial.databaseId) || text(notion.databaseId) || undefined,
+    status: (text(harvestEditorial.status) || text(payloadEditorial.status) || text(resultEditorial.status) || text(notion.status) || undefined) as EditorialSource["status"],
+    lastSyncedAt: text(harvest.lastSyncedAt) || text(harvestEditorial.lastSyncedAt) || text(payloadEditorial.lastSyncedAt) || text(resultEditorial.lastSyncedAt) || text(notion.lastSyncedAt) || undefined,
+  };
 }
 
 export function restoreLatestGardenHarvest(): { bundle: HarvestBundle; progress: MissionProgress } | null {
@@ -69,6 +86,7 @@ export function restoreLatestGardenHarvest(): { bundle: HarvestBundle; progress:
         copy: content,
         html: htmlDocument(title, content),
       },
+      editorialSource: editorialSource(harvest, payload, result),
     },
     progress: {
       missionId,
