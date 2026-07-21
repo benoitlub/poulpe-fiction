@@ -61,9 +61,11 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     return () => { alive = false; };
   }, [runtime]);
 
-  const chooseParcel = (parcelId: string) => {
-    poulpeStore.setAnswer("parcelId", parcelId);
-    try { localStorage.setItem(SELECTED_PARCEL_KEY, parcelId); } catch (_) {}
+  const chooseAndContinue = (key: "parcelId" | "goal" | "audience" | "format", value: string) => {
+    poulpeStore.setAnswer(key, value);
+    if (key === "parcelId") {
+      try { localStorage.setItem(SELECTED_PARCEL_KEY, value); } catch (_) {}
+    }
     poulpeStore.nextStep();
   };
 
@@ -75,13 +77,13 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     return (
       <QuestionStep eyebrow="Gérard a besoin d’un détail" title={runtimeQuestion.label} hint={runtimeQuestion.reason} canBack={false} canNext={false} onNext={() => undefined}>
         {isChoice ? (
-          <div className="pf-chips">
+          <div>
             {runtimeQuestion.options!.map((option) => (
-              <button key={option} type="button" className="pf-chip" onClick={async () => {
+              <button key={option} type="button" className="pf-parcel" onClick={async () => {
                 const next = await runtime.answerQuestion(runtimeQuestion.missionId, runtimeQuestion.id, option);
                 poulpeStore.setProgress(next);
                 poulpeStore.setTab("hublot");
-              }}>{option}</button>
+              }}><span><div className="pf-parcel-name">{option}</div></span><span className="pf-parcel-arrow" aria-hidden>→</span></button>
             ))}
           </div>
         ) : (
@@ -102,11 +104,11 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     );
   }
 
-  const parcelSelector = (
-    <div>
-      {parcels.map((parcel) => <button key={parcel.id} type="button" className="pf-parcel" data-selected={answers.parcelId === parcel.id} onClick={() => chooseParcel(parcel.id)}><span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><div className="pf-parcel-name">{parcel.name}</div><div className="pf-parcel-desc">{parcel.description}</div></span><span className="pf-parcel-arrow" aria-hidden>→</span></button>)}
-      {!parcels.length ? <div className="pf-empty"><p>Aucun projet n’est encore disponible dans le Garden.</p></div> : null}
-    </div>
+  const quickChoice = (label: string, selected: boolean, onClick: () => void) => (
+    <button key={label} type="button" className="pf-parcel" data-selected={selected} onClick={onClick}>
+      <span><div className="pf-parcel-name">{label}</div></span>
+      <span className="pf-parcel-arrow" aria-hidden>→</span>
+    </button>
   );
 
   const steps = [
@@ -114,12 +116,32 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
       title: clientContext ? `Bonjour ${clientContext.displayName}. Pour quel projet cultivons-nous aujourd’hui ?` : "Pour quel projet cultivons-nous aujourd’hui ?",
       hint: clientContext?.activity ?? "Choisis une parcelle du jardin.",
       canNext: false,
-      content: parcelSelector,
+      content: <div>{parcels.map((parcel) => <button key={parcel.id} type="button" className="pf-parcel" data-selected={answers.parcelId === parcel.id} onClick={() => chooseAndContinue("parcelId", parcel.id)}><span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><div className="pf-parcel-name">{parcel.name}</div><div className="pf-parcel-desc">{parcel.description}</div></span><span className="pf-parcel-arrow" aria-hidden>→</span></button>)}{!parcels.length ? <div className="pf-empty"><p>Aucun projet n’est encore disponible dans le Garden.</p></div> : null}</div>,
     },
-    { title: "Qu’est-ce qu’on cultive ?", hint: "Une seule chose à la fois.", canNext: Boolean(answers.goal?.trim()), content: <><div className="pf-chips">{GOALS.map((goal) => <button key={goal} type="button" className="pf-chip" data-selected={answers.goal === goal} onClick={() => poulpeStore.setAnswer("goal", goal)}>{goal}</button>)}</div><input className="pf-input" placeholder="Ou décris librement…" value={answers.goal ?? ""} onChange={(event) => poulpeStore.setAnswer("goal", event.target.value)} /></> },
-    { title: "À qui s’adresse cette récolte ?", hint: "Gérard pourra demander une précision plus tard si elle devient nécessaire.", canNext: true, content: <><div className="pf-chips">{AUDIENCES.map((audience) => <button key={audience} type="button" className="pf-chip" data-selected={answers.audience === audience} onClick={() => poulpeStore.setAnswer("audience", audience)}>{audience}</button>)}</div><input className="pf-input" placeholder="Facultatif" value={answers.audience ?? ""} onChange={(event) => poulpeStore.setAnswer("audience", event.target.value)} /></> },
-    { title: "Une préférence de ton pour cette mission ?", hint: "Facultatif : Publisher pourra demander ce détail au moment utile.", canNext: true, content: <div className="pf-chips">{FORMATS.map((format) => <button key={format} type="button" className="pf-chip" data-selected={answers.format === format} onClick={() => poulpeStore.setAnswer("format", format)}>{format}</button>)}</div> },
-    { title: "On confie ça à Gérard ?", hint: "Il utilisera le projet choisi et demandera seulement ce qui lui manque.", canNext: true, content: <div className="pf-summary"><p>Projet : <b>{selectedParcel?.name ?? clientContext?.displayName ?? "—"}</b></p><p>Récolte : <b>{answers.goal ?? "—"}</b></p><textarea className="pf-textarea" placeholder="Un détail utile, facultatif…" value={answers.details ?? ""} onChange={(event) => poulpeStore.setAnswer("details", event.target.value)} /></div> },
+    {
+      title: "Qu’est-ce qu’on cultive ?",
+      hint: "Choisis une récolte, ou décris-la librement.",
+      canNext: Boolean(answers.goal?.trim()) && !GOALS.includes(answers.goal ?? ""),
+      content: <><div>{GOALS.map((goal) => quickChoice(goal, answers.goal === goal, () => chooseAndContinue("goal", goal)))}</div><input className="pf-input" placeholder="Ou décris librement…" value={GOALS.includes(answers.goal ?? "") ? "" : answers.goal ?? ""} onChange={(event) => poulpeStore.setAnswer("goal", event.target.value)} /></>,
+    },
+    {
+      title: "À qui s’adresse cette récolte ?",
+      hint: "Choisis un public, indique-le librement, ou laisse Gérard décider.",
+      canNext: Boolean(answers.audience?.trim()) && !AUDIENCES.includes(answers.audience ?? ""),
+      content: <><div>{AUDIENCES.map((audience) => quickChoice(audience, answers.audience === audience, () => chooseAndContinue("audience", audience)))}{quickChoice("Laisser Gérard décider", answers.audience === "", () => chooseAndContinue("audience", ""))}</div><input className="pf-input" placeholder="Ou précise librement…" value={AUDIENCES.includes(answers.audience ?? "") ? "" : answers.audience ?? ""} onChange={(event) => poulpeStore.setAnswer("audience", event.target.value)} /></>,
+    },
+    {
+      title: "Une préférence de ton pour cette mission ?",
+      hint: "Choisis un ton, ou laisse Publisher l’adapter.",
+      canNext: false,
+      content: <div>{FORMATS.map((format) => quickChoice(format, answers.format === format, () => chooseAndContinue("format", format)))}{quickChoice("Laisser Publisher adapter le ton", answers.format === "", () => chooseAndContinue("format", ""))}</div>,
+    },
+    {
+      title: "On confie ça à Gérard ?",
+      hint: "Il utilisera le projet choisi et demandera seulement ce qui lui manque.",
+      canNext: true,
+      content: <div className="pf-summary"><p>Projet : <b>{selectedParcel?.name ?? clientContext?.displayName ?? "—"}</b></p><p>Récolte : <b>{answers.goal ?? "—"}</b></p><textarea className="pf-textarea" placeholder="Un détail utile, facultatif…" value={answers.details ?? ""} onChange={(event) => poulpeStore.setAnswer("details", event.target.value)} /></div>,
+    },
   ];
 
   const step = steps[Math.min(stepIndex, steps.length - 1)];
