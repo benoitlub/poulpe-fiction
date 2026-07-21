@@ -64,6 +64,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const chooseParcel = (parcelId: string) => {
     poulpeStore.setAnswer("parcelId", parcelId);
     try { localStorage.setItem(SELECTED_PARCEL_KEY, parcelId); } catch (_) {}
+    poulpeStore.nextStep();
   };
 
   const selectedParcel = useMemo(() => parcels.find((parcel) => parcel.id === answers.parcelId), [parcels, answers.parcelId]);
@@ -103,7 +104,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
 
   const parcelSelector = (
     <div>
-      {parcels.map((parcel) => <button key={parcel.id} type="button" className="pf-parcel" data-selected={answers.parcelId === parcel.id} onClick={() => chooseParcel(parcel.id)}><span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><div className="pf-parcel-name">{parcel.name}</div><div className="pf-parcel-desc">{parcel.description}</div></span></button>)}
+      {parcels.map((parcel) => <button key={parcel.id} type="button" className="pf-parcel" data-selected={answers.parcelId === parcel.id} onClick={() => chooseParcel(parcel.id)}><span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><div className="pf-parcel-name">{parcel.name}</div><div className="pf-parcel-desc">{parcel.description}</div></span><span className="pf-parcel-arrow" aria-hidden>→</span></button>)}
       {!parcels.length ? <div className="pf-empty"><p>Aucun projet n’est encore disponible dans le Garden.</p></div> : null}
     </div>
   );
@@ -112,7 +113,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     {
       title: clientContext ? `Bonjour ${clientContext.displayName}. Pour quel projet cultivons-nous aujourd’hui ?` : "Pour quel projet cultivons-nous aujourd’hui ?",
       hint: clientContext?.activity ?? "Choisis une parcelle du jardin.",
-      canNext: Boolean(answers.parcelId),
+      canNext: false,
       content: parcelSelector,
     },
     { title: "Qu’est-ce qu’on cultive ?", hint: "Une seule chose à la fois.", canNext: Boolean(answers.goal?.trim()), content: <><div className="pf-chips">{GOALS.map((goal) => <button key={goal} type="button" className="pf-chip" data-selected={answers.goal === goal} onClick={() => poulpeStore.setAnswer("goal", goal)}>{goal}</button>)}</div><input className="pf-input" placeholder="Ou décris librement…" value={answers.goal ?? ""} onChange={(event) => poulpeStore.setAnswer("goal", event.target.value)} /></> },
