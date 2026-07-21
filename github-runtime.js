@@ -36,6 +36,12 @@
           requestedCapability: text(metadata.requestedCapability),
           expectedHarvest: cut(metadata.expectedHarvest, 300),
           platform: text(metadata.platform),
+          editorialDelivery: {
+            provider: "notion",
+            databaseId: text(record(metadata.editorialDelivery).databaseId) || "47129b8dc87746ab84b24388c508aa55",
+            linkToParcel: true,
+            preserveHtmlSnapshot: true
+          },
           trigger: "poulpe-github-runtime"
         }
       },
@@ -120,6 +126,23 @@
     };
   }
 
+  function notionSource(entry) {
+    const result = record(entry?.result);
+    const editorial = record(entry?.editorialSource);
+    const resultEditorial = record(result.editorialSource);
+    const notion = record(result.notion);
+    const url = text(entry?.notionUrl) || text(editorial.url) || text(result.notionUrl) || text(resultEditorial.url) || text(notion.url);
+    if (!url) return null;
+    return {
+      provider: "notion",
+      url,
+      pageId: text(entry?.notionPageId) || text(editorial.pageId) || text(result.notionPageId) || text(resultEditorial.pageId) || text(notion.pageId) || null,
+      databaseId: text(editorial.databaseId) || text(resultEditorial.databaseId) || text(notion.databaseId) || null,
+      status: text(editorial.status) || text(resultEditorial.status) || text(notion.status) || "review",
+      lastSyncedAt: text(entry?.lastSyncedAt) || text(editorial.lastSyncedAt) || text(resultEditorial.lastSyncedAt) || text(notion.lastSyncedAt) || text(entry?.completedAt) || new Date().toISOString()
+    };
+  }
+
   function ingest(entry) {
     const operationId = text(entry?.operationId);
     if (!operationId || entry?.status !== "completed" || !entry?.result) return false;
@@ -129,6 +152,7 @@
     if (!artifact.content && !artifact.url) return false;
     const parcelId = text(entry.parcelId) || "poulpe-fiction";
     const seedId = text(entry.seedId) || null;
+    const editorialSource = notionSource(entry);
     try {
       global.GardenStore?.addHarvest?.({
         id: `github_${operationId}`,
@@ -138,21 +162,28 @@
         title: artifact.title,
         preview: artifact.content.slice(0, 280),
         content: artifact.content,
+        originalContent: artifact.content,
+        latestContent: artifact.content,
+        htmlSnapshot: text(entry?.htmlSnapshot) || text(record(entry?.result).htmlSnapshot),
         url: artifact.url,
         type: artifact.mimeType,
         payload: entry,
+        editorialSource,
+        notionPageId: editorialSource?.pageId || null,
+        notionUrl: editorialSource?.url || null,
+        lastSyncedAt: editorialSource?.lastSyncedAt || null,
         status: "ready",
         createdAt: text(entry.completedAt) || new Date().toISOString()
       });
       if (seedId) global.GardenStore?.updateSeed?.(seedId, { status: "harvested", lastOperationId: operationId, lastHarvestAt: text(entry.completedAt) || new Date().toISOString() });
-      global.GardenStore?.upsertOperation?.({ id: operationId, parcelId, seedId: seedId || "poulpe-fiction", intent: text(entry.title) || "github-runtime", activity: "Récolte reçue de GitHub/Mistral", status: "ready", updatedAt: new Date().toISOString() });
+      global.GardenStore?.upsertOperation?.({ id: operationId, parcelId, seedId: seedId || "poulpe-fiction", intent: text(entry.title) || "github-runtime", activity: editorialSource ? "Récolte reçue et publiée dans Notion" : "Récolte reçue de GitHub/Mistral", status: "ready", updatedAt: new Date().toISOString() });
     } catch (_) { return false; }
     processed[operationId] = { processedAt: new Date().toISOString(), feedGeneratedAt: entry.completedAt || null };
     write(PROCESSED_KEY, processed);
     const pending = read(PENDING_KEY, {});
     delete pending[operationId];
     write(PENDING_KEY, pending);
-    try { global.pushChat?.("gerard", `🌾 La récolte « ${artifact.title} » est revenue de GitHub/Mistral et se trouve dans le Garden.`); } catch (_) {}
+    try { global.pushChat?.("gerard", editorialSource ? `🌾 La récolte « ${artifact.title} » est prête et éditable dans Notion.` : `🌾 La récolte « ${artifact.title} » est revenue de GitHub/Mistral et se trouve dans le Garden.`); } catch (_) {}
     global.dispatchEvent?.(new CustomEvent("poulpe-github-harvest", { detail: entry }));
     return true;
   }
@@ -170,7 +201,7 @@
     }
   }
 
-  global.PoulpeGitHubRuntime = { version: 2, queue, sync, issueUrl, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
+  global.PoulpeGitHubRuntime = { version: 3, queue, sync, issueUrl, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
   global.setTimeout(() => void sync(), 1500);
   global.setInterval(() => void sync(), POLL_MS);
   global.addEventListener?.("focus", () => void sync());
