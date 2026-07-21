@@ -6,6 +6,7 @@ import { HublotScreen } from "./screens/HublotScreen";
 import { HarvestScreen } from "./screens/HarvestScreen";
 import { poulpeStore, usePoulpeStore } from "./store";
 import { createRuntimeAdapter } from "./runtime/createRuntimeAdapter";
+import { restoreLatestGardenHarvest } from "./runtime/restoreGardenHarvest";
 import type { PoulpeRuntimeAdapter } from "./runtime/PoulpeRuntimeAdapter";
 
 export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }) {
@@ -21,7 +22,28 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
   const pollingRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!runtime || !missionId || progress?.state === "needs-input") return;
+    const restore = () => {
+      const restored = restoreLatestGardenHarvest();
+      if (!restored) return;
+      poulpeStore.set({
+        missionId: restored.bundle.missionId,
+        progress: restored.progress,
+        harvest: restored.bundle,
+        tab: "harvest",
+      });
+    };
+
+    restore();
+    window.addEventListener("poulpe-github-harvest", restore);
+    window.addEventListener("poulpe-garden-changed", restore);
+    return () => {
+      window.removeEventListener("poulpe-github-harvest", restore);
+      window.removeEventListener("poulpe-garden-changed", restore);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!runtime || !missionId || progress?.state === "needs-input" || progress?.finished) return;
     let cancelled = false;
     const tick = async () => {
       try {
@@ -40,7 +62,7 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
     void tick();
     pollingRef.current = window.setInterval(tick, 1200);
     return () => { cancelled = true; if (pollingRef.current) window.clearInterval(pollingRef.current); pollingRef.current = null; };
-  }, [missionId, progress?.state, runtime]);
+  }, [missionId, progress?.state, progress?.finished, runtime]);
 
   if (!runtime) {
     return <div className="pf-root"><div className="pf-shell"><main className="pf-screen"><section className="pf-card pf-empty"><h2>La nouvelle façade est prête</h2><p>{runtimeError}</p><p>Il reste à lui injecter l’adaptateur Octopus déjà présent dans Poulpe-Fiction.</p></section></main></div></div>;
