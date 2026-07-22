@@ -6,8 +6,8 @@
     octopusApi: "",
     publisherApi: "",
     publisherFrontend: "https://github.com/benoitlub/blacklace-publisher-ai",
-    githubRuntime: "https://github.com/benoitlub/octopus-engine/actions/workflows/gerard-autonomous.yml",
-    gardenFeed: "https://raw.githubusercontent.com/benoitlub/octopus-engine/main/garden-feed/latest.json"
+    githubRuntime: "https://github.com/benoitlub/poulpe-fiction/issues/new",
+    gardenFeed: ""
   };
   const buildSha = String(global.POULPE_BUILD_SHA || "github").slice(0, 7);
   const STALE_OVERRIDE_KEYS = ["PUBLISHER_API_URL", "OCTOPUS_API_URL", "API_URL", "PUBLISHER_FRONTEND_URL", "poulpe-fiction:garden-api-url:v1"];
@@ -22,7 +22,7 @@
         localStorage.removeItem(key);
       }
     });
-    localStorage.setItem("poulpe-fiction:runtime-config-migration:v3", JSON.stringify({ version: 3, migratedAt: new Date().toISOString(), removedKeys: previous.map((entry) => entry.key), runtime: "github-only" }));
+    localStorage.setItem("poulpe-fiction:runtime-config-migration:v4", JSON.stringify({ version: 4, migratedAt: new Date().toISOString(), removedKeys: previous.map((entry) => entry.key), runtime: "github-only", octopusUntouched: true }));
     return previous;
   }
 
@@ -32,22 +32,16 @@
     return fetch(url, Object.assign({}, options, { signal: controller.signal })).finally(() => clearTimeout(timer));
   }
 
-  async function testConnections(timeoutMs = 8000) {
-    try {
-      const response = await withTimeout(`${urls.gardenFeed}?t=${Date.now()}`, { headers: { Accept: "application/json" }, cache: "no-store" }, timeoutMs);
-      const payload = response.ok ? await response.json() : null;
-      return {
-        checkedAt: new Date().toISOString(),
-        environment,
-        urls,
-        github: { connected: response.ok, status: response.status, feed: payload },
-        octopus: { connected: response.ok, status: "GitHub Actions" },
-        publisherApi: { connected: response.ok, status: "GitHub Actions" },
-        mistral: { connected: response.ok, status: "Secret injecté uniquement dans GitHub Actions", provider: "mistral", model: "mistral-small-latest" }
-      };
-    } catch (error) {
-      return { checkedAt: new Date().toISOString(), environment, urls, github: { connected: false, error: error instanceof Error ? error.message : String(error) }, octopus: { connected: false }, publisherApi: { connected: false }, mistral: { connected: false } };
-    }
+  async function testConnections() {
+    return {
+      checkedAt: new Date().toISOString(),
+      environment,
+      urls,
+      github: { connected: true, status: "Poulpe Fiction GitHub Issues" },
+      octopus: { connected: false, status: "Non modifié et non requis pour l'interface de secours" },
+      publisherApi: { connected: false, status: "Aucune API permanente configurée" },
+      mistral: { connected: false, status: "Aucun workflow autonome actif" }
+    };
   }
 
   migrateLocalStorageOverrides();
