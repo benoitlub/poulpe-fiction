@@ -1,10 +1,9 @@
-(function githubRuntimeModule(global) {
+(function publisherRuntimeModule(global) {
   "use strict";
 
-  const PENDING_KEY = "poulpe-fiction:github-pending:v5";
-  const PROCESSED_KEY = "poulpe-fiction:github-processed:v5";
-  const FEED_URL = "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/harvest-feed/latest.json";
-  const POLL_MS = 60 * 1000;
+  const PENDING_KEY = "poulpe-fiction:publisher-pending:v1";
+  const PROCESSED_KEY = "poulpe-fiction:publisher-processed:v1";
+  const API_KEY = "poulpe-fiction:publisher-api-url";
 
   const text = (value) => typeof value === "string" ? value.trim() : "";
   const record = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -12,122 +11,43 @@
   const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} };
   const cut = (value, limit) => text(value).slice(0, limit);
 
+  function apiBase() {
+    const fromGlobal = text(global.PUBLISHER_API_URL);
+    const fromStorage = text(localStorage.getItem(API_KEY));
+    const fromMeta = text(document.querySelector('meta[name="publisher-api-url"]')?.content);
+    return (fromGlobal || fromStorage || fromMeta).replace(/\/+$/, "");
+  }
+
+  function setApiUrl(url) {
+    const normalized = text(url).replace(/\/+$/, "");
+    if (normalized) localStorage.setItem(API_KEY, normalized);
+    else localStorage.removeItem(API_KEY);
+    return normalized;
+  }
+
   function compactMission(payload) {
     const context = record(payload?.context);
     const metadata = record(context.metadata);
     return {
       operationId: text(payload?.operationId) || `poulpe_${Date.now()}`,
       title: cut(payload?.title, 180) || "Mission Gérard",
-      objective: cut(payload?.objective || payload?.intent, 900),
-      requiredCapabilities: Array.isArray(payload?.requiredCapabilities) ? payload.requiredCapabilities.slice(0, 8).map(String) : [],
-      authorizedResources: Array.isArray(payload?.authorizedResources) ? payload.authorizedResources.slice(0, 8).map(String) : ["publisher"],
+      objective: cut(payload?.objective || payload?.intent, 1800),
+      requiredCapabilities: Array.isArray(payload?.requiredCapabilities) ? payload.requiredCapabilities.slice(0, 12).map(String) : [],
+      authorizedResources: Array.isArray(payload?.authorizedResources) ? payload.authorizedResources.slice(0, 12).map(String) : ["publisher"],
       parcelId: text(payload?.parcelId) || text(context.id) || "poulpe-fiction",
+      seedId: text(payload?.seedId) || text(metadata.seedId),
       context: {
         id: text(context.id) || text(payload?.parcelId) || "poulpe-fiction",
         label: cut(context.label, 120),
         metadata: {
+          ...metadata,
           parcelId: text(metadata.parcelId) || text(payload?.parcelId) || text(context.id),
           seedId: text(metadata.seedId) || text(payload?.seedId),
-          knowledgeSlug: text(metadata.knowledgeSlug),
-          requestedCapability: text(metadata.requestedCapability),
-          expectedHarvest: cut(metadata.expectedHarvest, 300),
-          platform: text(metadata.platform),
-          trigger: "poulpe-fiction-local-cultivation"
+          trigger: "poulpe-fiction-direct-publisher"
         }
       },
-      prompt: cut(payload?.prompt, 2600)
+      prompt: cut(payload?.prompt, 4000)
     };
-  }
-
-  function missionSeed(payload) {
-    const snapshot = global.GardenStore?.snapshot?.() || {};
-    const seeds = Array.isArray(snapshot.seeds) ? snapshot.seeds : [];
-    const parcelId = text(payload?.parcelId) || text(payload?.context?.id);
-    const metadata = record(payload?.context?.metadata);
-    const explicitSeedId = text(payload?.seedId) || text(metadata.seedId);
-    if (explicitSeedId) {
-      const explicit = seeds.find((seed) => text(seed.id) === explicitSeedId);
-      if (explicit) return explicit;
-    }
-    const inParcel = seeds.filter((seed) => text(seed.parcelId) === parcelId);
-    if (inParcel.length === 1) return inParcel[0];
-    const haystack = `${text(payload?.title)} ${text(payload?.objective)} ${text(payload?.intent)} ${text(payload?.prompt)} ${text(metadata.knowledgeSlug)}`.toLowerCase();
-    return inParcel.find((seed) => [seed.id, seed.title, seed.knowledgeSlug].some((value) => value && haystack.includes(String(value).toLowerCase())))
-      || seeds.find((seed) => [seed.id, seed.title, seed.knowledgeSlug].some((value) => value && haystack.includes(String(value).toLowerCase())))
-      || null;
-  }
-
-  function draftFor(payload, operationId) {
-    const seed = missionSeed(payload);
-    if (!seed) throw new Error("Aucune graine correspondant à la parcelle choisie.");
-    try { global.GardenStore?.activateSeed?.(seed.parcelId, seed.id); } catch (_) {}
-    const draft = global.AdventureDraft?.create?.({
-      id: `adventure_${operationId}`,
-      status: "validated",
-      curiosity: { id: seed.id, title: seed.title || seed.id },
-      objective: text(payload?.objective || payload?.intent) || text(seed.objective || seed.content),
-      bag: Array.isArray(payload?.requiredCapabilities) ? payload.requiredCapabilities.map(String) : [],
-      picnic: ["Publisher", text(payload?.context?.metadata?.knowledgeSlug)].filter(Boolean),
-      grafts: [],
-      limits: ["Aucune action externe sans validation humaine"],
-      note: `Mission créée depuis Cultiver pour la parcelle ${seed.parcelId}.`,
-      gardenerValidation: { validatedAt: new Date().toISOString(), note: "Validation explicite par le bouton Cultiver." }
-    });
-    if (!draft) throw new Error("Impossible de créer la mission de culture.");
-    return global.AdventureDraft?.save?.(draft) || draft;
-  }
-
-  async function queue(payload) {
-    const operationId = text(payload?.operationId) || `poulpe_${Date.now()}`;
-    const seed = missionSeed(payload);
-    const pending = read(PENDING_KEY, {});
-    pending[operationId] = {
-      operationId,
-      parcelId: text(payload?.parcelId) || text(payload?.context?.id),
-      seedId: text(seed?.id),
-      title: text(payload?.title),
-      queuedAt: new Date().toISOString(),
-      status: "cultivating-locally"
-    };
-    write(PENDING_KEY, pending);
-
-    try {
-      const draft = draftFor(payload, operationId);
-      if (!global.GerardLocalHarvester?.harvest) throw new Error("Le moteur de récolte locale n’est pas prêt.");
-
-      try {
-        global.GardenStore?.upsertOperation?.({
-          id: operationId,
-          parcelId: pending[operationId].parcelId || "poulpe-fiction",
-          seedId: pending[operationId].seedId || draft.curiosity.id,
-          intent: text(payload?.objective || payload?.intent) || "mission",
-          activity: `Gérard cultive ${draft.curiosity.title || draft.curiosity.id}`,
-          status: "running",
-          updatedAt: new Date().toISOString()
-        });
-      } catch (_) {}
-
-      const bundle = await global.GerardLocalHarvester.harvest(draft, "cultiver");
-      const parcelId = pending[operationId].parcelId;
-      delete pending[operationId];
-      write(PENDING_KEY, pending);
-      return {
-        result: {
-          status: "completed",
-          operationId: bundle?.operationId || operationId,
-          parcelId,
-          contextId: parcelId,
-          summary: `Récolte produite pour ${draft.curiosity.title || draft.curiosity.id}.`,
-          source: "gerard-local-harvester"
-        },
-        bundle,
-        context: payload?.context || {}
-      };
-    } catch (error) {
-      pending[operationId] = { ...pending[operationId], status: "blocked", error: error instanceof Error ? error.message : String(error) };
-      write(PENDING_KEY, pending);
-      throw error;
-    }
   }
 
   function artifactFrom(entry) {
@@ -152,46 +72,106 @@
     if (!artifact.content && !artifact.url) return false;
     const parcelId = text(entry.parcelId) || "poulpe-fiction";
     const seedId = text(entry.seedId) || null;
-    try {
-      global.GardenStore?.addHarvest?.({
-        id: `publisher_${operationId}`,
-        operationId,
-        parcelId,
-        seedId,
-        title: artifact.title,
-        preview: artifact.content.slice(0, 280),
-        content: artifact.content,
-        originalContent: artifact.content,
-        latestContent: artifact.content,
-        url: artifact.url,
-        type: artifact.mimeType,
-        payload: entry,
-        status: "ready",
-        createdAt: text(entry.completedAt) || new Date().toISOString()
-      });
-      if (seedId) global.GardenStore?.updateSeed?.(seedId, { status: "harvested", lastOperationId: operationId, lastHarvestAt: text(entry.completedAt) || new Date().toISOString() });
-    } catch (_) { return false; }
+
+    global.GardenStore?.addHarvest?.({
+      id: `publisher_${operationId}`,
+      operationId,
+      parcelId,
+      seedId,
+      title: artifact.title,
+      preview: artifact.content.slice(0, 280),
+      content: artifact.content,
+      originalContent: artifact.content,
+      latestContent: artifact.content,
+      url: artifact.url,
+      type: artifact.mimeType,
+      payload: entry,
+      status: "ready",
+      createdAt: text(entry.completedAt) || new Date().toISOString()
+    });
+    if (seedId) global.GardenStore?.updateSeed?.(seedId, { status: "harvested", lastOperationId: operationId, lastHarvestAt: text(entry.completedAt) || new Date().toISOString() });
+    global.GardenStore?.upsertOperation?.({ id: operationId, parcelId, seedId: seedId || "poulpe-fiction", intent: text(entry.title) || "publisher-harvest", activity: "Récolte reçue de Blacklace Publisher", status: "ready", updatedAt: new Date().toISOString() });
+
     processed[operationId] = { processedAt: new Date().toISOString(), completedAt: entry.completedAt || null };
     write(PROCESSED_KEY, processed);
+    const pending = read(PENDING_KEY, {});
+    delete pending[operationId];
+    write(PENDING_KEY, pending);
     return true;
   }
 
-  async function sync() {
+  async function queue(payload) {
+    const endpoint = apiBase();
+    if (!endpoint) {
+      throw new Error("Publisher n’est pas configuré : renseigne son URL d’API dans le Local technique.");
+    }
+
+    const mission = compactMission(payload);
+    const pending = read(PENDING_KEY, {});
+    pending[mission.operationId] = {
+      operationId: mission.operationId,
+      parcelId: mission.parcelId,
+      seedId: mission.seedId,
+      title: mission.title,
+      queuedAt: new Date().toISOString(),
+      status: "waiting-publisher"
+    };
+    write(PENDING_KEY, pending);
+
+    global.GardenStore?.upsertOperation?.({
+      id: mission.operationId,
+      parcelId: mission.parcelId,
+      seedId: mission.seedId || "poulpe-fiction",
+      intent: mission.objective || mission.prompt || "mission",
+      activity: `Publisher prépare ${mission.title}`,
+      status: "running",
+      updatedAt: new Date().toISOString()
+    });
+
     try {
-      const response = await fetch(`${FEED_URL}?t=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json" } });
-      if (response.status === 404) return { connected: true, imported: 0, total: 0, waitingForFirstHarvest: true };
-      if (!response.ok) return { connected: false, status: response.status, imported: 0 };
-      const feed = await response.json();
-      const harvests = Array.isArray(feed?.harvests) ? feed.harvests : [];
-      const imported = harvests.reduce((count, entry) => count + (ingest(entry) ? 1 : 0), 0);
-      return { connected: true, generatedAt: feed.generatedAt || null, imported, total: harvests.length };
+      const response = await fetch(`${endpoint}/api/poulpe/harvest`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(mission)
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(text(body?.error) || `Publisher a répondu ${response.status}.`);
+      if (!ingest(body)) throw new Error("Publisher a répondu sans récolte exploitable.");
+      return { result: body, bundle: body, context: mission.context };
     } catch (error) {
-      return { connected: false, imported: 0, error: error instanceof Error ? error.message : String(error) };
+      pending[mission.operationId] = { ...pending[mission.operationId], status: "blocked", error: error instanceof Error ? error.message : String(error) };
+      write(PENDING_KEY, pending);
+      global.GardenStore?.upsertOperation?.({
+        id: mission.operationId,
+        parcelId: mission.parcelId,
+        seedId: mission.seedId || "poulpe-fiction",
+        intent: mission.objective || mission.prompt || "mission",
+        activity: "Publisher indisponible",
+        status: "blocked",
+        updatedAt: new Date().toISOString()
+      });
+      throw error;
     }
   }
 
-  global.PoulpeGitHubRuntime = { version: 7, queue, sync, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
-  global.setTimeout(() => void sync(), 1500);
-  global.setInterval(() => void sync(), POLL_MS);
-  global.addEventListener?.("focus", () => void sync());
+  async function sync() {
+    const endpoint = apiBase();
+    if (!endpoint) return { connected: false, configured: false };
+    try {
+      const response = await fetch(`${endpoint}/health`, { cache: "no-store", headers: { Accept: "application/json" } });
+      return { connected: response.ok, configured: true, status: response.status };
+    } catch (error) {
+      return { connected: false, configured: true, error: error instanceof Error ? error.message : String(error) };
+    }
+  }
+
+  global.PoulpeGitHubRuntime = {
+    version: 8,
+    queue,
+    sync,
+    compactMission,
+    apiBase,
+    setApiUrl,
+    pending: () => read(PENDING_KEY, {})
+  };
 })(globalThis);
