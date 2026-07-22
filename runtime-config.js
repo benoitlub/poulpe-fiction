@@ -6,7 +6,7 @@
     octopusApi: "",
     publisherApi: "",
     publisherFrontend: "https://github.com/benoitlub/blacklace-publisher-ai",
-    githubRuntime: "https://github.com/benoitlub/octopus-engine/actions/workflows/publisher-autonomous-curation.yml",
+    githubRuntime: "https://github.com/benoitlub/octopus-engine/actions/workflows/gerard-autonomous.yml",
     gardenFeed: "https://raw.githubusercontent.com/benoitlub/octopus-engine/main/garden-feed/latest.json"
   };
   const buildSha = String(global.POULPE_BUILD_SHA || "github").slice(0, 7);
