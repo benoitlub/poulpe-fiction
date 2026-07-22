@@ -29,7 +29,6 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
         missionId: restored.bundle.missionId,
         progress: restored.progress,
         harvest: restored.bundle,
-        tab: "harvest",
       });
     };
 
