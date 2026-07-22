@@ -1,12 +1,10 @@
 (function githubRuntimeModule(global) {
   "use strict";
 
-  const PENDING_KEY = "poulpe-fiction:github-pending:v3";
-  const PROCESSED_KEY = "poulpe-fiction:github-processed:v3";
-  const ISSUE_BASE = "https://github.com/benoitlub/blacklace-publisher-ai/issues/new";
+  const PENDING_KEY = "poulpe-fiction:github-pending:v4";
+  const PROCESSED_KEY = "poulpe-fiction:github-processed:v4";
   const FEED_URL = "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/harvest-feed/latest.json";
   const POLL_MS = 60 * 1000;
-  const MAX_ISSUE_URL = 7000;
 
   const text = (value) => typeof value === "string" ? value.trim() : "";
   const record = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -34,33 +32,15 @@
           requestedCapability: text(metadata.requestedCapability),
           expectedHarvest: cut(metadata.expectedHarvest, 300),
           platform: text(metadata.platform),
-          trigger: "poulpe-fiction-publisher-issue"
+          trigger: "poulpe-fiction-local-cultivation"
         }
       },
       prompt: cut(payload?.prompt, 2600)
     };
   }
 
-  function issueUrl(payload) {
-    const compact = compactMission(payload);
-    const title = `[POULPE] ${text(compact.title) || text(compact.operationId) || "Mission Gérard"}`;
-    const body = JSON.stringify(compact, null, 2);
-    const full = `${ISSUE_BASE}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
-    return { url: full, body, title, compact, tooLong: full.length > MAX_ISSUE_URL };
-  }
-
-  async function copyBody(body) {
-    try {
-      await navigator.clipboard.writeText(body);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function queue(payload, options = {}) {
+  async function queue(payload) {
     const operationId = text(payload?.operationId) || `poulpe_${Date.now()}`;
-    const normalized = { ...payload, operationId };
     const pending = read(PENDING_KEY, {});
     pending[operationId] = {
       operationId,
@@ -68,36 +48,47 @@
       seedId: text(payload?.seedId) || text(payload?.context?.metadata?.seedId),
       title: text(payload?.title),
       queuedAt: new Date().toISOString(),
-      status: "waiting-publisher-submit"
+      status: "cultivating-locally"
     };
     write(PENDING_KEY, pending);
 
-    const issue = issueUrl(normalized);
-    if (options.open !== false) {
-      if (issue.tooLong) {
-        void copyBody(issue.body).then((copied) => {
-          global.open(`${ISSUE_BASE}?title=${encodeURIComponent(issue.title)}`, "_blank", "noopener,noreferrer");
-          try { global.pushChat?.("gerard", copied ? "🐙 Le JSON de mission est copié. Colle-le dans l’issue Publisher puis valide." : "🐙 Ouvre l’issue Publisher et colle le JSON de mission."); } catch (_) {}
-        });
-      } else {
-        global.open(issue.url, "_blank", "noopener,noreferrer");
-      }
-    }
+    try {
+      const draft = global.AdventureDraft?.load?.();
+      if (!draft) throw new Error("Aucune mission active à cultiver.");
+      if (!global.GerardLocalHarvester?.harvest) throw new Error("Le moteur de récolte locale n’est pas prêt.");
 
-    try { global.pushChat?.("gerard", "🐙 La mission est prête pour Publisher. Valide l’issue GitHub : la récolte reviendra automatiquement dans le Garden."); } catch (_) {}
-    return {
-      result: {
-        status: "queued",
-        operationId,
-        parcelId: pending[operationId].parcelId,
-        contextId: pending[operationId].parcelId,
-        summary: "Mission préparée pour Blacklace Publisher via GitHub.",
-        source: "publisher-github-issue",
-        issueUrl: issue.tooLong ? `${ISSUE_BASE}?title=${encodeURIComponent(issue.title)}` : issue.url
-      },
-      bundle: null,
-      context: payload?.context || {}
-    };
+      try {
+        global.GardenStore?.upsertOperation?.({
+          id: operationId,
+          parcelId: pending[operationId].parcelId || "poulpe-fiction",
+          seedId: pending[operationId].seedId || "poulpe-fiction",
+          intent: text(payload?.objective || payload?.intent) || "mission",
+          activity: "Gérard cultive la mission",
+          status: "running",
+          updatedAt: new Date().toISOString()
+        });
+      } catch (_) {}
+
+      const bundle = await global.GerardLocalHarvester.harvest(draft, "cultiver");
+      delete pending[operationId];
+      write(PENDING_KEY, pending);
+      return {
+        result: {
+          status: "completed",
+          operationId: bundle?.operationId || operationId,
+          parcelId: pending[operationId]?.parcelId || text(payload?.parcelId) || text(payload?.context?.id),
+          contextId: text(payload?.parcelId) || text(payload?.context?.id),
+          summary: "Récolte produite et déposée dans le Garden.",
+          source: "gerard-local-harvester"
+        },
+        bundle,
+        context: payload?.context || {}
+      };
+    } catch (error) {
+      pending[operationId] = { ...pending[operationId], status: "blocked", error: error instanceof Error ? error.message : String(error) };
+      write(PENDING_KEY, pending);
+      throw error;
+    }
   }
 
   function artifactFrom(entry) {
@@ -140,15 +131,9 @@
         createdAt: text(entry.completedAt) || new Date().toISOString()
       });
       if (seedId) global.GardenStore?.updateSeed?.(seedId, { status: "harvested", lastOperationId: operationId, lastHarvestAt: text(entry.completedAt) || new Date().toISOString() });
-      global.GardenStore?.upsertOperation?.({ id: operationId, parcelId, seedId: seedId || "poulpe-fiction", intent: text(entry.title) || "publisher-harvest", activity: "Récolte reçue de Blacklace Publisher", status: "ready", updatedAt: new Date().toISOString() });
     } catch (_) { return false; }
     processed[operationId] = { processedAt: new Date().toISOString(), completedAt: entry.completedAt || null };
     write(PROCESSED_KEY, processed);
-    const pending = read(PENDING_KEY, {});
-    delete pending[operationId];
-    write(PENDING_KEY, pending);
-    try { global.pushChat?.("gerard", `🌾 La récolte « ${artifact.title} » est revenue de Publisher et se trouve dans le Garden.`); } catch (_) {}
-    global.dispatchEvent?.(new CustomEvent("poulpe-github-harvest", { detail: entry }));
     return true;
   }
 
@@ -166,7 +151,7 @@
     }
   }
 
-  global.PoulpeGitHubRuntime = { version: 5, queue, sync, issueUrl, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
+  global.PoulpeGitHubRuntime = { version: 6, queue, sync, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
   global.setTimeout(() => void sync(), 1500);
   global.setInterval(() => void sync(), POLL_MS);
   global.addEventListener?.("focus", () => void sync());
