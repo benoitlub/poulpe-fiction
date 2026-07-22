@@ -1,8 +1,8 @@
 (function githubRuntimeModule(global) {
   "use strict";
 
-  const PENDING_KEY = "poulpe-fiction:github-pending:v4";
-  const PROCESSED_KEY = "poulpe-fiction:github-processed:v4";
+  const PENDING_KEY = "poulpe-fiction:github-pending:v5";
+  const PROCESSED_KEY = "poulpe-fiction:github-processed:v5";
   const FEED_URL = "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/harvest-feed/latest.json";
   const POLL_MS = 60 * 1000;
 
@@ -39,13 +39,52 @@
     };
   }
 
+  function missionSeed(payload) {
+    const snapshot = global.GardenStore?.snapshot?.() || {};
+    const seeds = Array.isArray(snapshot.seeds) ? snapshot.seeds : [];
+    const parcelId = text(payload?.parcelId) || text(payload?.context?.id);
+    const metadata = record(payload?.context?.metadata);
+    const explicitSeedId = text(payload?.seedId) || text(metadata.seedId);
+    if (explicitSeedId) {
+      const explicit = seeds.find((seed) => text(seed.id) === explicitSeedId);
+      if (explicit) return explicit;
+    }
+    const inParcel = seeds.filter((seed) => text(seed.parcelId) === parcelId);
+    if (inParcel.length === 1) return inParcel[0];
+    const haystack = `${text(payload?.title)} ${text(payload?.objective)} ${text(payload?.intent)} ${text(payload?.prompt)} ${text(metadata.knowledgeSlug)}`.toLowerCase();
+    return inParcel.find((seed) => [seed.id, seed.title, seed.knowledgeSlug].some((value) => value && haystack.includes(String(value).toLowerCase())))
+      || seeds.find((seed) => [seed.id, seed.title, seed.knowledgeSlug].some((value) => value && haystack.includes(String(value).toLowerCase())))
+      || null;
+  }
+
+  function draftFor(payload, operationId) {
+    const seed = missionSeed(payload);
+    if (!seed) throw new Error("Aucune graine correspondant à la parcelle choisie.");
+    try { global.GardenStore?.activateSeed?.(seed.parcelId, seed.id); } catch (_) {}
+    const draft = global.AdventureDraft?.create?.({
+      id: `adventure_${operationId}`,
+      status: "validated",
+      curiosity: { id: seed.id, title: seed.title || seed.id },
+      objective: text(payload?.objective || payload?.intent) || text(seed.objective || seed.content),
+      bag: Array.isArray(payload?.requiredCapabilities) ? payload.requiredCapabilities.map(String) : [],
+      picnic: ["Publisher", text(payload?.context?.metadata?.knowledgeSlug)].filter(Boolean),
+      grafts: [],
+      limits: ["Aucune action externe sans validation humaine"],
+      note: `Mission créée depuis Cultiver pour la parcelle ${seed.parcelId}.`,
+      gardenerValidation: { validatedAt: new Date().toISOString(), note: "Validation explicite par le bouton Cultiver." }
+    });
+    if (!draft) throw new Error("Impossible de créer la mission de culture.");
+    return global.AdventureDraft?.save?.(draft) || draft;
+  }
+
   async function queue(payload) {
     const operationId = text(payload?.operationId) || `poulpe_${Date.now()}`;
+    const seed = missionSeed(payload);
     const pending = read(PENDING_KEY, {});
     pending[operationId] = {
       operationId,
       parcelId: text(payload?.parcelId) || text(payload?.context?.id),
-      seedId: text(payload?.seedId) || text(payload?.context?.metadata?.seedId),
+      seedId: text(seed?.id),
       title: text(payload?.title),
       queuedAt: new Date().toISOString(),
       status: "cultivating-locally"
@@ -53,32 +92,32 @@
     write(PENDING_KEY, pending);
 
     try {
-      const draft = global.AdventureDraft?.load?.();
-      if (!draft) throw new Error("Aucune mission active à cultiver.");
+      const draft = draftFor(payload, operationId);
       if (!global.GerardLocalHarvester?.harvest) throw new Error("Le moteur de récolte locale n’est pas prêt.");
 
       try {
         global.GardenStore?.upsertOperation?.({
           id: operationId,
           parcelId: pending[operationId].parcelId || "poulpe-fiction",
-          seedId: pending[operationId].seedId || "poulpe-fiction",
+          seedId: pending[operationId].seedId || draft.curiosity.id,
           intent: text(payload?.objective || payload?.intent) || "mission",
-          activity: "Gérard cultive la mission",
+          activity: `Gérard cultive ${draft.curiosity.title || draft.curiosity.id}`,
           status: "running",
           updatedAt: new Date().toISOString()
         });
       } catch (_) {}
 
       const bundle = await global.GerardLocalHarvester.harvest(draft, "cultiver");
+      const parcelId = pending[operationId].parcelId;
       delete pending[operationId];
       write(PENDING_KEY, pending);
       return {
         result: {
           status: "completed",
           operationId: bundle?.operationId || operationId,
-          parcelId: pending[operationId]?.parcelId || text(payload?.parcelId) || text(payload?.context?.id),
-          contextId: text(payload?.parcelId) || text(payload?.context?.id),
-          summary: "Récolte produite et déposée dans le Garden.",
+          parcelId,
+          contextId: parcelId,
+          summary: `Récolte produite pour ${draft.curiosity.title || draft.curiosity.id}.`,
           source: "gerard-local-harvester"
         },
         bundle,
@@ -151,7 +190,7 @@
     }
   }
 
-  global.PoulpeGitHubRuntime = { version: 6, queue, sync, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
+  global.PoulpeGitHubRuntime = { version: 7, queue, sync, compactMission, feedUrl: FEED_URL, pending: () => read(PENDING_KEY, {}) };
   global.setTimeout(() => void sync(), 1500);
   global.setInterval(() => void sync(), POLL_MS);
   global.addEventListener?.("focus", () => void sync());
