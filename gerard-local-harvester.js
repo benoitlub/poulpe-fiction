@@ -1,7 +1,7 @@
 (function gerardLocalHarvesterModule(global) {
   "use strict";
 
-  const STATE_KEY = "poulpe-fiction:gerard-local-harvester:v1";
+  const STATE_KEY = "poulpe-fiction:gerard-local-harvester:v2";
   const now = () => new Date().toISOString();
   const text = (value) => typeof value === "string" ? value.trim() : "";
 
@@ -28,13 +28,16 @@
     return global.ProductKnowledge?.get?.(slug) || global.ProductKnowledge?.get?.(seed?.id) || null;
   }
 
-  function harvestText(seed, parcel, pack) {
-    const objective = text(seed?.objective || seed?.content);
+  function harvestText(seed, parcel, pack, draft) {
+    const objective = text(draft?.objective) || text(seed?.objective || seed?.content);
     if (pack) {
       const angles = Array.isArray(pack.sampleAngles) ? pack.sampleAngles.slice(0, 3) : [];
       const audiences = Array.isArray(pack.audienceHypotheses) ? pack.audienceHypotheses.slice(0, 3) : [];
       return [
-        `# Récolte locale · ${pack.title || seed.title}`,
+        `# Récolte · ${pack.title || seed.title}`,
+        "",
+        `## Mission traitée`,
+        objective || `Cultiver « ${seed?.title || seed?.id} »`,
         "",
         `## Ce que Gérard a appris`,
         `Le noyau commercial le plus fidèle est : ${pack.campaignDirection || pack.synopsis || objective}`,
@@ -51,13 +54,13 @@
     }
 
     return [
-      `# Récolte locale · ${seed?.title || "Graine"}`,
+      `# Récolte · ${seed?.title || "Graine"}`,
       "",
-      `## Observation`,
+      `## Mission traitée`,
       objective || `Gérard a inspecté la graine « ${seed?.title || seed?.id} » dans ${parcel?.name || seed?.parcelId || "la parcelle"}.`,
       "",
       `## Apprentissage`,
-      `La graine manque encore d’un Knowledge Pack vérifié. Elle reste néanmoins enregistrée, visible et prête à être enrichie sans bloquer le Garden.`,
+      `La graine manque encore d’un Knowledge Pack vérifié. Elle reste enregistrée, visible et prête à être enrichie sans bloquer le Garden.`,
       "",
       `## Prochaine action interne`,
       `Rassembler les faits vérifiés disponibles dans la parcelle, puis proposer un premier livrable limité à ces faits.`,
@@ -72,23 +75,20 @@
     const { seed, parcel } = activeSeed(draft);
     if (!seed) throw new Error("Aucune graine active à récolter.");
 
-    const existing = global.AdventureReturnProcessor.latestForDraft?.(draft.id);
-    if (existing?.status === "ready" && existing?.harvests?.length) return existing;
-
     const pack = productPack(seed, parcel);
-    const content = harvestText(seed, parcel, pack);
+    const content = harvestText(seed, parcel, pack, draft);
     const operationId = `local_harvest_${seed.id}_${Date.now()}`;
     const mission = {
       id: operationId,
       operationId,
       parcelId: seed.parcelId,
       status: "completed",
-      summary: `Récolte locale produite pour ${seed.title || seed.id}`,
+      summary: `Récolte produite pour ${seed.title || seed.id}`,
       output: {
         text: `${content}\n\n<!-- HARVEST_COMPLETE -->`,
         harvests: [{
           id: `harvest_${operationId}`,
-          title: pack ? `Apprentissages et angles · ${pack.title || seed.title}` : `Observation locale · ${seed.title || seed.id}`,
+          title: pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
           description: content.slice(0, 260),
           artifactType: "text/markdown",
           artifact: content,
@@ -117,7 +117,7 @@
       });
     } catch (_) {}
     save({ status: "ready", seedId: seed.id, draftId: draft.id, operationId, completedAt: now() });
-    try { global.pushChat?.("gerard", `🌾 J’ai produit une récolte locale pour « ${seed.title || seed.id} ». Elle est dans le Garden.`); } catch (_) {}
+    try { global.pushChat?.("gerard", `🌾 J’ai produit une nouvelle récolte pour « ${seed.title || seed.id} ». Elle est dans le Garden.`); } catch (_) {}
     try { global.GardenShell?.mount?.(); } catch (_) {}
     try { if (typeof global.render === "function") global.render(); } catch (_) {}
     return bundle;
