@@ -51,45 +51,65 @@ function editorialSource(harvest: UnknownRecord, payload: UnknownRecord, result:
   };
 }
 
-export function restoreLatestGardenHarvest(): { bundle: HarvestBundle; progress: MissionProgress } | null {
-  const snapshot = window.GardenStore?.snapshot?.() ?? {};
-  const harvest = [...(snapshot.harvests ?? [])].map(record).sort((a, b) => dateValue(b) - dateValue(a))[0];
-  if (!harvest) return null;
-
+function bundleFromGardenHarvest(harvest: UnknownRecord, snapshot: GardenSnapshot): HarvestBundle | null {
   const payload = record(harvest.payload);
   const result = record(payload.result);
   const output = record(result.output);
   const artifacts = Array.isArray(output.artifacts) ? output.artifacts.map(record) : [];
   const artifact = artifacts[0] ?? record(result.artifact);
-  const content = text(harvest.content) || text(artifact.content) || text(artifact.artifact) || text(output.text) || text(result.content);
+  const content = text(harvest.content) || text(harvest.latestContent) || text(harvest.originalContent) || text(artifact.content) || text(artifact.artifact) || text(output.text) || text(result.content);
   if (!content) return null;
 
   const missionId = text(harvest.operationId) || text(harvest.missionId) || text(harvest.id);
+  if (!missionId) return null;
   const parcelId = text(harvest.parcelId) || "poulpe-fiction";
-  const parcel = (snapshot.parcels ?? []).map(record).find((item) => text(item.id) === parcelId) ?? {};
   const title = text(harvest.title) || text(artifact.title) || "Récolte de Gérard";
   const createdAt = text(harvest.createdAt) || text(harvest.completedAt) || new Date().toISOString();
 
   return {
-    bundle: {
-      missionId,
-      createdAt,
-      intent: {
-        parcelId,
-        goal: text(payload.title) || text(payload.objective) || title,
-      },
-      harvest: {
-        kind: "landing",
-        status: "ready-to-use",
-        title,
-        previewUrl: "",
-        copy: content,
-        html: htmlDocument(title, content),
-      },
-      editorialSource: editorialSource(harvest, payload, result),
+    missionId,
+    createdAt,
+    intent: {
+      parcelId,
+      goal: text(payload.title) || text(payload.objective) || title,
     },
+    harvest: {
+      kind: "landing",
+      status: "ready-to-use",
+      title,
+      previewUrl: "",
+      copy: content,
+      html: htmlDocument(title, content),
+    },
+    editorialSource: editorialSource(harvest, payload, result),
+  };
+}
+
+export function restoreAllGardenHarvests(): HarvestBundle[] {
+  const snapshot = window.GardenStore?.snapshot?.() ?? {};
+  const seen = new Set<string>();
+  return [...(snapshot.harvests ?? [])]
+    .map(record)
+    .sort((a, b) => dateValue(b) - dateValue(a))
+    .map((harvest) => bundleFromGardenHarvest(harvest, snapshot))
+    .filter((bundle): bundle is HarvestBundle => Boolean(bundle))
+    .filter((bundle) => {
+      if (seen.has(bundle.missionId)) return false;
+      seen.add(bundle.missionId);
+      return true;
+    });
+}
+
+export function restoreLatestGardenHarvest(): { bundle: HarvestBundle; progress: MissionProgress } | null {
+  const snapshot = window.GardenStore?.snapshot?.() ?? {};
+  const bundle = restoreAllGardenHarvests()[0];
+  if (!bundle) return null;
+  const parcel = (snapshot.parcels ?? []).map(record).find((item) => text(item.id) === bundle.intent.parcelId) ?? {};
+
+  return {
+    bundle,
     progress: {
-      missionId,
+      missionId: bundle.missionId,
       state: "harvest-ready",
       step: "done",
       label: "Gérard revient avec la récolte",
