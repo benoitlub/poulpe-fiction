@@ -44,7 +44,9 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const clientContext = usePoulpeStore((state) => state.clientContext);
   const parcels = usePoulpeStore((state) => state.parcels);
   const answers = usePoulpeStore((state) => state.answers);
+  const missionId = usePoulpeStore((state) => state.missionId);
   const progress = usePoulpeStore((state) => state.progress);
+  const harvest = usePoulpeStore((state) => state.harvest);
 
   useEffect(() => {
     let alive = true;
@@ -63,6 +65,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const selectedParcel = useMemo(() => parcels.find((parcel) => parcel.id === answers.parcelId), [parcels, answers.parcelId]);
   const runtimeQuestion = progress?.state === "needs-input" ? progress.question : undefined;
   const ready = Boolean(answers.parcelId && answers.goal?.trim());
+  const activeMission = Boolean(missionId && progress && !progress.finished);
 
   const setParcel = (parcelId: string) => {
     poulpeStore.setAnswer("parcelId", parcelId);
@@ -107,6 +110,12 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
         <p className="pf-q-hint">Une seule vue : le projet, le résultat attendu et les contraintes utiles.</p>
         {clientContext ? <div className="pf-client-card"><strong>{clientContext.displayName}</strong><span>{clientContext.activity}</span></div> : null}
       </section>
+
+      {(activeMission || harvest) ? <section className="pf-card pf-now-card">
+        <div className="pf-section-heading"><span>●</span><div><strong>État réel</strong><small>Ce que Gérard a actuellement en main</small></div></div>
+        {activeMission && progress ? <div className="pf-now-row"><div><b>{progress.label}</b><small>{progress.description || `Mission en cours — ${Math.round(progress.progress)} %`}</small></div><button type="button" className="pf-btn pf-btn-soft" onClick={() => poulpeStore.setTab("hublot")}>Voir le travail</button></div> : null}
+        {harvest ? <div className="pf-now-row"><div><b>{harvest.harvest.title}</b><small>Dernière récolte disponible</small></div><button type="button" className="pf-btn pf-btn-soft" onClick={() => poulpeStore.setTab("harvest")}>Ouvrir</button></div> : null}
+      </section> : null}
 
       <section className="pf-card">
         <div className="pf-section-heading"><span>1</span><div><strong>Projet</strong><small>La parcelle concernée</small></div></div>
