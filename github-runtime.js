@@ -3,27 +3,14 @@
 
   const PENDING_KEY = "poulpe-fiction:publisher-pending:v1";
   const PROCESSED_KEY = "poulpe-fiction:publisher-processed:v1";
-  const API_KEY = "poulpe-fiction:publisher-api-url";
+  const HARVEST_FEED = "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/harvests/latest.json";
+  const ACTIONS_URL = "https://github.com/benoitlub/blacklace-publisher-ai/actions/workflows/publisher-harvest.yml";
 
   const text = (value) => typeof value === "string" ? value.trim() : "";
   const record = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} };
   const cut = (value, limit) => text(value).slice(0, limit);
-
-  function apiBase() {
-    const fromGlobal = text(global.PUBLISHER_API_URL);
-    const fromStorage = text(localStorage.getItem(API_KEY));
-    const fromMeta = text(document.querySelector('meta[name="publisher-api-url"]')?.content);
-    return (fromGlobal || fromStorage || fromMeta).replace(/\/+$/, "");
-  }
-
-  function setApiUrl(url) {
-    const normalized = text(url).replace(/\/+$/, "");
-    if (normalized) localStorage.setItem(API_KEY, normalized);
-    else localStorage.removeItem(API_KEY);
-    return normalized;
-  }
 
   function compactMission(payload) {
     const context = record(payload?.context);
@@ -43,7 +30,7 @@
           ...metadata,
           parcelId: text(metadata.parcelId) || text(payload?.parcelId) || text(context.id),
           seedId: text(metadata.seedId) || text(payload?.seedId),
-          trigger: "poulpe-fiction-direct-publisher"
+          trigger: "poulpe-fiction-github-actions"
         }
       },
       prompt: cut(payload?.prompt, 4000)
@@ -95,17 +82,14 @@
     processed[operationId] = { processedAt: new Date().toISOString(), completedAt: entry.completedAt || null };
     write(PROCESSED_KEY, processed);
     const pending = read(PENDING_KEY, {});
-    delete pending[operationId];
+    for (const id of Object.keys(pending)) {
+      if (pending[id]?.parcelId === parcelId) delete pending[id];
+    }
     write(PENDING_KEY, pending);
     return true;
   }
 
   async function queue(payload) {
-    const endpoint = apiBase();
-    if (!endpoint) {
-      throw new Error("Publisher n’est pas configuré : renseigne son URL d’API dans le Local technique.");
-    }
-
     const mission = compactMission(payload);
     const pending = read(PENDING_KEY, {});
     pending[mission.operationId] = {
@@ -113,8 +97,11 @@
       parcelId: mission.parcelId,
       seedId: mission.seedId,
       title: mission.title,
+      objective: mission.objective,
+      context: mission.prompt || "",
       queuedAt: new Date().toISOString(),
-      status: "waiting-publisher"
+      status: "waiting-github-action",
+      actionsUrl: ACTIONS_URL
     };
     write(PENDING_KEY, pending);
 
@@ -123,55 +110,48 @@
       parcelId: mission.parcelId,
       seedId: mission.seedId || "poulpe-fiction",
       intent: mission.objective || mission.prompt || "mission",
-      activity: `Publisher prépare ${mission.title}`,
-      status: "running",
+      activity: "Mission prête pour Publisher sur GitHub",
+      status: "waiting-approval",
       updatedAt: new Date().toISOString()
     });
 
-    try {
-      const response = await fetch(`${endpoint}/api/poulpe/harvest`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(mission)
-      });
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(text(body?.error) || `Publisher a répondu ${response.status}.`);
-      if (!ingest(body)) throw new Error("Publisher a répondu sans récolte exploitable.");
-      return { result: body, bundle: body, context: mission.context };
-    } catch (error) {
-      pending[mission.operationId] = { ...pending[mission.operationId], status: "blocked", error: error instanceof Error ? error.message : String(error) };
-      write(PENDING_KEY, pending);
-      global.GardenStore?.upsertOperation?.({
-        id: mission.operationId,
+    global.open?.(ACTIONS_URL, "_blank", "noopener,noreferrer");
+    return {
+      result: {
+        operationId: mission.operationId,
         parcelId: mission.parcelId,
-        seedId: mission.seedId || "poulpe-fiction",
-        intent: mission.objective || mission.prompt || "mission",
-        activity: "Publisher indisponible",
-        status: "blocked",
-        updatedAt: new Date().toISOString()
-      });
-      throw error;
-    }
+        seedId: mission.seedId || null,
+        title: mission.title,
+        status: "waiting-approval",
+        source: "github-actions",
+        actionsUrl: ACTIONS_URL,
+        message: "Lance le workflow Publisher Harvest. Poulpe récupérera automatiquement la récolte publiée."
+      },
+      bundle: mission,
+      context: mission.context
+    };
   }
 
   async function sync() {
-    const endpoint = apiBase();
-    if (!endpoint) return { connected: false, configured: false };
     try {
-      const response = await fetch(`${endpoint}/health`, { cache: "no-store", headers: { Accept: "application/json" } });
-      return { connected: response.ok, configured: true, status: response.status };
+      const response = await fetch(`${HARVEST_FEED}?t=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (response.status === 404) return { connected: true, configured: true, harvested: false, empty: true, source: "github-actions" };
+      if (!response.ok) return { connected: false, configured: true, status: response.status, source: "github-actions" };
+      const entry = await response.json();
+      return { connected: true, configured: true, harvested: ingest(entry), entry, source: "github-actions" };
     } catch (error) {
-      return { connected: false, configured: true, error: error instanceof Error ? error.message : String(error) };
+      return { connected: false, configured: true, source: "github-actions", error: error instanceof Error ? error.message : String(error) };
     }
   }
 
   global.PoulpeGitHubRuntime = {
-    version: 8,
+    version: 9,
     queue,
     sync,
     compactMission,
-    apiBase,
-    setApiUrl,
+    apiBase: () => HARVEST_FEED,
+    setApiUrl: () => HARVEST_FEED,
+    actionsUrl: ACTIONS_URL,
     pending: () => read(PENDING_KEY, {})
   };
 })(globalThis);
