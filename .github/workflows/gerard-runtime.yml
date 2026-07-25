@@ -1,0 +1,135 @@
+name: Gerard runtime
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: gerard-runtime
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OCTOPUS_URL: http://127.0.0.1:3000
+      PUBLISHER_URL: http://127.0.0.1:3100
+      PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      AI_MODEL: ${{ secrets.AI_MODEL }}
+      AI_PROVIDER: mistral
+    steps:
+      - name: Check runtime secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$MISTRAL_API_KEY" || { echo "Missing MISTRAL_API_KEY"; exit 1; }
+          test -n "$DATABASE_URL" || { echo "Missing DATABASE_URL"; exit 1; }
+
+      - name: Checkout Poulpe Fiction
+        uses: actions/checkout@v4
+        with:
+          path: poulpe-fiction
+
+      - name: Checkout Octopus Engine
+        uses: actions/checkout@v4
+        with:
+          repository: benoitlub/octopus-engine
+          path: octopus
+
+      - name: Checkout Publisher
+        uses: actions/checkout@v4
+        with:
+          repository: benoitlub/blacklace-publisher-ai
+          path: publisher
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install and build Octopus Engine
+        working-directory: octopus
+        run: |
+          npm install
+          npm run build
+
+      - name: Install Publisher
+        working-directory: publisher
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Prepare Publisher database
+        working-directory: publisher
+        run: pnpm --filter @workspace/db run push
+
+      - name: Start Octopus Engine locally
+        working-directory: octopus
+        run: |
+          nohup env PORT=3000 NODE_ENV=production npm start > ../octopus.log 2>&1 &
+          echo $! > ../octopus.pid
+
+      - name: Start Publisher locally
+        working-directory: publisher
+        run: |
+          nohup env PORT=3100 NODE_ENV=production DATABASE_URL="$DATABASE_URL" pnpm --filter @workspace/api-server run start > ../publisher.log 2>&1 &
+          echo $! > ../publisher.pid
+
+      - name: Wait for local services
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            OCTOPUS_UP=false
+            PUBLISHER_UP=false
+            curl --fail --silent "$OCTOPUS_URL/health" >/dev/null && OCTOPUS_UP=true || true
+            curl --fail --silent "$PUBLISHER_URL/api/healthz" >/dev/null && PUBLISHER_UP=true || true
+            if [ "$OCTOPUS_UP" = true ] && [ "$PUBLISHER_UP" = true ]; then exit 0; fi
+            if ! kill -0 "$(cat octopus.pid)" 2>/dev/null; then cat octopus.log || true; exit 1; fi
+            if ! kill -0 "$(cat publisher.pid)" 2>/dev/null; then cat publisher.log || true; exit 1; fi
+            sleep 2
+          done
+          cat octopus.log || true
+          cat publisher.log || true
+          exit 1
+
+      - name: Register Publisher adapter with Octopus
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            -X POST "$OCTOPUS_URL/adapters/register" \
+            -H "Content-Type: application/json" \
+            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["knowledge.search","copy.generate","content.article.write","content.social.write","landing.generate"],executeUrl:$executeUrl}')"
+
+      - name: Run Gerard cycle
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-cycle.mjs
+
+      - name: Commit updated Gerard state
+        working-directory: poulpe-fiction
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain garden/gerard-state.json)" ]; then
+            git config user.name "gerard-runtime[bot]"
+            git config user.email "gerard-runtime@users.noreply.github.com"
+            git add garden/gerard-state.json
+            git commit -m "chore(gerard): update autonomous cycle state"
+            git push
+          else
+            echo "Aucun changement d'état à committer."
+          fi
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-runtime-logs
+          path: |
+            octopus.log
+            publisher.log
+          retention-days: 7
