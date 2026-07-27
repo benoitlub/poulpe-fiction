@@ -61,7 +61,7 @@ jobs:
         working-directory: publisher
         run: |
           corepack enable
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Prepare Publisher database
         working-directory: publisher
