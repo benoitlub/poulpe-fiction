@@ -13,6 +13,8 @@ jobs:
   cycle:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
     env:
       OCTOPUS_URL: http://127.0.0.1:3000
       PUBLISHER_URL: http://127.0.0.1:3100
