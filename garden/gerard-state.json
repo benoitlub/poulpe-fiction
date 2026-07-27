@@ -1,0 +1,118 @@
+{
+  "history": [
+    {
+      "at": "2026-07-27T10:13:07.848Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1785147187790",
+      "result": "ok"
+    }
+  ],
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-07-27T10:13:07.848Z",
+  "lastResult": {
+    "status": "ok",
+    "httpStatus": 200,
+    "payload": {
+      "operationId": "gerard-cultivate-1785147187790",
+      "status": "failed",
+      "summary": "Adapter execution failed (404).",
+      "output": {},
+      "missionId": "gerard-cultivate-1785147187790",
+      "contextId": "poulpe-fiction",
+      "adapterId": "publisher",
+      "lifecycle": {
+        "missionId": "gerard-cultivate-1785147187790",
+        "state": "failed",
+        "createdAt": "2026-07-27T10:13:07.825Z",
+        "updatedAt": "2026-07-27T10:13:07.839Z",
+        "transitions": [
+          {
+            "from": null,
+            "to": "received",
+            "at": "2026-07-27T10:13:07.825Z",
+            "metadata": {
+              "contextId": "poulpe-fiction",
+              "requiredCapabilities": [
+                "content.article.write"
+              ]
+            }
+          },
+          {
+            "from": "received",
+            "to": "recorded",
+            "at": "2026-07-27T10:13:07.825Z",
+            "reason": "Mission recorded.",
+            "metadata": {
+              "operationId": "gerard-cultivate-1785147187790",
+              "missionId": "gerard-cultivate-1785147187790",
+              "contextId": "poulpe-fiction",
+              "requiredCapabilities": [
+                "content.article.write"
+              ]
+            }
+          },
+          {
+            "from": "recorded",
+            "to": "planned",
+            "at": "2026-07-27T10:13:07.825Z",
+            "reason": "Capabilities resolved.",
+            "metadata": {
+              "operationId": "gerard-cultivate-1785147187790",
+              "missionId": "gerard-cultivate-1785147187790",
+              "contextId": "poulpe-fiction",
+              "requiredCapabilities": [
+                "content.article.write"
+              ]
+            }
+          },
+          {
+            "from": "planned",
+            "to": "waiting-executor",
+            "at": "2026-07-27T10:13:07.825Z",
+            "reason": "Compatible adapter selected.",
+            "metadata": {
+              "operationId": "gerard-cultivate-1785147187790",
+              "missionId": "gerard-cultivate-1785147187790",
+              "contextId": "poulpe-fiction",
+              "requiredCapabilities": [
+                "content.article.write"
+              ],
+              "executorId": "publisher"
+            }
+          },
+          {
+            "from": "waiting-executor",
+            "to": "executing",
+            "at": "2026-07-27T10:13:07.825Z",
+            "reason": "External adapter execution started.",
+            "metadata": {
+              "operationId": "gerard-cultivate-1785147187790",
+              "missionId": "gerard-cultivate-1785147187790",
+              "contextId": "poulpe-fiction",
+              "requiredCapabilities": [
+                "content.article.write"
+              ],
+              "executorId": "publisher"
+            }
+          },
+          {
+            "from": "executing",
+            "to": "failed",
+            "at": "2026-07-27T10:13:07.839Z",
+            "reason": "Adapter execution failed (404).",
+            "metadata": {
+              "operationId": "gerard-cultivate-1785147187790",
+              "missionId": "gerard-cultivate-1785147187790",
+              "contextId": "poulpe-fiction",
+              "requiredCapabilities": [
+                "content.article.write"
+              ],
+              "executorId": "publisher",
+              "output": {}
+            }
+          }
+        ]
+      }
+    }
+  }
+}
