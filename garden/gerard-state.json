@@ -11,42 +11,65 @@
       "mode": "cultivate",
       "operationId": "gerard-cultivate-1785147509344",
       "result": "ok"
+    },
+    {
+      "at": "2026-07-27T10:44:45.610Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1785149079512",
+      "result": "ok"
     }
   ],
   "lastMode": "cultivate",
-  "lastRunAt": "2026-07-27T10:18:29.414Z",
+  "lastRunAt": "2026-07-27T10:44:45.610Z",
   "lastResult": {
     "status": "ok",
     "httpStatus": 200,
     "payload": {
-      "operationId": "gerard-cultivate-1785147509344",
-      "status": "waiting-authorization",
-      "summary": "Publisher ne trouve pas de Knowledge Package Notion vérifié pour cette parcelle.",
+      "operationId": "gerard-cultivate-1785149079512",
+      "status": "completed",
+      "summary": "content.article.write exécuté à partir du Knowledge Package poulpe-fiction.",
       "output": {
-        "capability": "knowledge.search",
-        "diagnostics": {
-          "connected": false,
-          "error": "NOTION_API_KEY et NOTION_DATABASE_ID (ou NOTION_PAGE_ID) ne sont pas configurés.",
-          "totalItems": 0,
-          "matchedItems": 0,
-          "discoveredItems": 0,
-          "digestedItems": 0
+        "capability": "content.article.write",
+        "title": "{",
+        "content": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait",
+        "text": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait",
+        "artifacts": [
+          {
+            "id": "publisher-gerard-cultivate-1785149079512",
+            "title": "{",
+            "type": "markdown",
+            "artifactType": "markdown",
+            "mimeType": "text/markdown; charset=utf-8",
+            "content": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait",
+            "artifact": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait"
+          }
+        ],
+        "hashtags": "",
+        "provider": "mistral",
+        "model": "mistral-small-latest",
+        "knowledgeSource": "notion",
+        "knowledgePackage": {
+          "slug": "poulpe-fiction",
+          "source": "notion",
+          "verified": true,
+          "itemCount": 1
         },
-        "adapterStatus": "needs-input"
+        "isMock": false,
+        "fallbackReason": "Le fournisseur n'a pas respecté le format JSON ; son texte a été conservé."
       },
-      "missionId": "gerard-cultivate-1785147509344",
+      "missionId": "gerard-cultivate-1785149079512",
       "contextId": "poulpe-fiction",
       "adapterId": "publisher",
       "lifecycle": {
-        "missionId": "gerard-cultivate-1785147509344",
-        "state": "waiting-authorization",
-        "createdAt": "2026-07-27T10:18:29.386Z",
-        "updatedAt": "2026-07-27T10:18:29.406Z",
+        "missionId": "gerard-cultivate-1785149079512",
+        "state": "completed",
+        "createdAt": "2026-07-27T10:44:39.547Z",
+        "updatedAt": "2026-07-27T10:44:45.603Z",
         "transitions": [
           {
             "from": null,
             "to": "received",
-            "at": "2026-07-27T10:18:29.386Z",
+            "at": "2026-07-27T10:44:39.547Z",
             "metadata": {
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
@@ -57,11 +80,11 @@
           {
             "from": "received",
             "to": "recorded",
-            "at": "2026-07-27T10:18:29.389Z",
+            "at": "2026-07-27T10:44:39.548Z",
             "reason": "Mission recorded.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147509344",
-              "missionId": "gerard-cultivate-1785147509344",
+              "operationId": "gerard-cultivate-1785149079512",
+              "missionId": "gerard-cultivate-1785149079512",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -71,11 +94,11 @@
           {
             "from": "recorded",
             "to": "planned",
-            "at": "2026-07-27T10:18:29.389Z",
+            "at": "2026-07-27T10:44:39.548Z",
             "reason": "Capabilities resolved.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147509344",
-              "missionId": "gerard-cultivate-1785147509344",
+              "operationId": "gerard-cultivate-1785149079512",
+              "missionId": "gerard-cultivate-1785149079512",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -85,11 +108,11 @@
           {
             "from": "planned",
             "to": "waiting-executor",
-            "at": "2026-07-27T10:18:29.389Z",
+            "at": "2026-07-27T10:44:39.548Z",
             "reason": "Compatible adapter selected.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147509344",
-              "missionId": "gerard-cultivate-1785147509344",
+              "operationId": "gerard-cultivate-1785149079512",
+              "missionId": "gerard-cultivate-1785149079512",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -100,11 +123,11 @@
           {
             "from": "waiting-executor",
             "to": "executing",
-            "at": "2026-07-27T10:18:29.389Z",
+            "at": "2026-07-27T10:44:39.548Z",
             "reason": "External adapter execution started.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147509344",
-              "missionId": "gerard-cultivate-1785147509344",
+              "operationId": "gerard-cultivate-1785149079512",
+              "missionId": "gerard-cultivate-1785149079512",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -114,28 +137,45 @@
           },
           {
             "from": "executing",
-            "to": "waiting-authorization",
-            "at": "2026-07-27T10:18:29.406Z",
-            "reason": "Publisher ne trouve pas de Knowledge Package Notion vérifié pour cette parcelle.",
+            "to": "completed",
+            "at": "2026-07-27T10:44:45.603Z",
+            "reason": "content.article.write exécuté à partir du Knowledge Package poulpe-fiction.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147509344",
-              "missionId": "gerard-cultivate-1785147509344",
+              "operationId": "gerard-cultivate-1785149079512",
+              "missionId": "gerard-cultivate-1785149079512",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
               ],
               "executorId": "publisher",
               "output": {
-                "capability": "knowledge.search",
-                "diagnostics": {
-                  "connected": false,
-                  "error": "NOTION_API_KEY et NOTION_DATABASE_ID (ou NOTION_PAGE_ID) ne sont pas configurés.",
-                  "totalItems": 0,
-                  "matchedItems": 0,
-                  "discoveredItems": 0,
-                  "digestedItems": 0
+                "capability": "content.article.write",
+                "title": "{",
+                "content": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait",
+                "text": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait",
+                "artifacts": [
+                  {
+                    "id": "publisher-gerard-cultivate-1785149079512",
+                    "title": "{",
+                    "type": "markdown",
+                    "artifactType": "markdown",
+                    "mimeType": "text/markdown; charset=utf-8",
+                    "content": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait",
+                    "artifact": "{\n\"title\": \"Processus d'avancement d'une graine vers une récolte exploitable\",\n\"content\": \"Dans l'écosystème Poulpe-Fiction, une graine (Seed) représente une curiosité, une hypothèse ou une exploration initiale qui peut évoluer vers une récolte exploitable (Harvest) sous certaines conditions. Ce processus s'appuie sur les boucles d'autonomie du Poulpe et les mécanismes d'orchestration d'Octopus Engine, sans intervention directe du jardinier (humain) sauf validation proportionnée au risque.\\n\\n**Étapes clés pour faire avancer une graine vers une récolte :**\\n\\n1. **Ingestion et maturation**\\n   - La graine est initialement une *curiosité* ou une *observation* enregistrée dans Publisher (via Poulpe Fiction ou Garden).\\n   - Le Poulpe l'ingère comme une *Seed* et la fait mûrir via des boucles locales : comparaison avec les souvenirs existants, simulation de scénarios, ou jeu exploratoire.\\n   - Aucune action sensible n'est engagée à ce stade (ex : publication, contact externe).\\n\\n2. **Validation par Guardian**\\n   - Si la graine implique une action sensible (ex : publication, modification de données), Guardian évalue le risque et exige une autorisation adaptée (humaine ou automatisée selon la politique).\\n   - Les graines sans risque (ex : apprentissage interne, préparation de Harvest) progressent automatiquement.\\n\\n3. **Transformation en Harvest**\\n   - Une graine devient une *récolte exploitable* (Harvest) lorsqu'elle remplit l'un des critères suivants :\\n     - **Résultat mesurable** : La graine a produit une trace traçable (ex : carnet de bord, comparaison de données, simulation validée).\\n     - **Curiosité mûrie** : Le Poulpe a identifié un pattern ou une question récurrente nécessitant une exposition (via Garden ou Poulpe Fiction).\\n     - **Préparation d'aventure** : La graine est intégrée à un *Workflow* de Poulpe Fiction pour une simulation ou une exploration future.\\n\\n4. **Retour au Garden**\\n   - Toute avancée est documentée dans Publisher sous forme de *Harvest*, *apprentissage*, ou *curiosité* visible dans Garden.\\n   - Le jardinier (humain) peut consulter ces traces via l'interface, mais leur existence ne dépend pas de son ouverture.\\n\\n**Exemple concret (sans inventer de détails) :**\\n- Une graine nommée *\\\"Analyse des signaux faibles dans les données X\\\"* pourrait mûrir en Harvest après que le Poulpe ait"
+                  }
+                ],
+                "hashtags": "",
+                "provider": "mistral",
+                "model": "mistral-small-latest",
+                "knowledgeSource": "notion",
+                "knowledgePackage": {
+                  "slug": "poulpe-fiction",
+                  "source": "notion",
+                  "verified": true,
+                  "itemCount": 1
                 },
-                "adapterStatus": "needs-input"
+                "isMock": false,
+                "fallbackReason": "Le fournisseur n'a pas respecté le format JSON ; son texte a été conservé."
               }
             }
           }
