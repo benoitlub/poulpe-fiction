@@ -5,31 +5,48 @@
       "mode": "cultivate",
       "operationId": "gerard-cultivate-1785147187790",
       "result": "ok"
+    },
+    {
+      "at": "2026-07-27T10:18:29.414Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1785147509344",
+      "result": "ok"
     }
   ],
   "lastMode": "cultivate",
-  "lastRunAt": "2026-07-27T10:13:07.848Z",
+  "lastRunAt": "2026-07-27T10:18:29.414Z",
   "lastResult": {
     "status": "ok",
     "httpStatus": 200,
     "payload": {
-      "operationId": "gerard-cultivate-1785147187790",
-      "status": "failed",
-      "summary": "Adapter execution failed (404).",
-      "output": {},
-      "missionId": "gerard-cultivate-1785147187790",
+      "operationId": "gerard-cultivate-1785147509344",
+      "status": "waiting-authorization",
+      "summary": "Publisher ne trouve pas de Knowledge Package Notion vérifié pour cette parcelle.",
+      "output": {
+        "capability": "knowledge.search",
+        "diagnostics": {
+          "connected": false,
+          "error": "NOTION_API_KEY et NOTION_DATABASE_ID (ou NOTION_PAGE_ID) ne sont pas configurés.",
+          "totalItems": 0,
+          "matchedItems": 0,
+          "discoveredItems": 0,
+          "digestedItems": 0
+        },
+        "adapterStatus": "needs-input"
+      },
+      "missionId": "gerard-cultivate-1785147509344",
       "contextId": "poulpe-fiction",
       "adapterId": "publisher",
       "lifecycle": {
-        "missionId": "gerard-cultivate-1785147187790",
-        "state": "failed",
-        "createdAt": "2026-07-27T10:13:07.825Z",
-        "updatedAt": "2026-07-27T10:13:07.839Z",
+        "missionId": "gerard-cultivate-1785147509344",
+        "state": "waiting-authorization",
+        "createdAt": "2026-07-27T10:18:29.386Z",
+        "updatedAt": "2026-07-27T10:18:29.406Z",
         "transitions": [
           {
             "from": null,
             "to": "received",
-            "at": "2026-07-27T10:13:07.825Z",
+            "at": "2026-07-27T10:18:29.386Z",
             "metadata": {
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
@@ -40,11 +57,11 @@
           {
             "from": "received",
             "to": "recorded",
-            "at": "2026-07-27T10:13:07.825Z",
+            "at": "2026-07-27T10:18:29.389Z",
             "reason": "Mission recorded.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147187790",
-              "missionId": "gerard-cultivate-1785147187790",
+              "operationId": "gerard-cultivate-1785147509344",
+              "missionId": "gerard-cultivate-1785147509344",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -54,11 +71,11 @@
           {
             "from": "recorded",
             "to": "planned",
-            "at": "2026-07-27T10:13:07.825Z",
+            "at": "2026-07-27T10:18:29.389Z",
             "reason": "Capabilities resolved.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147187790",
-              "missionId": "gerard-cultivate-1785147187790",
+              "operationId": "gerard-cultivate-1785147509344",
+              "missionId": "gerard-cultivate-1785147509344",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -68,11 +85,11 @@
           {
             "from": "planned",
             "to": "waiting-executor",
-            "at": "2026-07-27T10:13:07.825Z",
+            "at": "2026-07-27T10:18:29.389Z",
             "reason": "Compatible adapter selected.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147187790",
-              "missionId": "gerard-cultivate-1785147187790",
+              "operationId": "gerard-cultivate-1785147509344",
+              "missionId": "gerard-cultivate-1785147509344",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -83,11 +100,11 @@
           {
             "from": "waiting-executor",
             "to": "executing",
-            "at": "2026-07-27T10:13:07.825Z",
+            "at": "2026-07-27T10:18:29.389Z",
             "reason": "External adapter execution started.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147187790",
-              "missionId": "gerard-cultivate-1785147187790",
+              "operationId": "gerard-cultivate-1785147509344",
+              "missionId": "gerard-cultivate-1785147509344",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
@@ -97,18 +114,29 @@
           },
           {
             "from": "executing",
-            "to": "failed",
-            "at": "2026-07-27T10:13:07.839Z",
-            "reason": "Adapter execution failed (404).",
+            "to": "waiting-authorization",
+            "at": "2026-07-27T10:18:29.406Z",
+            "reason": "Publisher ne trouve pas de Knowledge Package Notion vérifié pour cette parcelle.",
             "metadata": {
-              "operationId": "gerard-cultivate-1785147187790",
-              "missionId": "gerard-cultivate-1785147187790",
+              "operationId": "gerard-cultivate-1785147509344",
+              "missionId": "gerard-cultivate-1785147509344",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "content.article.write"
               ],
               "executorId": "publisher",
-              "output": {}
+              "output": {
+                "capability": "knowledge.search",
+                "diagnostics": {
+                  "connected": false,
+                  "error": "NOTION_API_KEY et NOTION_DATABASE_ID (ou NOTION_PAGE_ID) ne sont pas configurés.",
+                  "totalItems": 0,
+                  "matchedItems": 0,
+                  "discoveredItems": 0,
+                  "digestedItems": 0
+                },
+                "adapterStatus": "needs-input"
+              }
             }
           }
         ]
