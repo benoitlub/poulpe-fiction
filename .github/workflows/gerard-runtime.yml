@@ -67,6 +67,10 @@ jobs:
         working-directory: publisher
         run: pnpm --filter @workspace/db run push
 
+      - name: Build Publisher
+        working-directory: publisher
+        run: pnpm --filter @workspace/api-server run build
+
       - name: Start Octopus Engine locally
         working-directory: octopus
         run: |
