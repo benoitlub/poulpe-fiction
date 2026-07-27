@@ -18,7 +18,7 @@ jobs:
     env:
       OCTOPUS_URL: http://127.0.0.1:3000
       PUBLISHER_URL: http://127.0.0.1:3100
-      PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter
+      PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
       AI_MODEL: ${{ secrets.AI_MODEL }}
