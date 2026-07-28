@@ -81,10 +81,15 @@
       "mode": "play",
       "operationId": "gerard-play-1785256869012",
       "result": "ok"
+    },
+    {
+      "at": "2026-07-28T19:25:37.406Z",
+      "mode": "rest",
+      "result": "skipped"
     }
   ],
-  "lastMode": "play",
-  "lastRunAt": "2026-07-28T16:41:10.145Z",
+  "lastMode": "rest",
+  "lastRunAt": "2026-07-28T19:25:37.406Z",
   "lastResult": {
     "status": "ok",
     "httpStatus": 200,
