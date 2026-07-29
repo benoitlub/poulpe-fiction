@@ -91,15 +91,21 @@
       "at": "2026-07-28T22:05:09.140Z",
       "mode": "rest",
       "result": "skipped"
+    },
+    {
+      "at": "2026-07-29T02:41:24.806Z",
+      "mode": "dream",
+      "operationId": "gerard-dream-1785292880232",
+      "result": "ok"
     }
   ],
-  "lastMode": "rest",
-  "lastRunAt": "2026-07-28T22:05:09.140Z",
+  "lastMode": "dream",
+  "lastRunAt": "2026-07-29T02:41:24.806Z",
   "lastResult": {
     "status": "ok",
     "httpStatus": 200,
     "payload": {
-      "operationId": "gerard-play-1785256869012",
+      "operationId": "gerard-dream-1785292880232",
       "status": "completed",
       "summary": "Knowledge Package poulpe-fiction préparé par Publisher.",
       "output": {
@@ -118,19 +124,19 @@
           "digestedItems": 0
         }
       },
-      "missionId": "gerard-play-1785256869012",
+      "missionId": "gerard-dream-1785292880232",
       "contextId": "poulpe-fiction",
       "adapterId": "publisher",
       "lifecycle": {
-        "missionId": "gerard-play-1785256869012",
+        "missionId": "gerard-dream-1785292880232",
         "state": "completed",
-        "createdAt": "2026-07-28T16:41:09.046Z",
-        "updatedAt": "2026-07-28T16:41:10.135Z",
+        "createdAt": "2026-07-29T02:41:20.265Z",
+        "updatedAt": "2026-07-29T02:41:24.798Z",
         "transitions": [
           {
             "from": null,
             "to": "received",
-            "at": "2026-07-28T16:41:09.046Z",
+            "at": "2026-07-29T02:41:20.265Z",
             "metadata": {
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
@@ -141,11 +147,11 @@
           {
             "from": "received",
             "to": "recorded",
-            "at": "2026-07-28T16:41:09.046Z",
+            "at": "2026-07-29T02:41:20.265Z",
             "reason": "Mission recorded.",
             "metadata": {
-              "operationId": "gerard-play-1785256869012",
-              "missionId": "gerard-play-1785256869012",
+              "operationId": "gerard-dream-1785292880232",
+              "missionId": "gerard-dream-1785292880232",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -155,11 +161,11 @@
           {
             "from": "recorded",
             "to": "planned",
-            "at": "2026-07-28T16:41:09.046Z",
+            "at": "2026-07-29T02:41:20.265Z",
             "reason": "Capabilities resolved.",
             "metadata": {
-              "operationId": "gerard-play-1785256869012",
-              "missionId": "gerard-play-1785256869012",
+              "operationId": "gerard-dream-1785292880232",
+              "missionId": "gerard-dream-1785292880232",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -169,11 +175,11 @@
           {
             "from": "planned",
             "to": "waiting-executor",
-            "at": "2026-07-28T16:41:09.046Z",
+            "at": "2026-07-29T02:41:20.265Z",
             "reason": "Compatible adapter selected.",
             "metadata": {
-              "operationId": "gerard-play-1785256869012",
-              "missionId": "gerard-play-1785256869012",
+              "operationId": "gerard-dream-1785292880232",
+              "missionId": "gerard-dream-1785292880232",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -184,11 +190,11 @@
           {
             "from": "waiting-executor",
             "to": "executing",
-            "at": "2026-07-28T16:41:09.046Z",
+            "at": "2026-07-29T02:41:20.265Z",
             "reason": "External adapter execution started.",
             "metadata": {
-              "operationId": "gerard-play-1785256869012",
-              "missionId": "gerard-play-1785256869012",
+              "operationId": "gerard-dream-1785292880232",
+              "missionId": "gerard-dream-1785292880232",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -199,11 +205,11 @@
           {
             "from": "executing",
             "to": "completed",
-            "at": "2026-07-28T16:41:10.135Z",
+            "at": "2026-07-29T02:41:24.798Z",
             "reason": "Knowledge Package poulpe-fiction préparé par Publisher.",
             "metadata": {
-              "operationId": "gerard-play-1785256869012",
-              "missionId": "gerard-play-1785256869012",
+              "operationId": "gerard-dream-1785292880232",
+              "missionId": "gerard-dream-1785292880232",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
