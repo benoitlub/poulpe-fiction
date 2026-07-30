@@ -26,7 +26,19 @@ export interface MissionResponse {
   output?: Record<string, unknown>;
   lifecycle?: unknown;
 }
-
+export async function planterUneMissionDemo(): Promise<MissionResponse> {
+  return octopus.createMission({
+    title: 'Post court pour Yaelbali',
+    objective: 'Rédiger un post Instagram impactant pour le compte Yaelbali',
+    requiredCapabilities: ['content.social.write'],
+    context: {
+      id: 'yaelbali-demo-001',
+      label: 'Yaelbali',
+      objective: 'Post Instagram',
+      metadata: { source: 'poulpe-fiction', garden: true, client: 'yaelbali' },
+    },
+  });
+}
 export const octopus = {
   async health(): Promise<{ status: string; mode: string }> {
     const res = await fetch(`${API_URL}/health`);
@@ -57,4 +69,5 @@ export const octopus = {
     const res = await fetch(`${API_URL}/events`);
     return res.json();
   },
+  
 };
