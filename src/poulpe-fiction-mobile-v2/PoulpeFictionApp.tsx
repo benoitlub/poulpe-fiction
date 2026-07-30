@@ -1,3 +1,4 @@
+import { EngineStatus } from './components/EngineStatus';
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./styles/poulpe-fiction-mobile-v2.css";
 import { BottomNav } from "./components/BottomNav";
