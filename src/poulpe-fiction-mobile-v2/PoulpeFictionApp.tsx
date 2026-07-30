@@ -1,5 +1,5 @@
 // APRÈS (corrigé)
-import { EngineStatus } from "../components/EngineStatus";
+import { EngineStatus } from "../Components/EngineStatus";
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./styles/poulpe-fiction-mobile-v2.css";
 import { BottomNav } from "./components/BottomNav";
