@@ -100,6 +100,72 @@
       forbiddenClaims: ["thriller écologique", "roman d'effondrement haletant", "fin du monde imminente", "appel militant à agir pour le climat", "comparaison affirmée à Mad Max, La Route, Les Furtifs ou Parable of the Sower", "scène d'effondrement d'une ville non fournie", "citation critique ou scène culte inventée", "témoignage, preuve sociale, compte Instagram, podcast ou média présenté comme acquis sans vérification"],
       campaignDirection: "Présenter TERRA comme une invitation à regarder notre planète depuis un point de vue plus vaste : partir d'un signe, d'une époque ou d'un geste humain minuscule, puis ouvrir sur la question de ce qu'une présence extérieure pourrait comprendre de nous.",
       sampleAngles: ["Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?", "Une sonde verte apparaît près de nos volcans, de nos guerres et de nos centrales. Elle ne juge pas. Elle regarde.", "TERRA ne raconte pas la fin du monde. Elle demande ce qu'il reste visible de nous quand on nous observe de très loin."]
+    },
+    "420-dice": {
+      version: 1,
+      verified: true,
+      source: "Fiche de conception 420-Dice Game Reboot",
+      title: "420 Dice Game Reboot — Jeu de dés mobile",
+      author: "Benoît Lubert",
+      format: "jeu de dés mobile, prototype Replit",
+      synopsis: "420 Dice Game Reboot est l'adaptation digitale du 420 Dice Game original, inspiré du 421. Le joueur dispose de 3 lancers maximum avec 3 dés spéciaux (4, 2, 0, ❤️, ☁️, ⛔). La combinaison 4-2-0 remporte le trophée. Sinon, un gage est tiré selon le pack actif.",
+      themes: [
+        "jeu de dés",
+        "mobile-first",
+        "gamification",
+        "packs de gages",
+        "trophées et statistiques"
+      ],
+      tone: [
+        "ludique",
+        "humoristique",
+        "Pro.Hibited",
+        "Blacklace",
+        "parodie"
+      ],
+      recurringElements: [
+        "les 3 dés spéciaux",
+        "les packs de gages",
+        "les trophées V1",
+        "les personnages commentateurs",
+        "l'overlay modal de résultat"
+      ],
+      audienceHypotheses: [
+        "joueurs mobiles cherchant un jeu rapide",
+        "public Pro.Hibited et Blacklace",
+        "amateurs de jeux de société digitaux",
+        "joueurs de 421 et jeux de dés classiques"
+      ],
+      knownFacts: [
+        "Le jeu utilise 3 dés à 6 faces : 4, 2, 0, ❤️, ☁️, ⛔.",
+        "Le joueur a 3 lancers maximum.",
+        "La combinaison 4-2-0 dans n'importe quel ordre = jackpot.",
+        "7 packs de gages : Standard, Christmas, Célibataires, Adolescents, Apéro, Blacklace, Pro.Hibited.",
+        "8 trophées V1 : Premier 420, Triple coeur, Brouillard total, Pro.Hibited absolu, Le Néant, 10 manches, 42 lancers, 420 lancers.",
+        "5 personnages commentateurs : Natasha, Le Feuch, Fée Belette, Gérard, Gérard bis.",
+        "Correction prioritaire : les dés verrouillés doivent rester fixes lors des relances."
+      ],
+      allowedClaims: [
+        "jeu de dés mobile",
+        "système de gages par packs",
+        "trophées et statistiques locales",
+        "personnages commentateurs",
+        "ambiance Pro.Hibited / Blacklace"
+      ],
+      forbiddenClaims: [
+        "incitation réelle à consommer",
+        "argent réel ou paris",
+        "âge minimum non vérifié",
+        "données personnelles collectées",
+        "multiplayer en ligne",
+        "backend serveur obligatoire"
+      ],
+      campaignDirection: "Présenter 420 Dice Game comme un jeu de dés mobile rapide, drôle et immersif, avec une ambiance Pro.Hibited / Blacklace. Mettre en avant les packs de gages, les trophées et les personnages commentateurs.",
+      sampleAngles: [
+        "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+        "3 dés, 3 lancers, 7 packs de gages. 420 Dice Game — le jeu qui vous fait rire (ou rougir).",
+        "Natasha, Le Feuch, Fée Belette et Gérard commentent vos lancers. Qui sera le premier à faire 420 ?"
+      ]
     }
   };
 
