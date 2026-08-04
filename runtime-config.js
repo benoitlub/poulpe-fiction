@@ -12,7 +12,8 @@
 
   const urls = {
     octopusApi: "",
-    publisherApi: normalizeUrl(global.PUBLISHER_API_URL) || storedPublisherApi,
+    )   publisherApi: normalizeUrl(global.PUBLISHER_API_URL) || storedPublisherApi || "https://dry-dew-8fb3blacklace-publisher-relay.benoitlubert.workers.dev",
+    
     publisherFrontend: "https://github.com/benoitlub/blacklace-publisher-ai",
     githubRuntime: "",
     gardenFeed: ""
