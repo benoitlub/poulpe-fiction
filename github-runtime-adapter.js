@@ -5,8 +5,7 @@
   if (!adapter || !runtime || adapter.__githubRuntimeInstalled) return;
 
   const originalDispatch = adapter.dispatch.bind(adapter);
-  const hasPermanentBackend = () => Boolean(String(global.PoulpeRuntimeConfig?.urls?.octopusApi || "").trim());
-
+  const hasPermanentBackend = () => Boolean(String(global.PoulpeRuntimeConfig?.urls?.publisherApi || "").trim());
   adapter.dispatch = async function githubOnlyDispatch(payload, options = {}) {
     if (!hasPermanentBackend()) {
       try {
