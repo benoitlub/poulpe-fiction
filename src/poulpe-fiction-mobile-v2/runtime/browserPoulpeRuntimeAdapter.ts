@@ -2,21 +2,15 @@ import type { PoulpeRuntimeAdapter } from "./PoulpeRuntimeAdapter";
 import type {
   ClientAccessContext,
   CultivationIntent,
+  GardenSnapshot,
   Harvest,
   HarvestBundle,
   MissionId,
   MissionProgress,
   Parcel,
   RuntimeQuestion,
+  UnknownRecord,
 } from "../types";
-
-type UnknownRecord = Record<string, unknown>;
-
-type GardenSnapshot = {
-  parcels?: UnknownRecord[];
-  operations?: UnknownRecord[];
-  harvests?: UnknownRecord[];
-};
 
 declare global {
   interface Window {
