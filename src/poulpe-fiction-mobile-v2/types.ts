@@ -1,6 +1,14 @@
 export type ParcelId = string;
 export type MissionId = string;
 
+export type UnknownRecord = Record<string, unknown>;
+
+export type GardenSnapshot = {
+  parcels?: UnknownRecord[];
+  operations?: UnknownRecord[];
+  harvests?: UnknownRecord[];
+};
+
 export type MissionState =
   | "idle"
   | "questioning"
