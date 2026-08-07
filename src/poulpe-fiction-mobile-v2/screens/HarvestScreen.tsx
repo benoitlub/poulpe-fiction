@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FC } from "react";
 import "../styles/html-harvest.css";
 import { HarvestActions } from "../components/HarvestActions";
 import { restoreAllGardenHarvests } from "../runtime/restoreGardenHarvest";
@@ -20,7 +20,7 @@ function openHtml(content: string) {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
-function HarvestCard({ bundle, initiallyOpen = false }: { bundle: HarvestBundle; initiallyOpen?: boolean }) {
+const HarvestCard: FC<{ bundle: HarvestBundle; initiallyOpen?: boolean }> = ({ bundle, initiallyOpen = false }) => {
   const [open, setOpen] = useState(initiallyOpen);
   const harvest = bundle.harvest;
   const editAction = bundle.editorialSource?.url
