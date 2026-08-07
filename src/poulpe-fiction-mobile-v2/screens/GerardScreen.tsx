@@ -14,7 +14,6 @@ type UnknownRecord = Record<string, unknown>;
 declare global {
   interface Window {
     PoulpeAccess?: { snapshot(): UnknownRecord };
-    GardenStore?: { snapshot(): { parcels?: UnknownRecord[] } };
   }
 }
 
