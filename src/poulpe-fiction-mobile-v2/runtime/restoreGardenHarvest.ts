@@ -1,13 +1,4 @@
-import type { EditorialSource, HarvestBundle, MissionProgress } from "../types";
-
-type UnknownRecord = Record<string, unknown>;
-type GardenSnapshot = { harvests?: UnknownRecord[]; parcels?: UnknownRecord[] };
-
-declare global {
-  interface Window {
-    GardenStore?: { snapshot(): GardenSnapshot };
-  }
-}
+import type { EditorialSource, GardenSnapshot, HarvestBundle, MissionProgress, UnknownRecord } from "../types";
 
 const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
 const record = (value: unknown): UnknownRecord => value && typeof value === "object" && !Array.isArray(value) ? value as UnknownRecord : {};
