@@ -109,6 +109,33 @@
     }
   }
 
+  // En plus du texte, Gérard tente de faire naître un visuel réel via
+  // Composio/Canva (même endpoint Publisher, action canva/create_design,
+  // vérifié fonctionnel manuellement). Le résultat est un lien d'édition
+  // Canva réel — pas une image directement affichable — donc on le relie
+  // en clair dans la récolte plutôt que d'inventer une prévisualisation.
+  async function requestCanvaVisual(seed, iterationNumber) {
+    const base = typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : "";
+    if (!base) return null;
+    const title = `${seed?.title || seed?.id || "Poulpe Fiction"} · itération ${iterationNumber}`;
+    try {
+      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
+      const response = await request(`${base}/api/production/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "canva", action: "create_design", input: { title } }),
+      }, 15000);
+      if (!response.ok) return null;
+      const payload = await response.json().catch(() => null);
+      const artifact = payload?.artifact;
+      const url = text(artifact?.url);
+      if (payload?.status !== "completed" || !url) return null;
+      return { url, title: text(artifact?.title) || title, designId: text(artifact?.rawReference?.designId) };
+    } catch (_) {
+      return null;
+    }
+  }
+
   // Gérard reste factuellement honnête (jamais de chiffre, preuve ou fait
   // inventé) mais n'a pas besoin d'être procédural pour autant : on varie
   // les formulations pour que ses récoltes sonnent comme un poulpe curieux
@@ -232,9 +259,15 @@
     // Mistral), grounded dans les faits vérifiés disponibles et dans ce qui
     // a déjà été produit — jamais dans le vide, jamais une répétition.
     const groundingText = publisherPack?.verified && publisherPack.prompt ? publisherPack.prompt.slice(0, 1600) : "";
-    const mistralDraft = await requestMistralDraft(seed, groundingText, iterationNumber, latestHarvest);
+    const [mistralDraft, canvaVisual] = await Promise.all([
+      requestMistralDraft(seed, groundingText, iterationNumber, latestHarvest),
+      requestCanvaVisual(seed, iterationNumber),
+    ]);
 
-    const content = mistralDraft?.content || harvestText(seed, parcel, pack, draft, publisherPack, iterationNumber, latestHarvest);
+    const baseContent = mistralDraft?.content || harvestText(seed, parcel, pack, draft, publisherPack, iterationNumber, latestHarvest);
+    const content = canvaVisual
+      ? `${baseContent}\n\n## Visuel créé par Gérard\nUn tentacule est aussi reparti avec un visuel Canva pour accompagner cette récolte : [${canvaVisual.title}](${canvaVisual.url}).`
+      : baseContent;
     const operationId = `local_harvest_${seed.id}_${Date.now()}`;
     const usesPublisher = Boolean(publisherPack?.verified && publisherPack.prompt);
     const mission = {
@@ -245,31 +278,49 @@
       summary: `Récolte produite pour ${seed.title || seed.id} (itération ${iterationNumber})`,
       output: {
         text: `${content}\n\n<!-- HARVEST_COMPLETE -->`,
-        harvests: [{
-          id: `harvest_${operationId}`,
-          title: mistralDraft ? `Récolte · ${seed.title || seed.id} (v${iterationNumber})` : !usesPublisher && pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
-          description: content.slice(0, 260),
-          artifactType: "text/markdown",
-          artifact: content,
-          content,
-        }],
-        learnings: mistralDraft ? [{
-          title: `Itération ${iterationNumber} générée pour ${seed.title || seed.id}`,
-          description: latestHarvest ? "Construite en allant plus loin que la récolte précédente." : "Premier jet généré à partir du brief de la parcelle.",
-          confidence: 0.85,
-        }] : usesPublisher ? [{
-          title: `Connaissance vérifiée trouvée chez Publisher pour ${seed.title || seed.id}`,
-          description: text(publisherPack.items?.[0]?.title) || content.slice(0, 300),
-          confidence: 0.95,
-        }] : pack ? [{
-          title: `Direction retenue pour ${pack.title || seed.title}`,
-          description: pack.campaignDirection || pack.synopsis || content.slice(0, 300),
-          confidence: 0.9,
-        }] : [{
-          title: `Graine conservée sans blocage`,
-          description: `Aucun backend n’est requis pour poursuivre l’apprentissage de cette parcelle.`,
-          confidence: 0.7,
-        }],
+        harvests: [
+          {
+            id: `harvest_${operationId}`,
+            title: mistralDraft ? `Récolte · ${seed.title || seed.id} (v${iterationNumber})` : !usesPublisher && pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
+            description: content.slice(0, 260),
+            artifactType: "text/markdown",
+            artifact: content,
+            content,
+          },
+          ...(canvaVisual ? [{
+            id: `harvest_${operationId}_visual`,
+            title: `Visuel · ${canvaVisual.title}`,
+            description: `Design Canva créé par Gérard pour cette itération. Lien d'édition réel, à ouvrir pour voir/exporter le visuel : ${canvaVisual.url}`,
+            artifactType: "social-visual",
+            artifact: canvaVisual.url,
+            content: `Design Canva : ${canvaVisual.title}\n${canvaVisual.url}`,
+            url: canvaVisual.url,
+          }] : []),
+        ],
+        learnings: [
+          ...(mistralDraft ? [{
+            title: `Itération ${iterationNumber} générée pour ${seed.title || seed.id}`,
+            description: latestHarvest ? "Construite en allant plus loin que la récolte précédente." : "Premier jet généré à partir du brief de la parcelle.",
+            confidence: 0.85,
+          }] : usesPublisher ? [{
+            title: `Connaissance vérifiée trouvée chez Publisher pour ${seed.title || seed.id}`,
+            description: text(publisherPack.items?.[0]?.title) || content.slice(0, 300),
+            confidence: 0.95,
+          }] : pack ? [{
+            title: `Direction retenue pour ${pack.title || seed.title}`,
+            description: pack.campaignDirection || pack.synopsis || content.slice(0, 300),
+            confidence: 0.9,
+          }] : [{
+            title: `Graine conservée sans blocage`,
+            description: `Aucun backend n’est requis pour poursuivre l’apprentissage de cette parcelle.`,
+            confidence: 0.7,
+          }]),
+          ...(canvaVisual ? [{
+            title: `Visuel Canva créé pour ${seed.title || seed.id}`,
+            description: `Un design Canva réel a été généré via Composio pour cette itération : ${canvaVisual.title}.`,
+            confidence: 0.8,
+          }] : []),
+        ],
       },
     };
 
@@ -284,7 +335,11 @@
       });
     } catch (_) {}
     save({ status: "ready", seedId: seed.id, draftId: draft.id, operationId, completedAt: now() });
-    try { global.pushChat?.("gerard", `🌾 J’ai produit une nouvelle récolte pour « ${seed.title || seed.id} ». Elle est dans le Garden.`); } catch (_) {}
+    try {
+      global.pushChat?.("gerard", canvaVisual
+        ? `🌾🎨 J’ai produit une nouvelle récolte pour « ${seed.title || seed.id} », avec un visuel Canva en prime. Tout est dans le Garden.`
+        : `🌾 J’ai produit une nouvelle récolte pour « ${seed.title || seed.id} ». Elle est dans le Garden.`);
+    } catch (_) {}
     try { global.GardenShell?.mount?.(); } catch (_) {}
     try { if (typeof global.render === "function") global.render(); } catch (_) {}
     return bundle;
