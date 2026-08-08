@@ -29,4 +29,8 @@
 .pf-harvest-node text{pointer-events:none}
 .pf-harvest-halo{animation:pf-harvest-halo 2.8s ease-in-out infinite}
 .pf-scene-busy{box-shadow:0 0 0 1px rgba(127,224,208,.25) inset,0 0 30px rgba(127,224,208,.08)}
+.pf-exploration-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.pf-exploration-item{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.45;color:var(--pf-ink)}
+.pf-exploration-item strong{color:var(--pf-cream)}
+.pf-exploration-icon{flex:0 0 auto;font-size:16px;line-height:1.45}
 @media(prefers-reduced-motion:reduce){.pf-star,.pf-moon-glow,.pf-grass,.pf-leg-1,.pf-leg-2,.pf-leg-3,.pf-leg-4,.pf-bubble,.pf-eyes,.pf-think circle,.pf-harvest-node,.pf-harvest-halo,.pf-octo-body,.pf-octo-arm-1,.pf-octo-arm-2,.pf-seed{animation:none!important}}

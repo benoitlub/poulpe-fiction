@@ -4,6 +4,7 @@
   const STATE_KEY = "poulpe-fiction:gerard-local-harvester:v2";
   const now = () => new Date().toISOString();
   const text = (value) => typeof value === "string" ? value.trim() : "";
+  const pick = (list) => list[Math.floor(Math.random() * list.length)];
 
   function snapshot() {
     try { return JSON.parse(localStorage.getItem(STATE_KEY) || "{}"); }
@@ -40,6 +41,42 @@
     }
   }
 
+  // Gérard reste factuellement honnête (jamais de chiffre, preuve ou fait
+  // inventé) mais n'a pas besoin d'être procédural pour autant : on varie
+  // les formulations pour que ses récoltes sonnent comme un poulpe curieux
+  // qui explore, pas comme un rapport de statut.
+  const PUBLISHER_OPENERS = [
+    "Une tentacule est redescendue avec quelque chose de solide cette fois : du vérifié, pas du deviné.",
+    "Gérard a fouillé dans ce que Publisher sait vraiment, sans rien y ajouter de son cru.",
+    "Publisher avait déjà la réponse quelque part dans ses eaux profondes ; Gérard l'a remontée telle quelle.",
+  ];
+  const PUBLISHER_NEXT_ACTIONS = [
+    "Un tentacule prépare déjà la suite à partir de ces faits — rien d'autre n'est ajouté.",
+    "Prochaine étape : sculpter ça en un premier livrable concret, sans broder autour.",
+    "Gérard garde cette matière au chaud pour la transformer en quelque chose d'exploitable, fidèlement.",
+  ];
+  const LOCAL_OPENERS = [
+    "Gérard a ressorti ce qu'il connaît déjà par cœur sur cette graine.",
+    "Pas besoin d'aller chercher loin : Gérard avait déjà cette piste en mémoire.",
+    "Une vieille intuition confirmée par ce que Gérard garde dans ses carnets.",
+  ];
+  const LOCAL_NEXT_ACTIONS = [
+    "Préparer une publication courte à partir de l'angle 1, sans inventer de preuve sociale, de chiffre ou d'urgence.",
+    "Tester le premier angle en petit avant d'aller plus loin — Gérard préfère avancer par petites vagues.",
+    "Garder les deux autres angles au chaud ; celui-ci part en premier voir ce qu'il donne.",
+  ];
+  const EMPTY_OPENERS = [
+    "Gérard a observé la graine avec attention, mais n'a encore rien de vérifié à raconter — il préfère se taire plutôt qu'inventer.",
+    "Pas encore de fait solide sous la tentacule. Gérard note, observe, et patiente sans brusquer la graine.",
+    "Cette graine dort encore un peu dans le noir. Gérard veille dessus, curieux, sans forcer une récolte imaginaire.",
+    "Rien d'assez sûr à ramener aujourd'hui — Gérard préfère revenir bredouille que raconter une fausse histoire.",
+  ];
+  const EMPTY_NEXT_ACTIONS = [
+    "Rassembler les faits vérifiés disponibles dans la parcelle, puis proposer un premier livrable limité à ces faits.",
+    "Aller regarder du côté de Publisher et de ce que la parcelle sait déjà avant de tenter quoi que ce soit.",
+    "Laisser la graine mûrir encore un peu ; Gérard repassera dès qu'il aura une vraie prise.",
+  ];
+
   function harvestText(seed, parcel, pack, draft, publisherPack) {
     const objective = text(draft?.objective) || text(seed?.objective || seed?.content);
     if (publisherPack?.verified && publisherPack.prompt) {
@@ -52,14 +89,12 @@
         objective || `Cultiver « ${seed?.title || seed?.id} »`,
         "",
         `## Ce que Publisher a vérifié`,
+        pick(PUBLISHER_OPENERS),
+        "",
         excerpt,
       ];
       if (sourceTitles.length) lines.push("", `## Sources`, ...sourceTitles.map((title) => `- ${title}`));
-      lines.push(
-        "",
-        `## Prochaine action interne`,
-        `Préparer un premier livrable directement à partir de ces faits vérifiés, sans en ajouter d’autres.`,
-      );
+      lines.push("", `## Prochaine action interne`, pick(PUBLISHER_NEXT_ACTIONS));
       return lines.join("\n");
     }
     if (pack) {
@@ -72,6 +107,7 @@
         objective || `Cultiver « ${seed?.title || seed?.id} »`,
         "",
         `## Ce que Gérard a appris`,
+        pick(LOCAL_OPENERS),
         `Le noyau commercial le plus fidèle est : ${pack.campaignDirection || pack.synopsis || objective}`,
         "",
         `## Publics à tester`,
@@ -81,7 +117,7 @@
         ...angles.map((item, index) => `${index + 1}. ${item}`),
         "",
         `## Prochaine action interne`,
-        `Préparer une publication courte à partir de l’angle 1, sans inventer de preuve sociale, de chiffre ou d’urgence.`,
+        pick(LOCAL_NEXT_ACTIONS),
       ].join("\n");
     }
 
@@ -92,10 +128,10 @@
       objective || `Gérard a inspecté la graine « ${seed?.title || seed?.id} » dans ${parcel?.name || seed?.parcelId || "la parcelle"}.`,
       "",
       `## Apprentissage`,
-      `La graine manque encore d’un Knowledge Pack vérifié. Elle reste enregistrée, visible et prête à être enrichie sans bloquer le Garden.`,
+      pick(EMPTY_OPENERS),
       "",
       `## Prochaine action interne`,
-      `Rassembler les faits vérifiés disponibles dans la parcelle, puis proposer un premier livrable limité à ces faits.`,
+      pick(EMPTY_NEXT_ACTIONS),
     ].join("\n");
   }
 

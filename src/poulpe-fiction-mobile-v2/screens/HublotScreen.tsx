@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ActiveExplorations } from "../components/ActiveExplorations";
 import { OctopusGarden } from "../components/OctopusGarden";
 import { restoreAllGardenHarvests } from "../runtime/restoreGardenHarvest";
 import type { PoulpeRuntimeAdapter } from "../runtime/PoulpeRuntimeAdapter";
@@ -32,6 +33,7 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
     return (
       <section className="pf-hublot" aria-label="Hublot sur le jardin">
         {scene}
+        <ActiveExplorations />
         <div className="pf-card pf-full-width">
           <div className="pf-empty">
             {harvests.length ? (
@@ -59,6 +61,7 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
   return (
     <section className="pf-hublot" aria-label="Hublot sur le jardin">
       {scene}
+      <ActiveExplorations />
       <div className="pf-card pf-full-width">
         {progress.state === "needs-input" && progress.question ? (
           <div className="pf-blocked"><h3>Gérard a besoin d’un détail</h3><p>{progress.question.label}</p><button className="pf-btn pf-btn-primary" onClick={onNeedsInput}>Répondre</button></div>
