@@ -4,10 +4,11 @@
   if (global.__gerardAutonomyStarted) return;
   global.__gerardAutonomyStarted = true;
 
-  const STATE_KEY = "poulpe-fiction:gerard-autonomy:v1";
+  const STATE_KEY = "poulpe-fiction:gerard-autonomy:v2";
   const RETRY_DELAY_MS = 2 * 60 * 1000;
   const POLL_MS = 5_000;
-  let inFlight = false;
+  const MAX_CONCURRENT_TENTACLES = 8;
+  const inFlightSeedIds = new Set();
   let timer = null;
 
   function nowIso() { return new Date().toISOString(); }
@@ -16,10 +17,10 @@
     try {
       const saved = JSON.parse(localStorage.getItem(STATE_KEY) || "null");
       return saved && typeof saved === "object"
-        ? Object.assign({ enabled: true, lastAttemptAt: null, lastDraftId: null, lastStatus: "idle", lastError: null }, saved)
-        : { enabled: true, lastAttemptAt: null, lastDraftId: null, lastStatus: "idle", lastError: null };
+        ? { enabled: saved.enabled !== false, tentacles: (saved.tentacles && typeof saved.tentacles === "object") ? saved.tentacles : {} }
+        : { enabled: true, tentacles: {} };
     } catch (_) {
-      return { enabled: true, lastAttemptAt: null, lastDraftId: null, lastStatus: "idle", lastError: null };
+      return { enabled: true, tentacles: {} };
     }
   }
 
@@ -27,6 +28,12 @@
 
   function persist() {
     try { localStorage.setItem(STATE_KEY, JSON.stringify(autonomy)); } catch (_) {}
+  }
+
+  // One tentacle = one Seed being cultivated. Each keeps its own retry/error
+  // state so a blocked tentacle never stalls the others.
+  function tentacleState(seedId) {
+    return autonomy.tentacles[seedId] || (autonomy.tentacles[seedId] = { lastAttemptAt: null, lastStatus: "idle", lastError: null });
   }
 
   function activeSeedFor(draft) {
@@ -53,9 +60,9 @@
     try { global.GardenShell?.mount?.(); } catch (_) {}
   }
 
-  function retryAllowed(draft) {
-    if (autonomy.lastDraftId !== draft.id || !autonomy.lastAttemptAt) return true;
-    const elapsed = Date.now() - new Date(autonomy.lastAttemptAt).getTime();
+  function retryAllowed(tentacle) {
+    if (!tentacle.lastAttemptAt) return true;
+    const elapsed = Date.now() - new Date(tentacle.lastAttemptAt).getTime();
     return !Number.isFinite(elapsed) || elapsed >= RETRY_DELAY_MS;
   }
 
@@ -64,82 +71,96 @@
     return Boolean(bundle?.status === "ready" && bundle?.harvests?.length);
   }
 
-  async function advance() {
-    if (!autonomy.enabled || inFlight) return;
-    if (global.GerardScheduler?.hasActiveUserInteraction?.()) return;
-    if (global.DepartureController?.isRunning?.() || global.AdventureLaunch?.isLaunching?.()) return;
+  // Advances a single tentacle's draft. Several of these run concurrently
+  // (see advance() below) — each seedId has its own in-flight guard and
+  // retry timer so tentacles never block one another.
+  async function advanceOne(draft) {
+    const seedId = draft.curiosity?.id;
+    if (!seedId || inFlightSeedIds.has(seedId)) return;
 
-    let draft = global.AdventureDraft?.load?.();
-    if (!draft || draft.status === "cancelled") return;
+    const tentacle = tentacleState(seedId);
+
     if (alreadyCompleted(draft)) {
-      autonomy.lastDraftId = draft.id;
-      autonomy.lastStatus = "harvest-ready";
-      autonomy.lastError = null;
+      tentacle.lastStatus = "harvest-ready";
+      tentacle.lastError = null;
       persist();
       return;
     }
-    if (!retryAllowed(draft)) return;
+    if (!retryAllowed(tentacle)) return;
 
     if (!global.GerardLocalHarvester?.harvest) {
-      autonomy.lastStatus = "waiting-local-runtime";
+      tentacle.lastStatus = "waiting-local-runtime";
       persist();
       return;
     }
 
-    inFlight = true;
-    autonomy.lastDraftId = draft.id;
-    autonomy.lastAttemptAt = nowIso();
-    autonomy.lastError = null;
+    inFlightSeedIds.add(seedId);
+    tentacle.lastAttemptAt = nowIso();
+    tentacle.lastError = null;
 
     try {
-      if (draft.status === "prepared") {
-        draft = global.AdventureDraft.validate(
-          draft,
+      let workingDraft = draft;
+      if (workingDraft.status === "prepared") {
+        workingDraft = global.AdventureDraft.validate(
+          workingDraft,
           "Validation automatique de Gérard pour le travail interne. Toute dépense, publication, prise de contact ou action externe reste soumise à validation humaine."
         );
-        patchSeed(draft, {
+        global.AdventureDraft.saveBySeed?.(workingDraft);
+        patchSeed(workingDraft, {
           status: "mission-queued",
           autonomyStatus: "validated",
-          adventureDraftId: draft.id
+          adventureDraftId: workingDraft.id
         });
-        push(`🐙 « ${draft.curiosity.title || draft.curiosity.id} » est mûre. Je travaille localement sans te demander de porter mon sac.`);
+        push(`🐙 « ${workingDraft.curiosity.title || workingDraft.curiosity.id} » est mûre. Je travaille localement sans te demander de porter mon sac.`);
       }
 
-      autonomy.lastStatus = "harvesting-locally";
+      tentacle.lastStatus = "harvesting-locally";
       persist();
-      patchSeed(draft, { status: "adventure", autonomyStatus: "harvesting-locally" });
+      patchSeed(workingDraft, { status: "adventure", autonomyStatus: "harvesting-locally" });
       refresh();
 
-      const bundle = await global.GerardLocalHarvester.harvest(draft, "autonomous-local-first");
+      const bundle = await global.GerardLocalHarvester.harvest(workingDraft, "autonomous-local-first");
       if (!bundle?.harvests?.length) throw new Error("La récolte locale est revenue vide.");
 
-      autonomy.lastStatus = "harvest-ready";
-      autonomy.lastError = null;
-      patchSeed(draft, {
+      tentacle.lastStatus = "harvest-ready";
+      tentacle.lastError = null;
+      patchSeed(workingDraft, {
         status: "harvest-ready",
         autonomyStatus: "local-harvest-ready",
         operationId: bundle.operationId || bundle.missionId || null,
         harvestedAt: bundle.createdAt || nowIso()
       });
     } catch (error) {
-      autonomy.lastStatus = "blocked";
-      autonomy.lastError = error instanceof Error ? error.message : "Blocage inconnu";
+      tentacle.lastStatus = "blocked";
+      tentacle.lastError = error instanceof Error ? error.message : "Blocage inconnu";
       patchSeed(draft, {
         status: "blocked",
         autonomyStatus: "blocked",
-        autonomyError: autonomy.lastError
+        autonomyError: tentacle.lastError
       });
-      push(`⏸ « ${draft.curiosity.title || draft.curiosity.id} » est bloquée localement : ${autonomy.lastError}`);
+      push(`⏸ « ${draft.curiosity.title || draft.curiosity.id} » est bloquée localement : ${tentacle.lastError}`);
     } finally {
-      inFlight = false;
+      inFlightSeedIds.delete(seedId);
       persist();
       refresh();
     }
   }
 
+  // Gérard est un poulpe : chaque tentacule (Seed avec un AdventureDraft
+  // actif) avance en parallèle, indépendamment des autres.
+  async function advance() {
+    if (!autonomy.enabled) return;
+    if (global.GerardScheduler?.hasActiveUserInteraction?.()) return;
+    if (global.DepartureController?.isRunning?.() || global.AdventureLaunch?.isLaunching?.()) return;
+
+    const drafts = (global.AdventureDraft?.loadActiveDrafts?.() || []).slice(0, MAX_CONCURRENT_TENTACLES);
+    if (!drafts.length) return;
+
+    await Promise.all(drafts.map((draft) => advanceOne(draft)));
+  }
+
   function setEnabled(enabled) {
     autonomy.enabled = Boolean(enabled);
-    autonomy.lastError = null;
     persist();
     if (autonomy.enabled) void advance();
     return autonomy.enabled;
@@ -158,7 +179,8 @@
     start,
     setEnabled,
     isEnabled: () => Boolean(autonomy.enabled),
-    isRunning: () => inFlight
+    isRunning: () => inFlightSeedIds.size > 0,
+    activeTentacles: () => inFlightSeedIds.size
   };
 
   start();

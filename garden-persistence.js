@@ -183,6 +183,10 @@
   }
 
   function clearActiveAdventure() {
+    try {
+      const seedId = global.BlacklaceParcel?.activeSeed?.()?.seedId;
+      if (seedId) global.AdventureDraft?.removeBySeed?.(seedId);
+    } catch (_) {}
     try { global.AdventureDraft?.save?.(null); } catch (_) {}
     try { global.GardenStore?.clearActiveSeed?.(); } catch (_) {}
     try {

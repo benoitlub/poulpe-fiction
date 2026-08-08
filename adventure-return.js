@@ -11,7 +11,10 @@
   function textValue(value) { if (typeof value === "string") return value.trim(); if (value === null || value === undefined) return ""; try { return JSON.stringify(value); } catch (_) { return String(value); } }
   function outputText(mission) { const output = asRecord(mission?.output); return textValue(output.text || output.content || output.result || mission?.summary || output); }
   function cleanOutput(text) { return String(text || "").replace(COMPLETE_MARKER, "").trim(); }
-  function activeSeedId(draft) { return global.BlacklaceParcel?.activeSeed?.()?.seedId || draft?.curiosity?.id || null; }
+  // The draft's own Seed is authoritative: with several tentacles cultivating
+  // in parallel, the human's UI-selected Seed (BlacklaceParcel.activeSeed())
+  // can be a *different* Seed than the one this draft/harvest belongs to.
+  function activeSeedId(draft) { return draft?.curiosity?.id || global.BlacklaceParcel?.activeSeed?.()?.seedId || null; }
 
   function normalizeNamedItem(value, fallbackTitle) {
     if (typeof value === "string") return { title: value.slice(0, 120) || fallbackTitle, description: value };
@@ -115,6 +118,19 @@
   }
 
   global.AdventureReturnProcessor = { OUTBOX_KEY, COMPLETE_MARKER, process, loadOutbox, latestForDraft, renderBundle, deliverToGarden };
-  const baseRender = render;
-  render = function renderWithAdventureReturn() { baseRender(); if (state.step !== "result") return; const draft = global.AdventureDraft?.load?.(); const bundle = draft ? latestForDraft(draft.id) : null; if (!bundle) return; const panel = root.querySelector(".panel"); if (panel && !panel.querySelector(".adventure-return")) panel.insertAdjacentHTML("beforeend", renderBundle(bundle)); };
+
+  // Optional legacy vanilla-template hook: only present when app.js's shell
+  // (render/state/root) is loaded, which mobile-v2.html does not do.
+  if (typeof global.render === "function") {
+    const baseRender = global.render;
+    global.render = function renderWithAdventureReturn() {
+      baseRender();
+      if (global.state?.step !== "result") return;
+      const draft = global.AdventureDraft?.load?.();
+      const bundle = draft ? latestForDraft(draft.id) : null;
+      if (!bundle) return;
+      const panel = global.root?.querySelector?.(".panel");
+      if (panel && !panel.querySelector(".adventure-return")) panel.insertAdjacentHTML("beforeend", renderBundle(bundle));
+    };
+  }
 })(globalThis);

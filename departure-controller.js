@@ -3,7 +3,7 @@
 
   const TIMEOUT_MS = 20000;
   const RECEIPT_KEY = "poulpe-fiction:adventure-departure:v1";
-  let inFlight = false;
+  const inFlightSeedIds = new Set();
 
   function esc(value) {
     return String(value || "").replace(/[&<>"']/g, (char) => ({
@@ -40,7 +40,8 @@
   }
 
   function showBag() {
-    const draft = global.AdventureDraft?.load?.();
+    const seedId = global.BlacklaceParcel?.activeSeed?.()?.seedId;
+    const draft = seedId ? global.AdventureDraft?.loadBySeed?.(seedId) : global.AdventureDraft?.load?.();
     if (!draft) {
       show("Aucun sac disponible", "error", "Gérard doit d’abord préparer une aventure.");
       return;
@@ -64,8 +65,10 @@
   }
 
   async function depart(seedId, button) {
-    if (inFlight) return;
-    inFlight = true;
+    // Un tentacule à la fois par Seed — les autres départs, sur d'autres
+    // Seeds, ne sont pas bloqués par celui-ci.
+    if (inFlightSeedIds.has(seedId)) return;
+    inFlightSeedIds.add(seedId);
     const originalLabel = button?.textContent || "Autoriser le départ";
     if (button) {
       button.disabled = true;
@@ -73,12 +76,13 @@
     }
 
     try {
-      let draft = global.AdventureDraft?.load?.();
-      if (!draft || draft.curiosity?.id !== seedId) {
+      let draft = global.AdventureDraft?.loadBySeed?.(seedId);
+      if (!draft) {
         throw new Error("Le sac affiché ne correspond pas à cette Seed.");
       }
       if (draft.status === "prepared") {
         draft = global.AdventureDraft.validate(draft, "Départ autorisé explicitement depuis la parcelle.");
+        global.AdventureDraft.saveBySeed?.(draft);
       }
       if (draft.status !== "validated") throw new Error("Le sac n’est pas validé.");
 
@@ -128,7 +132,7 @@
       setSeedStatus(seedId, "bag-ready");
       show(message, "error", "Le sac reste prêt et la page reste utilisable.");
     } finally {
-      inFlight = false;
+      inFlightSeedIds.delete(seedId);
       if (button && button.isConnected) {
         button.disabled = false;
         button.textContent = originalLabel;
@@ -154,5 +158,5 @@
     void depart(departureButton.dataset.authorizeDeparture, departureButton);
   }, true);
 
-  global.DepartureController = { depart, showBag, isRunning: () => inFlight };
+  global.DepartureController = { depart, showBag, isRunning: () => inFlightSeedIds.size > 0 };
 })(globalThis);

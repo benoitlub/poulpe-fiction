@@ -3,6 +3,7 @@
 
   const STORAGE_KEY = "poulpe-fiction:adventure-draft:v1";
   const LEGACY_KEY = "poulpe-fiction:adventure-urge:v1";
+  const DRAFTS_KEY = "poulpe-fiction:adventure-drafts:v1";
   const VALID_STATUSES = new Set(["prepared", "validated", "cancelled"]);
 
   function nowIso() {
@@ -123,6 +124,59 @@
     return normalized;
   }
 
+  // --- Multi-tentacle storage -------------------------------------------------
+  // Gérard is an octopus: he can cultivate several Seeds at once, one per
+  // tentacle. Each Seed keeps its own AdventureDraft, keyed by curiosity id,
+  // independent from the legacy single-slot STORAGE_KEY above (which is kept
+  // for backward compatibility and mirrors "the most recently touched draft"
+  // for callers that only ever cared about one at a time).
+
+  function loadAllDrafts() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(DRAFTS_KEY) || "{}");
+      return raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function persistAllDrafts(map) {
+    try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(map || {})); } catch (_) {}
+  }
+
+  function loadBySeed(seedId) {
+    if (!seedId) return null;
+    const draft = loadAllDrafts()[seedId];
+    return isValid(draft) ? draft : null;
+  }
+
+  function saveBySeed(draft) {
+    if (!draft) return null;
+    const normalized = create(draft);
+    const all = loadAllDrafts();
+    all[normalized.curiosity.id] = normalized;
+    persistAllDrafts(all);
+    save(normalized); // mirror as "most recently touched" for legacy/dashboard consumers
+    return normalized;
+  }
+
+  function removeBySeed(seedId) {
+    if (!seedId) return;
+    const all = loadAllDrafts();
+    if (seedId in all) {
+      delete all[seedId];
+      persistAllDrafts(all);
+    }
+    try {
+      const current = load();
+      if (current?.curiosity?.id === seedId) save(null);
+    } catch (_) {}
+  }
+
+  function loadActiveDrafts() {
+    return Object.values(loadAllDrafts()).filter((draft) => isValid(draft) && draft.status !== "cancelled");
+  }
+
   function validate(draft, note = "") {
     if (!isValid(draft)) throw new Error("Cannot validate an invalid AdventureDraft.");
     if (draft.status !== "prepared") throw new Error("Only a prepared AdventureDraft can be validated.");
@@ -138,7 +192,18 @@
     return save({ ...draft, status: "cancelled", note: note || draft.note });
   }
 
-  global.AdventureDraft = { STORAGE_KEY, create, isValid, load, save, validate, cancel };
+  global.AdventureDraft = {
+    STORAGE_KEY, DRAFTS_KEY, create, isValid, load, save, validate, cancel,
+    loadBySeed, saveBySeed, removeBySeed, loadActiveDrafts,
+  };
+
+  // Everything below is a compat layer for the legacy app.js vanilla shell
+  // (render/state/root/pushChat/bindGreenhouseActions/...), which is not
+  // loaded by mobile-v2.html (its UI is the React app in
+  // src/poulpe-fiction-mobile-v2/). Skip it entirely when that shell isn't
+  // present instead of throwing on the first undeclared-global assignment —
+  // global.AdventureDraft above is the only part other Gérard modules use.
+  if (typeof global.bindGreenhouseActions !== "function") return;
 
   loadAdventureUrge = function loadAdventureDraftCompat() {
     return global.AdventureDraft.load();

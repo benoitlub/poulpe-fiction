@@ -5,6 +5,9 @@
   const ACTIVE_SEED_KEY = "poulpe-fiction:blacklace-active-seed:v1";
   const PARCEL_CACHE_KEY = "poulpe-fiction:blacklace-parcel-cache:v1";
   const CULTIVATION_KEY = "poulpe-fiction:gerard-cultivation:v1";
+  // Gérard est un poulpe : il cultive plusieurs Seeds à la fois, une par tentacule.
+  const MAX_ACTIVE_TENTACLES = 8;
+  const CULTIVATION_POLL_MS = 15_000;
 
   const parcel = {
     version: 3,
@@ -31,6 +34,18 @@
   function syncGardenDomain(context) {
     try { global.GardenStore?.replaceFromParcel?.(parcel, context || activeSeed()); }
     catch (error) { console.warn("Poulpe Fiction Garden domain sync failed", error); }
+  }
+
+  // `render`/`state`/`root`/`pushChat` only exist when the legacy app.js
+  // vanilla shell is loaded. mobile-v2.html doesn't load it (its UI is the
+  // React app in src/poulpe-fiction-mobile-v2/), so these stay optional and
+  // must never throw — Gérard's cultivation loop below must not depend on them.
+  function safeRender() {
+    try { if (typeof global.render === "function") global.render(); } catch (_) {}
+  }
+
+  function safePush(message) {
+    try { if (typeof global.pushChat === "function") global.pushChat("gerard", message); } catch (_) {}
   }
 
   function publisherBaseUrl() {
@@ -103,7 +118,7 @@
       }
       if (remote?.activeSeed?.parcelId === PARCEL_ID) localStorage.setItem(ACTIVE_SEED_KEY, JSON.stringify(remote.activeSeed));
       syncGardenDomain(remote?.activeSeed || activeSeed());
-      render();
+      safeRender();
       return true;
     } catch (_) {
       try {
@@ -150,9 +165,9 @@
     const seed = parcel.seeds.find((item) => item.id === seedId);
     if (!seed || !global.AdventureDraft) return null;
 
-    const currentDraft = global.AdventureDraft.load?.();
-    if (currentDraft && currentDraft.status !== "cancelled" && currentDraft.curiosity?.id === seedId) {
-      updateSeedStatus(seedId, currentDraft.status === "validated" ? "bag-ready" : "bag-ready");
+    const currentDraft = global.AdventureDraft.loadBySeed?.(seedId);
+    if (currentDraft && currentDraft.status !== "cancelled") {
+      updateSeedStatus(seedId, "bag-ready");
       return currentDraft;
     }
 
@@ -190,17 +205,22 @@
       note: `Gérard a planté puis cultivé cette Seed. Parcelle 001 · ${parcel.name}. Première récolte visée : ${seed.firstHarvest}. Tool Pack : ${toolPack.source || "inconnu"}.`
     });
 
-    const saved = global.AdventureDraft.save(draft);
+    const saved = global.AdventureDraft.saveBySeed(draft);
     updateSeedStatus(seedId, "bag-ready", { bagPreparedAt: new Date().toISOString(), adventureDraftId: saved.id });
-    state.adventureUrge = saved;
+    if (global.state) global.state.adventureUrge = saved;
     localStorage.setItem(CULTIVATION_KEY, JSON.stringify({ seedId, status: "bag-ready", preparedAt: new Date().toISOString() }));
     void writeGlobalState(context);
 
-    if (!options?.silent) pushChat("gerard", `🎒 J'ai fait pousser « ${seed.title} » et préparé son sac. Tu peux maintenant autoriser le départ.`);
-    render();
+    if (!options?.silent) safePush(`🎒 J'ai fait pousser « ${seed.title} » et préparé son sac. Tu peux maintenant autoriser le départ.`);
+    safeRender();
     return saved;
   }
 
+  // Gérard est un poulpe : il cultive jusqu'à MAX_ACTIVE_TENTACLES Seeds à la
+  // fois, une par tentacule, au lieu d'attendre qu'une Seed soit terminée
+  // avant de commencer la suivante. Un tentacule reste occupé (bag-ready →
+  // adventure → harvest-ready) jusqu'à ce que le jardinier accepte la récolte
+  // (voir GardenPersistence.clearActiveAdventure, qui libère le tentacule).
   async function ensureGerardCultivation() {
     parcel.seeds.forEach((seed) => {
       seed.status = normalizeStatus(seed.status);
@@ -211,17 +231,28 @@
     syncGardenDomain(activeSeed());
     cacheParcel();
 
-    const draft = global.AdventureDraft?.load?.();
-    if (draft && draft.status !== "cancelled") {
-      updateSeedStatus(draft.curiosity.id, "bag-ready", { adventureDraftId: draft.id });
-      return;
-    }
+    const activeDrafts = global.AdventureDraft?.loadActiveDrafts?.() || [];
+    activeDrafts.forEach((draft) => {
+      const seed = parcel.seeds.find((item) => item.id === draft.curiosity?.id);
+      if (seed && seed.status !== "adventure" && seed.status !== "harvested" && seed.status !== "composted") {
+        updateSeedStatus(draft.curiosity.id, "bag-ready", { adventureDraftId: draft.id });
+      }
+    });
 
-    const candidate = parcel.seeds
+    const occupiedTentacles = activeDrafts.length;
+    const freeTentacles = Math.max(0, MAX_ACTIVE_TENTACLES - occupiedTentacles);
+    if (freeTentacles <= 0) return;
+
+    const busySeedIds = new Set(activeDrafts.map((draft) => draft.curiosity?.id));
+    const candidates = parcel.seeds
       .filter((seed) => !["adventure", "harvested", "composted"].includes(seed.status))
-      .sort((a, b) => a.priority - b.priority)[0];
+      .filter((seed) => !busySeedIds.has(seed.id))
+      .sort((a, b) => a.priority - b.priority)
+      .slice(0, freeTentacles);
 
-    if (candidate) await prepareSeedAdventure(candidate.id, { silent: true });
+    for (const candidate of candidates) {
+      await prepareSeedAdventure(candidate.id, { silent: true });
+    }
   }
 
   function icon(type) { return type === "book" ? "📚" : type === "game" ? "🎲" : type === "app" ? "📱" : "🌐"; }
@@ -276,7 +307,7 @@
         if (!seed) return;
         saveActiveSeedLocal(seed);
         syncGardenDomain(activeSeed());
-        render();
+        safeRender();
       };
     });
     document.querySelectorAll("[data-view-mission]").forEach((button) => {
@@ -284,22 +315,30 @@
     });
   }
 
-  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, parcel, activeSeed, prepareSeedAdventure, ensureGerardCultivation, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain };
+  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, MAX_ACTIVE_TENTACLES, parcel, activeSeed, prepareSeedAdventure, ensureGerardCultivation, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain };
 
-  const baseRender = render;
-  render = function renderWithBlacklaceParcel() {
-    baseRender();
-    if (state.step !== "objective") return;
-    const existing = root.querySelector(".blacklace-parcel");
-    if (!existing) {
-      const chat = root.querySelector(".gerard-chat");
-      if (chat) chat.insertAdjacentHTML("beforebegin", renderParcel());
-      else root.insertAdjacentHTML("afterbegin", renderParcel());
-    }
-    bindParcelActions();
-  };
+  // Optional legacy vanilla-template hook — see safeRender() above.
+  if (typeof global.render === "function") {
+    const baseRender = global.render;
+    global.render = function renderWithBlacklaceParcel() {
+      baseRender();
+      if (global.state?.step !== "objective") return;
+      const existing = global.root?.querySelector?.(".blacklace-parcel");
+      if (!existing) {
+        const chat = global.root?.querySelector?.(".gerard-chat");
+        if (chat) chat.insertAdjacentHTML("beforebegin", renderParcel());
+        else global.root?.insertAdjacentHTML?.("afterbegin", renderParcel());
+      }
+      bindParcelActions();
+    };
+  }
 
   syncGardenDomain(activeSeed());
-  render();
-  void syncFromGlobal().finally(() => ensureGerardCultivation().then(() => render()));
+  safeRender();
+  void syncFromGlobal().finally(() => ensureGerardCultivation().then(() => safeRender()));
+
+  // Refait le point régulièrement : dès qu'un tentacule se libère (récolte
+  // acceptée par le jardinier), Gérard reprend une nouvelle Seed sans qu'il
+  // faille recharger la page.
+  global.setInterval(() => { void ensureGerardCultivation().then(() => safeRender()); }, CULTIVATION_POLL_MS);
 })(globalThis);
