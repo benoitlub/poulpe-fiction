@@ -5,13 +5,12 @@
   const LEGACY_CACHE_KEYS = ["poulpe-fiction:publisher-knowledge-cache:v1"];
   const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
-  function publisherBaseUrl() {
-    try {
-      return typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : "";
-    } catch (_) {
-      return "";
-    }
-  }
+  // The dynamic PUBLISHER_API relay (Cloudflare Worker) has no live backend
+  // behind it — every /api/knowledge-packs call 405s. What actually curates
+  // knowledge autonomously today is blacklace-publisher-ai's daily Notion
+  // sync (Autonomous Knowledge Observatory), published as static JSON on
+  // GitHub Pages. That's the real "ask Publisher what it knows" source.
+  const KNOWLEDGE_PACKS_BASE_URL = "https://benoitlub.github.io/blacklace-publisher-ai/knowledge-packs";
 
   function clearLegacyCaches() {
     for (const key of LEGACY_CACHE_KEYS) {
@@ -72,6 +71,50 @@
     };
   }
 
+  // Maps blacklace-publisher-ai's real Knowledge Pack shape
+  // ({status:"verified"|"empty", sources:[{title,url,content}]}) to the
+  // contract the rest of Gérard's code expects ({verified, prompt}).
+  function mapStaticPack(seedId, payload) {
+    if (!payload || typeof payload !== "object") return null;
+    const sources = Array.isArray(payload.sources) ? payload.sources : [];
+    const prompt = sources
+      .map((source) => {
+        const title = String(source?.title || "Source").trim();
+        const url = source?.url ? ` (${source.url})` : "";
+        const content = String(source?.content || "").trim();
+        return content ? `## ${title}${url}\n${content}` : "";
+      })
+      .filter(Boolean)
+      .join("\n\n")
+      .trim();
+
+    return {
+      version: 2,
+      slug: seedId,
+      verified: payload.status === "verified" && Boolean(prompt),
+      source: "publisher-knowledge-observatory",
+      fetchedAt: payload.generatedAt || new Date().toISOString(),
+      prompt,
+      items: sources.map((source) => ({ title: source?.title, url: source?.url, content: source?.content })),
+      diagnostics: {
+        connected: true,
+        status: payload.status || "unknown",
+        sourceCount: Number.isFinite(payload.sourceCount) ? payload.sourceCount : sources.length,
+      }
+    };
+  }
+
+  async function fetchStaticPack(seedId) {
+    const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
+    const response = await request(`${KNOWLEDGE_PACKS_BASE_URL}/${encodeURIComponent(seedId)}.json`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store"
+    }, 8000);
+    if (!response.ok) throw new Error(`Publisher knowledge pack indisponible (${response.status})`);
+    const payload = await response.json();
+    return mapStaticPack(seedId, payload);
+  }
+
   async function load(seedId, options = {}) {
     if (!seedId) return null;
     clearLegacyCaches();
@@ -80,32 +123,26 @@
     if (fresh && !options.forceRefresh) return fresh;
 
     const local = localPack(seedId);
-    const base = publisherBaseUrl();
-
-    // Local-first: Gérard continues to work even when Publisher is absent.
-    if (local && (!base || !options.forceRefresh)) {
-      writeCache(seedId, local);
-      return local;
-    }
-
-    if (!base) return local || unavailable(seedId, "PUBLISHER_API non configuré");
 
     try {
-      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
-      const response = await request(`${base}/api/knowledge-packs/${encodeURIComponent(seedId)}?refresh=1`, {
-        headers: { Accept: "application/json", "Cache-Control": "no-cache" },
-        cache: "no-store"
-      }, 12000);
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || `Publisher ${response.status}`);
-      if (!payload?.verified || !payload?.prompt) {
-        return local || unavailable(seedId, payload?.diagnostics?.error || "Pack Publisher non vérifié", payload?.diagnostics);
+      const remote = await fetchStaticPack(seedId);
+      if (remote?.verified && remote.prompt) {
+        writeCache(seedId, remote);
+        return remote;
       }
-      const result = { ...payload, source: "publisher", fetchedAt: payload.fetchedAt || new Date().toISOString() };
-      writeCache(seedId, result);
-      return result;
+      // Publisher answered but has no verified source for this Seed yet
+      // (autonomous Notion sync hasn't found anything to curate).
+      if (local) {
+        writeCache(seedId, local);
+        return local;
+      }
+      return unavailable(seedId, "Publisher n'a pas encore de source vérifiée pour cette Seed.", remote?.diagnostics);
     } catch (error) {
-      return local || unavailable(seedId, error instanceof Error ? error.message : "Publisher indisponible");
+      if (local) {
+        writeCache(seedId, local);
+        return local;
+      }
+      return unavailable(seedId, error instanceof Error ? error.message : "Publisher indisponible");
     }
   }
 
@@ -117,5 +154,5 @@
   }
 
   clearLegacyCaches();
-  global.PublisherKnowledge = { CACHE_KEY, load, cached, clear, localPack };
+  global.PublisherKnowledge = { CACHE_KEY, KNOWLEDGE_PACKS_BASE_URL, load, cached, clear, localPack };
 })(globalThis);
