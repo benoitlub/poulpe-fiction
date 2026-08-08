@@ -52,16 +52,41 @@
       .sort((a, b) => Date.parse(b?.createdAt || 0) - Date.parse(a?.createdAt || 0));
   }
 
+  // La graine « poulpe-fiction » elle-même a une question spécifique : qui
+  // sont les futurs clients de Poulpe Fiction ? Gérard n'a aucune donnée
+  // externe pour ça (pas de scraping, pas d'accès LinkedIn), mais il a un
+  // indice réel et légitime sous la main : le catalogue des autres créations
+  // qu'il cultive déjà. On lui demande donc des hypothèses de personas
+  // explicitement étiquetées comme telles — jamais présentées comme des
+  // faits vérifiés.
+  function catalogSummary(seed) {
+    if (seed?.id !== "poulpe-fiction") return "";
+    const seeds = global.GardenStore?.snapshot?.()?.seeds || [];
+    const siblings = seeds.filter((item) => item?.parcelId === seed.parcelId && item?.id !== seed.id && text(item?.title));
+    if (!siblings.length) return "";
+    return siblings.map((item) => `- ${item.title} (${item.type || "création"}) : ${text(item.objective) || "objectif non précisé"}`).join("\n");
+  }
+
   async function requestMistralDraft(seed, groundingText, iterationNumber, latestHarvest) {
     const base = typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : "";
     if (!base) return null;
     const priorContent = text(latestHarvest?.content?.text || latestHarvest?.content);
+    const catalog = catalogSummary(seed);
+    const personaTask = catalog
+      ? [
+          "Tâche spécifique de cette graine : Poulpe Fiction cherche à savoir qui sont ses futurs clients — les créateurs qui auraient besoin de Gérard.",
+          `Catalogue réel déjà cultivé par ce même jardinier, comme indice du type de créateur concerné :\n${catalog}`,
+          "Propose 3 personas plausibles de créateurs indépendants qui pourraient vouloir Poulpe Fiction, avec pour chacun : un profil type, ce qui les bloque aujourd'hui, et pourquoi Gérard leur serait utile.",
+          "Étiquette explicitement ces personas comme des hypothèses de travail à valider — jamais comme des faits vérifiés, aucun nom réel, aucune statistique inventée.",
+        ].join("\n\n")
+      : "";
     const prompt = [
       `Graine : ${seed.title || seed.id}`,
       `Objectif : ${seed.objective || "non précisé"}`,
       `Première récolte visée : ${seed.firstHarvest || "non précisée"}`,
       groundingText ? `Faits vérifiés disponibles :\n${groundingText}` : "Aucun fait vérifié externe disponible pour l'instant — reste strictement dans le brief ci-dessus.",
       priorContent ? `Récolte précédente (itération ${iterationNumber - 1}, à dépasser sans la répéter) :\n${priorContent.slice(0, 900)}` : "",
+      personaTask,
       "Produis un livrable court, concret et directement exploitable pour cette étape (angle, accroche ou premier élément de contenu).",
       "N'invente aucun fait vérifiable : pas de chiffre, pas de témoignage, pas de preuve sociale, pas de nom de personne réelle.",
       priorContent ? "Va réellement plus loin que la récolte précédente : ajoute un élément nouveau, plus abouti ou plus concret plutôt que de reformuler." : "",
