@@ -41,6 +41,49 @@
     }
   }
 
+  // Gérard n'attend plus un signal humain pour continuer à travailler une
+  // Seed : chaque passage doit aller plus loin que le précédent, jamais se
+  // répéter à l'identique. On regarde donc ce qui a déjà été produit avant
+  // de demander une nouvelle itération.
+  function priorHarvests(seedId) {
+    const harvests = global.GardenStore?.snapshot?.()?.harvests || [];
+    return harvests
+      .filter((item) => item?.seedId === seedId && text(item?.content?.text || item?.content))
+      .sort((a, b) => Date.parse(b?.createdAt || 0) - Date.parse(a?.createdAt || 0));
+  }
+
+  async function requestMistralDraft(seed, groundingText, iterationNumber, latestHarvest) {
+    const base = typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : "";
+    if (!base) return null;
+    const priorContent = text(latestHarvest?.content?.text || latestHarvest?.content);
+    const prompt = [
+      `Graine : ${seed.title || seed.id}`,
+      `Objectif : ${seed.objective || "non précisé"}`,
+      `Première récolte visée : ${seed.firstHarvest || "non précisée"}`,
+      groundingText ? `Faits vérifiés disponibles :\n${groundingText}` : "Aucun fait vérifié externe disponible pour l'instant — reste strictement dans le brief ci-dessus.",
+      priorContent ? `Récolte précédente (itération ${iterationNumber - 1}, à dépasser sans la répéter) :\n${priorContent.slice(0, 900)}` : "",
+      "Produis un livrable court, concret et directement exploitable pour cette étape (angle, accroche ou premier élément de contenu).",
+      "N'invente aucun fait vérifiable : pas de chiffre, pas de témoignage, pas de preuve sociale, pas de nom de personne réelle.",
+      priorContent ? "Va réellement plus loin que la récolte précédente : ajoute un élément nouveau, plus abouti ou plus concret plutôt que de reformuler." : "",
+    ].filter(Boolean).join("\n\n");
+
+    try {
+      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
+      const response = await request(`${base}/api/production/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "mistral", action: "copy.generate", input: { title: seed.title || seed.id, prompt } }),
+      }, 15000);
+      if (!response.ok) return null;
+      const payload = await response.json().catch(() => null);
+      const draftContent = text(payload?.artifact?.content);
+      if (payload?.status !== "completed" || !draftContent) return null;
+      return { content: draftContent, provider: "publisher-mistral" };
+    } catch (_) {
+      return null;
+    }
+  }
+
   // Gérard reste factuellement honnête (jamais de chiffre, preuve ou fait
   // inventé) mais n'a pas besoin d'être procédural pour autant : on varie
   // les formulations pour que ses récoltes sonnent comme un poulpe curieux
@@ -77,7 +120,7 @@
     "Laisser la graine mûrir encore un peu ; Gérard repassera dès qu'il aura une vraie prise.",
   ];
 
-  function harvestText(seed, parcel, pack, draft, publisherPack) {
+  function harvestText(seed, parcel, pack, draft, publisherPack, iterationNumber = 1, latestHarvest = null) {
     const objective = text(draft?.objective) || text(seed?.objective || seed?.content);
     if (publisherPack?.verified && publisherPack.prompt) {
       const sourceTitles = Array.isArray(publisherPack.items) ? publisherPack.items.map((item) => text(item?.title)).filter(Boolean) : [];
@@ -121,18 +164,29 @@
       ].join("\n");
     }
 
-    return [
-      `# Récolte · ${seed?.title || "Graine"}`,
+    const firstHarvestBrief = text(seed?.firstHarvest);
+    const lines = [
+      `# Récolte · ${seed?.title || "Graine"} (itération ${iterationNumber})`,
       "",
       `## Mission traitée`,
       objective || `Gérard a inspecté la graine « ${seed?.title || seed?.id} » dans ${parcel?.name || seed?.parcelId || "la parcelle"}.`,
       "",
       `## Apprentissage`,
       pick(EMPTY_OPENERS),
-      "",
-      `## Prochaine action interne`,
-      pick(EMPTY_NEXT_ACTIONS),
-    ].join("\n");
+    ];
+    if (firstHarvestBrief) {
+      lines.push(
+        "",
+        `## Cible fixée par la parcelle`,
+        firstHarvestBrief,
+        `Ceci est le brief tel qu'écrit dans la parcelle — pas une donnée inventée par Gérard, juste pas encore transformée en livrable faute de source Mistral/Publisher disponible.`,
+      );
+    }
+    if (latestHarvest) {
+      lines.push("", `## Depuis la dernière itération`, `Gérard revient sur cette graine sans repartir de zéro ; il attend une source (Publisher ou Mistral) pour vraiment aller plus loin que la fois précédente.`);
+    }
+    lines.push("", `## Prochaine action interne`, pick(EMPTY_NEXT_ACTIONS));
+    return lines.join("\n");
   }
 
   async function harvest(draft, reason = "local-first") {
@@ -145,7 +199,17 @@
 
     const pack = productPack(seed, parcel);
     const publisherPack = await fetchPublisherPack(seed, parcel);
-    const content = harvestText(seed, parcel, pack, draft, publisherPack);
+    const priors = priorHarvests(seed.id);
+    const latestHarvest = priors[0] || null;
+    const iterationNumber = priors.length + 1;
+
+    // Gérard tente toujours une vraie itération générative (via Publisher/
+    // Mistral), grounded dans les faits vérifiés disponibles et dans ce qui
+    // a déjà été produit — jamais dans le vide, jamais une répétition.
+    const groundingText = publisherPack?.verified && publisherPack.prompt ? publisherPack.prompt.slice(0, 1600) : "";
+    const mistralDraft = await requestMistralDraft(seed, groundingText, iterationNumber, latestHarvest);
+
+    const content = mistralDraft?.content || harvestText(seed, parcel, pack, draft, publisherPack, iterationNumber, latestHarvest);
     const operationId = `local_harvest_${seed.id}_${Date.now()}`;
     const usesPublisher = Boolean(publisherPack?.verified && publisherPack.prompt);
     const mission = {
@@ -153,18 +217,22 @@
       operationId,
       parcelId: seed.parcelId,
       status: "completed",
-      summary: `Récolte produite pour ${seed.title || seed.id}`,
+      summary: `Récolte produite pour ${seed.title || seed.id} (itération ${iterationNumber})`,
       output: {
         text: `${content}\n\n<!-- HARVEST_COMPLETE -->`,
         harvests: [{
           id: `harvest_${operationId}`,
-          title: !usesPublisher && pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
+          title: mistralDraft ? `Récolte · ${seed.title || seed.id} (v${iterationNumber})` : !usesPublisher && pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
           description: content.slice(0, 260),
           artifactType: "text/markdown",
           artifact: content,
           content,
         }],
-        learnings: usesPublisher ? [{
+        learnings: mistralDraft ? [{
+          title: `Itération ${iterationNumber} générée pour ${seed.title || seed.id}`,
+          description: latestHarvest ? "Construite en allant plus loin que la récolte précédente." : "Premier jet généré à partir du brief de la parcelle.",
+          confidence: 0.85,
+        }] : usesPublisher ? [{
           title: `Connaissance vérifiée trouvée chez Publisher pour ${seed.title || seed.id}`,
           description: text(publisherPack.items?.[0]?.title) || content.slice(0, 300),
           confidence: 0.95,

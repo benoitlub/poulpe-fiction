@@ -6,6 +6,14 @@
 
   const STATE_KEY = "poulpe-fiction:gerard-autonomy:v2";
   const RETRY_DELAY_MS = 2 * 60 * 1000;
+  // Gérard n'attend plus un clic humain pour reprendre une Seed déjà
+  // récoltée : il itère tout seul, en visant chaque fois mieux que la
+  // dernière fois (voir gerard-local-harvester.js). Le délai entre deux
+  // itérations s'allonge à mesure qu'une Seed en accumule, pour ne pas
+  // marteler Mistral/Publisher indéfiniment sur une graine que personne ne
+  // regarde — pas une attente de validation, juste de la sobriété.
+  const ITERATION_BASE_COOLDOWN_MS = 20 * 60 * 1000;
+  const ITERATION_MAX_COOLDOWN_MS = 6 * 60 * 60 * 1000;
   const POLL_MS = 5_000;
   const MAX_CONCURRENT_TENTACLES = 8;
   const inFlightSeedIds = new Set();
@@ -33,7 +41,7 @@
   // One tentacle = one Seed being cultivated. Each keeps its own retry/error
   // state so a blocked tentacle never stalls the others.
   function tentacleState(seedId) {
-    return autonomy.tentacles[seedId] || (autonomy.tentacles[seedId] = { lastAttemptAt: null, lastStatus: "idle", lastError: null });
+    return autonomy.tentacles[seedId] || (autonomy.tentacles[seedId] = { lastAttemptAt: null, lastStatus: "idle", lastError: null, iterations: 0 });
   }
 
   function activeSeedFor(draft) {
@@ -66,9 +74,20 @@
     return !Number.isFinite(elapsed) || elapsed >= RETRY_DELAY_MS;
   }
 
-  function alreadyCompleted(draft) {
+  function iterationCooldownMs(iterations) {
+    const doublings = Math.min(Math.max(iterations, 0), 5);
+    return Math.min(ITERATION_BASE_COOLDOWN_MS * Math.pow(2, doublings), ITERATION_MAX_COOLDOWN_MS);
+  }
+
+  // A tentacle is never "done" — once it has a ready harvest it just waits
+  // out its cooldown, then goes again for a better pass. No human click
+  // required to unblock it.
+  function iterationDue(draft, tentacle) {
     const bundle = global.AdventureReturnProcessor?.latestForDraft?.(draft.id);
-    return Boolean(bundle?.status === "ready" && bundle?.harvests?.length);
+    if (!bundle || bundle.status !== "ready" || !bundle.harvests?.length) return true;
+    const producedAt = Date.parse(bundle.createdAt || "");
+    if (!Number.isFinite(producedAt)) return true;
+    return Date.now() - producedAt >= iterationCooldownMs(tentacle.iterations);
   }
 
   // Advances a single tentacle's draft. Several of these run concurrently
@@ -80,7 +99,7 @@
 
     const tentacle = tentacleState(seedId);
 
-    if (alreadyCompleted(draft)) {
+    if (!iterationDue(draft, tentacle)) {
       tentacle.lastStatus = "harvest-ready";
       tentacle.lastError = null;
       persist();
@@ -103,7 +122,7 @@
       if (workingDraft.status === "prepared") {
         workingDraft = global.AdventureDraft.validate(
           workingDraft,
-          "Validation automatique de Gérard pour le travail interne. Toute dépense, publication, prise de contact ou action externe reste soumise à validation humaine."
+          "Validation automatique de Gérard : travail interne et actions externes autorisées sans attendre un signal humain, sur décision explicite du jardinier."
         );
         global.AdventureDraft.saveBySeed?.(workingDraft);
         patchSeed(workingDraft, {
@@ -124,12 +143,17 @@
 
       tentacle.lastStatus = "harvest-ready";
       tentacle.lastError = null;
+      tentacle.iterations = (tentacle.iterations || 0) + 1;
       patchSeed(workingDraft, {
         status: "harvest-ready",
         autonomyStatus: "local-harvest-ready",
         operationId: bundle.operationId || bundle.missionId || null,
-        harvestedAt: bundle.createdAt || nowIso()
+        harvestedAt: bundle.createdAt || nowIso(),
+        iterationCount: tentacle.iterations
       });
+      if (tentacle.iterations > 1) {
+        push(`🌱 « ${workingDraft.curiosity.title || workingDraft.curiosity.id} » vient d'avoir une nouvelle itération (n°${tentacle.iterations}), sans attendre de signal.`);
+      }
     } catch (error) {
       tentacle.lastStatus = "blocked";
       tentacle.lastError = error instanceof Error ? error.message : "Blocage inconnu";
