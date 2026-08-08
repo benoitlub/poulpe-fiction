@@ -28,8 +28,40 @@
     return global.ProductKnowledge?.get?.(slug) || global.ProductKnowledge?.get?.(seed?.id) || null;
   }
 
-  function harvestText(seed, parcel, pack, draft) {
+  // Publisher (autonomous Notion curator) takes priority over the local
+  // static ProductKnowledge bundle when it has a verified source — that is
+  // real, up-to-date knowledge rather than a hardcoded fallback.
+  async function fetchPublisherPack(seed, parcel) {
+    const slug = text(seed?.knowledgeSlug) || text(parcel?.knowledgeSlug) || text(seed?.id);
+    try {
+      return await global.PublisherKnowledge?.load?.(slug);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function harvestText(seed, parcel, pack, draft, publisherPack) {
     const objective = text(draft?.objective) || text(seed?.objective || seed?.content);
+    if (publisherPack?.verified && publisherPack.prompt) {
+      const sourceTitles = Array.isArray(publisherPack.items) ? publisherPack.items.map((item) => text(item?.title)).filter(Boolean) : [];
+      const excerpt = publisherPack.prompt.length > 1400 ? `${publisherPack.prompt.slice(0, 1400)}…` : publisherPack.prompt;
+      const lines = [
+        `# Récolte · ${seed?.title || "Graine"}`,
+        "",
+        `## Mission traitée`,
+        objective || `Cultiver « ${seed?.title || seed?.id} »`,
+        "",
+        `## Ce que Publisher a vérifié`,
+        excerpt,
+      ];
+      if (sourceTitles.length) lines.push("", `## Sources`, ...sourceTitles.map((title) => `- ${title}`));
+      lines.push(
+        "",
+        `## Prochaine action interne`,
+        `Préparer un premier livrable directement à partir de ces faits vérifiés, sans en ajouter d’autres.`,
+      );
+      return lines.join("\n");
+    }
     if (pack) {
       const angles = Array.isArray(pack.sampleAngles) ? pack.sampleAngles.slice(0, 3) : [];
       const audiences = Array.isArray(pack.audienceHypotheses) ? pack.audienceHypotheses.slice(0, 3) : [];
@@ -76,8 +108,10 @@
     if (!seed) throw new Error("Aucune graine active à récolter.");
 
     const pack = productPack(seed, parcel);
-    const content = harvestText(seed, parcel, pack, draft);
+    const publisherPack = await fetchPublisherPack(seed, parcel);
+    const content = harvestText(seed, parcel, pack, draft, publisherPack);
     const operationId = `local_harvest_${seed.id}_${Date.now()}`;
+    const usesPublisher = Boolean(publisherPack?.verified && publisherPack.prompt);
     const mission = {
       id: operationId,
       operationId,
@@ -88,13 +122,17 @@
         text: `${content}\n\n<!-- HARVEST_COMPLETE -->`,
         harvests: [{
           id: `harvest_${operationId}`,
-          title: pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
+          title: !usesPublisher && pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
           description: content.slice(0, 260),
           artifactType: "text/markdown",
           artifact: content,
           content,
         }],
-        learnings: pack ? [{
+        learnings: usesPublisher ? [{
+          title: `Connaissance vérifiée trouvée chez Publisher pour ${seed.title || seed.id}`,
+          description: text(publisherPack.items?.[0]?.title) || content.slice(0, 300),
+          confidence: 0.95,
+        }] : pack ? [{
           title: `Direction retenue pour ${pack.title || seed.title}`,
           description: pack.campaignDirection || pack.synopsis || content.slice(0, 300),
           confidence: 0.9,
