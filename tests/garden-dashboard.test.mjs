@@ -75,7 +75,7 @@ function loadRuntimeConfig(context = createContext()) {
 test("exposes the current Cloudflare Workers URLs by default", () => {
   const context = loadRuntimeConfig();
   assert.equal(context.PoulpeRuntimeConfig.urls.octopusApi, "https://octopus-engine-app.benoitlubert.workers.dev");
-  assert.equal(context.PoulpeRuntimeConfig.urls.publisherApi, "https://dry-dew-8fb3blacklace-publisher-relay.benoitlubert.workers.dev");
+  assert.equal(context.PoulpeRuntimeConfig.urls.publisherApi, "https://blacklace-publisher-worker.benoitlubert.workers.dev");
   assert.equal(context.PoulpeRuntimeConfig.environment, "publisher-direct");
 });
 
@@ -104,7 +104,7 @@ test("removes stale API localStorage overrides without clearing Garden data", ()
 test("uses the current Publisher relay and loads runtime config before dependent scripts", () => {
   const context = loadRuntimeConfig();
   assert.equal(context.PoulpeRuntimeConfig.urls.octopusApi, "https://octopus-engine-app.benoitlubert.workers.dev");
-  assert.equal(context.PoulpeRuntimeConfig.urls.publisherApi, "https://dry-dew-8fb3blacklace-publisher-relay.benoitlubert.workers.dev");
+  assert.equal(context.PoulpeRuntimeConfig.urls.publisherApi, "https://blacklace-publisher-worker.benoitlubert.workers.dev");
   const html = fs.readFileSync("mobile-v2.html", "utf8");
   assert.ok(html.indexOf("./runtime-config.js") > -1);
   assert.ok(html.indexOf("./runtime-config.js") < html.indexOf("./client-access.js"));
@@ -306,7 +306,7 @@ test("produces landing page through Publisher Production Engine and stores downl
   const bundle = await context.TerraHarvestLoop.produceNow();
   const landing = context.TerraHarvestLoop.landingHarvest(bundle);
 
-  assert.equal(calls[0].url, "https://dry-dew-8fb3blacklace-publisher-relay.benoitlubert.workers.dev/api/production/execute");
+  assert.equal(calls[0].url, "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/execute");
   assert.match(calls[0].options.body, /html-local/);
   assert.equal(landing.artifactType, "landing-page");
   assert.equal(landing.content.text, "<main><h1>TERRA</h1></main>");

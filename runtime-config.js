@@ -12,8 +12,16 @@
 
   const urls = {
     octopusApi: "https://octopus-engine-app.benoitlubert.workers.dev",
-       publisherApi: normalizeUrl(global.PUBLISHER_API_URL) || storedPublisherApi || "https://dry-dew-8fb3blacklace-publisher-relay.benoitlubert.workers.dev",
-    
+    // dry-dew-8fb3blacklace-publisher-relay.benoitlubert.workers.dev was a
+    // dead/orphaned deployment: its code matches no commit in
+    // blacklace-publisher-ai (confirmed via full git history search), every
+    // route 405s or answers with an unrelated error shape, and it isn't
+    // referenced by that repo's own wrangler config or deploy workflow.
+    // publisher-worker/ (wrangler.toml name "blacklace-publisher-worker")
+    // is the real, currently-deployed Cloudflare Worker for Publisher's
+    // production endpoints — verified live: GET /api/health returns
+    // {"status":"ok","service":"blacklace-publisher-worker"}.
+    publisherApi: normalizeUrl(global.PUBLISHER_API_URL) || storedPublisherApi || "https://blacklace-publisher-worker.benoitlubert.workers.dev",
     publisherFrontend: "https://github.com/benoitlub/blacklace-publisher-ai",
     githubRuntime: "",
     gardenFeed: ""
@@ -64,7 +72,7 @@
     }
 
     try {
-      const response = await withTimeout(`${publisherApi}/health`, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await withTimeout(`${publisherApi}/api/health`, { cache: "no-store", headers: { Accept: "application/json" } });
       return {
         checkedAt: new Date().toISOString(),
         environment,
