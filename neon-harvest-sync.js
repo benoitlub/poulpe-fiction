@@ -36,6 +36,7 @@
 
     const seen = importedIds();
     let changed = false;
+    let failed = 0;
 
     for (const iteration of iterations) {
       const seedId = text(iteration.seed_id);
@@ -47,13 +48,26 @@
       const content = harvestContent(iteration);
       if (!content) { seen.add(harvestId); continue; }
 
+      const parcelId = text(iteration.parcel_id) || text(global.BlacklaceParcel?.parcel?.seeds?.find?.((s) => s.id === seedId)?.parcelId);
+      if (!parcelId) {
+        // GardenDomain.createHarvest() throws without a parcelId — mark
+        // seen anyway so a permanently-unresolvable row doesn't get
+        // retried forever on every 60s tick without ever succeeding
+        // (previously: caught, silently skipped, but never marked seen,
+        // so it just kept retrying and failing). Logged for diagnosis.
+        console.warn("[neon-harvest-sync] no parcelId for", seedId, harvestId);
+        seen.add(harvestId);
+        failed++;
+        continue;
+      }
+
       const modeLabel = iteration.mode === "play" ? " · exploration" : "";
       const title = `☁️ Récolte serveur · ${text(iteration.title) || seedId} (itération ${iteration.iteration_number}${modeLabel})`;
 
       try {
         global.GardenStore?.addHarvest?.({
           id: harvestId,
-          parcelId: text(iteration.parcel_id) || undefined,
+          parcelId,
           seedId,
           operationId: harvestId,
           title,
@@ -69,8 +83,13 @@
         }
         seen.add(harvestId);
         changed = true;
-      } catch (_) { /* skip this one, retry next sync tick */ }
+      } catch (error) {
+        console.warn("[neon-harvest-sync] failed to import", harvestId, error);
+        seen.add(harvestId);
+        failed++;
+      }
     }
+    if (failed) console.warn(`[neon-harvest-sync] ${failed} iteration(s) could not be imported this pass`);
 
     if (changed) {
       saveImported(seen);
