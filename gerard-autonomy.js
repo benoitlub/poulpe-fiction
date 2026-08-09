@@ -125,6 +125,23 @@
 
     const tentacle = tentacleState(seedId);
 
+    // Self-heal: blacklace-parcel.js's ensureGerardCultivation() used to
+    // stomp a Seed's public status back to "bag-ready" every ~15s even
+    // after this tentacle had genuinely reached harvest-ready (fixed, but
+    // that fix only stops *future* stomping — it does nothing for Seeds
+    // already stuck from before the fix landed, and the next real
+    // iteration could be hours away under cooldown). Reconcile on every
+    // poll instead of waiting: if this tentacle's own bookkeeping says the
+    // last attempt succeeded, the Seed's visible status should say so too,
+    // immediately, regardless of the iteration/cooldown schedule.
+    if (tentacle.lastStatus === "harvest-ready") {
+      const currentSeed = activeSeedFor(draft);
+      if (currentSeed && currentSeed.status !== "harvest-ready" && currentSeed.status !== "harvested" && currentSeed.status !== "composted") {
+        patchSeed(draft, { status: "harvest-ready", autonomyStatus: "local-harvest-ready" });
+        refresh();
+      }
+    }
+
     if (!iterationDue(draft, tentacle)) {
       tentacle.lastStatus = "harvest-ready";
       tentacle.lastError = null;
