@@ -231,10 +231,22 @@
     syncGardenDomain(activeSeed());
     cacheParcel();
 
+    // gerard-autonomy.js owns these Seeds once it picks them up (bag-ready →
+    // mission-queued → adventure → harvest-ready). This poll used to only
+    // skip "adventure"/"harvested"/"composted" — "harvest-ready" (and
+    // "mission-queued", the brief moment between validation and departure)
+    // weren't excluded, so every real harvest gerard-autonomy.js produced
+    // got its status silently reset back to "bag-ready" on the very next
+    // tick (every CULTIVATION_POLL_MS), making a working autonomous loop
+    // look stuck forever on "n'attend qu'un signal" in the Hublot UI even
+    // while it kept producing harvests underneath. Reported live by the
+    // user from a screenshot: 8 seeds all reading "impatient de partir"
+    // despite "+8 autres récoltes dans le jardin" sitting right above them.
+    const GERARD_AUTONOMY_OWNED_STATUSES = new Set(["mission-queued", "adventure", "harvest-ready", "harvested", "composted"]);
     const activeDrafts = global.AdventureDraft?.loadActiveDrafts?.() || [];
     activeDrafts.forEach((draft) => {
       const seed = parcel.seeds.find((item) => item.id === draft.curiosity?.id);
-      if (seed && seed.status !== "adventure" && seed.status !== "harvested" && seed.status !== "composted") {
+      if (seed && !GERARD_AUTONOMY_OWNED_STATUSES.has(seed.status)) {
         updateSeedStatus(draft.curiosity.id, "bag-ready", { adventureDraftId: draft.id });
       }
     });
