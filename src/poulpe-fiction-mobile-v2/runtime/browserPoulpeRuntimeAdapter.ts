@@ -206,7 +206,7 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
       requiredCapabilities: [capability],
       authorizedResources: ["publisher"],
       authorize: ["publisher"],
-      authorizationPolicy: { internalWork: "allowed", externalAction: "allowed" },
+      authorizationPolicy: { internalWork: "allowed", externalAction: "requires-human-approval" },
       prompt: [
         "Poulpe Fiction demande cette production par l’intermédiaire exclusif d’Octopus.",
         `Capacité demandée: ${capability}`,
@@ -255,7 +255,7 @@ export const browserPoulpeRuntimeAdapter: PoulpeRuntimeAdapter = {
       requiredCapabilities: [capability],
       authorizedResources: ["publisher"],
       authorize: ["publisher"],
-      authorizationPolicy: { internalWork: "allowed", externalAction: "allowed" },
+      authorizationPolicy: { internalWork: "allowed", externalAction: "requires-human-approval" },
       context: {
         id: current.intent.parcelId,
         label: text(parcel.name) || current.intent.parcelId,
