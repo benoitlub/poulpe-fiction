@@ -56,5 +56,20 @@
     }
   }
 
-  global.PublisherClient = { base, execute, syncTentacles };
+  // Generic GET, for read-only endpoints (e.g. /api/tentacles/iterations)
+  // that don't fit execute()'s POST-a-tool-call shape.
+  async function get(path, options = {}) {
+    const publisherBase = base();
+    if (!publisherBase) return null;
+    try {
+      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
+      const response = await request(`${publisherBase}${path}`, {}, options.timeoutMs || 10000);
+      if (!response.ok) return null;
+      return await response.json().catch(() => null);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  global.PublisherClient = { base, execute, syncTentacles, get };
 })(globalThis);
