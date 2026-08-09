@@ -56,7 +56,18 @@
   function patchSeed(draft, patch) {
     const seed = activeSeedFor(draft);
     if (!seed?.id) return;
-    try { global.GardenStore?.updateSeed?.(seed.id, Object.assign({ autonomyUpdatedAt: nowIso() }, patch)); } catch (_) {}
+    const fullPatch = Object.assign({ autonomyUpdatedAt: nowIso() }, patch);
+    // BlacklaceParcel.updateSeedStatus() keeps both GardenStore (persisted)
+    // and window.BlacklaceParcel.parcel.seeds (the separate in-memory copy
+    // ActiveExplorations.tsx/renderParcel actually read) in sync in one
+    // call. Calling GardenStore directly, as this used to, left that
+    // second copy stale forever — found live: patchSeed() correctly
+    // persisted "harvest-ready", but the Hublot UI kept narrating
+    // "bag-ready" because BlacklaceParcel never heard about it.
+    if (global.BlacklaceParcel?.updateSeedStatus && fullPatch.status) {
+      try { global.BlacklaceParcel.updateSeedStatus(seed.id, fullPatch.status, fullPatch); return; } catch (_) {}
+    }
+    try { global.GardenStore?.updateSeed?.(seed.id, fullPatch); } catch (_) {}
   }
 
   function push(message) {

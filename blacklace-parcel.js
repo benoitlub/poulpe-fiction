@@ -327,7 +327,12 @@
     });
   }
 
-  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, MAX_ACTIVE_TENTACLES, parcel, activeSeed, prepareSeedAdventure, ensureGerardCultivation, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain };
+  // Exposed so other modules (gerard-autonomy.js, gerard-local-harvester.js)
+  // can update a Seed's status without duplicating the "keep parcel.seeds
+  // AND GardenStore in sync" logic themselves — GardenStore.updateSeed()
+  // alone never reaches this file's own in-memory parcel.seeds, which is
+  // what renderParcel()/ActiveExplorations.tsx actually read.
+  global.BlacklaceParcel = { PARCEL_ID, ACTIVE_SEED_KEY, PARCEL_CACHE_KEY, MAX_ACTIVE_TENTACLES, parcel, activeSeed, prepareSeedAdventure, ensureGerardCultivation, renderParcel, syncFromGlobal, writeGlobalState, loadToolPack, syncGardenDomain, updateSeedStatus };
 
   // Optional legacy vanilla-template hook — see safeRender() above.
   if (typeof global.render === "function") {

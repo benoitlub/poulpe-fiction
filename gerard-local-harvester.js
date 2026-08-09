@@ -301,12 +301,13 @@
     save({ status: "producing", seedId: seed.id, draftId: draft.id, reason, startedAt: now() });
     const bundle = global.AdventureReturnProcessor.process(draft, mission);
     try {
-      global.GardenStore?.updateSeed?.(seed.id, {
-        status: "harvest-ready",
-        autonomyStatus: "local-harvest-ready",
-        lastHarvestAt: now(),
-        lastOperationId: operationId,
-      });
+      const harvestPatch = { status: "harvest-ready", autonomyStatus: "local-harvest-ready", lastHarvestAt: now(), lastOperationId: operationId };
+      // BlacklaceParcel.updateSeedStatus() keeps GardenStore AND
+      // window.BlacklaceParcel.parcel.seeds (what the Hublot UI actually
+      // reads) in sync — GardenStore.updateSeed() alone leaves the second
+      // copy stale. See gerard-autonomy.js's patchSeed() for the same fix.
+      if (global.BlacklaceParcel?.updateSeedStatus) global.BlacklaceParcel.updateSeedStatus(seed.id, harvestPatch.status, harvestPatch);
+      else global.GardenStore?.updateSeed?.(seed.id, harvestPatch);
     } catch (_) {}
     save({ status: "ready", seedId: seed.id, draftId: draft.id, operationId, completedAt: now() });
     try {
