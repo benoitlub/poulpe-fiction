@@ -35,7 +35,7 @@
   function sourceFor(seedId) { return sourceCatalog[seedId] || { sourceStatus: "missing" }; }
   function latestForReturn(returnId) { return load().find((pack) => pack.returnId === returnId) || null; }
   function publisherBaseUrl() {
-    try { return typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : ""; }
+    try { return global.PublisherClient?.base?.() || (typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : ""); }
     catch (_) { return ""; }
   }
   function loadConnections() {

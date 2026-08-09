@@ -49,7 +49,7 @@
   }
 
   function publisherBaseUrl() {
-    try { return typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : ""; }
+    try { return global.PublisherClient?.base?.() || (typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : ""); }
     catch (_) { return ""; }
   }
 

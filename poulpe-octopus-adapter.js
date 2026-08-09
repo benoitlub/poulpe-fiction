@@ -9,7 +9,7 @@
   }
 
   function publisherBase() {
-    return String(global.PoulpeRuntimeConfig?.urls?.publisherApi || global.PUBLISHER_API || "").replace(/\/$/, "");
+    return global.PublisherClient?.base?.() || String(global.PoulpeRuntimeConfig?.urls?.publisherApi || global.PUBLISHER_API || "").replace(/\/$/, "");
   }
 
   function now() { return new Date().toISOString(); }

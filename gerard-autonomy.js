@@ -68,6 +68,32 @@
     try { global.GardenShell?.mount?.(); } catch (_) {}
   }
 
+  // Publisher's Neon-backed Cron loop (worker.ts, runTentacleCycle) needs
+  // the Seed catalog to keep working "sans relâche" even once this tab
+  // closes. Pushed periodically rather than on every poll tick — it's
+  // catalog metadata (title/objective/...), not a harvest result.
+  const TENTACLE_SYNC_INTERVAL_MS = 10 * 60 * 1000;
+  let lastTentacleSyncAt = 0;
+
+  function syncTentacleCatalog() {
+    if (Date.now() - lastTentacleSyncAt < TENTACLE_SYNC_INTERVAL_MS) return;
+    lastTentacleSyncAt = Date.now();
+    try {
+      const snapshot = global.GardenStore?.snapshot?.() || {};
+      const seeds = (snapshot.seeds || [])
+        .filter((seed) => seed?.id && seed?.parcelId && seed?.title)
+        .map((seed) => ({
+          seedId: seed.id,
+          parcelId: seed.parcelId,
+          title: seed.title,
+          objective: seed.objective || seed.content || "",
+          firstHarvest: seed.firstHarvest || "",
+          knowledgeSlug: seed.knowledgeSlug || "",
+        }));
+      if (seeds.length) void global.PublisherClient?.syncTentacles?.(seeds);
+    } catch (_) {}
+  }
+
   function retryAllowed(tentacle) {
     if (!tentacle.lastAttemptAt) return true;
     const elapsed = Date.now() - new Date(tentacle.lastAttemptAt).getTime();
@@ -176,6 +202,8 @@
     if (!autonomy.enabled) return;
     if (global.GerardScheduler?.hasActiveUserInteraction?.()) return;
     if (global.DepartureController?.isRunning?.() || global.AdventureLaunch?.isLaunching?.()) return;
+
+    syncTentacleCatalog();
 
     const drafts = (global.AdventureDraft?.loadActiveDrafts?.() || []).slice(0, MAX_CONCURRENT_TENTACLES);
     if (!drafts.length) return;

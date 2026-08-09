@@ -68,8 +68,6 @@
   }
 
   async function requestMistralDraft(seed, groundingText, iterationNumber, latestHarvest) {
-    const base = typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : "";
-    if (!base) return null;
     const priorContent = text(latestHarvest?.content?.text || latestHarvest?.content);
     const catalog = catalogSummary(seed);
     const personaTask = catalog
@@ -92,21 +90,10 @@
       priorContent ? "Va réellement plus loin que la récolte précédente : ajoute un élément nouveau, plus abouti ou plus concret plutôt que de reformuler." : "",
     ].filter(Boolean).join("\n\n");
 
-    try {
-      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
-      const response = await request(`${base}/api/production/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: "mistral", action: "copy.generate", input: { title: seed.title || seed.id, prompt } }),
-      }, 15000);
-      if (!response.ok) return null;
-      const payload = await response.json().catch(() => null);
-      const draftContent = text(payload?.artifact?.content);
-      if (payload?.status !== "completed" || !draftContent) return null;
-      return { content: draftContent, provider: "publisher-mistral" };
-    } catch (_) {
-      return null;
-    }
+    const payload = await global.PublisherClient?.execute?.("mistral", "copy.generate", { title: seed.title || seed.id, prompt });
+    const draftContent = text(payload?.artifact?.content);
+    if (!draftContent) return null;
+    return { content: draftContent, provider: "publisher-mistral" };
   }
 
   // En plus du texte, Gérard tente de faire naître un visuel réel via
@@ -115,25 +102,12 @@
   // Canva réel — pas une image directement affichable — donc on le relie
   // en clair dans la récolte plutôt que d'inventer une prévisualisation.
   async function requestCanvaVisual(seed, iterationNumber) {
-    const base = typeof PUBLISHER_API === "string" ? PUBLISHER_API.replace(/\/$/, "") : "";
-    if (!base) return null;
     const title = `${seed?.title || seed?.id || "Poulpe Fiction"} · itération ${iterationNumber}`;
-    try {
-      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
-      const response = await request(`${base}/api/production/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: "canva", action: "create_design", input: { title } }),
-      }, 15000);
-      if (!response.ok) return null;
-      const payload = await response.json().catch(() => null);
-      const artifact = payload?.artifact;
-      const url = text(artifact?.url);
-      if (payload?.status !== "completed" || !url) return null;
-      return { url, title: text(artifact?.title) || title, designId: text(artifact?.rawReference?.designId) };
-    } catch (_) {
-      return null;
-    }
+    const payload = await global.PublisherClient?.execute?.("canva", "create_design", { title });
+    const artifact = payload?.artifact;
+    const url = text(artifact?.url);
+    if (!url) return null;
+    return { url, title: text(artifact?.title) || title, designId: text(artifact?.rawReference?.designId) };
   }
 
   // Gérard reste factuellement honnête (jamais de chiffre, preuve ou fait
