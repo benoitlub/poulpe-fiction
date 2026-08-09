@@ -252,25 +252,25 @@
       summary: `Récolte produite pour ${seed.title || seed.id} (itération ${iterationNumber})`,
       output: {
         text: `${content}\n\n<!-- HARVEST_COMPLETE -->`,
-        harvests: [
-          {
-            id: `harvest_${operationId}`,
-            title: mistralDraft ? `Récolte · ${seed.title || seed.id} (v${iterationNumber})` : !usesPublisher && pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
-            description: content.slice(0, 260),
-            artifactType: "text/markdown",
-            artifact: content,
-            content,
-          },
-          ...(canvaVisual ? [{
-            id: `harvest_${operationId}_visual`,
-            title: `Visuel · ${canvaVisual.title}`,
-            description: `Design Canva créé par Gérard pour cette itération. Lien d'édition réel, à ouvrir pour voir/exporter le visuel : ${canvaVisual.url}`,
-            artifactType: "social-visual",
-            artifact: canvaVisual.url,
-            content: `Design Canva : ${canvaVisual.title}\n${canvaVisual.url}`,
-            url: canvaVisual.url,
-          }] : []),
-        ],
+        // A single harvest item per mission, on purpose: adventure-return.js
+        // gives every item in this array the same operationId, and
+        // restoreGardenHarvest.ts (the React Garden UI) treats operationId
+        // as the mission's dedup key — one bundle per mission, most-recent
+        // wins. A second "visual" item here previously collided on that key
+        // and silently shadowed the real text harvest (the Canva URL won
+        // the dedup instead), which is why v3 improvements briefly appeared
+        // and then vanished from the Garden. The Canva link already lives
+        // inline in `content` above ("## Visuel créé par Gérard"), so
+        // nothing is lost by not duplicating it as its own harvest entry.
+        harvests: [{
+          id: `harvest_${operationId}`,
+          title: mistralDraft ? `Récolte · ${seed.title || seed.id} (v${iterationNumber})` : !usesPublisher && pack ? `Récolte · ${pack.title || seed.title}` : `Récolte · ${seed.title || seed.id}`,
+          description: content.slice(0, 260),
+          artifactType: "text/markdown",
+          artifact: content,
+          content,
+          url: canvaVisual?.url || undefined,
+        }],
         learnings: [
           ...(mistralDraft ? [{
             title: `Itération ${iterationNumber} générée pour ${seed.title || seed.id}`,
