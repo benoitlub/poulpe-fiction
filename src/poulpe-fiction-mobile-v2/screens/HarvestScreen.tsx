@@ -47,6 +47,34 @@ const HarvestCard: FC<{ bundle: HarvestBundle; initiallyOpen?: boolean }> = ({ b
   );
 }
 
+function parcelLabel(parcelId: string): string {
+  return parcelId.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+const ParcelGroup: FC<{ parcelId: string; items: HarvestBundle[]; initiallyOpen: boolean }> = ({ parcelId, items, initiallyOpen }) => {
+  const [open, setOpen] = useState(initiallyOpen);
+  const latest = items[0];
+  return (
+    <section className="pf-card" aria-label={`Parcelle ${parcelLabel(parcelId)}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        style={{ width: "100%", border: 0, background: "transparent", color: "inherit", textAlign: "left", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}
+      >
+        <div>
+          <h2 className="pf-harvest-title">{parcelLabel(parcelId)}</h2>
+          <p className="pf-meta">{items.length} récolte{items.length > 1 ? "s" : ""} · dernière le {new Date(latest.createdAt).toLocaleDateString("fr-FR")}</p>
+        </div>
+        <span className="pf-harvest-status">{open ? "Replier" : "Déplier"}</span>
+      </button>
+      {open ? <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
+        {items.map((item, index) => <HarvestCard key={item.missionId} bundle={item} initiallyOpen={index === 0} />)}
+      </div> : null}
+    </section>
+  );
+}
+
 export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundle | null; onBackToGerard: () => void }) {
   const [stored, setStored] = useState<HarvestBundle[]>(() => restoreAllGardenHarvests());
 
@@ -71,14 +99,28 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
     });
   }, [bundle, stored]);
 
+  const groups = useMemo(() => {
+    const byParcel = new Map<string, HarvestBundle[]>();
+    for (const item of harvests) {
+      const key = item.intent.parcelId || "sans-parcelle";
+      const list = byParcel.get(key) ?? [];
+      list.push(item);
+      byParcel.set(key, list);
+    }
+    // harvests est déjà trié du plus récent au plus ancien (restoreAllGardenHarvests) ;
+    // Map conserve l'ordre d'insertion, donc les groupes apparaissent déjà triés par
+    // date de leur récolte la plus récente, sans tri supplémentaire nécessaire.
+    return [...byParcel.entries()];
+  }, [harvests]);
+
   if (!harvests.length) {
     return <section className="pf-card"><div className="pf-empty"><h2>Pas encore de récolte</h2><p>Gérard n’affiche rien de fictif. Les vraies récoltes apparaîtront ici lorsqu’elles seront prêtes.</p><button className="pf-btn pf-btn-primary" onClick={onBackToGerard}>Confier une culture</button></div></section>;
   }
 
   return (
     <section aria-label="Toutes les récoltes">
-      <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Toutes les récoltes</h2><p className="pf-meta">{harvests.length} récolte{harvests.length > 1 ? "s" : ""} conservée{harvests.length > 1 ? "s" : ""} dans le Garden</p></div></div></div>
-      {harvests.map((item, index) => <HarvestCard key={item.missionId} bundle={item} initiallyOpen={index === 0} />)}
+      <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Toutes les récoltes</h2><p className="pf-meta">{harvests.length} récolte{harvests.length > 1 ? "s" : ""} · {groups.length} parcelle{groups.length > 1 ? "s" : ""} dans le Garden</p></div></div></div>
+      {groups.map(([parcelId, items], index) => <ParcelGroup key={parcelId} parcelId={parcelId} items={items} initiallyOpen={index === 0} />)}
     </section>
   );
 }
