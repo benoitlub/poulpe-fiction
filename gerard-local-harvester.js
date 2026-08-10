@@ -83,11 +83,12 @@
       `Objectif : ${seed.objective || "non précisé"}`,
       `Première récolte visée : ${seed.firstHarvest || "non précisée"}`,
       groundingText ? `Faits vérifiés disponibles :\n${groundingText}` : "Aucun fait vérifié externe disponible pour l'instant — reste strictement dans le brief ci-dessus.",
-      priorContent ? `Récolte précédente (itération ${iterationNumber - 1}, à dépasser sans la répéter) :\n${priorContent.slice(0, 900)}` : "",
+      priorContent ? `Récolte précédente (itération ${iterationNumber - 1}, à approfondir sans la répéter) :\n${priorContent.slice(0, 900)}` : "",
       personaTask,
       "Produis un livrable court, concret et directement exploitable pour cette étape (angle, accroche ou premier élément de contenu).",
       "N'invente aucun fait vérifiable : pas de chiffre, pas de témoignage, pas de preuve sociale, pas de nom de personne réelle.",
-      priorContent ? "Va réellement plus loin que la récolte précédente : ajoute un élément nouveau, plus abouti ou plus concret plutôt que de reformuler." : "",
+      "N'invente aucun concept, protocole, méthodologie, univers narratif ou cadre fictif qui ne figure pas explicitement dans les faits vérifiés ci-dessus. Toute idée créative doit rester une reformulation ou un prolongement direct de ce qui est déjà écrit dans les faits vérifiés — jamais une nouvelle construction qui s'en éloigne.",
+      priorContent ? "\"Aller plus loin\" signifie : creuser un angle déjà présent dans les faits vérifiés avec plus de détail ou de concret — jamais ajouter un thème, un objet ou une mécanique qui n'y figure." : "",
     ].filter(Boolean).join("\n\n");
 
     const payload = await global.PublisherClient?.execute?.("mistral", "copy.generate", { title: seed.title || seed.id, prompt });
@@ -232,7 +233,7 @@
     // Gérard tente toujours une vraie itération générative (via Publisher/
     // Mistral), grounded dans les faits vérifiés disponibles et dans ce qui
     // a déjà été produit — jamais dans le vide, jamais une répétition.
-    const groundingText = publisherPack?.verified && publisherPack.prompt ? publisherPack.prompt.slice(0, 1600) : "";
+    const groundingText = publisherPack?.verified && publisherPack.prompt ? publisherPack.prompt.slice(0, 4000) : "";
     const [mistralDraft, canvaVisual] = await Promise.all([
       requestMistralDraft(seed, groundingText, iterationNumber, latestHarvest),
       requestCanvaVisual(seed, iterationNumber),
