@@ -3,16 +3,23 @@ import type { EditorialSource, GardenSnapshot, HarvestBundle, MissionProgress, U
 const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
 const record = (value: unknown): UnknownRecord => value && typeof value === "object" && !Array.isArray(value) ? value as UnknownRecord : {};
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
+// Applied *after* escapeHtml (which never touches [ ] ( ) , so this still
+// matches correctly) — turns Markdown-style [text](url) into a real link.
+// Without this, Gérard's embedded Canva links (e.g. "## Visuel créé par
+// Gérard\n[title](https://canva.com/...)") rendered as literal bracket
+// text instead of anything clickable — found live, verified in the
+// deployed iframe's srcdoc before fixing.
+const linkify = (escapedValue: string) => escapedValue.replace(/\[([^[\]]+)\]\((https?:\/\/[^\s()]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
 function renderBody(content: string) {
   return content.replace(/\r\n/g, "\n").split("\n").map((line) => {
     const value = line.trim();
     if (!value) return "";
     const heading = value.match(/^(#{1,3})\s+(.+)$/);
-    if (heading) return `<h${heading[1].length}>${escapeHtml(heading[2])}</h${heading[1].length}>`;
+    if (heading) return `<h${heading[1].length}>${linkify(escapeHtml(heading[2]))}</h${heading[1].length}>`;
     const bullet = value.match(/^[-*]\s+(.+)$/);
-    if (bullet) return `<li>${escapeHtml(bullet[1])}</li>`;
-    return `<p>${escapeHtml(value)}</p>`;
+    if (bullet) return `<li>${linkify(escapeHtml(bullet[1]))}</li>`;
+    return `<p>${linkify(escapeHtml(value))}</p>`;
   }).join("\n").replace(/(?:<li>.*?<\/li>\s*)+/gs, (items) => `<ul>${items}</ul>`);
 }
 
