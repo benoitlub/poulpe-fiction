@@ -3,12 +3,6 @@ import type { EditorialSource, GardenSnapshot, HarvestBundle, MissionProgress, U
 const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
 const record = (value: unknown): UnknownRecord => value && typeof value === "object" && !Array.isArray(value) ? value as UnknownRecord : {};
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
-// Applied *after* escapeHtml (which never touches [ ] ( ) , so this still
-// matches correctly) — turns Markdown-style [text](url) into a real link.
-// Without this, Gérard's embedded Canva links (e.g. "## Visuel créé par
-// Gérard\n[title](https://canva.com/...)") rendered as literal bracket
-// text instead of anything clickable — found live, verified in the
-// deployed iframe's srcdoc before fixing.
 const linkify = (escapedValue: string) => escapedValue.replace(/\[([^[\]]+)\]\((https?:\/\/[^\s()]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
 function renderBody(content: string) {
@@ -49,6 +43,26 @@ function editorialSource(harvest: UnknownRecord, payload: UnknownRecord, result:
   };
 }
 
+function findVisualArtifact(harvest: UnknownRecord, output: UnknownRecord, result: UnknownRecord): UnknownRecord | null {
+  const candidates = [
+    ...(Array.isArray(output.artifacts) ? output.artifacts.map(record) : []),
+    ...(Array.isArray(output.harvests) ? output.harvests.map(record) : []),
+    ...(Array.isArray(result.artifacts) ? result.artifacts.map(record) : []),
+    ...(Array.isArray(result.harvests) ? result.harvests.map(record) : []),
+    record(harvest.visual),
+  ];
+  const visual = candidates.find((item) => {
+    const type = `${text(item.kind)} ${text(item.type)} ${text(item.artifactType)}`.toLowerCase();
+    const url = text(item.previewUrl) || text(item.url) || text(item.downloadUrl);
+    return /visual|image|instagram/.test(type) && Boolean(url);
+  });
+  return visual && Object.keys(visual).length ? visual : null;
+}
+
+function publicationText(harvest: UnknownRecord, visual: UnknownRecord, output: UnknownRecord, result: UnknownRecord): string {
+  return text(harvest.postText) || text(harvest.caption) || text(visual.postText) || text(visual.caption) || text(output.postText) || text(output.caption) || text(result.postText) || text(result.caption);
+}
+
 function bundleFromGardenHarvest(harvest: UnknownRecord, snapshot: GardenSnapshot): HarvestBundle | null {
   const payload = record(harvest.payload);
   const result = record(payload.result);
@@ -56,14 +70,46 @@ function bundleFromGardenHarvest(harvest: UnknownRecord, snapshot: GardenSnapsho
   const artifacts = Array.isArray(output.artifacts) ? output.artifacts.map(record) : [];
   const artifact = artifacts[0] ?? record(result.artifact);
   const content = text(harvest.content) || text(harvest.latestContent) || text(harvest.originalContent) || text(artifact.content) || text(artifact.artifact) || text(output.text) || text(result.content);
-  if (!content) return null;
 
   const missionId = text(harvest.operationId) || text(harvest.missionId) || text(harvest.id);
   if (!missionId) return null;
   const parcelId = text(harvest.parcelId) || "poulpe-fiction";
   const title = text(harvest.title) || text(artifact.title) || "Récolte de Gérard";
   const createdAt = text(harvest.createdAt) || text(harvest.completedAt) || new Date().toISOString();
+  const visual = findVisualArtifact(harvest, output, result);
+  const postText = visual ? publicationText(harvest, visual, output, result) : "";
 
+  // A publication pack is only considered real when an actual visual URL exists
+  // AND a publication text exists. A prompt, title or placeholder never counts.
+  if (visual && postText) {
+    const previewUrl = text(visual.previewUrl) || text(visual.url) || text(visual.downloadUrl);
+    const downloadUrl = text(visual.downloadUrl) || text(visual.url) || undefined;
+    return {
+      missionId,
+      createdAt,
+      intent: {
+        parcelId,
+        goal: text(payload.title) || text(payload.objective) || title,
+        audience: text(payload.audience) || undefined,
+        format: text(visual.format) || text(visual.dimensions) || "Instagram",
+      },
+      harvest: {
+        kind: "publication-pack",
+        status: "ready-to-use",
+        title: text(visual.title) || title,
+        previewUrl,
+        downloadUrl,
+        caption: postText,
+        format: text(visual.format) || "Instagram",
+        dimensions: text(visual.dimensions) || "1080 × 1350",
+        postText,
+        sourceUrl: text(harvest.sourceUrl) || text(visual.sourceUrl) || undefined,
+      },
+      editorialSource: editorialSource(harvest, payload, result),
+    };
+  }
+
+  if (!content) return null;
   return {
     missionId,
     createdAt,
