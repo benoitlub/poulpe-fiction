@@ -17,6 +17,13 @@ const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
 
 const OCTOPUS_URL = (process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
 const PUBLISHER_URL = (process.env.PUBLISHER_URL || "http://127.0.0.1:3100").replace(/\/$/, "");
+
+// La récolte ne vise PAS le Publisher démarré localement dans le runner :
+// /api/tentacles/run-cycle n'existe que dans publisher-worker, pas dans
+// api-server. Le moteur de tentacules a besoin de Neon, de Mistral et de
+// Composio, tous liés sur le Worker déployé — un api-server local n'a ni la
+// route ni les identifiants Canva, donc il ne peut produire aucun visuel.
+const HARVEST_URL = (process.env.HARVEST_URL || "https://blacklace-publisher-worker.benoitlubert.workers.dev").replace(/\/$/, "");
 const TIMEOUT_MS = 60_000;
 
 function nowIso() {
@@ -24,6 +31,11 @@ function nowIso() {
 }
 
 function decideMode(date = new Date()) {
+  // Surcharge explicite : permet de rejouer un mode précis sans attendre la
+  // bonne tranche horaire, en test comme en déclenchement manuel du workflow.
+  const forced = (process.env.GERARD_MODE || "").trim().toLowerCase();
+  if (forced && Object.prototype.hasOwnProperty.call(MODE_INTENTS, forced)) return forced;
+
   const hour = date.getUTCHours();
   if (hour >= 0 && hour < 6) return "dream";
   if (hour >= 6 && hour < 12) return "cultivate";
@@ -112,11 +124,41 @@ async function runRealHarvest() {
   // blacklace-publisher-ai. It produces tentacle_iterations rows containing
   // actual Mistral content and, when available, a real visual_url. It is not
   // an article-writing proxy and must not be replaced by content.article.write.
-  return callJson(`${PUBLISHER_URL}/api/tentacles/run-cycle`, {
+  const result = await callJson(`${HARVEST_URL}/api/tentacles/run-cycle`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ source: "poulpe-fiction-gerard-cycle" }),
   });
+
+  if (result.status !== "ok") return result;
+
+  // Un cycle qui ne traite rien répond 200 avec processed: 0. Sans ce
+  // dépouillement, une récolte vide s'inscrivait dans gerard-state.json comme
+  // un succès indiscernable d'une vraie récolte — et on cherchait ensuite un
+  // visuel qui n'avait jamais été produit.
+  const payload = result.payload ?? {};
+  const results = Array.isArray(payload.results) ? payload.results : [];
+  const processed = Number(payload.processed ?? results.length) || 0;
+  const completed = results.filter((item) => item && item.status === "completed").length;
+  const withoutProvider = results.filter((item) => item && item.status === "skipped-no-provider").length;
+
+  return {
+    ...result,
+    status: completed > 0 ? "ok" : "empty",
+    harvest: {
+      processed,
+      completed,
+      withoutProvider,
+      // Rappel explicite : visual_url ne vient que de Canva via Composio.
+      // Sans COMPOSIO_API_KEY côté Worker, la récolte reste textuelle.
+      reason:
+        processed === 0
+          ? "Aucune tentacule due, ou base non configurée : rien à récolter ce cycle."
+          : completed === 0
+            ? "Tentacules dues mais aucun producteur disponible (Mistral et/ou Composio non configurés)."
+            : undefined,
+    },
+  };
 }
 
 async function main() {
@@ -173,7 +215,9 @@ async function main() {
 
   console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.done", mode, result }));
 
-  if (result.status !== "ok") {
+  // "empty" est un cycle légitime — rien n'était dû — et ne doit pas faire
+  // échouer le job. Il ne doit pas non plus se faire passer pour une récolte.
+  if (result.status !== "ok" && result.status !== "empty") {
     process.exitCode = 1;
   }
 }
