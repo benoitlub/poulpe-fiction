@@ -86,6 +86,7 @@ export interface ContactRow {
 
 export type Harvest =
   | { kind: "visual"; status: HarvestStatus; title: string; previewUrl: string; caption: string; format: string; dimensions: string; downloadUrl?: string }
+  | { kind: "publication-pack"; status: HarvestStatus; title: string; previewUrl: string; downloadUrl?: string; caption: string; format: string; dimensions: string; postText: string; sourceUrl?: string }
   | { kind: "contact-list"; status: HarvestStatus; title: string; summary: string; contacts: ContactRow[] }
   | { kind: "landing"; status: HarvestStatus; title: string; previewUrl: string; copy: string; html: string }
   | { kind: "text"; status: HarvestStatus; title: string; body: string };
