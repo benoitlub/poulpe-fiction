@@ -5,6 +5,7 @@ const KIND_MARK: Record<HarvestBundle["harvest"]["kind"], string> = {
   "contact-list": "📇",
   landing: "🌐",
   text: "📝",
+  "publication-pack": "📦",
 };
 
 const KIND_COLOR: Record<HarvestBundle["harvest"]["kind"], string> = {
@@ -12,6 +13,7 @@ const KIND_COLOR: Record<HarvestBundle["harvest"]["kind"], string> = {
   "contact-list": "#c9a7d8",
   landing: "#71c9b8",
   text: "#f6c26b",
+  "publication-pack": "#e08fd0",
 };
 
 const MAX_VISIBLE_HARVESTS = 6;
