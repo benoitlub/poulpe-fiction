@@ -25,6 +25,7 @@ jobs:
       AI_PROVIDER: mistral
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
       NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
+      GERARD_MODE: ${{ github.event_name == 'workflow_dispatch' && 'cultivate' || '' }}
     steps:
       - name: Check runtime secrets
         shell: bash
@@ -67,9 +68,9 @@ jobs:
           corepack enable
           pnpm install --no-frozen-lockfile
 
-      - name: Prepare Publisher database
-        working-directory: publisher
-        run: pnpm --filter @workspace/db run push
+      # Do NOT run the DB push here: it can propose destructive schema changes
+      # against the shared production database and requires an interactive TTY.
+      # The harvest endpoint uses the existing schema and must preserve history.
 
       - name: Build Publisher
         working-directory: publisher
@@ -117,6 +118,21 @@ jobs:
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
+
+      - name: Validate real harvest result
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const state = JSON.parse(fs.readFileSync('garden/gerard-state.json', 'utf8'));
+          const result = state.lastResult || {};
+          console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, payload: result.payload }, null, 2));
+          if (state.lastMode !== 'cultivate') throw new Error(`Expected cultivate, got ${state.lastMode}`);
+          if (result.status !== 'ok') throw new Error(`Harvest endpoint failed: ${result.status}`);
+          NODE
 
       - name: Commit updated Gerard state
         working-directory: poulpe-fiction
