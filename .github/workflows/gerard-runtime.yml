@@ -17,7 +17,10 @@ jobs:
       contents: write
     env:
       OCTOPUS_URL: http://127.0.0.1:3000
-      PUBLISHER_URL: http://127.0.0.1:3100
+      # Harvests must target the deployed Cloudflare Publisher Worker: the
+      # local Express API-server does not expose /api/tentacles/*.
+      PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
@@ -70,7 +73,7 @@ jobs:
 
       # Do NOT run the DB push here: it can propose destructive schema changes
       # against the shared production database and requires an interactive TTY.
-      # The harvest endpoint uses the existing schema and must preserve history.
+      # The deployed Worker ensures the existing schema without destroying data.
 
       - name: Build Publisher
         working-directory: publisher
@@ -96,7 +99,7 @@ jobs:
             OCTOPUS_UP=false
             PUBLISHER_UP=false
             curl --fail --silent "$OCTOPUS_URL/health" >/dev/null && OCTOPUS_UP=true || true
-            curl --fail --silent "$PUBLISHER_URL/api/healthz" >/dev/null && PUBLISHER_UP=true || true
+            curl --fail --silent "$LOCAL_PUBLISHER_URL/api/healthz" >/dev/null && PUBLISHER_UP=true || true
             if [ "$OCTOPUS_UP" = true ] && [ "$PUBLISHER_UP" = true ]; then exit 0; fi
             if ! kill -0 "$(cat octopus.pid)" 2>/dev/null; then cat octopus.log || true; exit 1; fi
             if ! kill -0 "$(cat publisher.pid)" 2>/dev/null; then cat publisher.log || true; exit 1; fi
@@ -129,9 +132,10 @@ jobs:
           const fs = require('fs');
           const state = JSON.parse(fs.readFileSync('garden/gerard-state.json', 'utf8'));
           const result = state.lastResult || {};
-          console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, payload: result.payload }, null, 2));
+          console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, verification: result.verification, payload: result.payload }, null, 2));
           if (state.lastMode !== 'cultivate') throw new Error(`Expected cultivate, got ${state.lastMode}`);
           if (result.status !== 'ok') throw new Error(`Harvest endpoint failed: ${result.status}`);
+          if (result.verification && result.verification.processed < 1) throw new Error('No tentacle was processed.');
           NODE
 
       - name: Commit updated Gerard state
