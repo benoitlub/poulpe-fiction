@@ -24,6 +24,8 @@ function nowIso() {
 }
 
 function decideMode(date = new Date()) {
+  const forced = process.env.GERARD_MODE?.trim();
+  if (forced && ["dream", "cultivate", "play", "rest"].includes(forced)) return forced;
   const hour = date.getUTCHours();
   if (hour >= 0 && hour < 6) return "dream";
   if (hour >= 6 && hour < 12) return "cultivate";
@@ -139,9 +141,6 @@ async function main() {
   let result;
 
   if (mode === "cultivate") {
-    // IMPORTANT: cultivate means a real harvest. Do not route this through
-    // content.article.write: that previously produced a generic guide and
-    // falsely looked like a successful harvest in gerard-state.json.
     result = await runRealHarvest();
     result = {
       ...result,
