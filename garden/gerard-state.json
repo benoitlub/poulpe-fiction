@@ -1,11 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-08-13T19:04:43.144Z",
-      "mode": "rest",
-      "result": "skipped"
-    },
-    {
       "at": "2026-08-13T21:46:26.745Z",
       "mode": "rest",
       "result": "skipped"
@@ -113,10 +108,15 @@
       "mode": "play",
       "operationId": "gerard-play-1786893756965",
       "result": "ok"
+    },
+    {
+      "at": "2026-08-16T18:30:22.360Z",
+      "mode": "rest",
+      "result": "skipped"
     }
   ],
-  "lastMode": "play",
-  "lastRunAt": "2026-08-16T15:22:41.062Z",
+  "lastMode": "rest",
+  "lastRunAt": "2026-08-16T18:30:22.360Z",
   "lastResult": {
     "status": "ok",
     "httpStatus": 200,
