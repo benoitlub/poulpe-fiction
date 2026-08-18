@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { QuestionStep } from "../components/QuestionStep";
 import type { PoulpeRuntimeAdapter } from "../runtime/PoulpeRuntimeAdapter";
 import { poulpeStore, usePoulpeStore } from "../store";
@@ -14,10 +14,22 @@ type UnknownRecord = Record<string, unknown>;
 declare global {
   interface Window {
     PoulpeAccess?: { snapshot(): UnknownRecord };
+    GardenStore?: {
+      snapshot(): { parcels: Array<{ id: string; name: string; mission?: string; description?: string; archived?: boolean }> };
+      registerParcel(parcel: UnknownRecord): unknown;
+    };
   }
 }
 
 const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
+
+function slugify(value: string): string {
+  return value
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/&/g, " et ")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").replace(/-+/g, "-")
+    .slice(0, 60) || `projet-${Date.now()}`;
+}
 
 function ownerParcels(): Parcel[] {
   const access = window.PoulpeAccess?.snapshot?.() ?? {};
@@ -39,6 +51,67 @@ function mergeParcels(scoped: Parcel[], available: Parcel[]): Parcel[] {
   return [...merged.values()].sort((a, b) => a.name.localeCompare(b.name, "fr"));
 }
 
+function NewProjectForm({ onCreated, onCancel }: { onCreated: (parcelId: string) => void; onCancel: () => void }) {
+  const [name, setName] = useState("");
+  const [mission, setMission] = useState("");
+  const [firstGoal, setFirstGoal] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = () => {
+    const cleanName = name.trim();
+    const cleanMission = mission.trim();
+    if (!cleanName || !cleanMission) {
+      setError("Le nom et l'objectif du projet sont nécessaires.");
+      return;
+    }
+    if (!window.GardenStore) {
+      setError("Le Garden n'est pas chargé — recharge la page et réessaie.");
+      return;
+    }
+    const existing = window.GardenStore.snapshot().parcels;
+    let id = slugify(cleanName);
+    let suffix = 2;
+    while (existing.some((parcel) => parcel.id === id)) id = `${slugify(cleanName)}-${suffix++}`;
+
+    const seeds = firstGoal.trim() ? [{
+      id: `${id}-seed-1`,
+      parcelId: id,
+      title: firstGoal.trim(),
+      objective: firstGoal.trim(),
+      status: "planted",
+    }] : [];
+
+    window.GardenStore.registerParcel({
+      id,
+      code: id.toUpperCase().slice(0, 12),
+      name: cleanName,
+      mission: cleanMission,
+      priorities: firstGoal.trim() ? [firstGoal.trim()] : [],
+      version: 1,
+      seeds,
+    });
+
+    onCreated(id);
+  };
+
+  return (
+    <section className="pf-card">
+      <div className="pf-section-heading"><span>+</span><div><strong>Nouveau projet</strong><small>Crée une parcelle pour que Gérard puisse y travailler</small></div></div>
+      <label className="pf-field-label">Nom du projet</label>
+      <input className="pf-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Ex : Metaverse Creator" autoFocus />
+      <label className="pf-field-label">Objectif de ce projet</label>
+      <textarea className="pf-textarea" value={mission} onChange={(event) => setMission(event.target.value)} placeholder="Ce que ce projet doit accomplir globalement…" />
+      <label className="pf-field-label">Première graine à planter (facultatif)</label>
+      <textarea className="pf-textarea" value={firstGoal} onChange={(event) => setFirstGoal(event.target.value)} placeholder="Un premier résultat concret à viser…" />
+      {error ? <p className="pf-meta" style={{ color: "#e08fd0" }}>{error}</p> : null}
+      <div className="pf-actions" style={{ justifyContent: "flex-end", gap: "8px" }}>
+        <button type="button" className="pf-btn pf-btn-soft" onClick={onCancel}>Annuler</button>
+        <button type="button" className="pf-btn pf-btn-primary" onClick={submit}>Créer le projet</button>
+      </div>
+    </section>
+  );
+}
+
 export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdapter; onSubmit: () => void }) {
   const clientContext = usePoulpeStore((state) => state.clientContext);
   const parcels = usePoulpeStore((state) => state.parcels);
@@ -46,6 +119,16 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const missionId = usePoulpeStore((state) => state.missionId);
   const progress = usePoulpeStore((state) => state.progress);
   const harvest = usePoulpeStore((state) => state.harvest);
+  const [creatingProject, setCreatingProject] = useState(false);
+
+  const refreshParcels = () => {
+    Promise.all([runtime.getClientContext(), runtime.listParcels()]).then(([context, scopedParcels]) => {
+      const availableParcels = mergeParcels(scopedParcels, ownerParcels());
+      poulpeStore.setClientContext(context);
+      poulpeStore.setParcels(availableParcels);
+      return availableParcels;
+    });
+  };
 
   useEffect(() => {
     let alive = true;
@@ -58,7 +141,9 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
       const preferredId = context?.parcelId || (availableParcels.some((parcel) => parcel.id === storedParcelId) ? storedParcelId : "");
       if (preferredId) poulpeStore.setAnswer("parcelId", preferredId);
     });
-    return () => { alive = false; };
+    const onGardenChanged = () => refreshParcels();
+    window.addEventListener("poulpe-garden-changed", onGardenChanged);
+    return () => { alive = false; window.removeEventListener("poulpe-garden-changed", onGardenChanged); };
   }, [runtime]);
 
   const selectedParcel = useMemo(() => parcels.find((parcel) => parcel.id === answers.parcelId), [parcels, answers.parcelId]);
@@ -88,7 +173,6 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
             event.preventDefault();
             const data = new FormData(event.currentTarget);
             const answer = String(data.get("answer") ?? "").trim();
-            if (!answer) return;
             const next = await runtime.answerQuestion(runtimeQuestion.missionId, runtimeQuestion.id, answer);
             poulpeStore.setProgress(next);
             poulpeStore.setTab("hublot");
@@ -126,6 +210,14 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
           ))}
         </div>
         {!parcels.length ? <div className="pf-empty"><p>Aucun projet disponible dans le Garden.</p></div> : null}
+        {creatingProject ? (
+          <NewProjectForm
+            onCancel={() => setCreatingProject(false)}
+            onCreated={(parcelId) => { setCreatingProject(false); refreshParcels(); setParcel(parcelId); }}
+          />
+        ) : (
+          <button type="button" className="pf-btn pf-btn-soft" style={{ marginTop: "12px" }} onClick={() => setCreatingProject(true)}>+ Nouveau projet</button>
+        )}
       </section>
 
       <section className="pf-card">
