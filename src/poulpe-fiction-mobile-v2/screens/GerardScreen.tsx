@@ -14,10 +14,6 @@ type UnknownRecord = Record<string, unknown>;
 declare global {
   interface Window {
     PoulpeAccess?: { snapshot(): UnknownRecord };
-    GardenStore?: {
-      snapshot(): { parcels: Array<{ id: string; name: string; mission?: string; description?: string; archived?: boolean }> };
-      registerParcel(parcel: UnknownRecord): unknown;
-    };
   }
 }
 
@@ -68,7 +64,7 @@ function NewProjectForm({ onCreated, onCancel }: { onCreated: (parcelId: string)
       setError("Le Garden n'est pas chargé — recharge la page et réessaie.");
       return;
     }
-    const existing = window.GardenStore.snapshot().parcels;
+    const existing = (window.GardenStore.snapshot().parcels ?? []) as Array<{ id?: string }>;
     let id = slugify(cleanName);
     let suffix = 2;
     while (existing.some((parcel) => parcel.id === id)) id = `${slugify(cleanName)}-${suffix++}`;
