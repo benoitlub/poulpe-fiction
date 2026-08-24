@@ -15,7 +15,7 @@ import type {
 declare global {
   interface Window {
     PoulpeAccess?: { snapshot(): UnknownRecord };
-    GardenStore?: { snapshot(): GardenSnapshot };
+    GardenStore?: { snapshot(): GardenSnapshot; registerParcel(parcel: UnknownRecord): unknown };
     PoulpeOctopusAdapter?: {
       dispatch(payload: UnknownRecord, options?: UnknownRecord): Promise<UnknownRecord>;
       normalizedStatus?(status: unknown): string;
