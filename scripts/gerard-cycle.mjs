@@ -77,7 +77,17 @@ async function runRealHarvest() {
   const processed = Number(result.payload?.processed ?? 0);
   const results = Array.isArray(result.payload?.results) ? result.payload.results : [];
   const completed = results.filter((item) => String(item?.status || "").startsWith("completed")).length;
-  if (processed < 1 || completed < 1) {
+
+  // processed === 0 signifie qu'aucune graine n'avait terminé son délai de
+  // recharge à ce moment précis (le cycle Gérard tourne toutes les 3h, les
+  // délais de recharge individuels vont de 20 min à 6h — les deux horloges
+  // ne sont pas synchronisées). Ce n'est pas un échec : rien n'était à
+  // faire cette fois. Seul le cas "des graines étaient prêtes mais aucune
+  // n'a abouti" est un vrai problème à signaler comme tel.
+  if (processed < 1) {
+    return { ...result, status: "ok", verification: { startedAt, processed, completed, reason: "Aucune graine n'était prête à ce cycle (délai de recharge en cours)." } };
+  }
+  if (completed < 1) {
     return { ...result, status: "failed", verification: { startedAt, processed, completed, reason: "No completed tentacle iteration was produced." } };
   }
 
