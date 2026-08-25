@@ -18,6 +18,7 @@
   const MAX_CONCURRENT_TENTACLES = 8;
   const inFlightSeedIds = new Set();
   let timer = null;
+  let refreshScheduled = false;
 
   function nowIso() { return new Date().toISOString(); }
 
@@ -75,8 +76,12 @@
   }
 
   function refresh() {
-    try { if (typeof global.render === "function") global.render(); } catch (_) {}
-    try { global.GardenShell?.mount?.(); } catch (_) {}
+    if (refreshScheduled) return;
+    refreshScheduled = true;
+    Promise.resolve().then(() => {
+      refreshScheduled = false;
+      try { if (typeof global.render === "function") global.render(); } catch (_) {}
+    });
   }
 
   // Publisher's Neon-backed Cron loop (worker.ts, runTentacleCycle) needs
