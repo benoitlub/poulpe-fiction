@@ -116,6 +116,11 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const progress = usePoulpeStore((state) => state.progress);
   const harvest = usePoulpeStore((state) => state.harvest);
   const [creatingProject, setCreatingProject] = useState(false);
+  // Gérard travaille en autonomie : rouvrir ce cockpit ne devrait pas
+  // redemander de choisir une parcelle parmi toutes celles du Garden. La
+  // grille complète ne s'ouvre donc qu'à la demande — sauf quand aucun projet
+  // n'est encore sélectionné, où il faut bien pouvoir en désigner un.
+  const [pickingParcel, setPickingParcel] = useState(false);
 
   const refreshParcels = () => {
     Promise.all([runtime.getClientContext(), runtime.listParcels()]).then(([context, scopedParcels]) => {
@@ -149,6 +154,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
 
   const setParcel = (parcelId: string) => {
     poulpeStore.setAnswer("parcelId", parcelId);
+    setPickingParcel(false);
     try { localStorage.setItem(SELECTED_PARCEL_KEY, parcelId); } catch (_) {}
   };
 
@@ -198,14 +204,32 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
 
       <section className="pf-card">
         <div className="pf-section-heading"><span>1</span><div><strong>Projet</strong><small>La parcelle concernée</small></div></div>
-        <div className="pf-project-grid">
-          {parcels.map((parcel) => (
-            <button key={parcel.id} type="button" className="pf-project-choice" data-selected={answers.parcelId === parcel.id} onClick={() => setParcel(parcel.id)}>
-              <span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><b>{parcel.name}</b><small>{parcel.description}</small></span>
+        {selectedParcel && !pickingParcel ? (
+          <>
+            <div className="pf-project-grid">
+              <button type="button" className="pf-project-choice" data-selected onClick={() => setPickingParcel(true)}>
+                <span className="pf-emoji">{selectedParcel.emoji ?? "🌱"}</span><span><b>{selectedParcel.name}</b><small>{selectedParcel.description}</small></span>
+              </button>
+            </div>
+            <button type="button" className="pf-btn pf-btn-soft" style={{ marginTop: "12px" }} onClick={() => setPickingParcel(true)}>
+              Choisir un autre projet{parcels.length > 1 ? ` (${parcels.length - 1})` : ""}
             </button>
-          ))}
-        </div>
-        {!parcels.length ? <div className="pf-empty"><p>Aucun projet disponible dans le Garden.</p></div> : null}
+          </>
+        ) : (
+          <>
+            <div className="pf-project-grid">
+              {parcels.map((parcel) => (
+                <button key={parcel.id} type="button" className="pf-project-choice" data-selected={answers.parcelId === parcel.id} onClick={() => setParcel(parcel.id)}>
+                  <span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><b>{parcel.name}</b><small>{parcel.description}</small></span>
+                </button>
+              ))}
+            </div>
+            {!parcels.length ? <div className="pf-empty"><p>Aucun projet disponible dans le Garden.</p></div> : null}
+            {selectedParcel ? (
+              <button type="button" className="pf-btn pf-btn-soft" style={{ marginTop: "12px" }} onClick={() => setPickingParcel(false)}>Replier la liste</button>
+            ) : null}
+          </>
+        )}
         {creatingProject ? (
           <NewProjectForm
             onCancel={() => setCreatingProject(false)}

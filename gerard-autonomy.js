@@ -45,6 +45,15 @@
     return autonomy.tentacles[seedId] || (autonomy.tentacles[seedId] = { lastAttemptAt: null, lastStatus: "idle", lastError: null, iterations: 0 });
   }
 
+  // Lecture seule, contrairement à tentacleState() qui crée l'entrée au
+  // passage : trier ne doit pas inscrire dans l'état persisté les projets qui
+  // n'ont encore jamais été tentés.
+  function lastAttemptTime(seedId) {
+    const parsed = Date.parse(autonomy.tentacles[seedId]?.lastAttemptAt || "");
+    // Jamais tentée : la plus en retard de toutes, donc prioritaire.
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
   function activeSeedFor(draft) {
     try {
       const snapshot = global.GardenStore?.snapshot?.() || {};
@@ -231,6 +240,24 @@
 
   // Gérard est un poulpe : chaque tentacule (Seed avec un AdventureDraft
   // actif) avance en parallèle, indépendamment des autres.
+  // loadActiveDrafts() renvoie les projets dans l'ordre d'insertion. Passé
+  // MAX_CONCURRENT_TENTACLES projets actifs, découper cet ordre revenait à
+  // figer la fenêtre : les mêmes huit premiers l'occupaient à chaque cycle, et
+  // les suivants — dont « yael-prospection », plus itérée depuis le 11 août —
+  // n'étaient jamais sélectionnés.
+  //
+  // On sert donc d'abord ceux dont la dernière tentative est la plus ancienne.
+  // lastAttemptAt n'est écrit que lorsqu'une itération démarre vraiment : un
+  // projet encore en cooldown garde une date ancienne et reste devant, ce qui
+  // est correct — c'est bien lui le plus en retard —, tandis qu'un projet qui
+  // vient d'itérer repart en fin de file. La rotation est ainsi équitable, et
+  // aucun projet ne peut plus être privé de tour indéfiniment.
+  function selectDueDrafts(all) {
+    return [...(all || [])]
+      .sort((left, right) => lastAttemptTime(left?.curiosity?.id) - lastAttemptTime(right?.curiosity?.id))
+      .slice(0, MAX_CONCURRENT_TENTACLES);
+  }
+
   async function advance() {
     if (!autonomy.enabled) return;
     if (global.GerardScheduler?.hasActiveUserInteraction?.()) return;
@@ -238,7 +265,7 @@
 
     syncTentacleCatalog();
 
-    const drafts = (global.AdventureDraft?.loadActiveDrafts?.() || []).slice(0, MAX_CONCURRENT_TENTACLES);
+    const drafts = selectDueDrafts(global.AdventureDraft?.loadActiveDrafts?.());
     if (!drafts.length) return;
 
     await Promise.all(drafts.map((draft) => advanceOne(draft)));
@@ -259,7 +286,11 @@
 
   global.GerardAutonomy = {
     STATE_KEY,
+    MAX_CONCURRENT_TENTACLES,
     snapshot: () => JSON.parse(JSON.stringify(autonomy)),
+    // Exposé pour que la règle de rotation soit vérifiable sans simuler toute
+    // la chaîne de récolte.
+    selectDueDrafts,
     advance,
     start,
     setEnabled,
