@@ -37,7 +37,7 @@
     const plantedAt = input.plantedAt || input.createdAt || timestamp;
     const kind = SEED_KINDS.includes(input.kind) ? input.kind : "idea";
 
-    return {
+    const seed = {
       id: String(input.id),
       parcelId: String(input.parcelId),
       kind,
@@ -55,6 +55,13 @@
       tags: Array.isArray(input.tags) ? input.tags.map(String) : [],
       source: input.source ? String(input.source) : "poulpe-fiction"
     };
+
+    // Optionnel, et posé seulement s'il est fourni : gerard-knowledge-garden-v3
+    // écrit ce champ via updateSeed() bien après la plantation, et replanter la
+    // graine ne doit pas l'effacer avec une chaîne vide.
+    if (input.knowledgeSlug) seed.knowledgeSlug = String(input.knowledgeSlug);
+
+    return seed;
   }
 
   function createSprout(input) {

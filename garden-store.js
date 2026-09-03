@@ -35,14 +35,37 @@
 
   let state = loadState();
 
+  // Le clone profond de l'état complet coûte ~24 ms pour 730 récoltes (≈5 Mo
+  // sérialisés), et snapshot() est appelé en rafale : toutes les 5 s par
+  // gerard-autonomy, à chaque montage d'écran, et une fois par écran abonné à
+  // chaque « poulpe-garden-changed ». On ne reclone donc qu'après une
+  // écriture : entre deux persist(), tous les lecteurs partagent le même
+  // clone.
+  //
+  // Cela suppose qu'aucun appelant ne modifie l'objet reçu. Vérifié sur la
+  // totalité d'entre eux (garden-persistence, garden-dashboard, garden-shell,
+  // gerard-autonomy, gerard-local-harvester, gerard-knowledge-garden-v3,
+  // production-pack, restoreGardenHarvest, browserPoulpeRuntimeAdapter,
+  // GerardScreen) : tous lisent, et ceux qui trient copient d'abord le
+  // tableau. Écrire dans le jardin passe par les fonctions ci-dessous, jamais
+  // par le snapshot — un test verrouille cette invariante.
+  let cachedSnapshot = null;
+
   function persist() {
     state.updatedAt = new Date().toISOString();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    global.dispatchEvent(new CustomEvent("poulpe-garden-changed", { detail: snapshot() }));
-    return snapshot();
+    cachedSnapshot = null;
+    // Un seul clone pour l'événement et la valeur de retour : cette fonction
+    // en produisait deux à chaque écriture.
+    const next = snapshot();
+    global.dispatchEvent(new CustomEvent("poulpe-garden-changed", { detail: next }));
+    return next;
   }
 
-  function snapshot() { return clone(state); }
+  function snapshot() {
+    if (!cachedSnapshot) cachedSnapshot = clone(state);
+    return cachedSnapshot;
+  }
 
   function upsert(listName, record, key) {
     const list = state[listName];
