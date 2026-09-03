@@ -7,6 +7,10 @@
     id: SEED_ID,
     parcelId: PARCEL_ID,
     type: "service",
+    // Sans ce lien explicite, gerard-local-harvester retombait sur l'id de la
+    // graine (« yael-prospection ») pour interroger Publisher, qui ne
+    // correspond à aucun paquet côté Notion.
+    knowledgeSlug: "yael-prequalification-de-prospects",
     title: "Yael · Préqualification de prospects",
     objective: "Préparer pour Yael un dispositif directement exploitable de préqualification commerciale : critères, score, informations à vérifier, messages de premier contact et tableau de suivi, sans contacter personne automatiquement.",
     firstHarvest: "Un kit textuel complet comprenant une grille de qualification, un score sur 100, une fiche prospect réutilisable, des requêtes de recherche, 3 messages de prise de contact et un tableau de suivi prêt à copier dans un tableur.",
