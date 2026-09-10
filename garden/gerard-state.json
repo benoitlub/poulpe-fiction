@@ -1,11 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-09-05T20:01:24.444Z",
-      "mode": "rest",
-      "result": "skipped"
-    },
-    {
       "at": "2026-09-05T22:41:22.492Z",
       "mode": "rest",
       "result": "skipped"
@@ -109,10 +104,15 @@
       "at": "2026-09-10T20:30:35.508Z",
       "mode": "rest",
       "result": "skipped"
+    },
+    {
+      "at": "2026-09-10T22:57:40.864Z",
+      "mode": "rest",
+      "result": "skipped"
     }
   ],
   "lastMode": "rest",
-  "lastRunAt": "2026-09-10T20:30:35.508Z",
+  "lastRunAt": "2026-09-10T22:57:40.864Z",
   "lastResult": {
     "status": "ok",
     "httpStatus": 200,
