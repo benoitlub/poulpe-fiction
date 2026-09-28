@@ -116,7 +116,8 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const progress = usePoulpeStore((state) => state.progress);
   const harvest = usePoulpeStore((state) => state.harvest);
   const [creatingProject, setCreatingProject] = useState(false);
-  const [missionComposerOpen, setMissionComposerOpen] = useState(false);\n  const [gardenRevision, setGardenRevision] = useState(0);
+  const [missionComposerOpen, setMissionComposerOpen] = useState(false);
+  const [gardenRevision, setGardenRevision] = useState(0);
   // Gérard travaille en autonomie : rouvrir ce cockpit ne devrait pas
   // redemander de choisir une parcelle parmi toutes celles du Garden. La
   // grille complète ne s'ouvre donc qu'à la demande — sauf quand aucun projet
