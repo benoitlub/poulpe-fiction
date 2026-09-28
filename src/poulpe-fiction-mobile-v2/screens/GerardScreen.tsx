@@ -8,6 +8,7 @@ const GOALS = ["Un visuel Instagram", "Une liste de contacts", "Une landing page
 const AUDIENCES = ["Notre communauté", "Nouveaux prospects", "Partenaires", "Presse"];
 const FORMATS = ["Court et impactant", "Chaleureux et long", "Structuré et professionnel"];
 const SELECTED_PARCEL_KEY = "poulpe-fiction:mobile-v2:selected-parcel:v1";
+const TOOL_PACK_KEY_PREFIX = "poulpe-fiction:mobile-v2:tool-pack:v1:";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -153,6 +154,15 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   }, [runtime]);
 
   const selectedParcel = useMemo(() => parcels.find((parcel) => parcel.id === answers.parcelId), [parcels, answers.parcelId]);
+
+  useEffect(() => {
+    if (!answers.parcelId) { setToolPack(null); setToolPackStatus(""); return; }
+    try {
+      const raw = localStorage.getItem(`${TOOL_PACK_KEY_PREFIX}${answers.parcelId}`);
+      setToolPack(raw ? JSON.parse(raw) as UnknownRecord : null);
+      setToolPackStatus(raw ? "Tool Pack restauré pour ce projet." : "");
+    } catch (_) { setToolPack(null); setToolPackStatus(""); }
+  }, [answers.parcelId]);
   const runtimeQuestion = progress?.state === "needs-input" ? progress.question : undefined;
   const ready = Boolean(answers.parcelId && answers.goal?.trim());
   const activeMission = Boolean(missionId && progress && !progress.finished);
@@ -184,6 +194,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
       const output = result.output && typeof result.output === "object" ? result.output as UnknownRecord : {};
       if (response.ok && status === "completed") {
         setToolPack(output);
+        try { localStorage.setItem(`${TOOL_PACK_KEY_PREFIX}${selectedParcel.id}`, JSON.stringify(output)); } catch (_) {}
         setToolPackStatus(text(result.summary) || "Ressources préparées.");
       } else {
         setToolPack(null);
