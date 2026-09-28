@@ -155,6 +155,7 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
   }, [harvests]);
 
   const gerardPicks = useMemo(() => harvests.filter((item) => item.harvest.kind === "publication-pack").slice(0, GERARD_LIMIT), [harvests]);
+  const projectLatest = useMemo(() => groups.map(([parcelId, items]) => [parcelId, items[0]] as const).filter((entry) => Boolean(entry[1])).sort((left, right) => new Date(right[1].createdAt).getTime() - new Date(left[1].createdAt).getTime()), [groups]);
   const latestHarvests = useMemo(() => harvests.slice(0, LATEST_LIMIT), [harvests]);
 
   if (!harvests.length) {
@@ -167,6 +168,10 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
       {gerardPicks.length ? <section aria-label="Propositions de Gérard" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Propositions de Gérard</h2><p className="pf-meta">{gerardPicks.length} publication{gerardPicks.length > 1 ? "s" : ""} prête{gerardPicks.length > 1 ? "s" : ""} à relire</p></div></div></div>
         {gerardPicks.map((item, index) => <HarvestCard key={item.missionId} bundle={item} initiallyOpen={index === 0} />)}
+      </section> : null}
+      {projectLatest.length ? <section aria-label="Dernière récolte par projet" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Dernière récolte par projet</h2><p className="pf-meta">{projectLatest.length} projet{projectLatest.length > 1 ? "s" : ""} · un aperçu de chaque parcelle</p></div></div></div>
+        {projectLatest.map(([parcelId, item]) => <HarvestCard key={`project-latest-${parcelId}-${item.missionId}`} bundle={item} showParcel />)}
       </section> : null}
       <section aria-label="Dernières récoltes" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Dernières récoltes</h2><p className="pf-meta">{latestHarvests.length} récolte{latestHarvests.length > 1 ? "s" : ""} les plus récentes</p></div></div></div>
