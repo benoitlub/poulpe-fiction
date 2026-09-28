@@ -169,23 +169,28 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
 
   const prepareResources = async () => {
     if (!selectedParcel) return;
-    const octopusApi = text((window as unknown as { PoulpeRuntimeConfig?: { urls?: { octopusApi?: string } } }).PoulpeRuntimeConfig?.urls?.octopusApi);
-    if (!octopusApi) { setToolPackStatus("Octopus n’est pas configuré."); return; }
+    const publisherApi = text((window as unknown as { PoulpeRuntimeConfig?: { urls?: { publisherApi?: string } } }).PoulpeRuntimeConfig?.urls?.publisherApi);
+    if (!publisherApi) { setToolPackStatus("Publisher n’est pas configuré."); return; }
     setToolPackLoading(true); setToolPackStatus("");
     try {
-      const response = await fetch(`${octopusApi.replace(/\/+$/, "")}/mission`, {
+      const operationId = `tool-pack-${selectedParcel.id}-${Date.now()}`;
+      const response = await fetch(`${publisherApi.replace(/\/+$/, "")}/api/octopus-adapter/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          operationId: `tool-pack-${selectedParcel.id}-${Date.now()}`,
-          title: `Préparer les ressources — ${selectedParcel.name}`,
-          objective: answers.goal || selectedParcel.description || "Préparer les outils utiles à cette parcelle.",
-          requiredCapabilities: ["tool.search"],
-          context: {
-            id: selectedParcel.id,
-            label: selectedParcel.name,
-            objective: selectedParcel.description,
-            metadata: { parcelId: selectedParcel.id, seedId: selectedParcel.id, deliverable: answers.goal || selectedParcel.description || "" },
+          contract: "octopus-adapter-execution-v1",
+          adapterId: "publisher",
+          mission: {
+            operationId,
+            title: `Préparer les ressources — ${selectedParcel.name}`,
+            objective: answers.goal || selectedParcel.description || "Préparer les outils utiles à cette parcelle.",
+            requiredCapabilities: ["tool.search"],
+            context: {
+              id: selectedParcel.id,
+              label: selectedParcel.name,
+              objective: selectedParcel.description,
+              metadata: { parcelId: selectedParcel.id, seedId: selectedParcel.id, deliverable: answers.goal || selectedParcel.description || "" },
+            },
           },
         }),
       });
@@ -198,7 +203,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
         setToolPackStatus(text(result.summary) || "Ressources préparées.");
       } else {
         setToolPack(null);
-        setToolPackStatus(text(result.summary) || `Octopus : ${status || response.status}`);
+        setToolPackStatus(text(result.summary) || `Publisher : ${status || response.status}`);
       }
     } catch (error) {
       setToolPack(null);
