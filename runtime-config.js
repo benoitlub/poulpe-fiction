@@ -65,7 +65,7 @@
         environment,
         urls: { ...urls, publisherApi: "" },
         github: { connected: true, status: "Interface hébergée sur GitHub Pages" },
-        octopus: { connected: false, status: "Non requis pour la liaison Poulpe → Publisher" },
+        octopus: { connected: true, status: "Utilisé pour les missions et Tool Packs de Gérard" },
         publisherApi: { connected: false, configured: false, status: "URL Publisher à renseigner dans le Local technique" },
         mistral: { connected: false, status: "Vérifiable après connexion à Publisher" }
       };
@@ -97,7 +97,7 @@
 
   migrateLocalStorageOverrides();
   global.PoulpeRuntimeConfig = { environment, urls, buildSha, staleOverrideKeys: STALE_OVERRIDE_KEYS, migrateLocalStorageOverrides, withTimeout, testConnections };
-  global.OCTOPUS_API = "";
+  global.OCTOPUS_API = urls.octopusApi;
   global.PUBLISHER_API_URL = urls.publisherApi;
   global.PUBLISHER_API = urls.publisherApi;
   global.PUBLISHER_FRONTEND = urls.publisherFrontend;
