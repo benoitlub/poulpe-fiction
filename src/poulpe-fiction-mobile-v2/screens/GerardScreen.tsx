@@ -118,6 +118,9 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const [creatingProject, setCreatingProject] = useState(false);
   const [missionComposerOpen, setMissionComposerOpen] = useState(false);
   const [gardenRevision, setGardenRevision] = useState(0);
+  const [toolPack, setToolPack] = useState<UnknownRecord | null>(null);
+  const [toolPackStatus, setToolPackStatus] = useState<string>("");
+  const [toolPackLoading, setToolPackLoading] = useState(false);
   // Gérard travaille en autonomie : rouvrir ce cockpit ne devrait pas
   // redemander de choisir une parcelle parmi toutes celles du Garden. La
   // grille complète ne s'ouvre donc qu'à la demande — sauf quand aucun projet
@@ -153,6 +156,44 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const runtimeQuestion = progress?.state === "needs-input" ? progress.question : undefined;
   const ready = Boolean(answers.parcelId && answers.goal?.trim());
   const activeMission = Boolean(missionId && progress && !progress.finished);
+
+  const prepareResources = async () => {
+    if (!selectedParcel) return;
+    const octopusApi = text((window as unknown as { PoulpeRuntimeConfig?: { urls?: { octopusApi?: string } } }).PoulpeRuntimeConfig?.urls?.octopusApi);
+    if (!octopusApi) { setToolPackStatus("Octopus n’est pas configuré."); return; }
+    setToolPackLoading(true); setToolPackStatus("");
+    try {
+      const response = await fetch(`${octopusApi.replace(/\/+$/, "")}/mission`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operationId: `tool-pack-${selectedParcel.id}-${Date.now()}`,
+          title: `Préparer les ressources — ${selectedParcel.name}`,
+          objective: answers.goal || selectedParcel.description || "Préparer les outils utiles à cette parcelle.",
+          requiredCapabilities: ["tool.search"],
+          context: {
+            id: selectedParcel.id,
+            label: selectedParcel.name,
+            objective: selectedParcel.description,
+            metadata: { parcelId: selectedParcel.id, seedId: selectedParcel.id, deliverable: answers.goal || selectedParcel.description || "" },
+          },
+        }),
+      });
+      const result = await response.json() as UnknownRecord;
+      const status = text(result.status);
+      const output = result.output && typeof result.output === "object" ? result.output as UnknownRecord : {};
+      if (response.ok && status === "completed") {
+        setToolPack(output);
+        setToolPackStatus(text(result.summary) || "Ressources préparées.");
+      } else {
+        setToolPack(null);
+        setToolPackStatus(text(result.summary) || `Octopus : ${status || response.status}`);
+      }
+    } catch (error) {
+      setToolPack(null);
+      setToolPackStatus(error instanceof Error ? error.message : "Impossible de préparer les ressources.");
+    } finally { setToolPackLoading(false); }
+  };
 
   const setParcel = (parcelId: string) => {
     poulpeStore.setAnswer("parcelId", parcelId);
@@ -244,6 +285,19 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
         <div className="pf-section-heading"><span>🌱</span><div><strong>Projet actif</strong><small>La parcelle actuellement au premier plan</small></div></div>
         {selectedParcel ? <button type="button" className="pf-project-choice" data-selected onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}><span className="pf-emoji">{selectedParcel.emoji ?? "🌱"}</span><span><b>{selectedParcel.name}</b><small>{selectedParcel.description}</small></span></button> : <div className="pf-live-empty"><span>Aucun projet sélectionné.</span></div>}
         <div className="pf-actions-row"><button type="button" className="pf-btn pf-btn-soft" onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}>Changer de projet</button><button type="button" className="pf-btn pf-btn-soft" onClick={() => { setCreatingProject(true); setMissionComposerOpen(true); }}>+ Nouveau projet</button></div>
+      </section>
+
+      <section className="pf-card">
+        <div className="pf-section-heading"><span>🧰</span><div><strong>Ressources de Gérard</strong><small>Tool Pack préparé par Publisher via Octopus</small></div></div>
+        {toolPack ? <div className="pf-live-work">
+          <div className="pf-now-row"><div><b>{text(toolPack.name) || text(toolPack.title) || "Tool Pack"}</b><small>{Array.isArray(toolPack.tools) ? `${toolPack.tools.length} outil(s) recommandé(s)` : "Ressources préparées"}</small></div></div>
+          {Array.isArray(toolPack.tools) ? <div className="pf-chips">{toolPack.tools.slice(0, 8).map((tool, index) => {
+            const row = tool && typeof tool === "object" ? tool as UnknownRecord : {};
+            return <span key={text(row.id) || text(row.slug) || String(index)} className="pf-chip" data-selected>{text(row.name) || text(row.slug) || text(row.id) || "Outil"}</span>;
+          })}</div> : null}
+        </div> : <div className="pf-live-empty"><span>Aucun Tool Pack préparé pour ce projet.</span></div>}
+        {toolPackStatus ? <p className="pf-meta">{toolPackStatus}</p> : null}
+        <div className="pf-actions-row"><button type="button" className="pf-btn pf-btn-soft" disabled={!selectedParcel || toolPackLoading} onClick={prepareResources}>{toolPackLoading ? "Préparation…" : "Préparer les ressources"}</button></div>
       </section>
 
       {missionComposerOpen ? <>
