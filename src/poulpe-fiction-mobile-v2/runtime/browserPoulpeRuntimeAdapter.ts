@@ -147,9 +147,11 @@ function harvestFromRaw(raw: UnknownRecord): Harvest | null {
 
 function capabilityFor(intent: CultivationIntent): string {
   const request = `${intent.goal} ${intent.format ?? ""}`.toLowerCase();
-  if (request.includes("contact") || request.includes("prospect")) return "contacts.research";
-  if (request.includes("visuel") || request.includes("image") || request.includes("instagram")) return "image.generate";
-  if (request.includes("landing") || request.includes("page")) return "landing.generate";
+  // Publisher's deployed Octopus adapter currently exposes text production,
+  // knowledge/tool discovery and gated social publishing. Do not ask Octopus
+  // for historical capabilities (image.generate, contacts.research,
+  // landing.generate) that no registered adapter actually provides.
+  if (request.includes("linkedin") || request.includes("post social") || request.includes("publication")) return "content.social.write";
   return "copy.generate";
 }
 
