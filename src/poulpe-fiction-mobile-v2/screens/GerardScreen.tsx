@@ -174,7 +174,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     setToolPackLoading(true); setToolPackStatus("");
     try {
       const operationId = `tool-pack-${selectedParcel.id}-${Date.now()}`;
-      const response = await fetch(`${publisherApi.replace(/\\/+$/, "")}/api/octopus-adapter/execute`, {
+      const response = await fetch(`${publisherApi.replace(/\/+$/, "")}/api/octopus-adapter/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
