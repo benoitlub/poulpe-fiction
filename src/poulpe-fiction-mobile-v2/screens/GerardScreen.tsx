@@ -116,6 +116,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const progress = usePoulpeStore((state) => state.progress);
   const harvest = usePoulpeStore((state) => state.harvest);
   const [creatingProject, setCreatingProject] = useState(false);
+  const [missionComposerOpen, setMissionComposerOpen] = useState(false);
   // Gérard travaille en autonomie : rouvrir ce cockpit ne devrait pas
   // redemander de choisir une parcelle parmi toutes celles du Garden. La
   // grille complète ne s'ouvre donc qu'à la demande — sauf quand aucun projet
@@ -187,78 +188,50 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     );
   }
 
+  const completedHarvests = harvest ? 1 : 0;
+  const decisionCount = progress?.state === "needs-input" || progress?.blocked ? 1 : 0;
+  const statusLabel = activeMission ? "en travail" : harvest ? "récolte prête" : "en veille";
+
   return (
     <div className="pf-cockpit">
-      <section className="pf-card pf-cockpit-hero">
-        <div className="pf-q-eyebrow">Cockpit Gérard</div>
-        <h2 className="pf-q-title">Que faut-il faire avancer maintenant ?</h2>
-        <p className="pf-q-hint">Une seule vue : le projet, le résultat attendu et les contraintes utiles.</p>
+      <section className="pf-card pf-cockpit-hero pf-live-hero">
+        <div className="pf-live-heading">
+          <div><div className="pf-q-eyebrow">Cockpit Gérard</div><h2 className="pf-q-title">Gérard <span className="pf-live-status">● {statusLabel}</span></h2></div>
+          <button type="button" className="pf-btn pf-btn-primary" onClick={() => setMissionComposerOpen((open) => !open)}>{missionComposerOpen ? "Fermer" : "Confier une mission"}</button>
+        </div>
         {clientContext ? <div className="pf-client-card"><strong>{clientContext.displayName}</strong><span>{clientContext.activity}</span></div> : null}
       </section>
 
-      {(activeMission || harvest) ? <section className="pf-card pf-now-card">
-        <div className="pf-section-heading"><span>●</span><div><strong>État réel</strong><small>Ce que Gérard a actuellement en main</small></div></div>
-        {activeMission && progress ? <div className="pf-now-row"><div><b>{progress.label}</b><small>{progress.description || `Mission en cours — ${Math.round(progress.progress)} %`}</small></div><button type="button" className="pf-btn pf-btn-soft" onClick={() => poulpeStore.setTab("hublot")}>Voir le travail</button></div> : null}
-        {harvest ? <div className="pf-now-row"><div><b>{harvest.harvest.title}</b><small>Dernière récolte disponible</small></div><button type="button" className="pf-btn pf-btn-soft" onClick={() => poulpeStore.setTab("harvest")}>Ouvrir</button></div> : null}
-      </section> : null}
+      <section className="pf-live-metrics" aria-label="État du Garden">
+        <button type="button" className="pf-metric-card" onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}><span>Projets</span><strong>{parcels.length}</strong><small>{selectedParcel?.name || "Aucun sélectionné"}</small></button>
+        <button type="button" className="pf-metric-card" onClick={() => activeMission && poulpeStore.setTab("hublot")} disabled={!activeMission}><span>En cours</span><strong>{activeMission ? 1 : 0}</strong><small>{activeMission && progress ? `${Math.round(progress.progress * 100)} %` : "Aucune mission"}</small></button>
+        <button type="button" className="pf-metric-card" onClick={() => harvest && poulpeStore.setTab("harvest")} disabled={!harvest}><span>Récolte</span><strong>{completedHarvests}</strong><small>{harvest ? "Disponible" : "Aucune"}</small></button>
+        <div className="pf-metric-card"><span>À décider</span><strong>{decisionCount}</strong><small>{decisionCount ? "Action requise" : "Rien en attente"}</small></div>
+      </section>
 
-      <section className="pf-card">
-        <div className="pf-section-heading"><span>1</span><div><strong>Projet</strong><small>La parcelle concernée</small></div></div>
-        {selectedParcel && !pickingParcel ? (
-          <>
-            <div className="pf-project-grid">
-              <button type="button" className="pf-project-choice" data-selected onClick={() => setPickingParcel(true)}>
-                <span className="pf-emoji">{selectedParcel.emoji ?? "🌱"}</span><span><b>{selectedParcel.name}</b><small>{selectedParcel.description}</small></span>
-              </button>
-            </div>
-            <button type="button" className="pf-btn pf-btn-soft" style={{ marginTop: "12px" }} onClick={() => setPickingParcel(true)}>
-              Choisir un autre projet{parcels.length > 1 ? ` (${parcels.length - 1})` : ""}
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="pf-project-grid">
-              {parcels.map((parcel) => (
-                <button key={parcel.id} type="button" className="pf-project-choice" data-selected={answers.parcelId === parcel.id} onClick={() => setParcel(parcel.id)}>
-                  <span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><b>{parcel.name}</b><small>{parcel.description}</small></span>
-                </button>
-              ))}
-            </div>
-            {!parcels.length ? <div className="pf-empty"><p>Aucun projet disponible dans le Garden.</p></div> : null}
-            {selectedParcel ? (
-              <button type="button" className="pf-btn pf-btn-soft" style={{ marginTop: "12px" }} onClick={() => setPickingParcel(false)}>Replier la liste</button>
-            ) : null}
-          </>
-        )}
-        {creatingProject ? (
-          <NewProjectForm
-            onCancel={() => setCreatingProject(false)}
-            onCreated={(parcelId) => { setCreatingProject(false); refreshParcels(); setParcel(parcelId); }}
-          />
-        ) : (
-          <button type="button" className="pf-btn pf-btn-soft" style={{ marginTop: "12px" }} onClick={() => setCreatingProject(true)}>+ Nouveau projet</button>
-        )}
+      <section className="pf-card pf-now-card">
+        <div className="pf-section-heading"><span>●</span><div><strong>Maintenant</strong><small>État réel du travail de Gérard</small></div></div>
+        {activeMission && progress ? <div className="pf-live-work"><div className="pf-now-row"><div><b>{progress.label}</b><small>{progress.description || "Mission en cours"}</small></div><button type="button" className="pf-btn pf-btn-soft" onClick={() => poulpeStore.setTab("hublot")}>Voir</button></div><div className="pf-progress"><div style={{ width: `${Math.round(progress.progress * 100)}%` }} /></div></div>
+        : harvest ? <div className="pf-now-row"><div><b>{harvest.harvest.title}</b><small>Dernière récolte prête à être utilisée</small></div><button type="button" className="pf-btn pf-btn-soft" onClick={() => poulpeStore.setTab("harvest")}>Ouvrir</button></div>
+        : <div className="pf-live-empty"><strong>Le jardin veille.</strong><span>Aucune mission active pour le moment.</span></div>}
+        {progress?.blocked ? <div className="pf-live-alert"><strong>Décision requise</strong><span>{progress.blocked.reason}</span></div> : null}
       </section>
 
       <section className="pf-card">
-        <div className="pf-section-heading"><span>2</span><div><strong>Résultat attendu</strong><small>Ce que Gérard doit réellement livrer</small></div></div>
-        <div className="pf-chips">{GOALS.map((goal) => <button key={goal} type="button" className="pf-chip" data-selected={answers.goal === goal} onClick={() => poulpeStore.setAnswer("goal", goal)}>{goal}</button>)}</div>
-        <textarea className="pf-textarea" placeholder="Décris directement le résultat attendu…" value={GOALS.includes(answers.goal ?? "") ? "" : answers.goal ?? ""} onChange={(event) => poulpeStore.setAnswer("goal", event.target.value)} />
+        <div className="pf-section-heading"><span>🌱</span><div><strong>Projet actif</strong><small>La parcelle actuellement au premier plan</small></div></div>
+        {selectedParcel ? <button type="button" className="pf-project-choice" data-selected onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}><span className="pf-emoji">{selectedParcel.emoji ?? "🌱"}</span><span><b>{selectedParcel.name}</b><small>{selectedParcel.description}</small></span></button> : <div className="pf-live-empty"><span>Aucun projet sélectionné.</span></div>}
+        <div className="pf-actions-row"><button type="button" className="pf-btn pf-btn-soft" onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}>Changer de projet</button><button type="button" className="pf-btn pf-btn-soft" onClick={() => { setCreatingProject(true); setMissionComposerOpen(true); }}>+ Nouveau projet</button></div>
       </section>
 
-      <section className="pf-card">
-        <div className="pf-section-heading"><span>3</span><div><strong>Cadre utile</strong><small>Facultatif — Gérard et Publisher complètent le reste</small></div></div>
-        <label className="pf-field-label">Public</label>
-        <div className="pf-chips">{AUDIENCES.map((audience) => <button key={audience} type="button" className="pf-chip" data-selected={answers.audience === audience} onClick={() => poulpeStore.setAnswer("audience", audience)}>{audience}</button>)}</div>
-        <label className="pf-field-label">Ton</label>
-        <div className="pf-chips">{FORMATS.map((format) => <button key={format} type="button" className="pf-chip" data-selected={answers.format === format} onClick={() => poulpeStore.setAnswer("format", format)}>{format}</button>)}</div>
-        <textarea className="pf-textarea" placeholder="Contraintes, sources, délai ou détail important…" value={answers.details ?? ""} onChange={(event) => poulpeStore.setAnswer("details", event.target.value)} />
-      </section>
-
-      <section className="pf-card pf-launch-card">
-        <div><div className="pf-q-eyebrow">Mission prête</div><strong>{selectedParcel?.name ?? "Choisis un projet"}</strong><p>{answers.goal || "Décris le résultat attendu pour continuer."}</p></div>
-        <button className="pf-btn pf-btn-primary pf-launch" type="button" disabled={!ready} onClick={onSubmit}>Confier à Gérard</button>
-      </section>
+      {missionComposerOpen ? <>
+        <section className="pf-card pf-composer-card">
+          <div className="pf-section-heading"><span>1</span><div><strong>Projet</strong><small>La parcelle concernée</small></div></div>
+          {selectedParcel && !pickingParcel ? <button type="button" className="pf-project-choice" data-selected onClick={() => setPickingParcel(true)}><span className="pf-emoji">{selectedParcel.emoji ?? "🌱"}</span><span><b>{selectedParcel.name}</b><small>{selectedParcel.description}</small></span></button> : <div className="pf-project-grid">{parcels.map((parcel) => <button key={parcel.id} type="button" className="pf-project-choice" data-selected={answers.parcelId === parcel.id} onClick={() => setParcel(parcel.id)}><span className="pf-emoji">{parcel.emoji ?? "🌱"}</span><span><b>{parcel.name}</b><small>{parcel.description}</small></span></button>)}</div>}
+          {creatingProject ? <NewProjectForm onCancel={() => setCreatingProject(false)} onCreated={(parcelId) => { setCreatingProject(false); refreshParcels(); setParcel(parcelId); }} /> : null}
+        </section>
+        <section className="pf-card pf-composer-card"><div className="pf-section-heading"><span>2</span><div><strong>Résultat attendu</strong><small>Ce que Gérard doit réellement livrer</small></div></div><div className="pf-chips">{GOALS.map((goal) => <button key={goal} type="button" className="pf-chip" data-selected={answers.goal === goal} onClick={() => poulpeStore.setAnswer("goal", goal)}>{goal}</button>)}</div><textarea className="pf-textarea" placeholder="Décris directement le résultat attendu…" value={GOALS.includes(answers.goal ?? "") ? "" : answers.goal ?? ""} onChange={(event) => poulpeStore.setAnswer("goal", event.target.value)} /></section>
+        <section className="pf-card pf-composer-card"><div className="pf-section-heading"><span>3</span><div><strong>Cadre utile</strong><small>Facultatif — Gérard et Publisher complètent le reste</small></div></div><label className="pf-field-label">Public</label><div className="pf-chips">{AUDIENCES.map((audience) => <button key={audience} type="button" className="pf-chip" data-selected={answers.audience === audience} onClick={() => poulpeStore.setAnswer("audience", audience)}>{audience}</button>)}</div><label className="pf-field-label">Ton</label><div className="pf-chips">{FORMATS.map((format) => <button key={format} type="button" className="pf-chip" data-selected={answers.format === format} onClick={() => poulpeStore.setAnswer("format", format)}>{format}</button>)}</div><textarea className="pf-textarea" placeholder="Contraintes, sources, délai ou détail important…" value={answers.details ?? ""} onChange={(event) => poulpeStore.setAnswer("details", event.target.value)} /></section>
+        <section className="pf-card pf-launch-card"><div><div className="pf-q-eyebrow">Mission prête</div><strong>{selectedParcel?.name ?? "Choisis un projet"}</strong><p>{answers.goal || "Décris le résultat attendu pour continuer."}</p></div><button className="pf-btn pf-btn-primary pf-launch" type="button" disabled={!ready} onClick={onSubmit}>Confier à Gérard</button></section>
+      </> : null}
     </div>
-  );
-}
+  );}
