@@ -116,7 +116,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const progress = usePoulpeStore((state) => state.progress);
   const harvest = usePoulpeStore((state) => state.harvest);
   const [creatingProject, setCreatingProject] = useState(false);
-  const [missionComposerOpen, setMissionComposerOpen] = useState(false);
+  const [missionComposerOpen, setMissionComposerOpen] = useState(false);\n  const [gardenRevision, setGardenRevision] = useState(0);
   // Gérard travaille en autonomie : rouvrir ce cockpit ne devrait pas
   // redemander de choisir une parcelle parmi toutes celles du Garden. La
   // grille complète ne s'ouvre donc qu'à la demande — sauf quand aucun projet
@@ -143,7 +143,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
       const preferredId = context?.parcelId || (availableParcels.some((parcel) => parcel.id === storedParcelId) ? storedParcelId : "");
       if (preferredId) poulpeStore.setAnswer("parcelId", preferredId);
     });
-    const onGardenChanged = () => refreshParcels();
+    const onGardenChanged = () => { refreshParcels(); setGardenRevision((revision) => revision + 1); };
     window.addEventListener("poulpe-garden-changed", onGardenChanged);
     return () => { alive = false; window.removeEventListener("poulpe-garden-changed", onGardenChanged); };
   }, [runtime]);
@@ -188,6 +188,28 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     );
   }
 
+  const gardenSnapshot = useMemo(() => window.GardenStore?.snapshot?.(), [gardenRevision, parcels]);
+  const persistentHarvests = gardenSnapshot?.harvests ?? [];
+  const persistentOperations = gardenSnapshot?.operations ?? [];
+  const persistentCompost = gardenSnapshot?.compost ?? [];
+  const recentGardenActivity = useMemo(() => {
+    const harvestRows = persistentHarvests.slice(-4).map((item) => ({
+      id: `harvest-${item.id}`,
+      kind: "Récolte",
+      title: text(item.title) || text(item.id) || "Récolte",
+      at: text(item.createdAt) || text(item.updatedAt),
+    }));
+    const operationRows = persistentOperations.slice(-4).map((item) => ({
+      id: `operation-${item.id}`,
+      kind: "Mission",
+      title: text(item.label) || text(item.summary) || text(item.capability) || text(item.id) || "Opération",
+      at: text(item.updatedAt) || text(item.createdAt),
+    }));
+    return [...harvestRows, ...operationRows]
+      .sort((a, b) => (b.at || "").localeCompare(a.at || ""))
+      .slice(0, 5);
+  }, [persistentHarvests, persistentOperations]);
+
   const completedHarvests = harvest ? 1 : 0;
   const decisionCount = progress?.state === "needs-input" || progress?.blocked ? 1 : 0;
   const statusLabel = activeMission ? "en travail" : harvest ? "récolte prête" : "en veille";
@@ -205,7 +227,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
       <section className="pf-live-metrics" aria-label="État du Garden">
         <button type="button" className="pf-metric-card" onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}><span>Projets</span><strong>{parcels.length}</strong><small>{selectedParcel?.name || "Aucun sélectionné"}</small></button>
         <button type="button" className="pf-metric-card" onClick={() => activeMission && poulpeStore.setTab("hublot")} disabled={!activeMission}><span>En cours</span><strong>{activeMission ? 1 : 0}</strong><small>{activeMission && progress ? `${Math.round(progress.progress * 100)} %` : "Aucune mission"}</small></button>
-        <button type="button" className="pf-metric-card" onClick={() => harvest && poulpeStore.setTab("harvest")} disabled={!harvest}><span>Récolte</span><strong>{completedHarvests}</strong><small>{harvest ? "Disponible" : "Aucune"}</small></button>
+        <button type="button" className="pf-metric-card" onClick={() => harvest && poulpeStore.setTab("harvest")} disabled={!harvest}><span>Récoltes</span><strong>{persistentHarvests.length || completedHarvests}</strong><small>{harvest ? "Dernière disponible" : persistentHarvests.length ? "Dans le Garden" : "Aucune"}</small></button>
         <div className="pf-metric-card"><span>À décider</span><strong>{decisionCount}</strong><small>{decisionCount ? "Action requise" : "Rien en attente"}</small></div>
       </section>
 
