@@ -292,6 +292,11 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const keepCount = Number(maturityCounts.keep ?? 0);
   const recycleCount = Number(maturityCounts["recycle-candidate"] ?? 0);
   const compostCandidateCount = Number(maturityCounts["compost-candidate"] ?? 0);
+  const maturityItems = Array.isArray(maturityAudit?.items) ? maturityAudit.items as UnknownRecord[] : [];
+  const maturityCandidates = maturityItems
+    .filter((item) => item.disposition === "recycle-candidate" || item.disposition === "compost-candidate")
+    .sort((a, b) => Number(b.ageDays ?? 0) - Number(a.ageDays ?? 0))
+    .slice(0, 6);
   const recentGardenActivity = useMemo(() => {
     const harvestRows = persistentHarvests.slice(-4).map((item) => ({
       id: `harvest-${item.id}`,
@@ -340,6 +345,14 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
             <span className="pf-chip">Compost candidates · {compostCandidateCount}</span>
             <span className="pf-chip">Compost existant · {persistentCompost.length}</span>
           </div>
+          {maturityCandidates.length ? <div className="pf-project-grid">{maturityCandidates.map((item) => {
+            const disposition = text(item.disposition);
+            const reasons = Array.isArray(item.reasons) ? item.reasons.map(text).filter(Boolean) : [];
+            return <div key={text(item.harvestId)} className="pf-project-choice">
+              <span className="pf-emoji">{disposition === "recycle-candidate" ? "♻" : "🍂"}</span>
+              <span><b>{text(item.title) || text(item.harvestId) || "Récolte"}</b><small>{disposition === "recycle-candidate" ? "Recycler" : "Composter"} · {Number(item.ageDays ?? 0)} j · {reasons[0] || "raison déterministe"}</small></span>
+            </div>;
+          })}</div> : <p className="pf-meta">Aucun candidat au recyclage ou au compostage avec les critères actuels.</p>}
           <p className="pf-meta">Gérard privilégie la conservation en cas de doute. Les candidats sont des signaux, pas encore des actions.</p>
         </div> : <div className="pf-live-empty"><span>Le diagnostic de maturation n’est pas disponible.</span></div>}
       </section>
