@@ -174,6 +174,28 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
     setToolPackLoading(true); setToolPackStatus("");
     try {
       const operationId = `tool-pack-${selectedParcel.id}-${Date.now()}`;
+      const garden = window.GardenStore?.snapshot?.();
+      const parcel = garden?.parcels?.find((item) => text(item.id) === selectedParcel.id);
+      const parcelSeeds = (parcel?.seeds ?? []).slice(-5).map((seed) => ({
+        id: text(seed.id),
+        title: text(seed.title),
+        objective: text(seed.objective),
+        status: text(seed.status),
+      }));
+      const parcelHarvests = (garden?.harvests ?? []).filter((item) => text(item.parcelId) === selectedParcel.id).slice(-5).map((item) => ({
+        id: text(item.id),
+        title: text(item.title),
+        createdAt: text(item.createdAt) || text(item.completedAt),
+      }));
+      const parcelOperations = (garden?.operations ?? []).filter((item) => text(item.parcelId) === selectedParcel.id).slice(-5).map((item) => ({
+        id: text(item.id),
+        capability: text(item.capability),
+        status: text(item.status),
+      }));
+      const parcelCompost = (garden?.compost ?? []).filter((item) => text(item.parcelId) === selectedParcel.id).slice(-3).map((item) => ({
+        id: text(item.id),
+        reason: text(item.reason) || text(item.title),
+      }));
       const response = await fetch(`${publisherApi.replace(/\/+$/, "")}/api/octopus-adapter/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -189,7 +211,19 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
               id: selectedParcel.id,
               label: selectedParcel.name,
               objective: selectedParcel.description,
-              metadata: { parcelId: selectedParcel.id, seedId: selectedParcel.id, deliverable: answers.goal || selectedParcel.description || "" },
+              metadata: {
+                parcelId: selectedParcel.id,
+                seedId: parcelSeeds.at(-1)?.id || selectedParcel.id,
+                deliverable: answers.goal || selectedParcel.description || "",
+                gardenContext: {
+                  contract: "garden-context-v1",
+                  parcel: { id: selectedParcel.id, name: selectedParcel.name, objective: selectedParcel.description },
+                  seeds: parcelSeeds,
+                  recentHarvests: parcelHarvests,
+                  recentOperations: parcelOperations,
+                  recentCompost: parcelCompost,
+                },
+              },
             },
           },
         }),
