@@ -14,7 +14,7 @@ export interface PoulpeState {
   harvest: HarvestBundle | null;
 }
 
-const initial: PoulpeState = { tab: "gerard", clientContext: null, parcels: [], stepIndex: 0, answers: {}, missionId: null, progress: null, harvest: null };
+const initial: PoulpeState = { tab: "hublot", clientContext: null, parcels: [], stepIndex: 0, answers: {}, missionId: null, progress: null, harvest: null };
 let state = initial;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());

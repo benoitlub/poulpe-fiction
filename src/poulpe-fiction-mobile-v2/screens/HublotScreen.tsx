@@ -31,14 +31,14 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
 
   if (!progress) {
     return (
-      <section className="pf-hublot" aria-label="Hublot sur le jardin">
+      <section className="pf-hublot pf-garden-home" aria-label="Garden">
         {scene}
         <ActiveExplorations />
         <div className="pf-card pf-full-width">
           <div className="pf-empty">
             {harvests.length ? (
               <>
-                <h2>Le jardin veille</h2>
+                <div className="pf-q-eyebrow">Garden</div><h2>Le jardin veille</h2>
                 <p>{harvests.length} récolte{harvests.length > 1 ? "s" : ""} déjà cultivée{harvests.length > 1 ? "s" : ""}, visible{harvests.length > 1 ? "s" : ""} ci-dessus. Confie une nouvelle intention à Gérard pour continuer à cultiver.</p>
                 <div className="pf-actions-row pf-actions-center">
                   <button className="pf-btn pf-btn-soft" onClick={onGoToHarvest}>Voir les récoltes</button>
@@ -47,7 +47,7 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
               </>
             ) : (
               <>
-                <h2>Le jardin est calme</h2>
+                <div className="pf-q-eyebrow">Garden</div><h2>Le jardin est calme</h2>
                 <p>Confie une intention à Gérard pour commencer.</p>
                 <button className="pf-btn pf-btn-primary" onClick={onBackToGerard}>Parler à Gérard</button>
               </>
@@ -59,7 +59,7 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
   }
 
   return (
-    <section className="pf-hublot" aria-label="Hublot sur le jardin">
+    <section className="pf-hublot pf-garden-home" aria-label="Garden">
       {scene}
       <ActiveExplorations />
       <div className="pf-card pf-full-width">

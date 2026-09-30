@@ -8,9 +8,9 @@ interface Props {
 }
 
 const TABS: Array<{ id: Tab; label: string; icon: string }> = [
+  { id: "hublot", label: "Garden", icon: "🌱" },
   { id: "gerard", label: "Gérard", icon: "🐙" },
-  { id: "hublot", label: "Hublot", icon: "🌙" },
-  { id: "harvest", label: "Récolte", icon: "🧺" },
+  { id: "harvest", label: "Récoltes", icon: "🧺" },
 ];
 
 export function BottomNav({ active, onChange, harvestReady, hublotActive }: Props) {
