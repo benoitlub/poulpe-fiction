@@ -195,6 +195,30 @@
     return entry;
   }
 
+  function compostHarvest(input) {
+    if (!input?.id || !input?.harvestId || !input?.parcelId) throw new Error("GardenStore.compostHarvest requires id, harvestId and parcelId");
+    const harvest = state.harvests.find((item) => item.id === String(input.harvestId) && item.parcelId === String(input.parcelId));
+    if (!harvest) throw new Error(`Unknown Garden harvest: ${input.harvestId}`);
+    const entry = {
+      id: String(input.id),
+      kind: "harvest",
+      harvestId: String(input.harvestId),
+      seedId: harvest.seedId || (input.seedId ? String(input.seedId) : null),
+      parcelId: String(input.parcelId),
+      reason: String(input.reason || ""),
+      reusableInsights: Array.isArray(input.reusableInsights) ? input.reusableInsights.map(String) : [],
+      sourceTitle: String(harvest.title || "Récolte"),
+      sourceCreatedAt: harvest.createdAt || null,
+      createdAt: input.createdAt || new Date().toISOString()
+    };
+    upsert("compost", entry, "id");
+    harvest.status = "composted";
+    harvest.compostedAt = entry.createdAt;
+    harvest.compostId = entry.id;
+    persist();
+    return clone(entry);
+  }
+
   function projectParcelId(seedId) {
     return `project-${String(seedId)}`;
   }
@@ -236,5 +260,5 @@
 
   persist();
 
-  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, clearActiveSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed };
+  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, clearActiveSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed, compostHarvest };
 })(globalThis);
