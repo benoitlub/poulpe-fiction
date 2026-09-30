@@ -253,6 +253,36 @@
     return { contract: "garden-harvest-maturity-v1", generatedAt: new Date(now).toISOString(), minAgeDays, counts, items };
   }
 
+  function recycleHarvest(input) {
+    if (!input?.harvestId || !input?.parcelId) throw new Error("GardenStore.recycleHarvest requires harvestId and parcelId");
+    const harvest = state.harvests.find((item) => item.id === String(input.harvestId) && item.parcelId === String(input.parcelId));
+    if (!harvest) throw new Error(`Unknown Garden harvest: ${input.harvestId}`);
+    const timestamp = input.createdAt || new Date().toISOString();
+    const seedId = String(input.seedId || `recycled-${harvest.id}-${Date.parse(timestamp) || Date.now()}`);
+    const content = String(input.content || harvest.content || harvest.preview || harvest.title || "");
+    const seed = plantSeed({
+      id: seedId,
+      parcelId: String(input.parcelId),
+      kind: input.kind || "idea",
+      title: String(input.title || `Recycler — ${harvest.title || "Récolte"}`),
+      objective: String(input.objective || `Réutiliser la matière utile de la récolte « ${harvest.title || harvest.id} » avant de produire du neuf.`),
+      content,
+      source: "garden-recycling",
+      status: "planted",
+      gardener: "gerard",
+      plantedBy: "gerard",
+      plantedAt: timestamp,
+      createdAt: timestamp,
+      parentHarvestId: harvest.id,
+      parentMissionId: harvest.operationId || null,
+      tags: ["recycled-harvest"],
+    }, { silent: true });
+    harvest.recycledAt = timestamp;
+    harvest.recycledSeedId = seed.id;
+    persist();
+    return clone(seed);
+  }
+
   function compostHarvest(input) {
     if (!input?.id || !input?.harvestId || !input?.parcelId) throw new Error("GardenStore.compostHarvest requires id, harvestId and parcelId");
     const harvest = state.harvests.find((item) => item.id === String(input.harvestId) && item.parcelId === String(input.parcelId));
@@ -318,5 +348,5 @@
 
   persist();
 
-  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, clearActiveSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed, compostHarvest, auditHarvestMaturity };
+  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, clearActiveSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed, compostHarvest, recycleHarvest, auditHarvestMaturity };
 })(globalThis);
