@@ -284,6 +284,14 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const persistentHarvests = gardenSnapshot?.harvests ?? [];
   const persistentOperations = gardenSnapshot?.operations ?? [];
   const persistentCompost = gardenSnapshot?.compost ?? [];
+  const maturityAudit = useMemo(() => {
+    const audit = (window.GardenStore as unknown as { auditHarvestMaturity?: () => UnknownRecord } | undefined)?.auditHarvestMaturity?.();
+    return audit && typeof audit === "object" ? audit : null;
+  }, [gardenRevision, persistentHarvests.length, persistentOperations.length]);
+  const maturityCounts = maturityAudit?.counts && typeof maturityAudit.counts === "object" ? maturityAudit.counts as UnknownRecord : {};
+  const keepCount = Number(maturityCounts.keep ?? 0);
+  const recycleCount = Number(maturityCounts["recycle-candidate"] ?? 0);
+  const compostCandidateCount = Number(maturityCounts["compost-candidate"] ?? 0);
   const recentGardenActivity = useMemo(() => {
     const harvestRows = persistentHarvests.slice(-4).map((item) => ({
       id: `harvest-${item.id}`,
@@ -323,6 +331,19 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
         <div className="pf-metric-card"><span>À décider</span><strong>{decisionCount}</strong><small>{decisionCount ? "Action requise" : "Rien en attente"}</small></div>
       </section>
 
+      <section className="pf-card">
+        <div className="pf-section-heading"><span>♻</span><div><strong>Maturation du Garden</strong><small>Diagnostic déterministe — aucune récolte n’est déplacée automatiquement</small></div></div>
+        {maturityAudit ? <div className="pf-live-work">
+          <div className="pf-chips">
+            <span className="pf-chip" data-selected>À conserver · {keepCount}</span>
+            <span className="pf-chip">À recycler · {recycleCount}</span>
+            <span className="pf-chip">Compost candidates · {compostCandidateCount}</span>
+            <span className="pf-chip">Compost existant · {persistentCompost.length}</span>
+          </div>
+          <p className="pf-meta">Gérard privilégie la conservation en cas de doute. Les candidats sont des signaux, pas encore des actions.</p>
+        </div> : <div className="pf-live-empty"><span>Le diagnostic de maturation n’est pas disponible.</span></div>}
+      </section>
+
       <section className="pf-card pf-now-card">
         <div className="pf-section-heading"><span>●</span><div><strong>Maintenant</strong><small>État réel du travail de Gérard</small></div></div>
         {activeMission && progress ? <div className="pf-live-work"><div className="pf-now-row"><div><b>{progress.label}</b><small>{progress.description || "Mission en cours"}</small></div><button type="button" className="pf-btn pf-btn-soft" onClick={() => poulpeStore.setTab("hublot")}>Voir</button></div><div className="pf-progress"><div style={{ width: `${Math.round(progress.progress * 100)}%` }} /></div></div>
@@ -338,7 +359,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
       </section>
 
       <section className="pf-card">
-        <div className="pf-section-heading"><span>🧰</span><div><strong>Ressources de Gérard</strong><small>Tool Pack préparé par Publisher via Octopus</small></div></div>
+        <div className="pf-section-heading"><span>🧰</span><div><strong>Ressources de Gérard</strong><small>Tool Pack préparé par Publisher à partir du contexte du Garden</small></div></div>
         {toolPack ? <div className="pf-live-work">
           <div className="pf-now-row"><div><b>{text(toolPack.name) || text(toolPack.title) || "Tool Pack"}</b><small>{Array.isArray(toolPack.tools) ? `${toolPack.tools.length} outil(s) recommandé(s)` : "Ressources préparées"}</small></div></div>
           {Array.isArray(toolPack.tools) ? <div className="pf-chips">{toolPack.tools.slice(0, 8).map((tool, index) => {
