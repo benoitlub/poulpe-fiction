@@ -195,6 +195,64 @@
     return entry;
   }
 
+  function auditHarvestMaturity(options) {
+    const now = Number(options?.now || Date.now());
+    const minAgeDays = Math.max(1, Number(options?.minAgeDays) || 30);
+    const normalize = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const ageDays = (value) => {
+      const timestamp = Date.parse(value || "");
+      return Number.isFinite(timestamp) ? Math.max(0, Math.floor((now - timestamp) / 86400000)) : 0;
+    };
+    const activeHarvests = state.harvests.filter((item) => item.status !== "composted");
+    const fingerprints = new Map();
+    activeHarvests.forEach((harvest) => {
+      const fingerprint = normalize([harvest.parcelId, harvest.title, harvest.content || harvest.preview].join(" "));
+      if (!fingerprint) return;
+      const group = fingerprints.get(fingerprint) || [];
+      group.push(harvest);
+      fingerprints.set(fingerprint, group);
+    });
+    const duplicateIds = new Set();
+    fingerprints.forEach((group) => {
+      if (group.length < 2) return;
+      group.slice().sort((a, b) => Date.parse(b.createdAt || "") - Date.parse(a.createdAt || "")).slice(1).forEach((item) => duplicateIds.add(item.id));
+    });
+    const items = activeHarvests.map((harvest) => {
+      const days = ageDays(harvest.createdAt);
+      const duplicate = duplicateIds.has(harvest.id);
+      const hasContent = Boolean(normalize(harvest.content || harvest.preview || harvest.title));
+      const linkedOperation = harvest.operationId ? state.operations.find((item) => item.id === harvest.operationId) : null;
+      let disposition = "keep";
+      const reasons = [];
+      if (duplicate) {
+        disposition = "compost-candidate";
+        reasons.push("doublon déterministe d'une récolte plus récente dans la même parcelle");
+      } else if (days >= minAgeDays && linkedOperation?.status === "failed") {
+        disposition = "recycle-candidate";
+        reasons.push("ancienne récolte liée à une opération échouée");
+      } else if (days >= minAgeDays && !hasContent) {
+        disposition = "compost-candidate";
+        reasons.push("ancienne récolte sans contenu exploitable détecté");
+      } else {
+        reasons.push(days >= minAgeDays ? "ancienne mais aucune preuve suffisante pour la composter" : "récolte récente");
+      }
+      return {
+        harvestId: harvest.id,
+        parcelId: harvest.parcelId,
+        seedId: harvest.seedId || null,
+        title: harvest.title || "Récolte",
+        ageDays: days,
+        disposition,
+        reasons,
+      };
+    });
+    const counts = items.reduce((acc, item) => {
+      acc[item.disposition] = (acc[item.disposition] || 0) + 1;
+      return acc;
+    }, {});
+    return { contract: "garden-harvest-maturity-v1", generatedAt: new Date(now).toISOString(), minAgeDays, counts, items };
+  }
+
   function compostHarvest(input) {
     if (!input?.id || !input?.harvestId || !input?.parcelId) throw new Error("GardenStore.compostHarvest requires id, harvestId and parcelId");
     const harvest = state.harvests.find((item) => item.id === String(input.harvestId) && item.parcelId === String(input.parcelId));
@@ -260,5 +318,5 @@
 
   persist();
 
-  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, clearActiveSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed, compostHarvest };
+  global.GardenStore = { STORAGE_KEY, snapshot, persist, registerParcel, replaceFromParcel, plantSeed, updateSeed, activateSeed, clearActiveSeed, activeSeed, addSprout, addHarvest, upsertOperation, compostSeed, compostHarvest, auditHarvestMaturity };
 })(globalThis);
