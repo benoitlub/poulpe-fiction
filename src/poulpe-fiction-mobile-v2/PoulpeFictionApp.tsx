@@ -81,7 +81,7 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
 
   return (
     <div className="pf-root"><div className="pf-shell">
-      <header className="pf-topbar"><div className="pf-topbar-mark" aria-hidden>🐙</div><div><h1>Poulpe-Fiction</h1><div className="pf-sub">Gérard cultive vos idées</div></div></header>
+      <header className="pf-topbar pf-v3-topbar"><div><div className="pf-q-eyebrow">Poulpe Fiction</div><h1>Le Garden</h1><div className="pf-sub">Un écosystème vivant pour vos projets</div></div><div className="pf-topbar-mark" aria-hidden>🐙</div></header>
       {runtimeError ? <div className="pf-runtime-note">{runtimeError}</div> : null}
       <main className="pf-screen" role="main">
         {tab === "gerard" ? <GerardScreen runtime={runtime} onSubmit={handleSubmit} /> : null}
