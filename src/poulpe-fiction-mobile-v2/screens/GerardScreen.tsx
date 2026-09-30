@@ -318,6 +318,22 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const completedHarvests = harvest ? 1 : 0;
   const decisionCount = progress?.state === "needs-input" || progress?.blocked ? 1 : 0;
   const statusLabel = activeMission ? "en travail" : harvest ? "récolte prête" : "en veille";
+  const [recycleStatus, setRecycleStatus] = useState<string | null>(null);
+
+  const replantHarvest = (item: UnknownRecord) => {
+    const harvestId = text(item.harvestId);
+    const parcelId = text(item.parcelId);
+    if (!harvestId || !parcelId || !window.GardenStore?.recycleHarvest) {
+      setRecycleStatus("Impossible de replanter cette récolte : le Garden n’est pas prêt.");
+      return;
+    }
+    try {
+      const seed = window.GardenStore.recycleHarvest({ harvestId, parcelId });
+      setRecycleStatus(`Récolte replantée en Seed « ${text((seed as UnknownRecord)?.title) || text((seed as UnknownRecord)?.id) || "recyclée"} ».`);
+    } catch (error) {
+      setRecycleStatus(error instanceof Error ? error.message : "Le recyclage a échoué.");
+    }
+  };
 
   return (
     <div className="pf-cockpit">
@@ -351,9 +367,11 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
             return <div key={text(item.harvestId)} className="pf-project-choice">
               <span className="pf-emoji">{disposition === "recycle-candidate" ? "♻" : "🍂"}</span>
               <span><b>{text(item.title) || text(item.harvestId) || "Récolte"}</b><small>{disposition === "recycle-candidate" ? "Recycler" : "Composter"} · {Number(item.ageDays ?? 0)} j · {reasons[0] || "raison déterministe"}</small></span>
+              {disposition === "recycle-candidate" ? <button type="button" className="pf-btn pf-btn-soft" onClick={() => replantHarvest(item)}>Replanter</button> : null}
             </div>;
           })}</div> : <p className="pf-meta">Aucun candidat au recyclage ou au compostage avec les critères actuels.</p>}
-          <p className="pf-meta">Gérard privilégie la conservation en cas de doute. Les candidats sont des signaux, pas encore des actions.</p>
+          {recycleStatus ? <p className="pf-meta">{recycleStatus}</p> : null}
+          <p className="pf-meta">Gérard privilégie la conservation en cas de doute. Le recyclage reste volontaire à ce stade.</p>
         </div> : <div className="pf-live-empty"><span>Le diagnostic de maturation n’est pas disponible.</span></div>}
       </section>
 
