@@ -337,23 +337,14 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
 
   return (
     <div className="pf-cockpit">
-      <section className="pf-card pf-cockpit-hero pf-live-hero">
-        <div className="pf-live-heading">
-          <div><div className="pf-q-eyebrow">Cockpit Gérard</div><h2 className="pf-q-title">Gérard <span className="pf-live-status">● {statusLabel}</span></h2></div>
-          <button type="button" className="pf-btn pf-btn-primary" onClick={() => setMissionComposerOpen((open) => !open)}>{missionComposerOpen ? "Fermer" : "Confier une mission"}</button>
-        </div>
-        {clientContext ? <div className="pf-client-card"><strong>{clientContext.displayName}</strong><span>{clientContext.activity}</span></div> : null}
+      <section className="pf-gerard-focus">
+        <div className="pf-gerard-presence"><span className={activeMission ? "is-live" : ""} /><div><small>Gérard · {statusLabel}</small><strong>{progress?.blocked ? "J’ai besoin d’une décision." : activeMission && progress ? progress.label : harvest ? "Une récolte est prête." : selectedParcel ? `Je veille sur ${selectedParcel.name}.` : "Quel projet veux-tu faire avancer ?"}</strong><p>{progress?.blocked?.reason || (activeMission && progress ? progress.description : harvest ? harvest.harvest.title : selectedParcel?.description || "Choisis une parcelle ou confie-moi directement une intention.")}</p></div></div>
+        <button type="button" className="pf-btn pf-btn-primary pf-gerard-action" onClick={() => setMissionComposerOpen((open) => !open)}>{missionComposerOpen ? "Fermer" : "Confier une intention"}</button>
       </section>
+      <div className="pf-gerard-stats" aria-label="Résumé du Garden"><span>{parcels.length} projets</span><span>{persistentHarvests.length || completedHarvests} récoltes</span>{decisionCount ? <span className="is-attention">{decisionCount} décision</span> : <span>Aucune décision en attente</span>}</div>
 
-      <section className="pf-live-metrics" aria-label="État du Garden">
-        <button type="button" className="pf-metric-card" onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}><span>Projets</span><strong>{parcels.length}</strong><small>{selectedParcel?.name || "Aucun sélectionné"}</small></button>
-        <button type="button" className="pf-metric-card" onClick={() => activeMission && poulpeStore.setTab("hublot")} disabled={!activeMission}><span>En cours</span><strong>{activeMission ? 1 : 0}</strong><small>{activeMission && progress ? `${Math.round(progress.progress * 100)} %` : "Aucune mission"}</small></button>
-        <button type="button" className="pf-metric-card" onClick={() => harvest && poulpeStore.setTab("harvest")} disabled={!harvest}><span>Récoltes</span><strong>{persistentHarvests.length || completedHarvests}</strong><small>{harvest ? "Dernière disponible" : persistentHarvests.length ? "Dans le Garden" : "Aucune"}</small></button>
-        <div className="pf-metric-card"><span>À décider</span><strong>{decisionCount}</strong><small>{decisionCount ? "Action requise" : "Rien en attente"}</small></div>
-      </section>
-
-      <section className="pf-card">
-        <div className="pf-section-heading"><span>♻</span><div><strong>Maturation du Garden</strong><small>Diagnostic déterministe — aucune récolte n’est déplacée automatiquement</small></div></div>
+      <details className="pf-card pf-secondary-panel">
+        <summary><span>Capital du Garden</span><small>{recycleCount} à recycler · {compostCandidateCount} à composter</small></summary>
         {maturityAudit ? <div className="pf-live-work">
           <div className="pf-chips">
             <span className="pf-chip" data-selected>À conserver · {keepCount}</span>
@@ -373,7 +364,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
           {recycleStatus ? <p className="pf-meta">{recycleStatus}</p> : null}
           <p className="pf-meta">Gérard privilégie la conservation en cas de doute. Le recyclage reste volontaire à ce stade.</p>
         </div> : <div className="pf-live-empty"><span>Le diagnostic de maturation n’est pas disponible.</span></div>}
-      </section>
+      </details>
 
       <section className="pf-card pf-now-card">
         <div className="pf-section-heading"><span>●</span><div><strong>Maintenant</strong><small>État réel du travail de Gérard</small></div></div>
@@ -389,8 +380,8 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
         <div className="pf-actions-row"><button type="button" className="pf-btn pf-btn-soft" onClick={() => { setPickingParcel(true); setMissionComposerOpen(true); }}>Changer de projet</button><button type="button" className="pf-btn pf-btn-soft" onClick={() => { setCreatingProject(true); setMissionComposerOpen(true); }}>+ Nouveau projet</button></div>
       </section>
 
-      <section className="pf-card">
-        <div className="pf-section-heading"><span>🧰</span><div><strong>Ressources de Gérard</strong><small>Tool Pack préparé par Publisher à partir du contexte du Garden</small></div></div>
+      <details className="pf-card pf-secondary-panel">
+        <summary><span>Ressources</span><small>{toolPack ? "Préparées pour ce projet" : "À préparer si nécessaire"}</small></summary>
         {toolPack ? <div className="pf-live-work">
           <div className="pf-now-row"><div><b>{text(toolPack.name) || text(toolPack.title) || "Tool Pack"}</b><small>{Array.isArray(toolPack.tools) ? `${toolPack.tools.length} outil(s) recommandé(s)` : "Ressources préparées"}</small></div></div>
           {Array.isArray(toolPack.tools) ? <div className="pf-chips">{toolPack.tools.slice(0, 8).map((tool, index) => {
@@ -400,7 +391,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
         </div> : <div className="pf-live-empty"><span>Aucun Tool Pack préparé pour ce projet.</span></div>}
         {toolPackStatus ? <p className="pf-meta">{toolPackStatus}</p> : null}
         <div className="pf-actions-row"><button type="button" className="pf-btn pf-btn-soft" disabled={!selectedParcel || toolPackLoading} onClick={prepareResources}>{toolPackLoading ? "Préparation…" : "Préparer les ressources"}</button></div>
-      </section>
+      </details>
 
       {missionComposerOpen ? <>
         <section className="pf-card pf-composer-card">
