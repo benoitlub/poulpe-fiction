@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActiveExplorations } from "../components/ActiveExplorations";
 import { OctopusGarden } from "../components/OctopusGarden";
 import { restoreAllGardenHarvests } from "../runtime/restoreGardenHarvest";
@@ -27,12 +27,27 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
     };
   }, []);
 
+  const gardenSnapshot = useMemo(() => window.GardenStore?.snapshot?.() ?? null, [harvests.length, progress?.step]);
+  const parcels = gardenSnapshot?.parcels ?? [];
+  const seeds = gardenSnapshot?.seeds ?? [];
+  const parcelLife = parcels.slice(0, 6).map((parcel) => ({
+    parcel,
+    seeds: seeds.filter((seed) => seed.parcelId === parcel.id).length,
+    harvests: gardenSnapshot?.harvests?.filter((item) => item.parcelId === parcel.id && item.status !== "composted").length ?? 0,
+  }));
   const scene = <OctopusGarden step={progress?.step ?? "idle"} harvests={harvests} onSelectHarvest={onGoToHarvest} />;
+  const livingParcels = parcelLife.length ? <div className="pf-garden-parcels" aria-label="Parcelles vivantes">
+    {parcelLife.map(({ parcel, seeds: seedCount, harvests: harvestCount }) => <button key={parcel.id} type="button" className="pf-garden-parcel" onClick={onBackToGerard}>
+      <span className="pf-garden-parcel-glow" aria-hidden />
+      <strong>{parcel.name || parcel.title || "Parcelle"}</strong>
+      <small>{seedCount} seed{seedCount > 1 ? "s" : ""} · {harvestCount} récolte{harvestCount > 1 ? "s" : ""}</small>
+    </button>)}
+  </div> : null;
 
   if (!progress) {
     return (
       <section className="pf-hublot pf-garden-home" aria-label="Garden">
-        {scene}
+        <div className="pf-garden-world">${scene}${livingParcels}</div>
         <ActiveExplorations />
         <div className="pf-card pf-full-width">
           <div className="pf-empty">
