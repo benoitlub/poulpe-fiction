@@ -120,6 +120,7 @@ const ArchiveByParcel: FC<{ groups: [string, HarvestBundle[]][] }> = ({ groups }
 
 export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundle | null; onBackToGerard: () => void }) {
   const [stored, setStored] = useState<HarvestBundle[]>(() => restoreAllGardenHarvests());
+  const [view, setView] = useState<"recent" | "projects" | "archive">("recent");
 
   useEffect(() => {
     const refresh = () => setStored(restoreAllGardenHarvests());
@@ -163,21 +164,26 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
   }
 
   return (
-    <section aria-label="Toutes les récoltes">
-      <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Toutes les récoltes</h2><p className="pf-meta">{harvests.length} récolte{harvests.length > 1 ? "s" : ""} · {groups.length} parcelle{groups.length > 1 ? "s" : ""} dans le Garden</p></div></div></div>
-      {gerardPicks.length ? <section aria-label="Propositions de Gérard" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <section className="pf-harvest-library" aria-label="Bibliothèque des récoltes">
+      <div className="pf-library-summary"><strong>{harvests.length}</strong><span>récoltes</span><i /> <strong>{groups.length}</strong><span>projets</span></div>
+      <nav className="pf-library-tabs" aria-label="Vues des récoltes">
+        <button type="button" data-active={view === "recent"} onClick={() => setView("recent")}>Récentes</button>
+        <button type="button" data-active={view === "projects"} onClick={() => setView("projects")}>Par projet</button>
+        <button type="button" data-active={view === "archive"} onClick={() => setView("archive")}>Archives</button>
+      </nav>
+      {view === "recent" && gerardPicks.length ? <section aria-label="Propositions de Gérard" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Propositions de Gérard</h2><p className="pf-meta">{gerardPicks.length} publication{gerardPicks.length > 1 ? "s" : ""} prête{gerardPicks.length > 1 ? "s" : ""} à relire</p></div></div></div>
         {gerardPicks.map((item, index) => <HarvestCard key={item.missionId} bundle={item} initiallyOpen={index === 0} />)}
       </section> : null}
-      {projectLatest.length ? <section aria-label="Dernière récolte par projet" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      {view === "projects" && projectLatest.length ? <section aria-label="Dernière récolte par projet" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Dernière récolte par projet</h2><p className="pf-meta">{projectLatest.length} projet{projectLatest.length > 1 ? "s" : ""} · un aperçu de chaque parcelle</p></div></div></div>
         {projectLatest.map(([parcelId, item]) => <HarvestCard key={`project-latest-${parcelId}-${item.missionId}`} bundle={item} showParcel />)}
       </section> : null}
-      <section aria-label="Dernières récoltes" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      {view === "recent" ? <section aria-label="Dernières récoltes" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <div className="pf-card"><div className="pf-harvest-heading"><div><h2 className="pf-harvest-title">Dernières récoltes</h2><p className="pf-meta">{latestHarvests.length} récolte{latestHarvests.length > 1 ? "s" : ""} les plus récentes</p></div></div></div>
         {latestHarvests.map((item) => <HarvestCard key={item.missionId} bundle={item} />)}
-      </section>
-      <ArchiveByParcel groups={groups} />
+      </section> : null}
+      {view === "archive" ? <ArchiveByParcel groups={groups} /> : null}
     </section>
   );
 }
