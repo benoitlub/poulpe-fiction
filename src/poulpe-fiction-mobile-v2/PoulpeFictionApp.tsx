@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./styles/poulpe-fiction-mobile-v2.css";
+import gardenV3Background from "./assets/garden-v3.webp";
 import { BottomNav } from "./components/BottomNav";
 import { GerardScreen } from "./screens/GerardScreen";
 import { HublotScreen } from "./screens/HublotScreen";
@@ -64,7 +65,7 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
   }, [missionId, progress?.state, progress?.finished, runtime]);
 
   if (!runtime) {
-    return <div className="pf-root"><div className="pf-shell"><main className="pf-screen"><section className="pf-card pf-empty"><h2>La nouvelle façade est prête</h2><p>{runtimeError}</p><p>Il reste à lui injecter l’adaptateur Octopus déjà présent dans Poulpe-Fiction.</p></section></main></div></div>;
+    return <div className="pf-root pf-v3-organic" style={{ "--pf-garden-bg": `url(${gardenV3Background})` } as React.CSSProperties}><div className="pf-shell"><main className="pf-screen"><section className="pf-card pf-empty"><h2>La nouvelle façade est prête</h2><p>{runtimeError}</p><p>Il reste à lui injecter l’adaptateur Octopus déjà présent dans Poulpe-Fiction.</p></section></main></div></div>;
   }
 
   const handleSubmit = async () => {
