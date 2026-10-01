@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import "./styles/poulpe-fiction-mobile-v2.css";
 import gardenV3Background from "./assets/garden-v3.webp";
 import { BottomNav } from "./components/BottomNav";
@@ -81,7 +81,7 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
   };
 
   return (
-    <div className="pf-root"><div className="pf-shell">
+    <div className="pf-root pf-v3-organic" style={{ "--pf-garden-bg": `url(${gardenV3Background})` } as CSSProperties}><div className="pf-shell">
       <header className="pf-topbar pf-v3-topbar"><div><div className="pf-q-eyebrow">Poulpe Fiction</div><h1>Le Garden</h1><div className="pf-sub">Un écosystème vivant pour vos projets</div></div><div className="pf-topbar-mark" aria-hidden>🐙</div></header>
       {runtimeError ? <div className="pf-runtime-note">{runtimeError}</div> : null}
       <main className="pf-screen" role="main">
