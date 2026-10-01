@@ -21,6 +21,11 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
   const progress = usePoulpeStore((state) => state.progress);
   const harvest = usePoulpeStore((state) => state.harvest);
   const pollingRef = useRef<number | null>(null);
+  const pageIdentity = tab === "hublot"
+    ? { title: "Garden", subtitle: "Vue vivante de vos projets" }
+    : tab === "gerard"
+      ? { title: "Gérard", subtitle: "Intentions, décisions et travail en cours" }
+      : { title: "Récoltes", subtitle: "Capital produit, réutilisable et archivé" };
 
   useEffect(() => {
     const restore = () => {
@@ -82,7 +87,7 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
 
   return (
     <div className="pf-root pf-v3-organic" style={{ "--pf-garden-bg": `url(${gardenV3Background})` } as CSSProperties}><div className="pf-shell">
-      <header className="pf-topbar pf-v3-topbar"><div><div className="pf-q-eyebrow">Poulpe Fiction</div><h1>Le Garden</h1><div className="pf-sub">Un écosystème vivant pour vos projets</div></div><div className="pf-topbar-mark" aria-hidden>🐙</div></header>
+      <header className="pf-topbar pf-v3-topbar"><div><div className="pf-q-eyebrow">Poulpe Fiction</div><h1>{pageIdentity.title}</h1><div className="pf-sub">{pageIdentity.subtitle}</div></div><div className="pf-topbar-mark" aria-hidden>🐙</div></header>
       {runtimeError ? <div className="pf-runtime-note">{runtimeError}</div> : null}
       <main className="pf-screen" role="main">
         {tab === "gerard" ? <GerardScreen runtime={runtime} onSubmit={handleSubmit} /> : null}
