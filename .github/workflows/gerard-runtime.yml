@@ -3,6 +3,10 @@ name: Gerard runtime
 on:
   schedule:
     - cron: "17 */3 * * *"
+  push:
+    paths:
+      - "garden/restart-seeds.json"
+      - ".github/workflows/gerard-runtime.yml"
   workflow_dispatch: {}
 
 concurrency:
@@ -118,8 +122,21 @@ jobs:
             -H "Content-Type: application/json" \
             --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["knowledge.search","tool.search","copy.generate","content.article.write","content.social.write","social.publish","landing.generate"],executeUrl:$executeUrl}')"
 
+      - name: Sync restart Seeds to Publisher
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f garden/restart-seeds.json || exit 0
+          curl --fail --silent --show-error \
+            -X POST "$PUBLISHER_URL/api/tentacles/sync" \
+            -H "Content-Type: application/json" \
+            --data @garden/restart-seeds.json
+
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
+        env:
+          GERARD_MODE: cultivate
         run: node scripts/gerard-cycle.mjs
 
       - name: Validate real harvest result
