@@ -6,6 +6,7 @@ on:
   push:
     paths:
       - "garden/restart-seeds.json"
+      - "scripts/gerard-cycle.mjs"
       - ".github/workflows/gerard-runtime.yml"
   workflow_dispatch: {}
 
