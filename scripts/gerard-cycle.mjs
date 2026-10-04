@@ -124,7 +124,23 @@ async function main() {
   const operationId = `gerard-${mode}-${Date.now()}`;
   let result;
   if (mode === "cultivate") {
-    result = { ...(await runRealHarvest()), harvestMode: "neon-tentacle-cycle", operationId };
+    // Single AI gateway: Gérard delegates reasoning/generation to Octopus.
+    // Publisher remains an adapter/memory surface and must not call Mistral
+    // directly for autonomous Gérard cycles.
+    result = await callOctopus({
+      operationId,
+      parcelId: "poulpe-fiction",
+      title: intent.title,
+      objective: intent.objective,
+      requiredCapabilities: intent.requiredCapabilities,
+      context: {
+        id: "poulpe-fiction",
+        label: "Poulpe Fiction",
+        objective: intent.objective,
+        metadata: { source: "gerard-cycle", mode, aiGateway: "octopus" },
+      },
+    });
+    result = { ...result, harvestMode: "octopus-mission", operationId };
   } else {
     result = await callOctopus({ operationId, parcelId: "poulpe-fiction", title: intent.title, objective: intent.objective, requiredCapabilities: intent.requiredCapabilities, context: { id: "poulpe-fiction", label: "Poulpe Fiction", objective: intent.objective, metadata: { source: "gerard-cycle", mode } } });
   }
