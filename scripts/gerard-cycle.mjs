@@ -124,23 +124,48 @@ async function main() {
   const operationId = `gerard-${mode}-${Date.now()}`;
   let result;
   if (mode === "cultivate") {
-    // Single AI gateway: Gérard delegates reasoning/generation to Octopus.
-    // Publisher remains an adapter/memory surface and must not call Mistral
-    // directly for autonomous Gérard cycles.
-    result = await callOctopus({
-      operationId,
-      parcelId: "poulpe-fiction",
-      title: intent.title,
-      objective: intent.objective,
-      requiredCapabilities: intent.requiredCapabilities,
+    // Poulpe Fiction owns the Garden semantics. Octopus receives a neutral
+    // execution contract; Publisher supplies knowledge through its adapter.
+    // This first phase prepares the "sac" only: no text generation, no publish,
+    // and therefore no autonomous Mistral spend.
+    const knowledgeMission = {
+      operationId: `${operationId}-knowledge`,
+      title: "Préparer le contexte de culture",
+      objective: "Retrieve the verified knowledge required to evaluate the current Poulpe Fiction cultivation cycle.",
+      requiredCapabilities: ["knowledge.search"],
+      authorizedResources: [],
       context: {
         id: "poulpe-fiction",
         label: "Poulpe Fiction",
-        objective: intent.objective,
-        metadata: { source: "gerard-cycle", mode, aiGateway: "octopus" },
+        metadata: {
+          source: "gerard-cycle",
+          mode,
+          parcelId: "poulpe-fiction",
+          knowledgeSlug: "poulpe-fiction",
+          gardenStage: "prepare-bag",
+        },
       },
-    });
-    result = { ...result, harvestMode: "octopus-mission", operationId };
+    };
+    const knowledgeResult = await callOctopus(knowledgeMission);
+    const knowledgePayload = knowledgeResult?.payload ?? {};
+    const knowledgeOutput = knowledgePayload?.output ?? {};
+    const knowledgeReady = knowledgeResult.status === "ok" && knowledgePayload.status === "completed" && knowledgeOutput.verified === true;
+
+    result = {
+      status: knowledgeReady ? "ok" : "failed",
+      harvestMode: "garden-prepare-bag",
+      operationId,
+      phase: "knowledge",
+      knowledge: {
+        status: knowledgePayload.status ?? knowledgeResult.status,
+        verified: knowledgeOutput.verified === true,
+        slug: knowledgeOutput.slug ?? null,
+        source: knowledgeOutput.source ?? null,
+      },
+      decision: knowledgeReady ? "knowledge-ready-awaiting-garden-decision" : "knowledge-unavailable",
+      // Keep the raw neutral mission response for the auditable Garden state.
+      octopus: knowledgeResult,
+    };
   } else {
     result = await callOctopus({ operationId, parcelId: "poulpe-fiction", title: intent.title, objective: intent.objective, requiredCapabilities: intent.requiredCapabilities, context: { id: "poulpe-fiction", label: "Poulpe Fiction", objective: intent.objective, metadata: { source: "gerard-cycle", mode } } });
   }
