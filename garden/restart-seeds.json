@@ -1,0 +1,12 @@
+{
+  "seeds": [
+    {
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "objective": "Explorer trois portes d entree a partir de La Feulette tachetee, Les Vacances interdites et Kif & Molla. Observer les retours disponibles dans Notion, apprendre, puis reproduire, muter ou composter selon les signaux.",
+      "firstHarvest": "Vous n avez pas la ref. Pas encore. Les trois oeuvres sont trois portes d une meme experience auteur. Commencer petit, observer, apprendre.",
+      "knowledgeSlug": "poulpe-fiction"
+    }
+  ]
+}
