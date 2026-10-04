@@ -1,7 +1,8 @@
 name: Gerard runtime
 
 on:
-  # Automatic schedule temporarily suspended to diagnose shared Mistral rate limits.
+  schedule:
+    - cron: "17 */3 * * *"
   workflow_dispatch: {}
 
 concurrency:
