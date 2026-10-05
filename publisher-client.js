@@ -56,6 +56,24 @@
     }
   }
 
+  // Mirrors the browser Garden archive into Publisher/Neon. The server
+  // upserts by Harvest id, so this is safe to retry and never creates duplicates.
+  async function syncHarvests(harvests) {
+    const publisherBase = base();
+    if (!publisherBase || !Array.isArray(harvests) || !harvests.length) return false;
+    try {
+      const request = global.PoulpeRuntimeConfig?.withTimeout || fetch;
+      const response = await request(`${publisherBase}/api/garden/harvests/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ harvests: harvests.slice(0, 1000) }),
+      }, 30000);
+      return response.ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // Generic GET, for read-only endpoints (e.g. /api/tentacles/iterations)
   // that don't fit execute()'s POST-a-tool-call shape.
   async function get(path, options = {}) {
@@ -71,5 +89,5 @@
     }
   }
 
-  global.PublisherClient = { base, execute, syncTentacles, get };
+  global.PublisherClient = { base, execute, syncTentacles, syncHarvests, get };
 })(globalThis);
