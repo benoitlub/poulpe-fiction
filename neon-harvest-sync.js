@@ -99,8 +99,15 @@
     }
   }
 
-  global.NeonHarvestSync = { sync };
+  async function pushGardenArchive() {
+    const harvests = global.GardenStore?.snapshot?.()?.harvests;
+    if (!Array.isArray(harvests) || !harvests.length) return false;
+    return Boolean(await global.PublisherClient?.syncHarvests?.(harvests));
+  }
 
+  global.NeonHarvestSync = { sync, pushGardenArchive };
+
+  void pushGardenArchive();
   void sync();
   global.setInterval(() => void sync(), SYNC_INTERVAL_MS);
 })(globalThis);
