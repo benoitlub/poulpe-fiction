@@ -16,6 +16,9 @@
   const ITERATION_MAX_COOLDOWN_MS = 6 * 60 * 60 * 1000;
   const POLL_MS = 5_000;
   const MAX_CONCURRENT_TENTACLES = 8;
+  const GARDEN_MAINTENANCE_INTERVAL_MS = 30 * 60 * 1000;
+  const GARDEN_MAINTENANCE_BATCH_SIZE = 25;
+  let lastGardenMaintenanceAt = 0;
   const inFlightSeedIds = new Set();
   let timer = null;
   let refreshScheduled = false;
@@ -258,12 +261,52 @@
       .slice(0, MAX_CONCURRENT_TENTACLES);
   }
 
+  function maintainGarden() {
+    if (Date.now() - lastGardenMaintenanceAt < GARDEN_MAINTENANCE_INTERVAL_MS) return null;
+    lastGardenMaintenanceAt = Date.now();
+
+    const store = global.GardenStore;
+    if (!store?.auditHarvestMaturity || !store?.compostHarvest) return null;
+
+    try {
+      const audit = store.auditHarvestMaturity({ minAgeDays: 30 });
+      const candidates = (audit?.items || [])
+        .filter((item) => item?.disposition === "compost-candidate")
+        .slice(0, GARDEN_MAINTENANCE_BATCH_SIZE);
+
+      const composted = [];
+      candidates.forEach((item) => {
+        try {
+          const reason = Array.isArray(item.reasons) ? item.reasons.join("; ") : "candidat compost automatique";
+          const entry = store.compostHarvest({
+            id: `auto-compost-${item.harvestId}`,
+            harvestId: item.harvestId,
+            parcelId: item.parcelId,
+            seedId: item.seedId || null,
+            reason,
+            reusableInsights: [],
+          });
+          if (entry?.harvestId) composted.push(entry.harvestId);
+        } catch (_) {}
+      });
+
+      if (composted.length) {
+        push(`♻️ Compost automatique : ${composted.length} récolte(s) obsolète(s) sorties de la réserve active.`);
+        refresh();
+      }
+      return { audited: (audit?.items || []).length, composted: composted.length };
+    } catch (_) {
+      return null;
+    }
+  }
+
   async function advance() {
     if (!autonomy.enabled) return;
     if (global.GerardScheduler?.hasActiveUserInteraction?.()) return;
     if (global.DepartureController?.isRunning?.() || global.AdventureLaunch?.isLaunching?.()) return;
 
     syncTentacleCatalog();
+    maintainGarden();
 
     const drafts = selectDueDrafts(global.AdventureDraft?.loadActiveDrafts?.());
     if (!drafts.length) return;
@@ -296,7 +339,8 @@
     setEnabled,
     isEnabled: () => Boolean(autonomy.enabled),
     isRunning: () => inFlightSeedIds.size > 0,
-    activeTentacles: () => inFlightSeedIds.size
+    activeTentacles: () => inFlightSeedIds.size,
+    maintainGarden
   };
 
   start();
