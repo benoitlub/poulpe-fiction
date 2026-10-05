@@ -146,7 +146,12 @@ export function restoreAllGardenHarvests(): HarvestBundle[] {
 
 export function restoreLatestGardenHarvest(): { bundle: HarvestBundle; progress: MissionProgress } | null {
   const snapshot = window.GardenStore?.snapshot?.() ?? {};
-  const bundle = restoreAllGardenHarvests()[0];
+  // Hot path used on app restore and every Garden change: never rebuild the
+  // whole harvest library just to obtain its newest item.
+  const latestHarvest = (snapshot.harvests ?? [])
+    .map(record)
+    .reduce<UnknownRecord | null>((latest, item) => !latest || dateValue(item) > dateValue(latest) ? item : latest, null);
+  const bundle = latestHarvest ? bundleFromGardenHarvest(latestHarvest, snapshot) : null;
   if (!bundle) return null;
   const parcel = (snapshot.parcels ?? []).map(record).find((item) => text(item.id) === bundle.intent.parcelId) ?? {};
 
