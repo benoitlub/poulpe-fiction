@@ -292,6 +292,8 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const keepCount = Number(maturityCounts.keep ?? 0);
   const recycleCount = Number(maturityCounts["recycle-candidate"] ?? 0);
   const compostCandidateCount = Number(maturityCounts["compost-candidate"] ?? 0);
+  const activeHarvestCount = persistentHarvests.filter((item) => text(item.status) !== "composted").length;
+  const compostedHarvestCount = persistentHarvests.filter((item) => text(item.status) === "composted").length;
   const maturityItems = Array.isArray(maturityAudit?.items) ? maturityAudit.items as UnknownRecord[] : [];
   const maturityCandidates = maturityItems
     .filter((item) => item.disposition === "recycle-candidate" || item.disposition === "compost-candidate")
@@ -353,13 +355,10 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
       </section>
 
       <section className="pf-card">
-        <div className="pf-section-heading"><span>♻</span><div><strong>Maturation du Garden</strong><small>Diagnostic déterministe — aucune récolte n’est déplacée automatiquement</small></div></div>
+        <div className="pf-section-heading"><span>♻</span><div><strong>Réserve & compost</strong><small>Entretien automatique du Garden — seuls les candidats déterministes sont compostés</small></div></div>
         {maturityAudit ? <div className="pf-live-work">
           <div className="pf-chips">
-            <span className="pf-chip" data-selected>À conserver · {keepCount}</span>
-            <span className="pf-chip">À recycler · {recycleCount}</span>
-            <span className="pf-chip">Compost candidates · {compostCandidateCount}</span>
-            <span className="pf-chip">Compost existant · {persistentCompost.length}</span>
+            <span className="pf-chip" data-selected>Réserve active · {activeHarvestCount}</span>\n            <span className="pf-chip">À conserver · {keepCount}</span>\n            <span className="pf-chip">À recycler · {recycleCount}</span>\n            <span className="pf-chip">À composter · {compostCandidateCount}</span>\n            <span className="pf-chip">Composté · {compostedHarvestCount}</span>\n            <span className="pf-chip">Entrées compost · {persistentCompost.length}</span>
           </div>
           {maturityCandidates.length ? <div className="pf-project-grid">{maturityCandidates.map((item) => {
             const disposition = text(item.disposition);
@@ -371,7 +370,7 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
             </div>;
           })}</div> : <p className="pf-meta">Aucun candidat au recyclage ou au compostage avec les critères actuels.</p>}
           {recycleStatus ? <p className="pf-meta">{recycleStatus}</p> : null}
-          <p className="pf-meta">Gérard privilégie la conservation en cas de doute. Le recyclage reste volontaire à ce stade.</p>
+          <p className="pf-meta">Gérard privilégie la conservation en cas de doute. Les candidats compost sont traités automatiquement par lots ; le recyclage reste volontaire.</p>
         </div> : <div className="pf-live-empty"><span>Le diagnostic de maturation n’est pas disponible.</span></div>}
       </section>
 
