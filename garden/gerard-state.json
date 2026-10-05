@@ -1,11 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-09-18T20:31:40.949Z",
-      "mode": "rest",
-      "result": "skipped"
-    },
-    {
       "at": "2026-09-18T23:04:47.542Z",
       "mode": "rest",
       "result": "skipped"
@@ -109,14 +104,20 @@
       "mode": "cultivate",
       "operationId": "gerard-cultivate-1791158296644",
       "result": "ok"
+    },
+    {
+      "at": "2026-10-05T00:00:03.675Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1791158400885",
+      "result": "ok"
     }
   ],
   "lastMode": "cultivate",
-  "lastRunAt": "2026-10-04T23:58:20.607Z",
+  "lastRunAt": "2026-10-05T00:00:03.675Z",
   "lastResult": {
     "status": "ok",
     "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1791158296644",
+    "operationId": "gerard-cultivate-1791158400885",
     "phase": "knowledge",
     "knowledge": {
       "status": "completed",
@@ -129,7 +130,7 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1791158296644-knowledge",
+        "operationId": "gerard-cultivate-1791158400885-knowledge",
         "status": "completed",
         "summary": "Knowledge Package poulpe-fiction préparé par Publisher.",
         "output": {
@@ -148,19 +149,19 @@
             "digestedItems": 4
           }
         },
-        "missionId": "gerard-cultivate-1791158296644-knowledge",
+        "missionId": "gerard-cultivate-1791158400885-knowledge",
         "contextId": "poulpe-fiction",
         "adapterId": "publisher",
         "lifecycle": {
-          "missionId": "gerard-cultivate-1791158296644-knowledge",
+          "missionId": "gerard-cultivate-1791158400885-knowledge",
           "state": "completed",
-          "createdAt": "2026-10-04T23:58:16.679Z",
-          "updatedAt": "2026-10-04T23:58:20.598Z",
+          "createdAt": "2026-10-05T00:00:00.920Z",
+          "updatedAt": "2026-10-05T00:00:03.666Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-04T23:58:16.679Z",
+              "at": "2026-10-05T00:00:00.920Z",
               "metadata": {
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
@@ -171,11 +172,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-04T23:58:16.680Z",
+              "at": "2026-10-05T00:00:00.921Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791158296644-knowledge",
-                "missionId": "gerard-cultivate-1791158296644-knowledge",
+                "operationId": "gerard-cultivate-1791158400885-knowledge",
+                "missionId": "gerard-cultivate-1791158400885-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -185,11 +186,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-04T23:58:16.680Z",
+              "at": "2026-10-05T00:00:00.921Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791158296644-knowledge",
-                "missionId": "gerard-cultivate-1791158296644-knowledge",
+                "operationId": "gerard-cultivate-1791158400885-knowledge",
+                "missionId": "gerard-cultivate-1791158400885-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -199,11 +200,11 @@
             {
               "from": "planned",
               "to": "waiting-executor",
-              "at": "2026-10-04T23:58:16.680Z",
+              "at": "2026-10-05T00:00:00.921Z",
               "reason": "Compatible adapter selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791158296644-knowledge",
-                "missionId": "gerard-cultivate-1791158296644-knowledge",
+                "operationId": "gerard-cultivate-1791158400885-knowledge",
+                "missionId": "gerard-cultivate-1791158400885-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -214,11 +215,11 @@
             {
               "from": "waiting-executor",
               "to": "executing",
-              "at": "2026-10-04T23:58:16.680Z",
+              "at": "2026-10-05T00:00:00.921Z",
               "reason": "External adapter execution started.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791158296644-knowledge",
-                "missionId": "gerard-cultivate-1791158296644-knowledge",
+                "operationId": "gerard-cultivate-1791158400885-knowledge",
+                "missionId": "gerard-cultivate-1791158400885-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -229,11 +230,11 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-04T23:58:20.598Z",
+              "at": "2026-10-05T00:00:03.666Z",
               "reason": "Knowledge Package poulpe-fiction préparé par Publisher.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791158296644-knowledge",
-                "missionId": "gerard-cultivate-1791158296644-knowledge",
+                "operationId": "gerard-cultivate-1791158400885-knowledge",
+                "missionId": "gerard-cultivate-1791158400885-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
