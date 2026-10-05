@@ -119,11 +119,13 @@ const ArchiveByParcel: FC<{ groups: [string, HarvestBundle[]][] }> = ({ groups }
 }
 
 export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundle | null; onBackToGerard: () => void }) {
-  const [stored, setStored] = useState<HarvestBundle[]>(() => restoreAllGardenHarvests());
+  const visibleParcelId = (() => { const access = window.PoulpeAccess?.snapshot?.() as Record<string, unknown> | undefined; return typeof access?.parcelId === "string" ? access.parcelId.trim() : ""; })();
+  const visibleHarvests = () => restoreAllGardenHarvests().filter((item) => !visibleParcelId || item.intent.parcelId === visibleParcelId);
+  const [stored, setStored] = useState<HarvestBundle[]>(visibleHarvests);
   const [view, setView] = useState<"recent" | "projects" | "archive">("recent");
 
   useEffect(() => {
-    const refresh = () => setStored(restoreAllGardenHarvests());
+    const refresh = () => setStored(visibleHarvests());
     refresh();
     window.addEventListener("poulpe-github-harvest", refresh);
     window.addEventListener("poulpe-garden-changed", refresh);
@@ -134,7 +136,8 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
   }, []);
 
   const harvests = useMemo(() => {
-    const all = bundle ? [bundle, ...stored] : stored;
+    const scopedBundle = bundle && (!visibleParcelId || bundle.intent.parcelId === visibleParcelId) ? bundle : null;
+    const all = scopedBundle ? [scopedBundle, ...stored] : stored;
     const seen = new Set<string>();
     const unique = all.filter((item) => {
       if (!item || seen.has(item.missionId)) return false;
