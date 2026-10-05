@@ -135,6 +135,46 @@ jobs:
             -H "Content-Type: application/json" \
             --data @garden/restart-seeds.json
 
+      - name: Select existing article candidate
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error "$PUBLISHER_URL/api/tentacles/iterations?limit=200" > /tmp/gerard-iterations.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const payload = JSON.parse(fs.readFileSync('/tmp/gerard-iterations.json', 'utf8'));
+          const iterations = Array.isArray(payload.iterations) ? payload.iterations : [];
+          const bookWords = /vacances interdites|feulette|kif\s*&?\s*molla|neverland|terra|livre|roman|kdp/i;
+          const articleWords = /article|chronique|présent|decouvr|découvr|lecture|roman|livre|auteur/i;
+          const candidates = iterations
+            .filter((item) => typeof item.content === 'string' && item.content.trim().length >= 400)
+            .map((item) => {
+              const haystack = [item.title, item.mode, item.content].filter(Boolean).join('\n');
+              const score = (bookWords.test(haystack) ? 10 : 0) + (articleWords.test(haystack) ? 5 : 0) + Math.min(5, Math.floor(item.content.length / 1000));
+              return { ...item, score };
+            })
+            .filter((item) => item.score >= 10)
+            .sort((a, b) => b.score - a.score || String(b.created_at).localeCompare(String(a.created_at)));
+          const candidate = candidates[0] ?? null;
+          fs.writeFileSync('garden/article-candidate.json', JSON.stringify({
+            selectedAt: new Date().toISOString(),
+            source: 'publisher-tentacle-iterations',
+            candidateCount: candidates.length,
+            candidate: candidate && {
+              id: candidate.id,
+              seedId: candidate.seed_id,
+              parcelId: candidate.parcel_id,
+              title: candidate.title,
+              mode: candidate.mode,
+              content: candidate.content,
+              createdAt: candidate.created_at,
+              score: candidate.score
+            }
+          }, null, 2) + '\n');
+          console.log(JSON.stringify({ candidateCount: candidates.length, selected: candidate && { id: candidate.id, seedId: candidate.seed_id, title: candidate.title, mode: candidate.mode, createdAt: candidate.created_at, score: candidate.score, contentLength: candidate.content.length } }, null, 2));
+          NODE
+
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
         env:
@@ -161,10 +201,10 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/article-candidate.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
-            git add garden/gerard-state.json
+            git add garden/gerard-state.json garden/article-candidate.json
             git commit -m "chore(gerard): update autonomous cycle state"
             # main may advance while Gérard is running; keep the state-only
             # commit and replay it on the current branch head.
