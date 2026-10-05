@@ -53,3 +53,43 @@
 
 /* V3 Gérard presence — organism, not mascot */
 .pf-signal-field{position:relative;background:transparent!important}.pf-signal-field svg{opacity:.72;mix-blend-mode:screen}.pf-core-field{transform-origin:200px 200px;animation:pf-core-pulse 8s ease-in-out infinite}.pf-signal-status{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(166,238,226,.12);border-radius:999px;background:rgba(4,9,22,.42);backdrop-filter:blur(10px);color:rgba(230,236,255,.72);font-size:10px;letter-spacing:.03em}.pf-signal-status span{width:5px;height:5px;border-radius:50%;background:rgba(169,176,204,.7)}.pf-signal-status span.is-live{background:var(--pf-cyan);box-shadow:0 0 12px rgba(127,224,208,.65)}@keyframes pf-core-pulse{50%{opacity:.62;transform:scale(1.035)}}@media(prefers-reduced-motion:reduce){.pf-core-field{animation:none!important}}
+
+
+/* Mobile performance: avoid full-screen/frosted repaint storms while scrolling. */
+@media (max-width: 699px) {
+  .pf-v3-organic {
+    background-attachment: scroll;
+  }
+  .pf-v3-organic .pf-card,
+  .pf-v3-organic .pf-bottomnav,
+  .pf-library-tabs,
+  .pf-garden-parcel,
+  .pf-signal-status {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .pf-v3-organic .pf-card {
+    background: rgba(9,15,35,.94);
+    box-shadow: 0 8px 24px rgba(0,0,0,.16);
+  }
+  .pf-v3-organic .pf-bottomnav,
+  .pf-library-tabs {
+    background: rgba(5,10,25,.96);
+  }
+  .pf-garden-parcel,
+  .pf-signal-status {
+    background: rgba(5,12,28,.92);
+  }
+  .pf-core-field,
+  .pf-star,
+  .pf-harvest-node,
+  .pf-harvest-halo {
+    animation: none !important;
+  }
+  .pf-harvest-library > .pf-card,
+  .pf-activity-row,
+  .pf-project-choice {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 110px;
+  }
+}
