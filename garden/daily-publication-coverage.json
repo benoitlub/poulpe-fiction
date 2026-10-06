@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-10-06T13:40:02.916Z",
+  "timezone": "Europe/Paris",
+  "day": "2026-10-06",
+  "month": "2026-10",
+  "metricoolBudget": {
+    "limit": 20,
+    "used": 0,
+    "remaining": 20,
+    "exhausted": false,
+    "policy": "never schedule above the monthly Metricool allowance"
+  },
+  "target": "allocate the remaining monthly budget across active parcels; never force a daily post",
+  "coverage": [
+    {
+      "parcelId": "poulpe-fiction",
+      "publishedToday": false,
+      "publicationCountToday": 0,
+      "publicationCountMonth": 0
+    }
+  ]
+}
