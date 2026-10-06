@@ -189,6 +189,12 @@ jobs:
           console.log(JSON.stringify({ day, month, metricoolBudget: { limit: monthlyLimit, used, remaining }, coverage }, null, 2));
           NODE
 
+      - name: Run Gerard cycle
+        working-directory: poulpe-fiction
+        env:
+          GERARD_MODE: cultivate
+        run: node scripts/gerard-cycle.mjs
+
       - name: Prepare next social publication package
         working-directory: poulpe-fiction
         shell: bash
@@ -230,12 +236,6 @@ jobs:
             cat /tmp/gerard-social-next.json || true
             exit 1
           fi
-
-      - name: Run Gerard cycle
-        working-directory: poulpe-fiction
-        env:
-          GERARD_MODE: cultivate
-        run: node scripts/gerard-cycle.mjs
 
       - name: Validate real harvest result
         if: ${{ github.event_name == 'workflow_dispatch' }}
