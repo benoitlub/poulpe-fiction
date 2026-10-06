@@ -1,0 +1,57 @@
+{
+  "preparedAt": "2026-10-06T13:59:40Z",
+  "status": "ready",
+  "contract": "gerard-metricool-bridge-next-v1",
+  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+  "seedId": "420-dice",
+  "title": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
+  "score": 85,
+  "copy": {
+    "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+    "strategy": "first-explicit-angle"
+  },
+  "media": {
+    "url": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=47aa7296-2b0f-41a8-9058-f7c147eb1240",
+    "id": "47aa7296-2b0f-41a8-9058-f7c147eb1240",
+    "direct": true
+  },
+  "production": {
+    "capability": "visual.generate",
+    "toolPack": "mistral:image-generation",
+    "provider": "mistral",
+    "generated": true,
+    "mediaId": "47aa7296-2b0f-41a8-9058-f7c147eb1240",
+    "outputUrl": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=47aa7296-2b0f-41a8-9058-f7c147eb1240"
+  },
+  "compatibleNetworks": [
+    "facebook",
+    "instagram"
+  ],
+  "networkRules": {
+    "instagram": {
+      "requiresMedia": true,
+      "isAiGenerated": true
+    },
+    "youtube": {
+      "compatible": false,
+      "reason": "image-only-media-requires-video"
+    }
+  },
+  "metricool": {
+    "draft": true,
+    "autoPublish": false
+  },
+  "guardrails": {
+    "monthlyPublicationLimit": 20,
+    "quotaPeriod": "calendar-month",
+    "quotaScope": "metricool-brand",
+    "quotaPolicy": "block-before-scheduling-when-monthly-limit-is-reached",
+    "minimumSpacingHours": 4,
+    "duplicateProtection": "caller-supplied-excludeCopy"
+  },
+  "provenance": {
+    "source": "garden-autoselection",
+    "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+    "seedId": "420-dice"
+  }
+}
