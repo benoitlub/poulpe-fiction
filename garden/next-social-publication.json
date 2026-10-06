@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-06T13:59:40Z",
+  "preparedAt": "2026-10-06T14:01:12Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "harvest_local_harvest_420-dice_1786215725387",
@@ -11,8 +11,8 @@
     "strategy": "first-explicit-angle"
   },
   "media": {
-    "url": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=47aa7296-2b0f-41a8-9058-f7c147eb1240",
-    "id": "47aa7296-2b0f-41a8-9058-f7c147eb1240",
+    "url": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=ad0f1a87-4977-4892-8d6b-eb4e5a8cd59a",
+    "id": "ad0f1a87-4977-4892-8d6b-eb4e5a8cd59a",
     "direct": true
   },
   "production": {
@@ -20,8 +20,8 @@
     "toolPack": "mistral:image-generation",
     "provider": "mistral",
     "generated": true,
-    "mediaId": "47aa7296-2b0f-41a8-9058-f7c147eb1240",
-    "outputUrl": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=47aa7296-2b0f-41a8-9058-f7c147eb1240"
+    "mediaId": "ad0f1a87-4977-4892-8d6b-eb4e5a8cd59a",
+    "outputUrl": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=ad0f1a87-4977-4892-8d6b-eb4e5a8cd59a"
   },
   "compatibleNetworks": [
     "facebook",
