@@ -155,19 +155,38 @@ jobs:
             const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date(at));
             return localDay === day;
           });
+          const month = day.slice(0, 7);
+          const monthlyPublished = iterations.filter(i => {
+            const at = i.published_at || i.publishedAt || i.publication_date || null;
+            if (!at) return false;
+            const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date(at));
+            return localDay.startsWith(month);
+          });
+          const monthlyLimit = 20;
+          const used = monthlyPublished.length;
+          const remaining = Math.max(0, monthlyLimit - used);
           const coverage = parcelIds.map(parcelId => ({
             parcelId,
             publishedToday: published.some(i => i.parcel_id === parcelId),
-            publicationCount: published.filter(i => i.parcel_id === parcelId).length
+            publicationCountToday: published.filter(i => i.parcel_id === parcelId).length,
+            publicationCountMonth: monthlyPublished.filter(i => i.parcel_id === parcelId).length
           }));
           fs.writeFileSync('garden/daily-publication-coverage.json', JSON.stringify({
             checkedAt: new Date().toISOString(),
             timezone: 'Europe/Paris',
             day,
-            target: 'at-least-one-publication-per-active-parcel-per-day-when-publishable',
+            month,
+            metricoolBudget: {
+              limit: monthlyLimit,
+              used,
+              remaining,
+              exhausted: remaining === 0,
+              policy: 'never schedule above the monthly Metricool allowance'
+            },
+            target: 'allocate the remaining monthly budget across active parcels; never force a daily post',
             coverage
           }, null, 2) + '\n');
-          console.log(JSON.stringify({ day, coverage }, null, 2));
+          console.log(JSON.stringify({ day, month, metricoolBudget: { limit: monthlyLimit, used, remaining }, coverage }, null, 2));
           NODE
 
       - name: Run Gerard cycle
@@ -196,10 +215,10 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/article-candidate.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/article-candidate.json garden/daily-publication-coverage.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
-            git add garden/gerard-state.json garden/article-candidate.json
+            git add garden/gerard-state.json garden/article-candidate.json garden/daily-publication-coverage.json
             git commit -m "chore(gerard): update autonomous cycle state"
             # main may advance while Gérard is running; keep the state-only
             # commit and replay it on the current branch head.
