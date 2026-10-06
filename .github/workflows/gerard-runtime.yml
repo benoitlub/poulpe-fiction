@@ -135,7 +135,7 @@ jobs:
             -H "Content-Type: application/json" \
             --data @garden/restart-seeds.json
 
-      - name: Select existing article candidate
+      - name: Check daily parcel publication coverage
         working-directory: poulpe-fiction
         shell: bash
         run: |
@@ -145,34 +145,29 @@ jobs:
           const fs = require('fs');
           const payload = JSON.parse(fs.readFileSync('/tmp/gerard-iterations.json', 'utf8'));
           const iterations = Array.isArray(payload.iterations) ? payload.iterations : [];
-          const bookWords = /vacances interdites|feulette|kif\s*&?\s*molla|neverland|terra|livre|roman|kdp/i;
-          const articleWords = /article|chronique|présent|decouvr|découvr|lecture|roman|livre|auteur/i;
-          const candidates = iterations
-            .filter((item) => typeof item.content === 'string' && item.content.trim().length >= 400)
-            .map((item) => {
-              const haystack = [item.title, item.mode, item.content].filter(Boolean).join('\n');
-              const score = (bookWords.test(haystack) ? 10 : 0) + (articleWords.test(haystack) ? 5 : 0) + Math.min(5, Math.floor(item.content.length / 1000));
-              return { ...item, score };
-            })
-            .filter((item) => item.score >= 10)
-            .sort((a, b) => b.score - a.score || String(b.created_at).localeCompare(String(a.created_at)));
-          const candidate = candidates[0] ?? null;
-          fs.writeFileSync('garden/article-candidate.json', JSON.stringify({
-            selectedAt: new Date().toISOString(),
-            source: 'publisher-tentacle-iterations',
-            candidateCount: candidates.length,
-            candidate: candidate && {
-              id: candidate.id,
-              seedId: candidate.seed_id,
-              parcelId: candidate.parcel_id,
-              title: candidate.title,
-              mode: candidate.mode,
-              content: candidate.content,
-              createdAt: candidate.created_at,
-              score: candidate.score
-            }
+          const seedsPayload = JSON.parse(fs.readFileSync('garden/restart-seeds.json', 'utf8'));
+          const seeds = Array.isArray(seedsPayload.seeds) ? seedsPayload.seeds : [];
+          const parcelIds = [...new Set(seeds.map(s => s.parcelId).filter(Boolean))];
+          const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date());
+          const published = iterations.filter(i => {
+            const at = i.published_at || i.publishedAt || i.publication_date || null;
+            if (!at) return false;
+            const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date(at));
+            return localDay === day;
+          });
+          const coverage = parcelIds.map(parcelId => ({
+            parcelId,
+            publishedToday: published.some(i => i.parcel_id === parcelId),
+            publicationCount: published.filter(i => i.parcel_id === parcelId).length
+          }));
+          fs.writeFileSync('garden/daily-publication-coverage.json', JSON.stringify({
+            checkedAt: new Date().toISOString(),
+            timezone: 'Europe/Paris',
+            day,
+            target: 'at-least-one-publication-per-active-parcel-per-day-when-publishable',
+            coverage
           }, null, 2) + '\n');
-          console.log(JSON.stringify({ candidateCount: candidates.length, selected: candidate && { id: candidate.id, seedId: candidate.seed_id, title: candidate.title, mode: candidate.mode, createdAt: candidate.created_at, score: candidate.score, contentLength: candidate.content.length } }, null, 2));
+          console.log(JSON.stringify({ day, coverage }, null, 2));
           NODE
 
       - name: Run Gerard cycle
