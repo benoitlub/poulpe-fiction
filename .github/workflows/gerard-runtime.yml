@@ -189,6 +189,48 @@ jobs:
           console.log(JSON.stringify({ day, month, metricoolBudget: { limit: monthlyLimit, used, remaining }, coverage }, null, 2));
           NODE
 
+      - name: Prepare next social publication package
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' "$PUBLISHER_URL/api/social/bridge/next")"
+          if [ "$HTTP_STATUS" = "200" ]; then
+            STATUS="$(jq -r '.status // "unknown"' /tmp/gerard-social-next.json)"
+            if [ "$STATUS" != "ready" ]; then
+              echo "Bridge returned HTTP 200 but is not ready: $STATUS"
+              cat /tmp/gerard-social-next.json
+              exit 1
+            fi
+            jq '{
+              preparedAt: (now | todateiso8601),
+              status,
+              contract,
+              harvestId,
+              seedId,
+              title,
+              score,
+              copy,
+              media,
+              production,
+              compatibleNetworks,
+              networkRules,
+              metricool,
+              guardrails,
+              provenance
+            }' /tmp/gerard-social-next.json > garden/next-social-publication.json
+            echo "Social package ready:"
+            jq '{status,harvestId,title,score,copy,media,compatibleNetworks}' garden/next-social-publication.json
+          elif [ "$HTTP_STATUS" = "404" ]; then
+            echo "No eligible social harvest yet; publication remains safely skipped."
+            jq -n --arg checkedAt "$(date -u +%FT%TZ)" '{preparedAt:$checkedAt,status:"empty",action:"do-not-schedule"}' > garden/next-social-publication.json
+          else
+            echo "Publisher social bridge failed with HTTP $HTTP_STATUS; publication remains safely skipped."
+            cat /tmp/gerard-social-next.json || true
+            exit 1
+          fi
+
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
         env:
@@ -215,10 +257,10 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/article-candidate.json garden/daily-publication-coverage.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
-            git add garden/gerard-state.json garden/article-candidate.json garden/daily-publication-coverage.json
+            git add garden/gerard-state.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json
             git commit -m "chore(gerard): update autonomous cycle state"
             # main may advance while Gérard is running; keep the state-only
             # commit and replay it on the current branch head.
