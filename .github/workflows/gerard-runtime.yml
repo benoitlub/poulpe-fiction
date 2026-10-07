@@ -130,7 +130,7 @@ jobs:
           curl --fail --silent --show-error \
             -X POST "$OCTOPUS_URL/adapters/register" \
             -H "Content-Type: application/json" \
-            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["knowledge.search","tool.search","copy.generate","content.article.write","content.social.write","social.publish","landing.generate"],executeUrl:$executeUrl}')"
+            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","copy.generate","content.article.write","content.social.write","social.publish","landing.generate","knowledge.search","tool.search","copy.generate","content.article.write","content.social.write","social.publish","landing.generate"],executeUrl:$executeUrl}')"
 
       - name: Sync restart Seeds to Publisher
         working-directory: poulpe-fiction
