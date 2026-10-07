@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
+const SEEDS_PATH = new URL("../garden/restart-seeds.json", import.meta.url);
 
 const OCTOPUS_URL = (process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
 const PUBLISHER_URL = (process.env.PUBLISHER_URL || "https://blacklace-publisher-worker.benoitlubert.workers.dev").replace(/\/$/, "");
@@ -40,6 +41,18 @@ const MODE_INTENTS = {
 async function loadState() {
   try { return JSON.parse(await readFile(STATE_PATH, "utf8")); }
   catch (_) { return { history: [] }; }
+}
+
+async function loadSeeds() {
+  const parsed = JSON.parse(await readFile(SEEDS_PATH, "utf8"));
+  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && seed?.knowledgeSlug) : [];
+}
+
+function selectSeedForRotation(seeds, state) {
+  if (!seeds.length) return null;
+  const lastSeedId = state?.lastSeedId ?? null;
+  const index = Math.max(-1, seeds.findIndex((seed) => seed.seedId === lastSeedId));
+  return seeds[(index + 1) % seeds.length];
 }
 
 async function saveState(state) {
@@ -124,48 +137,56 @@ async function main() {
   const operationId = `gerard-${mode}-${Date.now()}`;
   let result;
   if (mode === "cultivate") {
-    // Poulpe Fiction owns the Garden semantics. Octopus receives a neutral
-    // execution contract; Publisher supplies knowledge through its adapter.
-    // This first phase prepares the "sac" only: no text generation, no publish,
-    // and therefore no autonomous Mistral spend.
-    const knowledgeMission = {
-      operationId: `${operationId}-knowledge`,
-      title: "Préparer le contexte de culture",
-      objective: "Retrieve the verified knowledge required to evaluate the current Poulpe Fiction cultivation cycle.",
-      requiredCapabilities: ["knowledge.search"],
-      authorizedResources: [],
-      context: {
-        id: "poulpe-fiction",
-        label: "Poulpe Fiction",
-        metadata: {
-          source: "gerard-cycle",
-          mode,
-          parcelId: "poulpe-fiction",
-          knowledgeSlug: "poulpe-fiction",
-          gardenStage: "prepare-bag",
+    const seeds = await loadSeeds();
+    const selectedSeed = selectSeedForRotation(seeds, state);
+    if (!selectedSeed) {
+      result = { status: "failed", operationId, decision: "no-active-seed" };
+    } else {
+      const knowledgeMission = {
+        operationId: `${operationId}-knowledge`,
+        title: `Préparer le contexte de culture · ${selectedSeed.title ?? selectedSeed.seedId}`,
+        objective: selectedSeed.objective ?? intent.objective,
+        requiredCapabilities: ["knowledge.search"],
+        authorizedResources: [],
+        context: {
+          id: selectedSeed.parcelId,
+          label: selectedSeed.title ?? selectedSeed.parcelId,
+          objective: selectedSeed.objective ?? intent.objective,
+          metadata: {
+            source: "gerard-cycle",
+            mode,
+            seedId: selectedSeed.seedId,
+            parcelId: selectedSeed.parcelId,
+            knowledgeSlug: selectedSeed.knowledgeSlug,
+            gardenStage: "prepare-bag",
+            delivery: selectedSeed.delivery ?? null,
+          },
         },
-      },
-    };
-    const knowledgeResult = await callOctopus(knowledgeMission);
-    const knowledgePayload = knowledgeResult?.payload ?? {};
-    const knowledgeOutput = knowledgePayload?.output ?? {};
-    const knowledgeReady = knowledgeResult.status === "ok" && knowledgePayload.status === "completed" && knowledgeOutput.verified === true;
+      };
+      const knowledgeResult = await callOctopus(knowledgeMission);
+      const knowledgePayload = knowledgeResult?.payload ?? {};
+      const knowledgeOutput = knowledgePayload?.output ?? {};
+      const knowledgeReady = knowledgeResult.status === "ok" && knowledgePayload.status === "completed" && knowledgeOutput.verified === true;
 
-    result = {
-      status: knowledgeReady ? "ok" : "failed",
-      harvestMode: "garden-prepare-bag",
-      operationId,
-      phase: "knowledge",
-      knowledge: {
-        status: knowledgePayload.status ?? knowledgeResult.status,
-        verified: knowledgeOutput.verified === true,
-        slug: knowledgeOutput.slug ?? null,
-        source: knowledgeOutput.source ?? null,
-      },
-      decision: knowledgeReady ? "knowledge-ready-awaiting-garden-decision" : "knowledge-unavailable",
-      // Keep the raw neutral mission response for the auditable Garden state.
-      octopus: knowledgeResult,
-    };
+      result = {
+        status: knowledgeReady ? "ok" : "failed",
+        harvestMode: "garden-prepare-bag",
+        operationId,
+        seedId: selectedSeed.seedId,
+        parcelId: selectedSeed.parcelId,
+        phase: "knowledge",
+        knowledge: {
+          status: knowledgePayload.status ?? knowledgeResult.status,
+          verified: knowledgeOutput.verified === true,
+          slug: knowledgeOutput.slug ?? selectedSeed.knowledgeSlug,
+          source: knowledgeOutput.source ?? null,
+        },
+        delivery: selectedSeed.delivery ?? null,
+        decision: knowledgeReady ? "knowledge-ready-awaiting-garden-decision" : "knowledge-unavailable",
+        octopus: knowledgeResult,
+      };
+      state.lastSeedId = selectedSeed.seedId;
+    }
   } else {
     result = await callOctopus({ operationId, parcelId: "poulpe-fiction", title: intent.title, objective: intent.objective, requiredCapabilities: intent.requiredCapabilities, context: { id: "poulpe-fiction", label: "Poulpe Fiction", objective: intent.objective, metadata: { source: "gerard-cycle", mode } } });
   }
