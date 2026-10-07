@@ -182,9 +182,18 @@ async function main() {
           source: knowledgeOutput.source ?? null,
         },
         delivery: selectedSeed.delivery ?? null,
-        decision: knowledgeReady ? "knowledge-ready-awaiting-garden-decision" : "knowledge-unavailable",
+        decision: knowledgeReady ? "knowledge-ready" : "knowledge-unavailable",
         octopus: knowledgeResult,
       };
+
+      if (knowledgeReady) {
+        const harvest = await runRealHarvest();
+        result.harvest = harvest;
+        result.status = harvest.status === "ok" ? "ok" : "failed";
+        result.decision = harvest.status === "ok"
+          ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
+          : "harvest-failed";
+      }
       state.lastSeedId = selectedSeed.seedId;
     }
   } else {
