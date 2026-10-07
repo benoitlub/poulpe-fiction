@@ -78,46 +78,56 @@ async function callOctopus(mission) {
   return callJson(`${OCTOPUS_URL}/mission`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mission) });
 }
 
-async function runRealHarvest() {
-  const startedAt = Date.now();
-  const result = await callJson(`${PUBLISHER_URL}/api/tentacles/run-cycle?limit=1`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ source: "poulpe-fiction-gerard-cycle" }),
-  });
-  if (result.status !== "ok") return result;
+async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
+  const prompt = [
+    selectedSeed.firstHarvest || selectedSeed.objective || "Produire une récolte utile et directement exploitable.",
+    "",
+    "Contexte vérifié de la parcelle :",
+    String(knowledgeOutput?.context || knowledgeOutput?.text || "").trim(),
+    "",
+    "Contraintes : utilise uniquement ce contexte vérifié. N'invente aucun fait manquant.",
+  ].join("\n").trim();
 
-  const processed = Number(result.payload?.processed ?? 0);
-  const results = Array.isArray(result.payload?.results) ? result.payload.results : [];
-  const completed = results.filter((item) => String(item?.status || "").startsWith("completed")).length;
+  const mission = {
+    operationId: `${operationId}-harvest`,
+    title: `Récolte · ${selectedSeed.title ?? selectedSeed.seedId}`,
+    objective: selectedSeed.objective || "Produire une récolte exploitable.",
+    prompt,
+    requiredCapabilities: ["content.generate"],
+    authorizedResources: [],
+    context: {
+      id: selectedSeed.parcelId,
+      label: selectedSeed.title ?? selectedSeed.parcelId,
+      objective: selectedSeed.objective || "",
+      metadata: {
+        source: "gerard-cycle",
+        mode: "cultivate",
+        seedId: selectedSeed.seedId,
+        parcelId: selectedSeed.parcelId,
+        knowledgeSlug: selectedSeed.knowledgeSlug,
+        delivery: selectedSeed.delivery ?? null,
+      },
+    },
+  };
 
-  // processed === 0 signifie qu'aucune graine n'avait terminé son délai de
-  // recharge à ce moment précis (le cycle Gérard tourne toutes les 3h, les
-  // délais de recharge individuels vont de 20 min à 6h — les deux horloges
-  // ne sont pas synchronisées). Ce n'est pas un échec : rien n'était à
-  // faire cette fois. Seul le cas "des graines étaient prêtes mais aucune
-  // n'a abouti" est un vrai problème à signaler comme tel.
-  if (processed < 1) {
-    return { ...result, status: "ok", verification: { startedAt, processed, completed, reason: "Aucune graine n'était prête à ce cycle (délai de recharge en cours)." } };
-  }
-  if (completed < 1) {
-    return { ...result, status: "failed", verification: { startedAt, processed, completed, reason: "No completed tentacle iteration was produced." } };
-  }
-
-  const iterations = await callJson(`${PUBLISHER_URL}/api/tentacles/iterations?limit=10`, { method: "GET", headers: { Accept: "application/json" } });
-  const rows = Array.isArray(iterations.payload?.iterations) ? iterations.payload.iterations : [];
-  const latest = rows.find((row) => row?.created_at && Date.parse(row.created_at) >= startedAt - 5_000) || rows[0] || null;
-  const visualUrl = typeof latest?.visual_url === "string" && latest.visual_url.trim() ? latest.visual_url.trim() : null;
+  const result = await callOctopus(mission);
+  const payload = result?.payload ?? {};
+  const output = payload?.output ?? {};
+  const text = typeof output?.text === "string" ? output.text.trim() : "";
+  const completed = result.status === "ok" && payload.status === "completed" && text.length > 0;
 
   return {
     ...result,
+    status: completed ? "ok" : "failed",
     verification: {
-      startedAt, processed, completed,
-      iterationId: latest?.id ?? null,
-      seedId: latest?.seed_id ?? null,
-      iterationNumber: latest?.iteration_number ?? null,
-      visualUrl,
-      visualCreated: Boolean(visualUrl),
+      seedId: selectedSeed.seedId,
+      parcelId: selectedSeed.parcelId,
+      operationId: mission.operationId,
+      capability: output?.capability ?? "content.generate",
+      completed,
+      contentLength: text.length,
+      producer: output?.producer ?? null,
+      route: "octopus->publisher-adapter",
     },
   };
 }
@@ -187,7 +197,7 @@ async function main() {
       };
 
       if (knowledgeReady) {
-        const harvest = await runRealHarvest();
+        const harvest = await runRealHarvest(selectedSeed, knowledgeOutput, operationId);
         result.harvest = harvest;
         result.status = harvest.status === "ok" ? "ok" : "failed";
         result.decision = harvest.status === "ok"
