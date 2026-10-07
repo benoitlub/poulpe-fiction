@@ -7,7 +7,6 @@ on:
     paths:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
-      - "garden/restart-seeds.json"
       - ".github/workflows/gerard-runtime.yml"
   workflow_dispatch: {}
 
@@ -36,6 +35,15 @@ jobs:
       NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
       GERARD_MODE: ${{ github.event_name == 'workflow_dispatch' && 'cultivate' || '' }}
     steps:
+      - name: Runtime heartbeat
+        shell: bash
+        run: |
+          echo "Gerard runtime started"
+          echo "event=${{ github.event_name }}"
+          echo "sha=${{ github.sha }}"
+          echo "ref=${{ github.ref }}"
+          date -u +"utc=%Y-%m-%dT%H:%M:%SZ"
+
       - name: Check runtime secrets
         shell: bash
         run: |
