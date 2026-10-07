@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
 const SEEDS_PATH = new URL("../garden/restart-seeds.json", import.meta.url);
+const HARVESTS_PATH = new URL("../garden/harvests.json", import.meta.url);
 
 const OCTOPUS_URL = (process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
 const PUBLISHER_URL = (process.env.PUBLISHER_URL || "https://blacklace-publisher-worker.benoitlubert.workers.dev").replace(/\/$/, "");
@@ -58,6 +59,32 @@ function selectSeedForRotation(seeds, state) {
 async function saveState(state) {
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
   await writeFile(STATE_PATH, JSON.stringify(state, null, 2) + "\n", "utf8");
+}
+
+async function saveHarvest(selectedSeed, harvest, operationId) {
+  const output = harvest?.payload?.output ?? {};
+  const text = typeof output?.text === "string" ? output.text.trim() : "";
+  if (harvest?.status !== "ok" || !text) return null;
+
+  let existing = { harvests: [] };
+  try { existing = JSON.parse(await readFile(HARVESTS_PATH, "utf8")); } catch (_) {}
+  const harvests = Array.isArray(existing?.harvests) ? existing.harvests : [];
+  const item = {
+    harvestId: operationId + "-harvest",
+    harvestedAt: nowIso(),
+    seedId: selectedSeed.seedId,
+    parcelId: selectedSeed.parcelId,
+    title: selectedSeed.title ?? selectedSeed.seedId,
+    content: text,
+    capability: output.capability ?? "content.generate",
+    producer: output.producer ?? null,
+    route: "octopus->publisher-adapter",
+    delivery: selectedSeed.delivery ?? null,
+    state: selectedSeed.delivery?.harvestState ?? "harvested",
+  };
+  await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
+  await writeFile(HARVESTS_PATH, JSON.stringify({ harvests: [...harvests.slice(-99), item] }, null, 2) + "\n", "utf8");
+  return item;
 }
 
 async function callJson(url, options = {}) {
@@ -199,6 +226,7 @@ async function main() {
       if (knowledgeReady) {
         const harvest = await runRealHarvest(selectedSeed, knowledgeOutput, operationId);
         result.harvest = harvest;
+        if (harvest.status === "ok") result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
         result.status = harvest.status === "ok" ? "ok" : "failed";
         result.decision = harvest.status === "ok"
           ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
