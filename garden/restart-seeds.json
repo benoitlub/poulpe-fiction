@@ -7,6 +7,19 @@
       "objective": "Explorer trois portes d entree a partir de La Feulette tachetee, Les Vacances interdites et Kif & Molla. Observer les retours disponibles dans Notion, apprendre, puis reproduire, muter ou composter selon les signaux.",
       "firstHarvest": "Vous n avez pas la ref. Pas encore. Les trois oeuvres sont trois portes d une meme experience auteur. Commencer petit, observer, apprendre.",
       "knowledgeSlug": "poulpe-fiction"
+    },
+    {
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection",
+      "title": "Yael Bali · Préqualification de prospects",
+      "objective": "Produire une récolte directement exploitable pour Yael Bali : critères de qualification, score sur 100, informations à vérifier, fiche prospect, requêtes de recherche, trois messages de premier contact et tableau de suivi. Quand elle est suffisamment mûre, la marquer prête à être proposée à Yael Bali, sans effectuer l'envoi automatiquement.",
+      "firstHarvest": "Kit de préqualification commerciale prêt à livrer à Yael Bali, accompagné d'un résumé court de sa valeur et d'une proposition d'envoi.",
+      "knowledgeSlug": "yael-prequalification-de-prospects",
+      "delivery": {
+        "recipient": "Yael Bali",
+        "mode": "propose-before-send",
+        "harvestState": "ready-to-offer"
+      }
     }
   ]
 }
