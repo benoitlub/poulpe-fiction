@@ -11,12 +11,12 @@
     {
       "seedId": "yael-prospection",
       "parcelId": "project-yael-prospection",
-      "title": "Yael Bali · Préqualification de prospects",
-      "objective": "Produire une récolte directement exploitable pour Yael Bali : critères de qualification, score sur 100, informations à vérifier, fiche prospect, requêtes de recherche, trois messages de premier contact et tableau de suivi. Quand elle est suffisamment mûre, la marquer prête à être proposée à Yael Bali, sans effectuer l'envoi automatiquement.",
-      "firstHarvest": "Kit de préqualification commerciale prêt à livrer à Yael Bali, accompagné d'un résumé court de sa valeur et d'une proposition d'envoi.",
+      "title": "Yaébali · Préqualification de prospects",
+      "objective": "Produire une récolte directement exploitable pour Yaébali : critères de qualification, score sur 100, informations à vérifier, fiche prospect, requêtes de recherche, trois messages de premier contact et tableau de suivi. Quand elle est suffisamment mûre, la marquer prête à être proposée à Yaébali, sans effectuer l'envoi automatiquement.",
+      "firstHarvest": "Kit de préqualification commerciale prêt à livrer à Yaébali, accompagné d'un résumé court de sa valeur et d'une proposition d'envoi.",
       "knowledgeSlug": "yael-prequalification-de-prospects",
       "delivery": {
-        "recipient": "Yael Bali",
+        "recipient": "Yaébali",
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       }
