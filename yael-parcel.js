@@ -12,14 +12,21 @@
     // correspond à aucun paquet côté Notion.
     knowledgeSlug: "yael-prequalification-de-prospects",
     title: "Yael · Préqualification de prospects",
-    objective: "Préparer pour Yael un dispositif directement exploitable de préqualification commerciale : critères, score, informations à vérifier, messages de premier contact et tableau de suivi, sans contacter personne automatiquement.",
-    firstHarvest: "Un kit textuel complet comprenant une grille de qualification, un score sur 100, une fiche prospect réutilisable, des requêtes de recherche, 3 messages de prise de contact et un tableau de suivi prêt à copier dans un tableur.",
+    objective: "Préparer pour Yael Bali un dispositif directement exploitable de préqualification commerciale : critères, score, informations à vérifier, messages de premier contact et tableau de suivi. Quand la récolte est suffisamment mûre, la présenter comme prête à lui être proposée, sans contacter personne automatiquement.",
+    firstHarvest: "Un kit textuel complet comprenant une grille de qualification, un score sur 100, une fiche prospect réutilisable, des requêtes de recherche, 3 messages de prise de contact et un tableau de suivi prêt à copier dans un tableur. Terminer par une proposition de livraison à Yael Bali avec un résumé court de la valeur produite.",
     priority: 0,
     status: "growing",
     maturity: 82,
     knowledgeTouches: 3,
     textOnly: true,
     forbiddenProviders: ["canva"],
+    delivery: {
+      recipient: "Yael Bali",
+      mode: "propose-before-send",
+      harvestState: "ready-to-offer",
+      proposalLabel: "Proposer cette récolte à Yael Bali",
+      proposalInstruction: "Présenter la récolte, résumer en quelques lignes ce qu'elle apporte et proposer son envoi à Yael Bali. Ne jamais envoyer automatiquement."
+    },
     externalAction: "requires-human-approval",
     plantedBy: "gerard",
     gardener: "gerard",
