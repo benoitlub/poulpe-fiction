@@ -206,11 +206,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p garden
-          # Preserve the previously selected harvest when it is explicitly pinned.
-          # Never infer a new editorial choice from an error or an old image request.
+          # Preserve only a ready/selected editorial choice. A failed media request\n          # must not pin the same harvest forever: let Publisher rank candidates again.
           SELECTED_HARVEST_ID=""
           if [ -f garden/next-social-publication.json ]; then
-            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected" or .status == "blocked") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
+            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
           fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
           if [ -n "$SELECTED_HARVEST_ID" ]; then
