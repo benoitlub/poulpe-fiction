@@ -267,7 +267,12 @@ jobs:
           if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
-            git add -A -- garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json
+            # Stage only existing optional files, plus tracked deletions.
+            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json; do
+              if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+                git add -A -- "$file"
+              fi
+            done
             git commit -m "chore(gerard): update autonomous cycle state"
             # main may advance while Gérard is running; keep the state-only
             # commit and replay it on the current branch head.
