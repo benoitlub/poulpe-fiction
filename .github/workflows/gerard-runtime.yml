@@ -253,7 +253,7 @@ jobs:
           const state = JSON.parse(fs.readFileSync('garden/gerard-state.json', 'utf8'));
           const result = state.lastResult || {};
           console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, verification: result.verification, payload: result.payload }, null, 2));
-          if (!['dream', 'cultivate', 'play', 'rest'].includes(state.lastMode)) throw new Error(`Unexpected Gerard mode: ${state.lastMode}`);
+          if (!['dream', 'cultivate', 'play', 'symbiosis', 'rest'].includes(state.lastMode)) throw new Error(`Unexpected Gerard mode: ${state.lastMode}`);
           if (state.lastMode !== 'cultivate') { console.log(`Non-harvest cycle (${state.lastMode}); harvest validation skipped.`); process.exit(0); }
           if (result.status !== 'ok') throw new Error(`Harvest endpoint failed: ${result.status}`);
           if (result.verification && result.verification.processed < 1) throw new Error('No tentacle was processed.');
@@ -263,10 +263,10 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
-            git add garden/gerard-state.json garden/harvests.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json
+            git add garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json
             git commit -m "chore(gerard): update autonomous cycle state"
             # main may advance while Gérard is running; keep the state-only
             # commit and replay it on the current branch head.
