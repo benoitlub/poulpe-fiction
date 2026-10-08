@@ -33,7 +33,6 @@ jobs:
       AI_PROVIDER: mistral
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
       NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
-      GERARD_MODE: ${{ github.event_name == 'workflow_dispatch' && 'cultivate' || '' }}
     steps:
       - name: Runtime heartbeat
         shell: bash
@@ -199,8 +198,6 @@ jobs:
 
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
-        env:
-          GERARD_MODE: cultivate
         run: node scripts/gerard-cycle.mjs
 
       - name: Prepare next social publication package
@@ -256,7 +253,8 @@ jobs:
           const state = JSON.parse(fs.readFileSync('garden/gerard-state.json', 'utf8'));
           const result = state.lastResult || {};
           console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, verification: result.verification, payload: result.payload }, null, 2));
-          if (state.lastMode !== 'cultivate') throw new Error(`Expected cultivate, got ${state.lastMode}`);
+          if (!['dream', 'cultivate', 'play', 'rest'].includes(state.lastMode)) throw new Error(`Unexpected Gerard mode: ${state.lastMode}`);
+          if (state.lastMode !== 'cultivate') { console.log(`Non-harvest cycle (${state.lastMode}); harvest validation skipped.`); process.exit(0); }
           if (result.status !== 'ok') throw new Error(`Harvest endpoint failed: ${result.status}`);
           if (result.verification && result.verification.processed < 1) throw new Error('No tentacle was processed.');
           NODE
