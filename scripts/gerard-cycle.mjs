@@ -331,6 +331,17 @@ async function main() {
     result = await callOctopus({ operationId, parcelId: "poulpe-fiction", title: intent.title, objective: intent.objective, requiredCapabilities: intent.requiredCapabilities, context: { id: "poulpe-fiction", label: "Poulpe Fiction", objective: intent.objective, metadata: { source: "gerard-cycle", mode } } });
   }
 
+  // Retain a bounded learning trail: attempts, outcomes and causes, not just successes.
+  // No additional model call and no extra Metricool publication are needed.
+  const learningEntry = {
+    at: nowIso(), operationId, mode, intention: intent.objective,
+    outcome: result.status, decision: result.decision ?? null,
+    seedId: result.seedId ?? null, parcelId: result.parcelId ?? null,
+    error: result.status === "ok" ? null :
+      String(result.error ?? result.decision ?? result.harvest?.error ?? "operation-failed").slice(0, 500),
+    feedback: result.status === "ok" ? "observe-downstream-results" : "avoid-blind-retry",
+  };
+  state.learningHistory = [...(Array.isArray(state.learningHistory) ? state.learningHistory : []).slice(-49), learningEntry];
   state.history = [...(state.history || []).slice(-19), { at: nowIso(), mode, reason: decision.reason, operationId, result: result.status }];
   state.lastMode = mode; state.lastRunAt = nowIso(); state.lastResult = result; await saveState(state);
   console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.done", mode, result }));
