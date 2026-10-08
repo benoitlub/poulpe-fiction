@@ -1,7 +1,7 @@
 {
-  "preparedAt": "2026-10-08T09:06:29Z",
+  "preparedAt": "2026-10-08T09:20:16Z",
   "status": "blocked",
   "reason": "publisher-media-or-bridge-unavailable",
-  "httpStatus": "502",
+  "httpStatus": "422",
   "action": "do-not-schedule"
 }
