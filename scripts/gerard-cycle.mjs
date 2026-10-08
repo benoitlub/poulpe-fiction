@@ -108,14 +108,34 @@ async function runSymbiosis(state) {
       candidates.push({ harvestId: item.harvestId ?? null, parcelId: item.parcelId ?? null, state: item.state ?? "harvested" });
     }
   }
+  // Publisher provides a separate view of publishable candidates.
+  // Read-only and fail-open: a network error must not break the garden cycle.
+  let publisher = { status: "unavailable", candidateCount: null };
+  try {
+    const response = await callJson(`${PUBLISHER_URL}/api/social/publication/candidate-plans?limit=10`);
+    if (response.status === "ok") {
+      const payload = response.payload;
+      const items = Array.isArray(payload) ? payload
+        : Array.isArray(payload?.candidates) ? payload.candidates
+        : Array.isArray(payload?.plans) ? payload.plans : null;
+      publisher = items
+        ? { status: "observed", candidateCount: items.length, candidateHarvestIds: items.map(x => x?.harvestId).filter(Boolean).slice(0, 10) }
+        : { status: "unrecognized-response", candidateCount: null };
+    } else {
+      publisher = { status: "unavailable", httpStatus: response.httpStatus ?? null, candidateCount: null };
+    }
+  } catch (error) {
+    publisher = { status: "unavailable", candidateCount: null, error: String(error).slice(0, 120) };
+  }
   const report = {
     at: nowIso(), mode: "symbiosis", status: "ok",
     scope: "local-harvest-inventory-only",
-    publisherReconciliation: "not-verified",
+    publisherReconciliation: publisher.status === "observed" ? "candidate-inventory-only" : "not-verified",
+    publisher,
     totalHarvests: harvests.length, uniqueContent: seen.size,
     duplicateCount: duplicates.length, duplicateHarvestIds: duplicates.slice(0, 20),
     candidateCount: candidates.length, candidateSample: candidates.slice(-10),
-    action: "observe-only", aiCalls: 0, externalCalls: 0,
+    action: "observe-only", aiCalls: 0, externalCalls: 1,
     note: "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   };
   await writeFile(new URL("../garden/symbiosis-report.json", import.meta.url), JSON.stringify(report, null, 2) + "\n", "utf8");
