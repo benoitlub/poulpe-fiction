@@ -1,9 +1,9 @@
 {
-  "preparedAt": "2026-10-08T14:31:30Z",
+  "preparedAt": "2026-10-08T14:43:24Z",
   "status": "blocked",
   "reason": "publisher-media-or-bridge-unavailable",
   "httpStatus": "502",
-  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-  "title": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
+  "harvestId": "harvest_local_harvest_terra_1786215725146",
+  "title": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
   "action": "do-not-schedule"
 }
