@@ -210,7 +210,7 @@ jobs:
           # Never infer a new editorial choice from an error or an old image request.
           SELECTED_HARVEST_ID=""
           if [ -f garden/next-social-publication.json ]; then
-            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
+            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected" or .status == "blocked") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
           fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
           if [ -n "$SELECTED_HARVEST_ID" ]; then
@@ -250,7 +250,7 @@ jobs:
           else
             echo "Publisher social bridge failed with HTTP $HTTP_STATUS; publication remains safely skipped."
             cat /tmp/gerard-social-next.json || true
-            jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,action:"do-not-schedule"}' > garden/next-social-publication.json
+            jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "$SELECTED_HARVEST_ID" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
           fi
 
       - name: Validate real harvest result
