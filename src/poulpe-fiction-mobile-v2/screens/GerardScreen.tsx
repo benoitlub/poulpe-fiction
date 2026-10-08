@@ -116,6 +116,31 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
   const missionId = usePoulpeStore((state) => state.missionId);
   const progress = usePoulpeStore((state) => state.progress);
   const harvest = usePoulpeStore((state) => state.harvest);
+  const [publicationAnswer, setPublicationAnswer] = useState<string | null>(null);
+  const [publicationLoading, setPublicationLoading] = useState(false);
+  const askNextPublication = async () => {
+    setPublicationLoading(true);
+    try {
+      const url = "https://raw.githubusercontent.com/benoitlub/poulpe-fiction/main/garden/next-social-publication.json";
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) throw new Error(`GitHub HTTP ${response.status}`);
+      const plan = await response.json() as UnknownRecord;
+      const title = text(plan.title);
+      const harvestId = text(plan.harvestId);
+      const status = text(plan.status);
+      if (status === "ready" && title && harvestId) {
+        setPublicationAnswer(`Prochaine publication préparée : « ${title} » (récolte ${harvestId}). Ce paquet est prêt, pas nécessairement programmé.`);
+      } else if (harvestId && title) {
+        setPublicationAnswer(`Sujet actuellement conservé : « ${title} » (récolte ${harvestId}). État : ${status || "inconnu"}. Aucune publication confirmée.`);
+      } else {
+        setPublicationAnswer(`Gérard n'a pas enregistré de prochaine publication identifiable (état : ${status || "inconnu"}). Je ne peux pas déduire son intention de ce fichier.`);
+      }
+    } catch (error) {
+      setPublicationAnswer(`Impossible de lire la décision de publication sur GitHub : ${error instanceof Error ? error.message : String(error)}.`);
+    } finally {
+      setPublicationLoading(false);
+    }
+  };
   const [creatingProject, setCreatingProject] = useState(false);
   const [missionComposerOpen, setMissionComposerOpen] = useState(false);
   const [gardenRevision, setGardenRevision] = useState(0);
@@ -345,6 +370,12 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
           <button type="button" className="pf-btn pf-btn-primary" onClick={() => setMissionComposerOpen((open) => !open)}>{missionComposerOpen ? "Fermer" : "Confier une mission"}</button>
         </div>
         {clientContext ? <div className="pf-client-card"><strong>{clientContext.displayName}</strong><span>{clientContext.activity}</span></div> : null}
+      </section>
+
+      <section className="pf-card">
+        <div className="pf-section-heading"><span>◉</span><div><strong>Prochaine publication</strong><small>Réponse fondée sur la décision enregistrée, sans génération ni programmation</small></div></div>
+        <button type="button" className="pf-btn pf-btn-soft" onClick={() => void askNextPublication()} disabled={publicationLoading}>{publicationLoading ? "Consultation GitHub…" : "Gérard, que comptes-tu publier prochainement ?"}</button>
+        {publicationAnswer ? <p className="pf-meta" role="status">{publicationAnswer}</p> : null}
       </section>
 
       <section className="pf-live-metrics" aria-label="État du Garden">
