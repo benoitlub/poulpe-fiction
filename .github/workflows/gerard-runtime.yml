@@ -206,7 +206,17 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p garden
-          HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' "$PUBLISHER_URL/api/social/bridge/next")"
+          # Preserve the previously selected harvest when it is explicitly pinned.
+          # Never infer a new editorial choice from an error or an old image request.
+          SELECTED_HARVEST_ID=""
+          if [ -f garden/next-social-publication.json ]; then
+            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
+          fi
+          BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
+          if [ -n "$SELECTED_HARVEST_ID" ]; then
+            BRIDGE_URL="$BRIDGE_URL?harvestId=$(printf '%s' "$SELECTED_HARVEST_ID" | jq -sRr @uri)"
+          fi
+          HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' "$BRIDGE_URL")"
           if [ "$HTTP_STATUS" = "200" ]; then
             STATUS="$(jq -r '.status // "unknown"' /tmp/gerard-social-next.json)"
             if [ "$STATUS" != "ready" ]; then
