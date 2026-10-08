@@ -24,18 +24,19 @@ function nowIso() { return new Date().toISOString(); }
 
 function decideMode(date = new Date()) {
   const forced = process.env.GERARD_MODE?.trim();
-  if (forced && ["dream", "cultivate", "play", "rest"].includes(forced)) return forced;
+  if (forced && ["dream", "cultivate", "play", "symbiosis", "rest"].includes(forced)) return forced;
   const hour = date.getUTCHours();
   if (hour >= 0 && hour < 6) return "dream";
   if (hour >= 6 && hour < 12) return "cultivate";
   if (hour >= 12 && hour < 18) return "play";
-  return "rest";
+  return "symbiosis";
 }
 
 const MODE_INTENTS = {
   dream: { title: "Gérard rêve", objective: "Explorer librement des associations d'idées à partir du jardin actuel, sans produire de livrable final.", requiredCapabilities: ["knowledge.search"] },
   cultivate: { title: "Gérard récolte une parcelle", objective: "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.", requiredCapabilities: [] },
   play: { title: "Gérard joue", objective: "Tester une idée exploratoire à faible enjeu, sans engager de ressource coûteuse.", requiredCapabilities: ["knowledge.search"] },
+  symbiosis: { title: "Gérard et Publisher font le point", objective: "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.", requiredCapabilities: [] },
   rest: { title: "Gérard se repose", objective: "Aucune action requise pour ce cycle.", requiredCapabilities: [] },
 };
 
@@ -85,6 +86,41 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
   await writeFile(HARVESTS_PATH, JSON.stringify({ harvests: [...harvests.slice(-99), item] }, null, 2) + "\n", "utf8");
   return item;
+}
+
+async function runSymbiosis(state) {
+  // Local, read-only reconciliation: no LLM, no external API, no publishing.
+  let harvests = [];
+  try {
+    const data = JSON.parse(await readFile(HARVESTS_PATH, "utf8"));
+    harvests = Array.isArray(data.harvests) ? data.harvests : [];
+  } catch (_) {}
+  const seen = new Set();
+  const duplicates = [];
+  const candidates = [];
+  for (const item of harvests) {
+    const content = typeof item.content === "string" ? item.content.trim() : "";
+    if (!content) continue;
+    const key = content.toLocaleLowerCase().replace(/\\s+/g, " ");
+    if (seen.has(key)) { duplicates.push(item.harvestId ?? null); continue; }
+    seen.add(key);
+    if (item.state !== "archived" && item.state !== "composted") {
+      candidates.push({ harvestId: item.harvestId ?? null, parcelId: item.parcelId ?? null, state: item.state ?? "harvested" });
+    }
+  }
+  const report = {
+    at: nowIso(), mode: "symbiosis", status: "ok",
+    scope: "local-harvest-inventory-only",
+    publisherReconciliation: "not-verified",
+    totalHarvests: harvests.length, uniqueContent: seen.size,
+    duplicateCount: duplicates.length, duplicateHarvestIds: duplicates.slice(0, 20),
+    candidateCount: candidates.length, candidateSample: candidates.slice(-10),
+    action: "observe-only", aiCalls: 0, externalCalls: 0,
+    note: "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
+  };
+  await writeFile(new URL("../garden/symbiosis-report.json", import.meta.url), JSON.stringify(report, null, 2) + "\\n", "utf8");
+  state.lastSymbiosis = { at: report.at, duplicateCount: report.duplicateCount, candidateCount: report.candidateCount };
+  return report;
 }
 
 async function callJson(url, options = {}) {
@@ -173,7 +209,9 @@ async function main() {
 
   const operationId = `gerard-${mode}-${Date.now()}`;
   let result;
-  if (mode === "cultivate") {
+  if (mode === "symbiosis") {
+    result = await runSymbiosis(state);
+  } else if (mode === "cultivate") {
     const seeds = await loadSeeds();
     const selectedSeed = selectSeedForRotation(seeds, state);
     if (!selectedSeed) {
