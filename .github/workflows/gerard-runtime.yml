@@ -212,6 +212,15 @@ jobs:
             SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
           fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
+          # Retry the same editorial topic after a Publisher fallback becomes available.
+          # A blocked package is not pinned by default, except for a text-only
+          # retry when the previous failure was missing media.
+          if [ -z "$SELECTED_HARVEST_ID" ] && [ -f garden/next-social-publication.json ]; then
+            RETRY_ID="$(jq -r 'if .status == "blocked" and .reason == "publisher-media-or-bridge-unavailable" and .httpStatus == "502" then (.harvestId // "") else "" end' garden/next-social-publication.json)"
+            if [ -n "$RETRY_ID" ]; then
+              SELECTED_HARVEST_ID="$RETRY_ID"
+            fi
+          fi
           # Exclude the last media-failed harvest for this reranking pass.
           # The exclusion is temporary and topic-agnostic.
           if [ -z "$SELECTED_HARVEST_ID" ] && [ -f garden/next-social-publication.json ]; then
