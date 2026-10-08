@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-08T14:48:04Z",
+  "preparedAt": "2026-10-08T18:54:08Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "harvest_local_harvest_terra_1786215725146",
@@ -10,28 +10,27 @@
     "text": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
     "strategy": "first-explicit-angle"
   },
-  "media": null,
+  "media": {
+    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
+    "direct": true,
+    "official": true
+  },
   "production": {
-    "capability": "text-only-fallback",
-    "generated": false,
-    "mediaFailures": [
-      "Mistral conversation 429"
-    ]
+    "capability": "official-media",
+    "generated": false
   },
   "compatibleNetworks": [
-    "facebook"
+    "facebook",
+    "instagram"
   ],
   "networkRules": {
-    "facebook": {
-      "mediaOptional": true
-    },
     "instagram": {
-      "compatible": false,
-      "reason": "media-required"
+      "requiresMedia": true,
+      "isAiGenerated": false
     },
     "youtube": {
       "compatible": false,
-      "reason": "video-required"
+      "reason": "image-only-media-requires-video"
     }
   },
   "metricool": {
@@ -50,8 +49,7 @@
     "quotaScope": "metricool-brand",
     "quotaPolicy": "block-before-scheduling-when-monthly-limit-is-reached",
     "minimumSpacingHours": 4,
-    "duplicateProtection": "required-before-live-execution",
-    "action": "retain-until-scheduling-verified"
+    "duplicateProtection": "caller-supplied-excludeCopy"
   },
   "provenance": {
     "source": "garden-autoselection",
