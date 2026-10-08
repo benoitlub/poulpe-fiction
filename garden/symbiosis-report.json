@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-08T14:24:19.368Z",
+  "mode": "symbiosis",
+  "status": "ok",
+  "scope": "local-harvest-inventory-only",
+  "publisherReconciliation": "candidate-inventory-only",
+  "publisher": {
+    "status": "observed",
+    "candidateCount": 7,
+    "candidateHarvestIds": [
+      "harvest_local_harvest_420-dice_1786215725387",
+      "harvest_local_harvest_terra_1786215725146",
+      "harvest_local_harvest_gerard-et-gerard_1786215725072",
+      "harvest_local_harvest_gerard-et-gerard_1784579429759",
+      "neon_iter_iter_feulette-tachetee_1786291228831",
+      "neon_iter_iter_terra_1786289427863",
+      "neon_iter_iter_gerard-et-gerard_1786288530352"
+    ]
+  },
+  "totalHarvests": 1,
+  "uniqueContent": 1,
+  "duplicateCount": 0,
+  "duplicateHarvestIds": [],
+  "candidateCount": 1,
+  "candidateSample": [
+    {
+      "harvestId": "gerard-cultivate-1791456174892-harvest",
+      "parcelId": "poulpe-fiction",
+      "state": "harvested"
+    }
+  ],
+  "action": "observe-only",
+  "aiCalls": 0,
+  "externalCalls": 1,
+  "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
+}
