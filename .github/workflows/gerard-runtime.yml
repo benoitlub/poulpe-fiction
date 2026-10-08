@@ -212,6 +212,14 @@ jobs:
             SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
           fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
+          # Exclude the last media-failed harvest for this reranking pass.
+          # The exclusion is temporary and topic-agnostic.
+          if [ -z "$SELECTED_HARVEST_ID" ] && [ -f garden/next-social-publication.json ]; then
+            FAILED_HARVEST_ID="$(jq -r 'if .status == "blocked" then (.harvestId // "") else "" end' garden/next-social-publication.json)"
+            if [ -n "$FAILED_HARVEST_ID" ]; then
+              BRIDGE_URL="$BRIDGE_URL?excludeHarvestIds=$(printf '%s' "$FAILED_HARVEST_ID" | jq -sRr @uri)"
+            fi
+          fi
           if [ -n "$SELECTED_HARVEST_ID" ]; then
             BRIDGE_URL="$BRIDGE_URL?harvestId=$(printf '%s' "$SELECTED_HARVEST_ID" | jq -sRr @uri)"
           fi
