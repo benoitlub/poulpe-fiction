@@ -22,14 +22,47 @@ const TIMEOUT_MS = 60_000;
 
 function nowIso() { return new Date().toISOString(); }
 
-function decideMode(date = new Date()) {
+function decideMode(state = {}, inventory = {}) {
   const forced = process.env.GERARD_MODE?.trim();
-  if (forced && ["dream", "cultivate", "play", "symbiosis", "rest"].includes(forced)) return forced;
-  const hour = date.getUTCHours();
-  if (hour >= 0 && hour < 6) return "dream";
-  if (hour >= 6 && hour < 12) return "cultivate";
-  if (hour >= 12 && hour < 18) return "play";
-  return "symbiosis";
+  if (forced && ["dream", "cultivate", "play", "symbiosis", "rest"].includes(forced)) {
+    return { mode: forced, reason: "manual-override" };
+  }
+  const history = (Array.isArray(state.history) ? state.history : []).slice(-8);
+  const recent = history.slice(-4);
+  const creative = ["dream", "play"];
+  const productive = ["cultivate", "symbiosis"];
+  const creativeStreak = [...history].reverse().findIndex(x => !creative.includes(x.mode));
+  const consecutiveCreative = creativeStreak === -1 ? history.length : creativeStreak;
+  const productiveCount = recent.filter(x => productive.includes(x.mode)).length;
+  const lastMode = history.at(-1)?.mode;
+  const backlog = inventory.activeHarvests ?? 0;
+  const duplicateCount = state.lastSymbiosis?.duplicateCount ?? 0;
+  const sinceSymbiosis = [...history].reverse().findIndex(x => x.mode === "symbiosis");
+  const overdueSymbiosis = sinceSymbiosis < 0 || sinceSymbiosis >= 4;
+  const sinceCultivate = [...history].reverse().findIndex(x => x.mode === "cultivate");
+  const overdueCultivate = sinceCultivate < 0 || sinceCultivate >= 4;
+
+  if (consecutiveCreative >= 2 || productiveCount < 2) {
+    const mode = (backlog > 0 && (overdueSymbiosis || duplicateCount > 0)) ? "symbiosis" : "cultivate";
+    return { mode, reason: "production-priority", productiveCount, consecutiveCreative, backlog };
+  }
+  if (backlog > 0 && overdueSymbiosis) return { mode: "symbiosis", reason: "review-backlog", backlog };
+  if (overdueCultivate && inventory.seedCount > 0) return { mode: "cultivate", reason: "maintain-production" };
+  if (lastMode === "dream") return { mode: "play", reason: "explore-dream" };
+  if (lastMode === "play") return { mode: backlog > 0 ? "symbiosis" : "cultivate", reason: "turn-play-into-work" };
+  return { mode: history.filter(x => x.mode === "dream").length <= history.filter(x => x.mode === "play").length ? "dream" : "play", reason: "creative-exploration" };
+}
+
+async function loadInventory() {
+  let seedCount = 0;
+  let activeHarvests = 0;
+  try { seedCount = (await loadSeeds()).length; } catch (_) {}
+  try {
+    const data = JSON.parse(await readFile(HARVESTS_PATH, "utf8"));
+    activeHarvests = (Array.isArray(data.harvests) ? data.harvests : [])
+      .filter(x => x?.state !== "archived" && x?.state !== "composted" && typeof x?.content === "string" && x.content.trim()).length;
+  } catch (_) {}
+  return { seedCount, activeHarvests };
 }
 
 const MODE_INTENTS = {
@@ -216,10 +249,12 @@ async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
 }
 
 async function main() {
-  const mode = decideMode();
-  const intent = MODE_INTENTS[mode];
   const state = await loadState();
-  console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.start", mode, publisherUrl: PUBLISHER_URL }));
+  const decision = decideMode(state, await loadInventory());
+  const mode = decision.mode;
+  const intent = MODE_INTENTS[mode];
+  state.lastDecision = { at: nowIso(), ...decision };
+  console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.start", mode, reason: decision.reason, publisherUrl: PUBLISHER_URL }));
 
   if (mode === "rest") {
     state.history = [...(state.history || []).slice(-19), { at: nowIso(), mode, result: "skipped" }];
@@ -296,7 +331,7 @@ async function main() {
     result = await callOctopus({ operationId, parcelId: "poulpe-fiction", title: intent.title, objective: intent.objective, requiredCapabilities: intent.requiredCapabilities, context: { id: "poulpe-fiction", label: "Poulpe Fiction", objective: intent.objective, metadata: { source: "gerard-cycle", mode } } });
   }
 
-  state.history = [...(state.history || []).slice(-19), { at: nowIso(), mode, operationId, result: result.status }];
+  state.history = [...(state.history || []).slice(-19), { at: nowIso(), mode, reason: decision.reason, operationId, result: result.status }];
   state.lastMode = mode; state.lastRunAt = nowIso(); state.lastResult = result; await saveState(state);
   console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.done", mode, result }));
   if (result.status !== "ok") process.exitCode = 1;
