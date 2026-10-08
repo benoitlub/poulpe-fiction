@@ -101,7 +101,7 @@ async function runSymbiosis(state) {
   for (const item of harvests) {
     const content = typeof item.content === "string" ? item.content.trim() : "";
     if (!content) continue;
-    const key = content.toLocaleLowerCase().replace(/\\s+/g, " ");
+    const key = content.toLocaleLowerCase().replace(/\s+/g, " ");
     if (seen.has(key)) { duplicates.push(item.harvestId ?? null); continue; }
     seen.add(key);
     if (item.state !== "archived" && item.state !== "composted") {
@@ -118,7 +118,7 @@ async function runSymbiosis(state) {
     action: "observe-only", aiCalls: 0, externalCalls: 0,
     note: "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   };
-  await writeFile(new URL("../garden/symbiosis-report.json", import.meta.url), JSON.stringify(report, null, 2) + "\\n", "utf8");
+  await writeFile(new URL("../garden/symbiosis-report.json", import.meta.url), JSON.stringify(report, null, 2) + "\n", "utf8");
   state.lastSymbiosis = { at: report.at, duplicateCount: report.duplicateCount, candidateCount: report.candidateCount };
   return report;
 }
