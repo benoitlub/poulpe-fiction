@@ -1,57 +1,7 @@
 {
-  "preparedAt": "2026-10-06T16:01:17Z",
-  "status": "ready",
-  "contract": "gerard-metricool-bridge-next-v1",
-  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-  "seedId": "420-dice",
-  "title": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
-  "score": 85,
-  "copy": {
-    "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
-    "strategy": "first-explicit-angle"
-  },
-  "media": {
-    "url": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=ee88fd9c-c491-473d-82dc-9e99f66324cb",
-    "id": "ee88fd9c-c491-473d-82dc-9e99f66324cb",
-    "direct": true
-  },
-  "production": {
-    "capability": "visual.generate",
-    "toolPack": "mistral:image-generation",
-    "provider": "mistral",
-    "generated": true,
-    "mediaId": "ee88fd9c-c491-473d-82dc-9e99f66324cb",
-    "outputUrl": "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/production/mistral-image/content?fileId=ee88fd9c-c491-473d-82dc-9e99f66324cb"
-  },
-  "compatibleNetworks": [
-    "facebook",
-    "instagram"
-  ],
-  "networkRules": {
-    "instagram": {
-      "requiresMedia": true,
-      "isAiGenerated": true
-    },
-    "youtube": {
-      "compatible": false,
-      "reason": "image-only-media-requires-video"
-    }
-  },
-  "metricool": {
-    "draft": true,
-    "autoPublish": false
-  },
-  "guardrails": {
-    "monthlyPublicationLimit": 20,
-    "quotaPeriod": "calendar-month",
-    "quotaScope": "metricool-brand",
-    "quotaPolicy": "block-before-scheduling-when-monthly-limit-is-reached",
-    "minimumSpacingHours": 4,
-    "duplicateProtection": "caller-supplied-excludeCopy"
-  },
-  "provenance": {
-    "source": "garden-autoselection",
-    "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-    "seedId": "420-dice"
-  }
+  "preparedAt": "2026-10-08T09:06:29Z",
+  "status": "blocked",
+  "reason": "publisher-media-or-bridge-unavailable",
+  "httpStatus": "502",
+  "action": "do-not-schedule"
 }

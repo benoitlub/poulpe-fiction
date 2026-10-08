@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-10-06T16:00:55.641Z",
+  "checkedAt": "2026-10-08T09:06:24.789Z",
   "timezone": "Europe/Paris",
-  "day": "2026-10-06",
+  "day": "2026-10-08",
   "month": "2026-10",
   "metricoolBudget": {
     "limit": 20,
@@ -14,6 +14,12 @@
   "coverage": [
     {
       "parcelId": "poulpe-fiction",
+      "publishedToday": false,
+      "publicationCountToday": 0,
+      "publicationCountMonth": 0
+    },
+    {
+      "parcelId": "project-yael-prospection",
       "publishedToday": false,
       "publicationCountToday": 0,
       "publicationCountMonth": 0
