@@ -329,12 +329,14 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
-            echo "Buffer reservation inspection unavailable: token missing. Blocking write."\n            touch /tmp/gerard-buffer-write-blocked
+            echo "Buffer reservation inspection unavailable: token missing. Blocking write."
+            touch /tmp/gerard-buffer-write-blocked
             exit 0
           fi
           HARVEST_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
           if [ -z "$HARVEST_ID" ]; then
-            echo "No harvest to inspect. Blocking write."\n            touch /tmp/gerard-buffer-write-blocked
+            echo "No harvest to inspect. Blocking write."
+            touch /tmp/gerard-buffer-write-blocked
             exit 0
           fi
           STATUS="$(curl --silent --show-error --get --output /tmp/gerard-buffer-reservations.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/reservations" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" --data-urlencode "harvestId=$HARVEST_ID")" || STATUS="000"
@@ -346,7 +348,34 @@ jobs:
               touch /tmp/gerard-buffer-write-blocked
             fi
           else
-            echo "Inspection failed: blocking any draft write."\n            touch /tmp/gerard-buffer-write-blocked
+            echo "Inspection failed: blocking any draft write."
+            touch /tmp/gerard-buffer-write-blocked
+          fi
+
+      - name: Reconcile Buffer book draft (read-only)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          touch /tmp/gerard-buffer-write-blocked
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Reconciliation unavailable: token missing."
+            exit 0
+          fi
+          HARVEST_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
+          if [ -z "$HARVEST_ID" ]; then
+            echo "Reconciliation skipped: no harvest."
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --get --output /tmp/gerard-buffer-reconcile.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/reconcile" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" --data-urlencode "harvestId=$HARVEST_ID")" || STATUS="000"
+          echo "Buffer reconciliation HTTP $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            jq -c '{status,harvestId,reservations,retryAllowed,requiresManualConfirmation,publishingEnabled}' /tmp/gerard-buffer-reconcile.json
+          else
+            echo "Reconciliation unavailable; Buffer write remains blocked."
           fi
 
       - name: Request Buffer book draft via authenticated Publisher
