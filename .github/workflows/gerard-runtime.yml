@@ -380,6 +380,23 @@ jobs:
             | .warning = (if .publishedExactCopy then "Exact text already published in verified Metricool history; choose a fresh angle before publishing." else null end)
           ' garden/gerard-decision-explanation.json > /tmp/gerard-explanation-final.json
           mv /tmp/gerard-explanation-final.json garden/gerard-decision-explanation.json
+          # Public analytics are not necessarily available immediately. Preserve
+          # explicit missing-data status rather than interpreting [] as zero.
+          if [ -f garden/metricool-analytics-snapshot.json ]; then
+            jq --slurpfile analytics garden/metricool-analytics-snapshot.json '
+              . + {
+                audienceFeedback: {
+                  status: ($analytics[0].status // "unavailable"),
+                  checkedAt: ($analytics[0].checkedAt // null),
+                  matchedMetrics: ([$analytics[0].posts[]? | select(.text == .copyText)] | length),
+                  note: ($analytics[0].note // "No verified per-post engagement evidence")
+                }
+              }
+            ' garden/gerard-decision-explanation.json > /tmp/gerard-with-feedback.json
+          else
+            jq '. + {audienceFeedback:{status:"not-collected",matchedMetrics:0,note:"No Metricool analytics snapshot available; do not infer performance."}}' garden/gerard-decision-explanation.json > /tmp/gerard-with-feedback.json
+          fi
+          mv /tmp/gerard-with-feedback.json garden/gerard-decision-explanation.json
           jq --slurpfile current garden/gerard-decision-explanation.json '
             ((if type == "array" then . else [] end) + [$current[0]])[-100:]
           ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
