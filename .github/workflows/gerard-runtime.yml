@@ -260,7 +260,7 @@ jobs:
             # Route Gerard's autonomous selection by editorial topic; never publish here.
             ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json)"
             ROUTE_HTTP="$(curl --silent --show-error --output /tmp/gerard-editorial-route.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/editorial/route" -H 'Content-Type: application/json' --data "$ROUTE_PAYLOAD")"
-            if [ "$ROUTE_HTTP" = "200" ] && jq -e '.destination.provider != null' /tmp/gerard-editorial-route.json >/dev/null 2>&1; then
+            if [ "$ROUTE_HTTP" = "200" ] && jq -e '.contract == "publisher-editorial-routing-v1" and .destination.preferredProvider != null' /tmp/gerard-editorial-route.json >/dev/null 2>&1; then
               jq --slurpfile route /tmp/gerard-editorial-route.json '. + {editorialRoute: $route[0], delivery: {status:"not-attempted", publishingEnabled:false}}' garden/next-social-publication.json > /tmp/gerard-routed.json
               mv /tmp/gerard-routed.json garden/next-social-publication.json
             else
