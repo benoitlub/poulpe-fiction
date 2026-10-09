@@ -302,6 +302,24 @@ jobs:
             jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "$SELECTED_HARVEST_ID" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
           fi
 
+      - name: Check Buffer GraphQL draft schema (read-only)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Schema inspection unavailable: token missing."
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --output /tmp/buffer-schema-check.json --write-out '%{http_code}' --max-time 20 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/schema-check" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
+          echo "Buffer schema inspection HTTP $STATUS"
+          if [ -f /tmp/buffer-schema-check.json ]; then
+            jq -c '{status,bufferHttpStatus,createPostAvailable,inputTypeFound,createPostInputFields,graphqlErrorCodes,reason}' /tmp/buffer-schema-check.json
+          fi
+
       - name: Inspect Buffer draft reservation (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
