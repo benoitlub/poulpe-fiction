@@ -233,11 +233,6 @@ jobs:
           # Explicitly exclude the current candidate if its exact copy was
           # published. This works even if the harvest catalog has another shape.
           if [ -f garden/next-social-publication.json ] && [ -f garden/metricool-published-snapshot.json ]; then
-            DUPLICATE_CURRENT="$(jq -r --slurpfile published garden/metricool-published-snapshot.json '
-              if (.harvestId | type) == "string" and (.copy.text | type) == "string"
-                 and any($published[0].published[]?; .text == .copy.text)
-              then .harvestId else "" end
-            ' garden/next-social-publication.json 2>/dev/null || true)"
             # Use a variable to compare across scopes reliably.
             DUPLICATE_CURRENT="$(jq -r --slurpfile published garden/metricool-published-snapshot.json '
               . as $candidate | if ($candidate.harvestId | type) == "string"
@@ -276,7 +271,29 @@ jobs:
               guardrails,
               provenance
             }' /tmp/gerard-social-next.json > garden/next-social-publication.json
+            # Fail closed when the bridge ignores exclusions or returns a
+            # previously published exact copy. Do not schedule duplicates.
+            if [ -f garden/metricool-published-snapshot.json ]; then
+              ALREADY_PUBLISHED="$(jq -r --slurpfile published garden/metricool-published-snapshot.json '
+                . as $candidate
+                | if ($candidate.copy.text | type) == "string"
+                  and any($published[0].published[]?; .text == $candidate.copy.text)
+                  then "yes" else "no" end
+              ' garden/next-social-publication.json)"
+              if [ "$ALREADY_PUBLISHED" = "yes" ]; then
+                echo "Bridge returned already published copy; blocking package."
+                jq '.status = "blocked"
+                  | .reason = "exact-copy-already-published"
+                  | .action = "do-not-schedule"
+                  | .delivery = {status:"not-attempted",publishingEnabled:false}
+                  | del(.metricool)' garden/next-social-publication.json > /tmp/gerard-duplicate-blocked.json
+                mv /tmp/gerard-duplicate-blocked.json garden/next-social-publication.json
+              fi
+            fi
             # Route Gerard's autonomous selection by editorial topic; never publish here.
+            if [ "$(jq -r '.status' garden/next-social-publication.json)" = "blocked" ]; then
+              echo "Duplicate package blocked: skipping editorial route."
+            else
             ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json)"
             ROUTE_HTTP="$(curl --silent --show-error --output /tmp/gerard-editorial-route.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/editorial/route" -H 'Content-Type: application/json' --data "$ROUTE_PAYLOAD")"
             if [ "$ROUTE_HTTP" = "200" ] && jq -e '.contract == "publisher-editorial-routing-v1" and .destination.preferredProvider != null' /tmp/gerard-editorial-route.json >/dev/null 2>&1; then
@@ -298,6 +315,7 @@ jobs:
               jq 'del(.metricool) | . + {editorialRoute:{status:"unavailable"}, delivery:{status:"not-attempted",publishingEnabled:false}, action:"do-not-schedule"}' garden/next-social-publication.json > /tmp/gerard-routed.json
               mv /tmp/gerard-routed.json garden/next-social-publication.json
             fi
+            fi # End safe editorial routing for non-duplicate package.
             # Buffer readiness check uses Gerard's own copy; no external draft or publication.
             if [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json)" = "buffer" ]; then
               PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json)"
