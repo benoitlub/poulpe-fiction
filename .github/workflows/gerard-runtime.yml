@@ -341,6 +341,10 @@ jobs:
           echo "Buffer reservation inspection HTTP $STATUS"
           if [ "$STATUS" = "200" ]; then
             jq -c '{status,harvestId,reservations}' /tmp/gerard-buffer-reservations.json
+            if jq -e '.reservations | any(.status == "pending" or .status == "draft-created")' /tmp/gerard-buffer-reservations.json >/dev/null; then
+              echo "Buffer reservation exists: blocking draft write for this run."
+              touch /tmp/gerard-buffer-write-blocked
+            fi
           else
             echo "Inspection failed; no reservation or draft was modified."
           fi
@@ -355,6 +359,10 @@ jobs:
           set -euo pipefail
           if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
             echo "Buffer draft write token missing: holding package."
+            exit 0
+          fi
+          if [ -f /tmp/gerard-buffer-write-blocked ]; then
+            echo "Existing Buffer reservation: no write attempted."
             exit 0
           fi
           if ! jq -e '.status == "ready" and .transport.provider == "buffer" and .action == "hold-for-buffer-draft" and .bufferPreflight.status == "ready-for-controlled-test" and .delivery.status == "not-attempted"' garden/next-social-publication.json >/dev/null; then
