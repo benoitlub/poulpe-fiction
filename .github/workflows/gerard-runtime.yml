@@ -8,7 +8,13 @@ on:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
       - ".github/workflows/gerard-runtime.yml"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      retry_terra_draft:
+        description: "Authorize one TERRA Buffer draft retry (no publication)"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: gerard-runtime
@@ -318,6 +324,30 @@ jobs:
           echo "Buffer schema inspection HTTP $STATUS"
           if [ -f /tmp/buffer-schema-check.json ]; then
             jq -c '{status,bufferHttpStatus,createPostAvailable,createPostReturnType,inputTypeFound,createPostInputFields,createPostFieldTypes,assetInputFound,assetTypeName,assetsTypePath,assetInputFields,imageInputFields,postActionVariants,postActionFields,readOnlyPostQueries,readOnlyLookupTypes,graphqlErrorCodes,reason}' /tmp/buffer-schema-check.json
+          fi
+
+      - name: Authorize one TERRA draft retry (explicit manual opt-in)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.retry_terra_draft == true }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "TERRA retry refused: token missing."
+            exit 1
+          fi
+          HARVEST_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
+          if [ "$HARVEST_ID" != "harvest_local_harvest_terra_1786215725146" ]; then
+            echo "TERRA retry refused: current harvest does not match."
+            exit 1
+          fi
+          STATUS="$(curl --silent --show-error --request POST --output /tmp/gerard-terra-release.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/release-terra" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
+          echo "TERRA retry release HTTP $STATUS"
+          if [ "$STATUS" != "200" ] || ! jq -e '.status == "retry-authorized" and .changed == 1' /tmp/gerard-terra-release.json >/dev/null; then
+            echo "TERRA retry release failed or already used; refusing write."
+            exit 1
           fi
 
       - name: Inspect Buffer draft reservation (read-only)
