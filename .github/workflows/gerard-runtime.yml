@@ -261,7 +261,18 @@ jobs:
             ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json)"
             ROUTE_HTTP="$(curl --silent --show-error --output /tmp/gerard-editorial-route.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/editorial/route" -H 'Content-Type: application/json' --data "$ROUTE_PAYLOAD")"
             if [ "$ROUTE_HTTP" = "200" ] && jq -e '.contract == "publisher-editorial-routing-v1" and .destination.preferredProvider != null' /tmp/gerard-editorial-route.json >/dev/null 2>&1; then
-              jq --slurpfile route /tmp/gerard-editorial-route.json '. + {editorialRoute: $route[0], delivery: {status:"not-attempted", publishingEnabled:false}}' garden/next-social-publication.json > /tmp/gerard-routed.json
+              jq --slurpfile route /tmp/gerard-editorial-route.json '
+                . + {editorialRoute: $route[0], delivery: {status:"not-attempted", publishingEnabled:false}}
+                | if $route[0].destination.preferredProvider == "buffer" then
+                    del(.metricool)
+                    | . + {action:"hold-for-buffer-draft", transport:{provider:"buffer",account:$route[0].destination.preferredAccount,draftOnly:true}}
+                  elif $route[0].destination.preferredProvider == "metricool" then
+                    . + {transport:{provider:"metricool",account:$route[0].destination.preferredAccount,draftOnly:true}}
+                  else
+                    del(.metricool)
+                    | . + {action:"do-not-schedule",transport:{provider:null,draftOnly:true}}
+                  end
+              ' garden/next-social-publication.json > /tmp/gerard-routed.json
               mv /tmp/gerard-routed.json garden/next-social-publication.json
             else
               echo "Editorial route unavailable; hold package for review."
