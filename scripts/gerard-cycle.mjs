@@ -87,7 +87,16 @@ function selectSeedForRotation(seeds, state) {
   if (!seeds.length) return null;
   const lastSeedId = state?.lastSeedId ?? null;
   const index = Math.max(-1, seeds.findIndex((seed) => seed.seedId === lastSeedId));
-  return seeds[(index + 1) % seeds.length];
+  const rotated = [...seeds.slice(index + 1), ...seeds.slice(0, index + 1)];
+  // Learn from recent operational failures: temporarily try another seed
+  // rather than blindly retrying the same failing parcel on each cycle.
+  // A single failure is enough for one rotation, not a permanent blacklist.
+  const recent = Array.isArray(state?.learningHistory) ? state.learningHistory.slice(-8) : [];
+  const lastBySeed = new Map();
+  for (const entry of recent) {
+    if (entry?.seedId) lastBySeed.set(entry.seedId, entry);
+  }
+  return rotated.find(seed => lastBySeed.get(seed.seedId)?.outcome !== "failed") ?? rotated[0];
 }
 
 async function saveState(state) {
