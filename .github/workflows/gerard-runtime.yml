@@ -439,10 +439,44 @@ jobs:
               fi
             done
             git commit -m "chore(gerard): update autonomous cycle state"
-            # main may advance while Gérard is running; keep the state-only
-            # commit and replay it on the current branch head.
-            git pull --rebase origin main
-            git push
+            # State snapshots are generated artifacts, not source code. If main
+            # advances, prefer the latest completed cycle snapshot instead of
+            # trying to line-merge independently generated JSON files.
+            # Never force-push or overwrite workflow/source files.
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if git rebase origin/main; then
+                if git push origin HEAD:main; then
+                  echo "Gerard state synchronized (attempt $attempt)."
+                  break
+                fi
+              else
+                echo "Generated state conflicts with upstream; resolving snapshot files only."
+                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/buffer-draft-ledger.json; do
+                  if git ls-files -u -- "$file" | grep -q .; then
+                    if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
+                      git show REBASE_HEAD:"$file" > "$file"
+                      git add -- "$file"
+                    else
+                      git rm -f -- "$file"
+                    fi
+                  fi
+                done
+                if git ls-files -u | grep -q .; then
+                  echo "Non-state merge conflicts detected; refusing automatic resolution."
+                  exit 1
+                fi
+                GIT_EDITOR=true git rebase --continue
+                if git push origin HEAD:main; then
+                  echo "Gerard state synchronized after snapshot conflict resolution."
+                  break
+                fi
+              fi
+              if [ "$attempt" = 3 ]; then
+                echo "State sync failed after 3 attempts; preserving upstream without force push."
+                exit 1
+              fi
+            done
           else
             echo "Aucun changement d'état à committer."
           fi
