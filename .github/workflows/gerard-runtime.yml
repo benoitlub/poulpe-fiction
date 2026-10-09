@@ -302,12 +302,31 @@ jobs:
             jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "$SELECTED_HARVEST_ID" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
           fi
 
-      - name: Hold Buffer draft until authenticated Publisher transport is ready
+      - name: Request Buffer book draft via authenticated Publisher
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
         run: |
-          echo "Buffer credential stays in Cloudflare Publisher; no GitHub secret required."
-          echo "No draft mutation until a protected Publisher endpoint and idempotency store are deployed."
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Buffer draft write token missing: holding package."
+            exit 0
+          fi
+          if ! jq -e '.status == "ready" and .transport.provider == "buffer" and .action == "hold-for-buffer-draft" and .bufferPreflight.status == "ready-for-controlled-test" and .delivery.status == "not-attempted"' garden/next-social-publication.json >/dev/null; then
+            echo "Not an eligible Buffer book draft; skipped."
+            exit 0
+          fi
+          jq -c '{harvestId,seedId,title,text:.copy.text,mediaUrl:.media.url}' garden/next-social-publication.json > /tmp/gerard-buffer-request.json
+          HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-buffer-draft-response.json --write-out '%{http_code}' --max-time 25 -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-draft" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data-binary @/tmp/gerard-buffer-request.json)" || HTTP_STATUS="000"
+          if [ "$HTTP_STATUS" = "200" ] && jq -e '.status == "draft-created" and .draftCreated == true' /tmp/gerard-buffer-draft-response.json >/dev/null 2>&1; then
+            jq --slurpfile response /tmp/gerard-buffer-draft-response.json '.action="draft-created-awaiting-human-review" | .delivery={status:"confirmed-sent",kind:"buffer-draft",postId:$response[0].postId,publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
+          else
+            echo "Buffer draft not confirmed (HTTP $HTTP_STATUS). No automatic retry."
+            jq --arg http "$HTTP_STATUS" '.action="hold-for-manual-buffer-review" | .delivery={status:"unknown",httpStatus:$http,publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
+          fi
+          mv /tmp/gerard-buffer-result.json garden/next-social-publication.json
 
       - name: Validate real harvest result
         if: ${{ github.event_name == 'workflow_dispatch' }}
