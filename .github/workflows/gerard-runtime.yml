@@ -311,6 +311,40 @@ jobs:
             jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "$SELECTED_HARVEST_ID" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
           fi
 
+      - name: Explain Gerard's editorial choice (read-only)
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          jq '{
+            explainedAt: (now | todateiso8601),
+            harvestId: (.harvestId // null),
+            seedId: (.seedId // null),
+            subject: (.title // null),
+            editorialScore: (.score // null),
+            chosenNetwork: (.compatibleNetworks // []),
+            destination: (.editorialRoute.destination // null),
+            evidence: {
+              source: (.provenance.source // null),
+              copyStrategy: (.copy.strategy // null),
+              mediaCapability: (.production.capability // null),
+              mediaFailures: (.production.mediaFailures // [])
+            },
+            decision: (.action // .delivery.status // .status),
+            reasoning: (if .status != "ready" then
+              "Aucun contenu prêt : décision suspendue."
+            elif .editorialRoute.destination.preferredProvider == "metricool" then
+              "Récolte éligible sélectionnée par le classement du Publisher ; routage jeux vers Metricool. Ce score ne prouve pas une préférence du public."
+            elif .editorialRoute.destination.preferredProvider == "buffer" then
+              "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici."
+            else
+              "Décision éditoriale non vérifiée ; publication suspendue."
+            end),
+            limits: ["Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.", "Aucune comparaison des statistiques Metricool n’est établie ici.", "Une répétition de texte déjà publié n’est pas automatiquement exclue."]
+          }' garden/next-social-publication.json > garden/gerard-decision-explanation.json
+          jq '{seedId,reasoning,decision,limits}' garden/gerard-decision-explanation.json
+
       - name: Check Buffer GraphQL draft schema (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
@@ -492,7 +526,7 @@ jobs:
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/buffer-draft-ledger.json; do
+            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/buffer-draft-ledger.json; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
