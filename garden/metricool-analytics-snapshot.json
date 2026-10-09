@@ -1,0 +1,32 @@
+{
+  "source": "metricool-analytics",
+  "brandId": "3350145",
+  "checkedAt": "2026-10-10",
+  "period": {
+    "from": "2026-10-01",
+    "to": "2026-10-10"
+  },
+  "status": "unavailable",
+  "requestedMetrics": {
+    "facebook": [
+      "FBPO02",
+      "FBPO03",
+      "FBPO04",
+      "FBPO08",
+      "FBPO10",
+      "FBPO12",
+      "FBPO13",
+      "FBPO14"
+    ],
+    "instagram": [
+      "IGPO02",
+      "IGPO03",
+      "IGPO04",
+      "IGPO10",
+      "IGPO12",
+      "IGPO14"
+    ]
+  },
+  "posts": [],
+  "note": "Metricool analytics query returned rows: []. This is missing analytics, not zero engagement. Do not optimize editorial choices from this sample."
+}
