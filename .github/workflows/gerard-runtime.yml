@@ -209,14 +209,14 @@ jobs:
           # Preserve only a ready/selected editorial choice. A failed media request\n          # must not pin the same harvest forever: let Publisher rank candidates again.
           SELECTED_HARVEST_ID=""
           if [ -f garden/next-social-publication.json ]; then
-            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
+            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
           fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
           # Retry the same editorial topic after a Publisher fallback becomes available.
           # A blocked package is not pinned by default, except for a text-only
           # retry when the previous failure was missing media.
           if [ -z "$SELECTED_HARVEST_ID" ] && [ -f garden/next-social-publication.json ]; then
-            RETRY_ID="$(jq -r 'if .status == "blocked" and .reason == "publisher-media-or-bridge-unavailable" and .httpStatus == "502" then (.harvestId // "") else "" end' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
+            RETRY_ID="$(jq -r 'if .status == "blocked" and .reason == "publisher-media-or-bridge-unavailable" and .httpStatus == "502" then (.harvestId // "") else "" end' garden/next-social-publication.json)"
             if [ -n "$RETRY_ID" ]; then
               SELECTED_HARVEST_ID="$RETRY_ID"
             fi
@@ -224,7 +224,7 @@ jobs:
           # Exclude the last media-failed harvest for this reranking pass.
           # The exclusion is temporary and topic-agnostic.
           if [ -z "$SELECTED_HARVEST_ID" ] && [ -f garden/next-social-publication.json ]; then
-            FAILED_HARVEST_ID="$(jq -r 'if .status == "blocked" then (.harvestId // "") else "" end' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
+            FAILED_HARVEST_ID="$(jq -r 'if .status == "blocked" then (.harvestId // "") else "" end' garden/next-social-publication.json)"
             if [ -n "$FAILED_HARVEST_ID" ]; then
               BRIDGE_URL="$BRIDGE_URL?excludeHarvestIds=$(printf '%s' "$FAILED_HARVEST_ID" | jq -sRr @uri)"
             fi
@@ -258,7 +258,7 @@ jobs:
               provenance
             }' /tmp/gerard-social-next.json > garden/next-social-publication.json
             # Route Gerard's autonomous selection by editorial topic; never publish here.
-            ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
+            ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json)"
             ROUTE_HTTP="$(curl --silent --show-error --output /tmp/gerard-editorial-route.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/editorial/route" -H 'Content-Type: application/json' --data "$ROUTE_PAYLOAD")"
             if [ "$ROUTE_HTTP" = "200" ] && jq -e '.contract == "publisher-editorial-routing-v1" and .destination.preferredProvider != null' /tmp/gerard-editorial-route.json >/dev/null 2>&1; then
               jq --slurpfile route /tmp/gerard-editorial-route.json '
