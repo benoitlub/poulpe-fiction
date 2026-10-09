@@ -322,6 +322,7 @@ jobs:
             harvestId: (.harvestId // null),
             seedId: (.seedId // null),
             subject: (.title // null),
+            copyText: (.copy.text // null),
             editorialScore: (.score // null),
             chosenNetwork: (.compatibleNetworks // []),
             destination: (.editorialRoute.destination // null),
@@ -343,7 +344,31 @@ jobs:
             end),
             limits: ["Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.", "Aucune comparaison des statistiques Metricool n’est établie ici.", "Une répétition de texte déjà publié n’est pas automatiquement exclue."]
           }' garden/next-social-publication.json > garden/gerard-decision-explanation.json
-          jq '{seedId,reasoning,decision,limits}' garden/gerard-decision-explanation.json
+          # Compare this selection with earlier recorded choices. This is
+          # operational history, not an invented Metricool performance score.
+          if [ -f garden/gerard-decision-history.json ]; then
+            cp garden/gerard-decision-history.json /tmp/gerard-decision-history-before.json
+          else
+            echo '[]' > /tmp/gerard-decision-history-before.json
+          fi
+          jq --slurpfile history /tmp/gerard-decision-history-before.json '
+            . + {
+              previousSelectionsOfSameSeed: ([$history[0][] | select(.seedId == .seedId)] | length),
+              historyEvidence: "Local editorial decisions only; social performance not yet correlated."
+            }
+          ' garden/gerard-decision-explanation.json > /tmp/gerard-explanation-compare.json
+          # Explicit variables avoid accidental self-comparison in jq.
+          jq --slurpfile history /tmp/gerard-decision-history-before.json '
+            . as $current
+            | .previousSelectionsOfSameSeed = ([$history[0][] | select(.seedId == $current.seedId)] | length)
+            | .previousSelectionsOfSameCopy = ([$history[0][] | select(.copyText == $current.copyText and .copyText != null)] | length)
+            | .repeatedSelection = (.previousSelectionsOfSameSeed > 0)
+          ' /tmp/gerard-explanation-compare.json > /tmp/gerard-explanation-final.json
+          mv /tmp/gerard-explanation-final.json garden/gerard-decision-explanation.json
+          jq --slurpfile current garden/gerard-decision-explanation.json '
+            ((if type == "array" then . else [] end) + [$current[0]])[-100:]
+          ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
+          jq '{seedId,reasoning,decision,repeatedSelection,previousSelectionsOfSameSeed,limits}' garden/gerard-decision-explanation.json
 
       - name: Check Buffer GraphQL draft schema (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -522,11 +547,11 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/buffer-draft-ledger.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/buffer-draft-ledger.json; do
+            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
@@ -545,7 +570,7 @@ jobs:
                 fi
               else
                 echo "Generated state conflicts with upstream; resolving snapshot files only."
-                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/buffer-draft-ledger.json; do
+                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json; do
                   if git ls-files -u -- "$file" | grep -q .; then
                     if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
                       git show REBASE_HEAD:"$file" > "$file"
