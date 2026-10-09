@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-09T13:35:29Z",
+  "preparedAt": "2026-10-09T13:36:42Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "harvest_local_harvest_terra_1786215725146",
@@ -60,10 +60,11 @@
     "publishingEnabled": false
   },
   "delivery": {
-    "status": "not-attempted",
+    "status": "unknown",
+    "httpStatus": "409",
     "publishingEnabled": false
   },
-  "action": "hold-for-buffer-draft",
+  "action": "hold-for-manual-buffer-review",
   "transport": {
     "provider": "buffer",
     "account": "benoitlubert",
