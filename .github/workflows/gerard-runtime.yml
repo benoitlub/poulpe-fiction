@@ -209,14 +209,14 @@ jobs:
           # Preserve only a ready/selected editorial choice. A failed media request\n          # must not pin the same harvest forever: let Publisher rank candidates again.
           SELECTED_HARVEST_ID=""
           if [ -f garden/next-social-publication.json ]; then
-            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
+            SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
           fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
           # Retry the same editorial topic after a Publisher fallback becomes available.
           # A blocked package is not pinned by default, except for a text-only
           # retry when the previous failure was missing media.
           if [ -z "$SELECTED_HARVEST_ID" ] && [ -f garden/next-social-publication.json ]; then
-            RETRY_ID="$(jq -r 'if .status == "blocked" and .reason == "publisher-media-or-bridge-unavailable" and .httpStatus == "502" then (.harvestId // "") else "" end' garden/next-social-publication.json)"
+            RETRY_ID="$(jq -r 'if .status == "blocked" and .reason == "publisher-media-or-bridge-unavailable" and .httpStatus == "502" then (.harvestId // "") else "" end' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
             if [ -n "$RETRY_ID" ]; then
               SELECTED_HARVEST_ID="$RETRY_ID"
             fi
@@ -224,7 +224,7 @@ jobs:
           # Exclude the last media-failed harvest for this reranking pass.
           # The exclusion is temporary and topic-agnostic.
           if [ -z "$SELECTED_HARVEST_ID" ] && [ -f garden/next-social-publication.json ]; then
-            FAILED_HARVEST_ID="$(jq -r 'if .status == "blocked" then (.harvestId // "") else "" end' garden/next-social-publication.json)"
+            FAILED_HARVEST_ID="$(jq -r 'if .status == "blocked" then (.harvestId // "") else "" end' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
             if [ -n "$FAILED_HARVEST_ID" ]; then
               BRIDGE_URL="$BRIDGE_URL?excludeHarvestIds=$(printf '%s' "$FAILED_HARVEST_ID" | jq -sRr @uri)"
             fi
@@ -258,7 +258,7 @@ jobs:
               provenance
             }' /tmp/gerard-social-next.json > garden/next-social-publication.json
             # Route Gerard's autonomous selection by editorial topic; never publish here.
-            ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json)"
+            ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
             ROUTE_HTTP="$(curl --silent --show-error --output /tmp/gerard-editorial-route.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/editorial/route" -H 'Content-Type: application/json' --data "$ROUTE_PAYLOAD")"
             if [ "$ROUTE_HTTP" = "200" ] && jq -e '.contract == "publisher-editorial-routing-v1" and .destination.preferredProvider != null' /tmp/gerard-editorial-route.json >/dev/null 2>&1; then
               jq --slurpfile route /tmp/gerard-editorial-route.json '
@@ -280,8 +280,8 @@ jobs:
               mv /tmp/gerard-routed.json garden/next-social-publication.json
             fi
             # Buffer readiness check uses Gerard's own copy; no external draft or publication.
-            if [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json)" = "buffer" ]; then
-              PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json)"
+            if [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json garden/buffer-draft-ledger.json)" = "buffer" ]; then
+              PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
               PREFLIGHT_HTTP="$(curl --silent --show-error --output /tmp/gerard-buffer-preflight.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-preflight" -H 'Content-Type: application/json' --data "$PREFLIGHT_BODY")"
               if [ "$PREFLIGHT_HTTP" = "200" ] && jq -e '.status == "ready-for-controlled-test"' /tmp/gerard-buffer-preflight.json >/dev/null 2>&1; then
                 jq --slurpfile check /tmp/gerard-buffer-preflight.json '. + {bufferPreflight:$check[0],action:"hold-for-buffer-draft"}' garden/next-social-publication.json > /tmp/gerard-preflight.json
@@ -301,6 +301,13 @@ jobs:
             cat /tmp/gerard-social-next.json || true
             jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "$SELECTED_HARVEST_ID" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
           fi
+
+      - name: Create autonomous Buffer book draft (never publish)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: node scripts/gerard-buffer-draft.mjs
 
       - name: Validate real harvest result
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -323,11 +330,11 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/buffer-draft-ledger.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json; do
+            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/buffer-draft-ledger.json; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
