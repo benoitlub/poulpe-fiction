@@ -1,36 +1,47 @@
 {
-  "preparedAt": "2026-10-09T21:13:17Z",
+  "preparedAt": "2026-10-09T21:21:46Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
-  "harvestId": "harvest_local_harvest_terra_1786215725146",
-  "seedId": "terra",
-  "title": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
+  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+  "seedId": "420-dice",
+  "title": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
   "score": 85,
   "copy": {
-    "text": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+    "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
     "strategy": "first-explicit-angle"
   },
-  "media": {
-    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
-    "direct": true,
-    "official": true
-  },
+  "media": null,
   "production": {
-    "capability": "official-media",
-    "generated": false
+    "capability": "text-only-fallback",
+    "generated": false,
+    "mediaFailures": [
+      "Mistral completed the conversation but returned no generated image file_id."
+    ]
   },
   "compatibleNetworks": [
-    "facebook",
-    "instagram"
+    "facebook"
   ],
   "networkRules": {
+    "facebook": {
+      "mediaOptional": true
+    },
     "instagram": {
-      "requiresMedia": true,
-      "isAiGenerated": false
+      "compatible": false,
+      "reason": "media-required"
     },
     "youtube": {
       "compatible": false,
-      "reason": "image-only-media-requires-video"
+      "reason": "video-required"
+    }
+  },
+  "metricool": {
+    "draft": true,
+    "autoPublish": false,
+    "destination": {
+      "category": "creative-promotable",
+      "brandId": "3350145",
+      "timezone": "Europe/Madrid",
+      "routing": "default-brand"
     }
   },
   "guardrails": {
@@ -39,21 +50,22 @@
     "quotaScope": "metricool-brand",
     "quotaPolicy": "block-before-scheduling-when-monthly-limit-is-reached",
     "minimumSpacingHours": 4,
-    "duplicateProtection": "caller-supplied-excludeCopy"
+    "duplicateProtection": "required-before-live-execution",
+    "action": "retain-until-scheduling-verified"
   },
   "provenance": {
     "source": "garden-autoselection",
-    "harvestId": "harvest_local_harvest_terra_1786215725146",
-    "seedId": "terra"
+    "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+    "seedId": "420-dice"
   },
   "editorialRoute": {
     "contract": "publisher-editorial-routing-v1",
     "status": "dry-run",
-    "topic": "book",
+    "topic": "game",
     "destination": {
-      "audience": "author-books",
-      "preferredProvider": "buffer",
-      "preferredAccount": "benoitlubert",
+      "audience": "games",
+      "preferredProvider": "metricool",
+      "preferredAccount": "pro.hbtd",
       "fallbackAccount": null,
       "requiresChannelVerification": true
     },
@@ -63,27 +75,9 @@
     "status": "not-attempted",
     "publishingEnabled": false
   },
-  "action": "hold-for-buffer-draft",
   "transport": {
-    "provider": "buffer",
-    "account": "benoitlubert",
+    "provider": "metricool",
+    "account": "pro.hbtd",
     "draftOnly": true
-  },
-  "bufferPreflight": {
-    "contract": "publisher-buffer-book-preflight-v1",
-    "status": "ready-for-controlled-test",
-    "topic": "book",
-    "destination": {
-      "audience": "author-books",
-      "preferredProvider": "buffer",
-      "preferredAccount": "benoitlubert",
-      "fallbackAccount": null,
-      "requiresChannelVerification": true
-    },
-    "channelId": "6ac8c8226a5c39ccb65fdbf6",
-    "keyConfigured": true,
-    "textPresent": true,
-    "reason": null,
-    "publishingEnabled": false
   }
 }
