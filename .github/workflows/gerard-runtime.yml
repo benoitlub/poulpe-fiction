@@ -444,7 +444,23 @@ jobs:
             if [ -s /tmp/gerard-buffer-draft-response.json ]; then
               jq -c '{status,reason,bufferHttpStatus,bufferResultType,graphqlErrorCodes,reservationStatus,draftCreated,publishingEnabled}' /tmp/gerard-buffer-draft-response.json || echo "Publisher response is not valid JSON."
             fi
-            jq --arg http "$HTTP_STATUS" '.action="hold-for-manual-buffer-review" | .delivery={status:"unknown",httpStatus:$http,publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
+            jq --arg http "$HTTP_STATUS" --slurpfile response /tmp/gerard-buffer-draft-response.json '
+              .action="hold-for-manual-buffer-review"
+              | .delivery={status:"unknown",httpStatus:$http,publishingEnabled:false}
+              | .learning.bufferDraft={
+                  outcome:"unconfirmed",
+                  httpStatus:$http,
+                  publisherStatus:($response[0].status // "unknown"),
+                  reason:($response[0].reason // "unknown"),
+                  bufferHttpStatus:($response[0].bufferHttpStatus // null),
+                  graphqlErrorCodes:($response[0].graphqlErrorCodes // []),
+                  reservationStatus:($response[0].reservationStatus // "unknown"),
+                  lesson:"An uncertain external write is not evidence of a draft. Inspect reservation and provider response; never retry automatically.",
+                  nextAction:"diagnose-read-only",
+                  autonomousRetryAllowed:false,
+                  requiresHumanApprovalForNewWrite:true
+                }
+            ' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
           fi
           mv /tmp/gerard-buffer-result.json garden/next-social-publication.json
 
