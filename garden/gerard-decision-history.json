@@ -184,5 +184,53 @@
       "matchedMetrics": 0,
       "note": "No Metricool analytics snapshot available; do not infer performance."
     }
+  },
+  {
+    "explainedAt": "2026-10-09T22:58:07Z",
+    "harvestId": "harvest_local_harvest_gerard-et-gerard_1786215725072",
+    "seedId": "gerard-et-gerard",
+    "subject": "Récolte · Gérard & Gérard — Brèves histoires d'une simulation oubliée",
+    "copyText": "Et si deux extraterrestres essayaient de comprendre pourquoi les humains courent sur des tapis qui ne vont nulle part ?",
+    "editorialScore": 85,
+    "chosenNetwork": [
+      "facebook"
+    ],
+    "destination": {
+      "audience": "author-books",
+      "preferredProvider": "buffer",
+      "preferredAccount": "benoitlubert",
+      "fallbackAccount": null,
+      "requiresChannelVerification": true
+    },
+    "evidence": {
+      "source": "garden-autoselection",
+      "copyStrategy": "first-explicit-angle",
+      "mediaCapability": "text-only-fallback",
+      "mediaFailures": [
+        "Mistral completed the conversation but returned no generated image file_id."
+      ]
+    },
+    "decision": "hold-for-buffer-draft",
+    "reasoning": "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici.",
+    "limits": [
+      "Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.",
+      "Aucune comparaison des statistiques Metricool n’est établie ici.",
+      "Une répétition de texte déjà publié n’est pas automatiquement exclue."
+    ],
+    "previousSelectionsOfSameSeed": 1,
+    "previousSelectionsOfSameCopy": 1,
+    "repeatedSelection": true,
+    "publishedExactCopy": false,
+    "publishedEvidence": [],
+    "historyEvidence": "Decision history and manually verified Metricool snapshot; no audience-performance inference.",
+    "warning": null,
+    "audienceFeedback": {
+      "status": "unavailable",
+      "checkedAt": "2026-10-10",
+      "matchedMetrics": 0,
+      "note": "Metricool analytics query returned rows: []. This is missing analytics, not zero engagement. Do not optimize editorial choices from this sample."
+    },
+    "nextAction": "Keep editorial ranking; retry analytics collection later.",
+    "performanceRankingEnabled": false
   }
 ]
