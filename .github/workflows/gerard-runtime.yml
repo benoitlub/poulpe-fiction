@@ -317,7 +317,7 @@ jobs:
           STATUS="$(curl --silent --show-error --output /tmp/buffer-schema-check.json --write-out '%{http_code}' --max-time 20 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/schema-check" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
           echo "Buffer schema inspection HTTP $STATUS"
           if [ -f /tmp/buffer-schema-check.json ]; then
-            jq -c '{status,bufferHttpStatus,createPostAvailable,createPostReturnType,inputTypeFound,createPostInputFields,createPostFieldTypes,assetInputFound,assetTypeName,assetsTypePath,assetInputFields,graphqlErrorCodes,reason}' /tmp/buffer-schema-check.json
+            jq -c '{status,bufferHttpStatus,createPostAvailable,createPostReturnType,inputTypeFound,createPostInputFields,createPostFieldTypes,assetInputFound,assetTypeName,assetsTypePath,assetInputFields,imageInputFields,postActionVariants,postActionFields,graphqlErrorCodes,reason}' /tmp/buffer-schema-check.json
           fi
 
       - name: Inspect Buffer draft reservation (read-only)
