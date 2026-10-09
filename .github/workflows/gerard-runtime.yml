@@ -407,6 +407,10 @@ jobs:
           echo "Buffer reconciliation HTTP $STATUS"
           if [ "$STATUS" = "200" ]; then
             jq -c '{status,harvestId,reservations,retryAllowed,requiresManualConfirmation,publishingEnabled}' /tmp/gerard-buffer-reconcile.json
+            if [ "${{ inputs.retry_terra_draft }}" = "true" ] && [ "$HARVEST_ID" = "harvest_local_harvest_terra_1786215725146" ] && jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and (.reservations[0].status == "retry-authorized") and (.reservations[0].post_id == null)' /tmp/gerard-buffer-reconcile.json >/dev/null; then
+              rm -f /tmp/gerard-buffer-write-blocked
+              echo "One authorized TERRA draft attempt unlocked; no automatic publication."
+            fi
           else
             echo "Reconciliation unavailable; Buffer write remains blocked."
           fi
