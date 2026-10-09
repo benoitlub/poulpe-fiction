@@ -351,19 +351,24 @@ jobs:
           else
             echo '[]' > /tmp/gerard-decision-history-before.json
           fi
-          jq --slurpfile history /tmp/gerard-decision-history-before.json '
-            . + {
-              previousSelectionsOfSameSeed: ([$history[0][] | select(.seedId == .seedId)] | length),
-              historyEvidence: "Local editorial decisions only; social performance not yet correlated."
-            }
-          ' garden/gerard-decision-explanation.json > /tmp/gerard-explanation-compare.json
-          # Explicit variables avoid accidental self-comparison in jq.
-          jq --slurpfile history /tmp/gerard-decision-history-before.json '
+          # Compare prior decisions and the verified Metricool publication snapshot.
+          # A published exact-copy match is evidence of duplication, not a reason
+          # to invent audience feedback or block unrelated content.
+          if [ -f garden/metricool-published-snapshot.json ]; then
+            cp garden/metricool-published-snapshot.json /tmp/gerard-metricool-snapshot.json
+          else
+            echo '{"published":[]}' > /tmp/gerard-metricool-snapshot.json
+          fi
+          jq --slurpfile history /tmp/gerard-decision-history-before.json --slurpfile published /tmp/gerard-metricool-snapshot.json '
             . as $current
             | .previousSelectionsOfSameSeed = ([$history[0][] | select(.seedId == $current.seedId)] | length)
             | .previousSelectionsOfSameCopy = ([$history[0][] | select(.copyText == $current.copyText and .copyText != null)] | length)
             | .repeatedSelection = (.previousSelectionsOfSameSeed > 0)
-          ' /tmp/gerard-explanation-compare.json > /tmp/gerard-explanation-final.json
+            | .publishedExactCopy = ([$published[0].published[] | select(.text == $current.copyText and .text != null)] | length > 0)
+            | .publishedEvidence = ([$published[0].published[] | select(.text == $current.copyText and .text != null) | {id,publicationDate,networks}])
+            | .historyEvidence = "Decision history and manually verified Metricool snapshot; no audience-performance inference."
+            | .warning = (if .publishedExactCopy then "Exact text already published in verified Metricool history; choose a fresh angle before publishing." else null end)
+          ' garden/gerard-decision-explanation.json > /tmp/gerard-explanation-final.json
           mv /tmp/gerard-explanation-final.json garden/gerard-decision-explanation.json
           jq --slurpfile current garden/gerard-decision-explanation.json '
             ((if type == "array" then . else [] end) + [$current[0]])[-100:]
