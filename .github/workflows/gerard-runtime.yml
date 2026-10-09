@@ -276,12 +276,12 @@ jobs:
               mv /tmp/gerard-routed.json garden/next-social-publication.json
             else
               echo "Editorial route unavailable; hold package for review."
-              jq '. + {editorialRoute:{status:"unavailable"}, delivery:{status:"not-attempted",publishingEnabled:false}, action:"do-not-schedule"}' garden/next-social-publication.json > /tmp/gerard-routed.json
+              jq 'del(.metricool) | . + {editorialRoute:{status:"unavailable"}, delivery:{status:"not-attempted",publishingEnabled:false}, action:"do-not-schedule"}' garden/next-social-publication.json > /tmp/gerard-routed.json
               mv /tmp/gerard-routed.json garden/next-social-publication.json
             fi
             # Buffer readiness check uses Gerard's own copy; no external draft or publication.
-            if [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json garden/buffer-draft-ledger.json)" = "buffer" ]; then
-              PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json garden/buffer-draft-ledger.json)"
+            if [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json)" = "buffer" ]; then
+              PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json)"
               PREFLIGHT_HTTP="$(curl --silent --show-error --output /tmp/gerard-buffer-preflight.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-preflight" -H 'Content-Type: application/json' --data "$PREFLIGHT_BODY")"
               if [ "$PREFLIGHT_HTTP" = "200" ] && jq -e '.status == "ready-for-controlled-test"' /tmp/gerard-buffer-preflight.json >/dev/null 2>&1; then
                 jq --slurpfile check /tmp/gerard-buffer-preflight.json '. + {bufferPreflight:$check[0],action:"hold-for-buffer-draft"}' garden/next-social-publication.json > /tmp/gerard-preflight.json
@@ -302,12 +302,12 @@ jobs:
             jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "$SELECTED_HARVEST_ID" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
           fi
 
-      - name: Create autonomous Buffer book draft (never publish)
+      - name: Hold Buffer draft until authenticated Publisher transport is ready
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
-        env:
-          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
-        run: node scripts/gerard-buffer-draft.mjs
+        run: |
+          echo "Buffer credential stays in Cloudflare Publisher; no GitHub secret required."
+          echo "No draft mutation until a protected Publisher endpoint and idempotency store are deployed."
 
       - name: Validate real harvest result
         if: ${{ github.event_name == 'workflow_dispatch' }}
