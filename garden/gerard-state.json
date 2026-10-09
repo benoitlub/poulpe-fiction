@@ -1,12 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-10-05T00:03:40.082Z",
-      "mode": "cultivate",
-      "operationId": "gerard-cultivate-1791158616473",
-      "result": "ok"
-    },
-    {
       "at": "2026-10-05T05:50:32.316Z",
       "mode": "cultivate",
       "operationId": "gerard-cultivate-1791179428971",
@@ -129,15 +123,22 @@
       "reason": "creative-exploration",
       "operationId": "gerard-dream-1791542520155",
       "result": "ok"
+    },
+    {
+      "at": "2026-10-09T11:44:16.170Z",
+      "mode": "play",
+      "reason": "explore-dream",
+      "operationId": "gerard-play-1791546253025",
+      "result": "ok"
     }
   ],
-  "lastMode": "dream",
-  "lastRunAt": "2026-10-09T10:42:05.380Z",
+  "lastMode": "play",
+  "lastRunAt": "2026-10-09T11:44:16.170Z",
   "lastResult": {
     "status": "ok",
     "httpStatus": 200,
     "payload": {
-      "operationId": "gerard-dream-1791542520155",
+      "operationId": "gerard-play-1791546253025",
       "status": "completed",
       "summary": "Knowledge Package poulpe-fiction préparé par Publisher.",
       "output": {
@@ -156,19 +157,19 @@
           "digestedItems": 4
         }
       },
-      "missionId": "gerard-dream-1791542520155",
+      "missionId": "gerard-play-1791546253025",
       "contextId": "poulpe-fiction",
       "adapterId": "publisher",
       "lifecycle": {
-        "missionId": "gerard-dream-1791542520155",
+        "missionId": "gerard-play-1791546253025",
         "state": "completed",
-        "createdAt": "2026-10-09T10:42:00.192Z",
-        "updatedAt": "2026-10-09T10:42:05.369Z",
+        "createdAt": "2026-10-09T11:44:13.061Z",
+        "updatedAt": "2026-10-09T11:44:16.158Z",
         "transitions": [
           {
             "from": null,
             "to": "received",
-            "at": "2026-10-09T10:42:00.192Z",
+            "at": "2026-10-09T11:44:13.061Z",
             "metadata": {
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
@@ -179,11 +180,11 @@
           {
             "from": "received",
             "to": "recorded",
-            "at": "2026-10-09T10:42:00.192Z",
+            "at": "2026-10-09T11:44:13.061Z",
             "reason": "Mission recorded.",
             "metadata": {
-              "operationId": "gerard-dream-1791542520155",
-              "missionId": "gerard-dream-1791542520155",
+              "operationId": "gerard-play-1791546253025",
+              "missionId": "gerard-play-1791546253025",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -193,11 +194,11 @@
           {
             "from": "recorded",
             "to": "planned",
-            "at": "2026-10-09T10:42:00.192Z",
+            "at": "2026-10-09T11:44:13.061Z",
             "reason": "Capabilities resolved.",
             "metadata": {
-              "operationId": "gerard-dream-1791542520155",
-              "missionId": "gerard-dream-1791542520155",
+              "operationId": "gerard-play-1791546253025",
+              "missionId": "gerard-play-1791546253025",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -207,11 +208,11 @@
           {
             "from": "planned",
             "to": "waiting-executor",
-            "at": "2026-10-09T10:42:00.192Z",
+            "at": "2026-10-09T11:44:13.061Z",
             "reason": "Compatible adapter selected.",
             "metadata": {
-              "operationId": "gerard-dream-1791542520155",
-              "missionId": "gerard-dream-1791542520155",
+              "operationId": "gerard-play-1791546253025",
+              "missionId": "gerard-play-1791546253025",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -222,11 +223,11 @@
           {
             "from": "waiting-executor",
             "to": "executing",
-            "at": "2026-10-09T10:42:00.192Z",
+            "at": "2026-10-09T11:44:13.061Z",
             "reason": "External adapter execution started.",
             "metadata": {
-              "operationId": "gerard-dream-1791542520155",
-              "missionId": "gerard-dream-1791542520155",
+              "operationId": "gerard-play-1791546253025",
+              "missionId": "gerard-play-1791546253025",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -237,11 +238,11 @@
           {
             "from": "executing",
             "to": "completed",
-            "at": "2026-10-09T10:42:05.369Z",
+            "at": "2026-10-09T11:44:16.158Z",
             "reason": "Knowledge Package poulpe-fiction préparé par Publisher.",
             "metadata": {
-              "operationId": "gerard-dream-1791542520155",
-              "missionId": "gerard-dream-1791542520155",
+              "operationId": "gerard-play-1791546253025",
+              "missionId": "gerard-play-1791546253025",
               "contextId": "poulpe-fiction",
               "requiredCapabilities": [
                 "knowledge.search"
@@ -270,9 +271,9 @@
     }
   },
   "lastDecision": {
-    "at": "2026-10-09T10:42:00.150Z",
-    "mode": "dream",
-    "reason": "creative-exploration"
+    "at": "2026-10-09T11:44:13.021Z",
+    "mode": "play",
+    "reason": "explore-dream"
   },
   "lastSeedId": "yael-prospection",
   "lastSymbiosis": {
@@ -334,6 +335,18 @@
       "operationId": "gerard-dream-1791542520155",
       "mode": "dream",
       "intention": "Explorer librement des associations d'idées à partir du jardin actuel, sans produire de livrable final.",
+      "outcome": "ok",
+      "decision": null,
+      "seedId": null,
+      "parcelId": null,
+      "error": null,
+      "feedback": "observe-downstream-results"
+    },
+    {
+      "at": "2026-10-09T11:44:16.169Z",
+      "operationId": "gerard-play-1791546253025",
+      "mode": "play",
+      "intention": "Tester une idée exploratoire à faible enjeu, sans engager de ressource coûteuse.",
       "outcome": "ok",
       "decision": null,
       "seedId": null,
