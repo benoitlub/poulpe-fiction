@@ -27,30 +27,30 @@ function decideMode(state = {}, inventory = {}) {
   if (forced && ["dream", "cultivate", "play", "symbiosis", "rest"].includes(forced)) {
     return { mode: forced, reason: "manual-override" };
   }
-  const history = (Array.isArray(state.history) ? state.history : []).slice(-8);
-  const recent = history.slice(-4);
-  const creative = ["dream", "play"];
-  const productive = ["cultivate", "symbiosis"];
-  const creativeStreak = [...history].reverse().findIndex(x => !creative.includes(x.mode));
-  const consecutiveCreative = creativeStreak === -1 ? history.length : creativeStreak;
-  const productiveCount = recent.filter(x => productive.includes(x.mode)).length;
+  const history = Array.isArray(state.history) ? state.history : [];
+  const recent = history.slice(-8);
   const lastMode = history.at(-1)?.mode;
   const backlog = inventory.activeHarvests ?? 0;
-  const duplicateCount = state.lastSymbiosis?.duplicateCount ?? 0;
-  const sinceSymbiosis = [...history].reverse().findIndex(x => x.mode === "symbiosis");
-  const overdueSymbiosis = sinceSymbiosis < 0 || sinceSymbiosis >= 4;
-  const sinceCultivate = [...history].reverse().findIndex(x => x.mode === "cultivate");
-  const overdueCultivate = sinceCultivate < 0 || sinceCultivate >= 4;
+  const seedCount = inventory.seedCount ?? 0;
+  const lastCultivate = [...recent].reverse().findIndex(x => x.mode === "cultivate");
+  const lastSymbiosis = [...recent].reverse().findIndex(x => x.mode === "symbiosis");
 
-  if (consecutiveCreative >= 2 || productiveCount < 2) {
-    const mode = (backlog > 0 && (overdueSymbiosis || duplicateCount > 0)) ? "symbiosis" : "cultivate";
-    return { mode, reason: "production-priority", productiveCount, consecutiveCreative, backlog };
+  // Delivery-first: never spend repeated scheduled cycles dreaming or playing
+  // while there are harvests to review or seeds awaiting cultivation.
+  // Publisher/Metricool scheduling is handled by existing downstream steps;
+  // this selector must never invent or trigger a new publication.
+  if (backlog > 0 && (lastSymbiosis < 0 || lastSymbiosis >= 2 || lastMode === "cultivate")) {
+    return { mode: "symbiosis", reason: "delivery-backlog-priority", backlog };
   }
-  if (backlog > 0 && overdueSymbiosis) return { mode: "symbiosis", reason: "review-backlog", backlog };
-  if (overdueCultivate && inventory.seedCount > 0) return { mode: "cultivate", reason: "maintain-production" };
-  if (lastMode === "dream") return { mode: "play", reason: "explore-dream" };
-  if (lastMode === "play") return { mode: backlog > 0 ? "symbiosis" : "cultivate", reason: "turn-play-into-work" };
-  return { mode: history.filter(x => x.mode === "dream").length <= history.filter(x => x.mode === "play").length ? "dream" : "play", reason: "creative-exploration" };
+  if (seedCount > 0) {
+    return { mode: "cultivate", reason: "deliverable-production-priority", backlog, seedCount };
+  }
+  if (backlog > 0) return { mode: "symbiosis", reason: "delivery-review", backlog };
+  // No useful work in inventory: exploration is allowed but not assumed to
+  // be learning unless its output is independently assessed.
+  const creative = recent.filter(x => x.mode === "dream" || x.mode === "play").length;
+  if (creative >= 1) return { mode: "rest", reason: "no-work-avoid-unmeasured-creative-loops" };
+  return { mode: "dream", reason: "idle-single-exploration" };
 }
 
 async function loadInventory() {
