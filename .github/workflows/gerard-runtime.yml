@@ -345,6 +345,9 @@ jobs:
           fi
           STATUS="$(curl --silent --show-error --request POST --output /tmp/gerard-terra-release.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/release-terra" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
           echo "TERRA retry release HTTP $STATUS"
+          if [ -f /tmp/gerard-terra-release.json ]; then
+            jq -c '{status,harvestId,changed,reason,publishingEnabled}' /tmp/gerard-terra-release.json || true
+          fi
           if [ "$STATUS" != "200" ] || ! jq -e '.status == "retry-authorized" and .changed == 1' /tmp/gerard-terra-release.json >/dev/null; then
             echo "TERRA retry release failed or already used; refusing write."
             exit 1
