@@ -348,7 +348,7 @@ jobs:
           if [ -f /tmp/gerard-terra-release.json ]; then
             jq -c '{status,harvestId,changed,reason,publishingEnabled}' /tmp/gerard-terra-release.json || true
           fi
-          if [ "$STATUS" != "200" ] || ! jq -e '.status == "retry-authorized" and .changed == 1' /tmp/gerard-terra-release.json >/dev/null; then
+          if [ "$STATUS" != "200" ] || ! jq -e '(.status == "retry-authorized" and .changed == 1) or (.status == "no-change" and .changed == 0 and (.reservations | length == 1) and .reservations[0].status == "retry-authorized" and .reservations[0].post_id == null)' /tmp/gerard-terra-release.json >/dev/null; then
             echo "TERRA retry release failed or already used; refusing write."
             exit 1
           fi
