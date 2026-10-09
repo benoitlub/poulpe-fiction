@@ -1,0 +1,42 @@
+{
+  "source": "metricool-connected-account",
+  "brandId": "3350145",
+  "period": "2026-10",
+  "note": "Manual verified snapshot; refresh required for later publications.",
+  "published": [
+    {
+      "id": 388552621,
+      "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "publicationDate": {
+        "dateTime": "2026-10-06T10:35:00",
+        "timezone": "Europe/Madrid"
+      },
+      "networks": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    {
+      "id": 388558941,
+      "text": "Test de transmission. Si vous voyez ceci, Gérard a trouvé la sortie. 🐙",
+      "publicationDate": {
+        "dateTime": "2026-10-05T15:45:00",
+        "timezone": "Europe/Madrid"
+      },
+      "networks": [
+        "facebook"
+      ]
+    },
+    {
+      "id": 391259167,
+      "text": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
+      "publicationDate": {
+        "dateTime": "2026-10-09T10:00:00",
+        "timezone": "Europe/Madrid"
+      },
+      "networks": [
+        "facebook"
+      ]
+    }
+  ]
+}
