@@ -1,0 +1,32 @@
+{
+  "explainedAt": "2026-10-09T22:43:18Z",
+  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+  "seedId": "420-dice",
+  "subject": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
+  "editorialScore": 85,
+  "chosenNetwork": [
+    "facebook"
+  ],
+  "destination": {
+    "audience": "games",
+    "preferredProvider": "metricool",
+    "preferredAccount": "pro.hbtd",
+    "fallbackAccount": null,
+    "requiresChannelVerification": true
+  },
+  "evidence": {
+    "source": "garden-autoselection",
+    "copyStrategy": "first-explicit-angle",
+    "mediaCapability": "text-only-fallback",
+    "mediaFailures": [
+      "Mistral completed the conversation but returned no generated image file_id."
+    ]
+  },
+  "decision": "not-attempted",
+  "reasoning": "Récolte éligible sélectionnée par le classement du Publisher ; routage jeux vers Metricool. Ce score ne prouve pas une préférence du public.",
+  "limits": [
+    "Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.",
+    "Aucune comparaison des statistiques Metricool n’est établie ici.",
+    "Une répétition de texte déjà publié n’est pas automatiquement exclue."
+  ]
+}
