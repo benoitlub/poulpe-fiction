@@ -217,7 +217,10 @@ jobs:
           if [ -f garden/next-social-publication.json ]; then
             SELECTED_HARVEST_ID="$(jq -r 'if (.status == "ready" or .status == "selected") and (.harvestId | type == "string") then .harvestId else "" end' garden/next-social-publication.json)"
           fi
-          BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next"
+          # Keep the uncertain TERRA/Buffer attempt out of the Metricool selection loop.
+          # Other eligible harvests can progress without touching that reservation.
+          SELECTED_HARVEST_ID=""
+          BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next?excludeHarvestIds=harvest_local_harvest_terra_1786215725146"
           # Retry the same editorial topic after a Publisher fallback becomes available.
           # A blocked package is not pinned by default, except for a text-only
           # retry when the previous failure was missing media.
