@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T15:02:17Z",
+  "updatedAt": "2026-10-10T15:09:37Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -73,10 +73,29 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-10T15:09:37Z",
+      "seedId": "420-dice",
+      "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "repeatCount": 14,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "blocked-by-publisher-guardrails",
+        "publishingEnabled": false,
+        "reason": "Metricool quota unavailable: no active Metricool account.",
+        "stage": "connection"
+      },
+      "metricsStatus": "unavailable",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-10T15:02:17Z",
+    "observedAt": "2026-10-10T15:09:37Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -115,7 +134,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:02:16.799Z"
+            "discoveredAt": "2026-10-10T15:09:36.255Z"
           }
         },
         {
@@ -140,7 +159,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:02:16.799Z"
+            "discoveredAt": "2026-10-10T15:09:36.255Z"
           }
         },
         {
@@ -254,7 +273,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:02:16.799Z"
+            "discoveredAt": "2026-10-10T15:09:36.255Z"
           }
         }
       ],
