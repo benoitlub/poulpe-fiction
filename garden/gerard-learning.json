@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T14:50:36Z",
+  "updatedAt": "2026-10-10T14:53:38Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -14,8 +14,208 @@
       "metricsStatus": "unavailable",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-10T14:53:38Z",
+      "seedId": "420-dice",
+      "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "repeatCount": 9,
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "unavailable",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
+  "publisherAdvice": {
+    "observedAt": "2026-10-10T14:53:38Z",
+    "source": "publisher",
+    "capability": "analytics.read",
+    "response": {
+      "status": "covered",
+      "contract": "publisher-capability-gap-v1",
+      "capability": "analytics.read",
+      "matches": [
+        {
+          "contract": "publisher-tool-pack-v1",
+          "id": "composio:elevenlabs:ELEVENLABS_GET_CONVAI_ANALYTICS_LIVE_COUNT",
+          "role": "tool-pack",
+          "provider": "composio",
+          "toolkit": "elevenlabs",
+          "toolSlug": "ELEVENLABS_GET_CONVAI_ANALYTICS_LIVE_COUNT",
+          "name": "Get conversational AI analytics live count",
+          "description": "Tool to retrieve the live count of active ongoing Conversational AI conversations. Use when monitoring real-time conversation activity or checking current load.",
+          "capabilities": [
+            "analytics.read"
+          ],
+          "executable": true,
+          "connectionRequired": false,
+          "inputSchema": {
+            "type": "object",
+            "title": "GetConvaiAnalyticsLiveCountRequest",
+            "properties": {
+              "agent_id": {
+                "type": "string",
+                "title": "Agent Id",
+                "examples": [
+                  "agent_123abc456def"
+                ],
+                "description": "The id of an agent to restrict the analytics to. If not provided, returns analytics across all agents."
+              }
+            },
+            "description": "Request parameters for fetching live count of ongoing conversations."
+          },
+          "provenance": {
+            "source": "live-composio-inventory",
+            "discoveredAt": "2026-10-10T14:53:37.603Z"
+          }
+        },
+        {
+          "contract": "publisher-tool-pack-v1",
+          "id": "composio:elevenlabs:ELEVENLABS_GET_CONVAI_SETTINGS_DASHBOARD",
+          "role": "tool-pack",
+          "provider": "composio",
+          "toolkit": "elevenlabs",
+          "toolSlug": "ELEVENLABS_GET_CONVAI_SETTINGS_DASHBOARD",
+          "name": "Get Convai Dashboard Settings",
+          "description": "Tool to retrieve Convai dashboard settings for the workspace. Use when you need to inspect configured dashboard charts for monitoring conversational AI performance.",
+          "capabilities": [
+            "analytics.read"
+          ],
+          "executable": true,
+          "connectionRequired": false,
+          "inputSchema": {
+            "type": "object",
+            "title": "GetConvaiSettingsDashboardRequest",
+            "properties": {},
+            "description": "Request parameters for retrieving Convai dashboard settings."
+          },
+          "provenance": {
+            "source": "live-composio-inventory",
+            "discoveredAt": "2026-10-10T14:53:37.603Z"
+          }
+        },
+        {
+          "contract": "publisher-tool-pack-v1",
+          "id": "composio:elevenlabs:ELEVENLABS_UPDATE_CONVAI_SETTINGS_DASHBOARD",
+          "role": "tool-pack",
+          "provider": "composio",
+          "toolkit": "elevenlabs",
+          "toolSlug": "ELEVENLABS_UPDATE_CONVAI_SETTINGS_DASHBOARD",
+          "name": "Update Convai Dashboard Settings",
+          "description": "Tool to update Convai dashboard settings for the workspace. Use when you need to configure dashboard charts for monitoring conversational AI performance.",
+          "capabilities": [
+            "analytics.read"
+          ],
+          "executable": true,
+          "connectionRequired": false,
+          "inputSchema": {
+            "type": "object",
+            "title": "UpdateConvaiSettingsDashboardRequest",
+            "properties": {
+              "charts": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "title": "DashboardCallSuccessChart",
+                      "required": [
+                        "name"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "title": "Name",
+                          "description": "Name of the chart"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "call_success",
+                          "title": "Type",
+                          "default": "call_success",
+                          "description": "Type of the chart (must be 'call_success')"
+                        }
+                      },
+                      "description": "Dashboard chart model for call success metrics."
+                    },
+                    {
+                      "type": "object",
+                      "title": "DashboardCriteriaChart",
+                      "required": [
+                        "name",
+                        "criteria_id"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "title": "Name",
+                          "description": "Name of the chart"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "criteria",
+                          "title": "Type",
+                          "default": "criteria",
+                          "description": "Type of the chart (must be 'criteria')"
+                        },
+                        "criteria_id": {
+                          "type": "string",
+                          "title": "Criteria Id",
+                          "description": "ID of the criteria associated with this chart"
+                        }
+                      },
+                      "description": "Dashboard chart model for criteria-based metrics."
+                    },
+                    {
+                      "type": "object",
+                      "title": "DashboardDataCollectionChart",
+                      "required": [
+                        "name",
+                        "data_collection_id"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "title": "Name",
+                          "description": "Name of the chart"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "data_collection",
+                          "title": "Type",
+                          "default": "data_collection",
+                          "description": "Type of the chart (must be 'data_collection')"
+                        },
+                        "data_collection_id": {
+                          "type": "string",
+                          "title": "Data Collection Id",
+                          "description": "ID of the data collection associated with this chart"
+                        }
+                      },
+                      "description": "Dashboard chart model for data collection metrics."
+                    }
+                  ]
+                },
+                "title": "Charts",
+                "maxItems": 4,
+                "description": "List of dashboard charts (max 4), each representing call success metrics, criteria evaluations, or data collection insights"
+              }
+            },
+            "description": "Request parameters for updating Convai dashboard settings."
+          },
+          "provenance": {
+            "source": "live-composio-inventory",
+            "discoveredAt": "2026-10-10T14:53:37.603Z"
+          }
+        }
+      ],
+      "discoveryRequired": false
+    }
+  },
   "guidance": {
     "seedId": "420-dice",
     "nextExperiment": "Try a different creative angle or image next time; repeats remain allowed.",
