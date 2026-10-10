@@ -536,6 +536,24 @@ jobs:
           mv /tmp/gerard-metricool-package.json garden/next-social-publication.json
           jq -c '.metricoolHandoff' garden/next-social-publication.json
 
+      - name: Inspect TERRA on Buffer (read-only)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Buffer lookup unavailable: token missing."
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --output /tmp/buffer-terra-lookup.json --write-out '%{http_code}' --max-time 35 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/buffer-lookup" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
+          echo "Buffer TERRA lookup HTTP $STATUS"
+          if [ -f /tmp/buffer-terra-lookup.json ]; then
+            jq -c '{status,channel,postsHttpStatus,postsInspected,hasNextPage,terraMatches,errorMessages,reason}' /tmp/buffer-terra-lookup.json
+          fi
+
       - name: Check Buffer GraphQL draft schema (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
