@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T15:00:14Z",
+  "updatedAt": "2026-10-10T15:01:16Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -44,7 +44,7 @@
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     },
     {
-      "observedAt": "2026-10-10T15:00:14Z",
+      "observedAt": "2026-10-10T14:58:43Z",
       "seedId": "420-dice",
       "harvestId": "harvest_local_harvest_420-dice_1786215725387",
       "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
@@ -56,10 +56,24 @@
       "metricsStatus": "unavailable",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-10T15:01:16Z",
+      "seedId": "420-dice",
+      "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "repeatCount": 12,
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "unavailable",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-10T15:00:14Z",
+    "observedAt": "2026-10-10T15:01:16Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -98,7 +112,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:00:12.760Z"
+            "discoveredAt": "2026-10-10T15:01:15.829Z"
           }
         },
         {
@@ -123,7 +137,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:00:12.760Z"
+            "discoveredAt": "2026-10-10T15:01:15.829Z"
           }
         },
         {
@@ -237,7 +251,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:00:12.760Z"
+            "discoveredAt": "2026-10-10T15:01:15.829Z"
           }
         }
       ],

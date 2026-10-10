@@ -1,5 +1,5 @@
 {
-  "explainedAt": "2026-10-10T15:00:10Z",
+  "explainedAt": "2026-10-10T15:01:14Z",
   "harvestId": "harvest_local_harvest_420-dice_1786215725387",
   "seedId": "420-dice",
   "subject": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
@@ -30,8 +30,8 @@
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 11,
-  "previousSelectionsOfSameCopy": 11,
+  "previousSelectionsOfSameSeed": 12,
+  "previousSelectionsOfSameCopy": 12,
   "repeatedSelection": true,
   "publishedExactCopy": true,
   "publishedEvidence": [
@@ -55,7 +55,7 @@
     "matchedMetrics": 0,
     "note": "Metricool connector queried directly on 2026-10-10 for Facebook and Instagram post metrics; response rows: []. No per-post metrics available. Missing data is not zero engagement."
   },
-  "nextAction": "Test a different angle or subject on the next cycle; compare only verified metrics.",
+  "nextAction": "Ask Publisher for a different eligible seed next cycle.",
   "performanceRankingEnabled": false,
   "reasoningModel": {
     "version": "evidence-hypothesis-experiment-v1",
@@ -74,5 +74,37 @@
     },
     "experiment": "Test a different angle or subject on the next cycle; compare only verified metrics.",
     "confidence": "tentative"
+  },
+  "deliberation": {
+    "version": "editorial-experiments-v1",
+    "alternatives": [
+      {
+        "id": "explore",
+        "hypothesis": "Another subject may improve editorial diversity.",
+        "test": "Ask Publisher for a different eligible seed next cycle.",
+        "priority": 3
+      },
+      {
+        "id": "new-angle",
+        "hypothesis": "A new creative angle may perform differently.",
+        "test": "Try new copy or media while retaining the subject.",
+        "priority": 3
+      },
+      {
+        "id": "observe",
+        "hypothesis": "Measured results may distinguish creative approaches.",
+        "test": "Collect verified per-post analytics before claiming an improvement.",
+        "priority": 1
+      }
+    ],
+    "previouslyExploredSeedCount": 2,
+    "evidencePolicy": "No metrics means unknown, not zero performance.",
+    "chosen": {
+      "id": "explore",
+      "hypothesis": "Another subject may improve editorial diversity.",
+      "test": "Ask Publisher for a different eligible seed next cycle.",
+      "priority": 3
+    },
+    "reason": "Repeated seed selections justify an exploration experiment."
   }
 }
