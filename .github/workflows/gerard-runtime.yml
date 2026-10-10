@@ -219,6 +219,10 @@ jobs:
             echo "Gerard prior learning:"
             cat /tmp/gerard-prior-guidance.json
           fi
+          # Prior learning influences the next experiment, without blocking repeats.
+          if [ -f garden/gerard-learning.json ]; then
+            jq -r '.guidance.nextExperiment // "Explore a new angle."' garden/gerard-learning.json > /tmp/gerard-next-experiment.txt
+          fi
           # Editorial repetitions are learning opportunities. Provider-side
           # reservation fingerprints still prevent accidental transport retries.
           EXCLUDED_IDS=""
@@ -426,39 +430,6 @@ jobs:
           ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
           jq '{seedId,reasoning,decision,repeatedSelection,previousSelectionsOfSameSeed,limits}' garden/gerard-decision-explanation.json
 
-      - name: Update Gerard learning from verified outcomes
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p garden
-          test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
-          jq -n --slurpfile previous garden/gerard-learning.json --slurpfile decision garden/gerard-decision-explanation.json --slurpfile package garden/next-social-publication.json --slurpfile analytics garden/metricool-analytics-snapshot.json '
-            ($decision[0] // {}) as $d
-            | ($package[0] // {}) as $p
-            | ($analytics[0] // {}) as $a
-            | ($previous[0].observations // []) as $old
-            | {updatedAt:(now | todateiso8601),
-               observations:(($old + [{
-                 observedAt:(now | todateiso8601),
-                 seedId:($d.seedId // null),
-                 harvestId:($d.harvestId // null),
-                 copyText:($d.copyText // null),
-                 repeatCount:($d.previousSelectionsOfSameCopy // 0),
-                 delivery:($p.delivery // {status:"not-attempted"}),
-                 metricsStatus:($a.status // "unavailable"),
-                 matchedMetrics:(if $a.status == "available" then [$a.posts[]? | select(.text == $d.copyText)] else [] end),
-                 lesson:(if $a.status != "available" then "Analytics unavailable: do not infer failure or success; continue testing."
-                         elif ([$a.posts[]? | select(.text == $d.copyText)] | length) == 0 then "No matching post analytics yet; retry observation later."
-                         elif ($d.previousSelectionsOfSameCopy // 0) > 0 then "Compare this repeated copy against other angles using verified metrics."
-                         else "Compare verified performance before choosing the next angle." end)
-               }])[-150:]),
-               guidance:{seedId:($d.seedId // null),
-                 nextExperiment:(if ($d.previousSelectionsOfSameCopy // 0) > 0 then "Try a different creative angle or image next time; repeats remain allowed." else "Explore a new angle and record delivery." end),
-                 performanceRankingEnabled:($a.status == "available" and ([$a.posts[]? | select(.text == $d.copyText)] | length) > 0)}}
-          ' > /tmp/gerard-learning-next.json
-          mv /tmp/gerard-learning-next.json garden/gerard-learning.json
-
       - name: Check Buffer GraphQL draft schema (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
@@ -618,6 +589,39 @@ jobs:
           fi
           mv /tmp/gerard-buffer-result.json garden/next-social-publication.json
 
+      - name: Update Gerard learning from verified outcomes
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
+          jq -n --slurpfile previous garden/gerard-learning.json --slurpfile decision garden/gerard-decision-explanation.json --slurpfile package garden/next-social-publication.json --slurpfile analytics garden/metricool-analytics-snapshot.json '
+            ($decision[0] // {}) as $d
+            | ($package[0] // {}) as $p
+            | ($analytics[0] // {}) as $a
+            | ($previous[0].observations // []) as $old
+            | {updatedAt:(now | todateiso8601),
+               observations:(($old + [{
+                 observedAt:(now | todateiso8601),
+                 seedId:($d.seedId // null),
+                 harvestId:($d.harvestId // null),
+                 copyText:($d.copyText // null),
+                 repeatCount:($d.previousSelectionsOfSameCopy // 0),
+                 delivery:($p.delivery // {status:"not-attempted"}),
+                 metricsStatus:($a.status // "unavailable"),
+                 matchedMetrics:(if $a.status == "available" then [$a.posts[]? | select(.text == $d.copyText)] else [] end),
+                 lesson:(if $a.status != "available" then "Analytics unavailable: do not infer failure or success; continue testing."
+                         elif ([$a.posts[]? | select(.text == $d.copyText)] | length) == 0 then "No matching post analytics yet; retry observation later."
+                         elif ($d.previousSelectionsOfSameCopy // 0) > 0 then "Compare this repeated copy against other angles using verified metrics."
+                         else "Compare verified performance before choosing the next angle." end)
+               }])[-150:]),
+               guidance:{seedId:($d.seedId // null),
+                 nextExperiment:(if ($d.previousSelectionsOfSameCopy // 0) > 0 then "Try a different creative angle or image next time; repeats remain allowed." else "Explore a new angle and record delivery." end),
+                 performanceRankingEnabled:($a.status == "available" and ([$a.posts[]? | select(.text == $d.copyText)] | length) > 0)}}
+          ' > /tmp/gerard-learning-next.json
+          mv /tmp/gerard-learning-next.json garden/gerard-learning.json
+
       - name: Validate real harvest result
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
@@ -639,11 +643,11 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json; do
+            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
@@ -662,7 +666,7 @@ jobs:
                 fi
               else
                 echo "Generated state conflicts with upstream; resolving snapshot files only."
-                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json; do
+                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json; do
                   if git ls-files -u -- "$file" | grep -q .; then
                     if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
                       git show REBASE_HEAD:"$file" > "$file"
