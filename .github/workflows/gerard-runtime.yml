@@ -555,7 +555,7 @@ jobs:
           fi
 
       - name: Authorize one TERRA draft retry (explicit manual opt-in)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.retry_terra_draft == true }}
+        if: ${{ false }} # Disabled: TERRA retry authorization was already consumed; read-only diagnostics remain available
         working-directory: poulpe-fiction
         env:
           BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
