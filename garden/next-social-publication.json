@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-10T15:23:48Z",
+  "preparedAt": "2026-10-10T15:28:38Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "harvest_local_harvest_terra_1786215725146",
@@ -7,7 +7,7 @@
   "title": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
   "score": 85,
   "copy": {
-    "text": "TERRA — Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH\\n\\nDécouvrez le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+    "text": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
     "strategy": "first-explicit-angle"
   },
   "media": {
@@ -75,9 +75,8 @@
   },
   "editorialQuality": {
     "kind": "book",
-    "bookTitle": "TERRA",
     "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
-    "verifiedDestination": "https://www.amazon.fr/dp/B0H4CN5MSH",
+    "verifiedDestination": null,
     "status": "complete"
   },
   "bufferPreflight": {

@@ -1,9 +1,9 @@
 {
-  "explainedAt": "2026-10-10T15:23:48Z",
+  "explainedAt": "2026-10-10T15:28:39Z",
   "harvestId": "harvest_local_harvest_terra_1786215725146",
   "seedId": "terra",
   "subject": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
-  "copyText": "TERRA — Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH\\n\\nDécouvrez le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+  "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
   "editorialScore": 85,
   "chosenNetwork": [
     "facebook",
@@ -29,8 +29,8 @@
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 1,
-  "previousSelectionsOfSameCopy": 1,
+  "previousSelectionsOfSameSeed": 2,
+  "previousSelectionsOfSameCopy": 0,
   "repeatedSelection": true,
   "publishedExactCopy": false,
   "publishedEvidence": [],
@@ -42,7 +42,7 @@
     "matchedMetrics": 0,
     "note": "Metricool connector queried directly on 2026-10-10 for Facebook and Instagram post metrics; response rows: []. No per-post metrics available. Missing data is not zero engagement."
   },
-  "nextAction": "Try new copy or media while retaining the subject.",
+  "nextAction": "Ask Publisher for a different eligible seed next cycle.",
   "performanceRankingEnabled": false,
   "reasoningModel": {
     "version": "evidence-hypothesis-experiment-v1",
@@ -68,13 +68,13 @@
         "id": "explore",
         "hypothesis": "Another subject may improve editorial diversity.",
         "test": "Ask Publisher for a different eligible seed next cycle.",
-        "priority": 1
+        "priority": 3
       },
       {
         "id": "new-angle",
         "hypothesis": "A new creative angle may perform differently.",
         "test": "Try new copy or media while retaining the subject.",
-        "priority": 3
+        "priority": 2
       },
       {
         "id": "observe",
@@ -86,11 +86,11 @@
     "previouslyExploredSeedCount": 3,
     "evidencePolicy": "No metrics means unknown, not zero performance.",
     "chosen": {
-      "id": "new-angle",
-      "hypothesis": "A new creative angle may perform differently.",
-      "test": "Try new copy or media while retaining the subject.",
+      "id": "explore",
+      "hypothesis": "Another subject may improve editorial diversity.",
+      "test": "Ask Publisher for a different eligible seed next cycle.",
       "priority": 3
     },
-    "reason": "Try a distinct creative treatment and compare outcomes later."
+    "reason": "Repeated seed selections justify an exploration experiment."
   }
 }
