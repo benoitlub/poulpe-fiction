@@ -1,6 +1,6 @@
 {
-  "preparedAt": "2026-10-10T14:44:24Z",
-  "status": "blocked",
+  "preparedAt": "2026-10-10T14:47:09Z",
+  "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "harvest_local_harvest_420-dice_1786215725387",
   "seedId": "420-dice",
@@ -34,6 +34,16 @@
       "reason": "video-required"
     }
   },
+  "metricool": {
+    "draft": true,
+    "autoPublish": false,
+    "destination": {
+      "category": "creative-promotable",
+      "brandId": "3350145",
+      "timezone": "Europe/Madrid",
+      "routing": "default-brand"
+    }
+  },
   "guardrails": {
     "monthlyPublicationLimit": 20,
     "quotaPeriod": "calendar-month",
@@ -48,10 +58,30 @@
     "harvestId": "harvest_local_harvest_420-dice_1786215725387",
     "seedId": "420-dice"
   },
-  "reason": "exact-copy-already-published",
-  "action": "do-not-schedule",
+  "editorialLearning": {
+    "repeatedExactCopy": true,
+    "lesson": "Compare repeated posts against reach and engagement; try another angle next time."
+  },
+  "editorialRoute": {
+    "contract": "publisher-editorial-routing-v1",
+    "status": "dry-run",
+    "topic": "game",
+    "destination": {
+      "audience": "games",
+      "preferredProvider": "metricool",
+      "preferredAccount": "pro.hbtd",
+      "fallbackAccount": null,
+      "requiresChannelVerification": true
+    },
+    "publishingEnabled": false
+  },
   "delivery": {
     "status": "not-attempted",
     "publishingEnabled": false
+  },
+  "transport": {
+    "provider": "metricool",
+    "account": "pro.hbtd",
+    "draftOnly": true
   }
 }
