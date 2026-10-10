@@ -554,6 +554,44 @@ jobs:
              existingBufferError:(.learning.bufferDraft // null)}
           ' garden/next-social-publication.json
 
+      - name: Check TERRA cover HTTP and image dimensions (read-only)
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="$(jq -r 'select(.seedId == "terra") | .media.url // empty' garden/next-social-publication.json)"
+          if [ -z "$URL" ]; then
+            echo "TERRA cover check skipped: no TERRA media URL."
+            exit 0
+          fi
+          STATUS="$(curl --location --silent --show-error --output /tmp/terra-cover-check.jpg --write-out '%{http_code}' --max-time 25 --max-filesize 20000000 "$URL")" || STATUS="000"
+          echo "TERRA cover HTTP $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            file /tmp/terra-cover-check.jpg
+            wc -c < /tmp/terra-cover-check.jpg | awk '{print "TERRA cover bytes: " $1}'
+            python3 - <<'PY'
+          import struct
+          path="/tmp/terra-cover-check.jpg"
+          with open(path,"rb") as f: data=f.read()
+          if data[:2]!=b"\\xff\\xd8":
+              print("TERRA image validation: not JPEG")
+          else:
+              p=2
+              while p+9<len(data):
+                  if data[p]!=255: p+=1;continue
+                  marker=data[p+1];p+=2
+                  if marker in (0xD8,0xD9): continue
+                  if p+2>len(data): break
+                  size=int.from_bytes(data[p:p+2],"big")
+                  if marker in (0xC0,0xC1,0xC2,0xC3) and p+7<len(data):
+                      h=int.from_bytes(data[p+3:p+5],"big");w=int.from_bytes(data[p+5:p+7],"big")
+                      print(f"TERRA image dimensions: {w}x{h}; aspect ratio: {w/h:.3f}; Instagram feed aspect valid: {0.8<=w/h<=1.91}")
+                      break
+                  p+=max(size,2)
+              else: print("TERRA image dimensions: unknown")
+          PY
+          fi
+
       - name: Inspect TERRA on Buffer (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
