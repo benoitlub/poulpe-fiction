@@ -501,6 +501,39 @@ jobs:
           ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
           jq '{seedId,reasoning,decision,repeatedSelection,previousSelectionsOfSameSeed,limits}' garden/gerard-decision-explanation.json
 
+      - name: Reconnect Metricool handoff with publication safeguards
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! jq -e '.status == "ready" and .transport.provider == "metricool" and .delivery.status == "not-attempted"' garden/next-social-publication.json >/dev/null; then
+            echo "Metricool handoff not applicable."
+            exit 0
+          fi
+          # No publicationDate: Metricool owns scheduling. Do not invent a time.
+          # Only use networks supported by the actual media, not all networks blindly.
+          jq -c '{
+            harvestId, mediaHarvestId: .harvestId, seedId,
+            text: .copy.text, media: (if (.media.url // "") != "" then [.media.url] else [] end),
+            networks: (if (.media.url // "") != "" then ["facebook","instagram"] else ["facebook"] end),
+            source:"gerard", decision:"publisher-editorial-routing"
+          }' garden/next-social-publication.json > /tmp/gerard-metricool-handoff-request.json
+          HTTP="$(curl --silent --show-error --output /tmp/gerard-metricool-handoff.json --write-out '%{http_code}' --max-time 25 -X POST "$PUBLISHER_URL/api/social/publication/handoff" -H 'Content-Type: application/json' --data-binary @/tmp/gerard-metricool-handoff-request.json)" || HTTP="000"
+          if [ "$HTTP" = "200" ] && jq -e '.status == "ready-for-metricool-planning" and .scheduled == false' /tmp/gerard-metricool-handoff.json >/dev/null 2>&1; then
+            # Existing Publisher finalizer enforces server-side budget, best time,
+            # existing-post check and idempotency. It currently fails closed.
+            FINAL_HTTP="$(curl --silent --show-error --output /tmp/gerard-metricool-finalize.json --write-out '%{http_code}' --max-time 25 -X POST "$PUBLISHER_URL/api/social/publication/finalize" -H 'Content-Type: application/json' --data-binary @/tmp/gerard-metricool-handoff-request.json)" || FINAL_HTTP="000"
+            jq -n --arg http "$FINAL_HTTP" --slurpfile result /tmp/gerard-metricool-finalize.json '{status:($result[0].status // "unconfirmed"),stage:($result[0].stage // "unknown"),reason:($result[0].reason // $result[0].error // null),httpStatus:$http,scheduled:($result[0].scheduled == true)}' > /tmp/gerard-metricool-result.json
+          else
+            jq -n --arg http "$HTTP" --slurpfile result /tmp/gerard-metricool-handoff.json '{status:"handoff-rejected",stage:"editorial-validation",reason:($result[0].errors // $result[0].error // null),httpStatus:$http,scheduled:false}' > /tmp/gerard-metricool-result.json
+          fi
+          jq --slurpfile result /tmp/gerard-metricool-result.json '
+            .metricoolHandoff=$result[0]
+            | .delivery={status:(if $result[0].scheduled then "confirmed-scheduled" else "blocked-by-publisher-guardrails" end),publishingEnabled:($result[0].scheduled == true),reason:$result[0].reason,stage:$result[0].stage}
+          ' garden/next-social-publication.json > /tmp/gerard-metricool-package.json
+          mv /tmp/gerard-metricool-package.json garden/next-social-publication.json
+          jq -c '.metricoolHandoff' garden/next-social-publication.json
+
       - name: Check Buffer GraphQL draft schema (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
