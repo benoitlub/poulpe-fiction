@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T14:56:28Z",
+  "updatedAt": "2026-10-10T14:58:43Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -42,10 +42,24 @@
       "metricsStatus": "unavailable",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-10T14:58:43Z",
+      "seedId": "420-dice",
+      "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "repeatCount": 11,
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "unavailable",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-10T14:56:28Z",
+    "observedAt": "2026-10-10T14:58:43Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -84,7 +98,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T14:56:28.198Z"
+            "discoveredAt": "2026-10-10T14:58:42.977Z"
           }
         },
         {
@@ -109,7 +123,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T14:56:28.198Z"
+            "discoveredAt": "2026-10-10T14:58:42.977Z"
           }
         },
         {
@@ -223,7 +237,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T14:56:28.198Z"
+            "discoveredAt": "2026-10-10T14:58:42.977Z"
           }
         }
       ],
