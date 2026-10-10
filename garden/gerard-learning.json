@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T21:27:35Z",
+  "updatedAt": "2026-10-10T21:32:48Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -280,10 +280,27 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-10T21:32:48Z",
+      "seedId": "terra",
+      "harvestId": "harvest_local_harvest_terra_1786215725146",
+      "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+      "repeatCount": 9,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "unavailable",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-10T21:27:35Z",
+    "observedAt": "2026-10-10T21:32:48Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
