@@ -209,6 +209,19 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1791593849833-harvest",
+      "harvestedAt": "2026-10-10T00:57:35.646Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "content": "Contenu généré pour l'univers poulpe-fiction par Sofia. Mode mock actif — configurez AI_PROVIDER et AI_API_KEY pour une génération réelle.",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": null,
+      "state": "harvested"
     }
   ]
 }
