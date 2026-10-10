@@ -325,6 +325,30 @@ jobs:
               mv /tmp/gerard-routed.json garden/next-social-publication.json
             fi
             fi # End safe editorial routing for non-duplicate package.
+            # Book editorial quality gate: never deliver a teaser without identity,
+            # official cover and a verified destination. Do not fabricate URLs.
+            if [ "$(jq -r '.editorialRoute.topic // ""' garden/next-social-publication.json)" = "book" ]; then
+              jq '
+                . as $p
+                | (if .seedId == "terra" then "TERRA"
+                   elif .seedId == "gerard-et-gerard" then "Gérard & Gérard"
+                   else null end) as $bookTitle
+                | (if .seedId == "terra" then "https://www.amazon.fr/dp/B0H4CN5MSH"
+                   else null end) as $bookUrl
+                | . + {editorialQuality:{kind:"book",bookTitle:$bookTitle,officialCover:(.media.url // null),verifiedDestination:$bookUrl,
+                    status:(if $bookTitle != null and (.media.official == true) and $bookUrl != null then "complete" else "incomplete" end)}}
+                | if .editorialQuality.status == "complete" then
+                    .copy.text = ($bookTitle + " — " + .copy.text + "\\n\\nDécouvrez le livre : " + $bookUrl)
+                  else
+                    .status = "blocked"
+                    | .reason = "book-editorial-metadata-incomplete"
+                    | .action = "do-not-schedule"
+                    | .delivery = {status:"not-attempted",publishingEnabled:false}
+                    | del(.metricool)
+                  end
+              ' garden/next-social-publication.json > /tmp/gerard-book-quality.json
+              mv /tmp/gerard-book-quality.json garden/next-social-publication.json
+            fi
             # Buffer readiness check uses Gerard's own copy; no external draft or publication.
             if [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json)" = "buffer" ]; then
               PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json)"
