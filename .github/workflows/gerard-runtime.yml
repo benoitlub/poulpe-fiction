@@ -673,7 +673,7 @@ jobs:
           else
             echo "Buffer draft not confirmed (HTTP $HTTP_STATUS). No automatic retry."
             if [ -s /tmp/gerard-buffer-draft-response.json ]; then
-              jq -c '{status,reason,bufferHttpStatus,bufferResultType,graphqlErrorCodes,reservationStatus,draftCreated,publishingEnabled}' /tmp/gerard-buffer-draft-response.json || echo "Publisher response is not valid JSON."
+              jq -c '{status,reason,bufferHttpStatus,bufferResultType,graphqlErrorCodes,bufferValidationMessages,reservationStatus,draftCreated,publishingEnabled}' /tmp/gerard-buffer-draft-response.json || echo "Publisher response is not valid JSON."
             fi
             jq --arg http "$HTTP_STATUS" --slurpfile response /tmp/gerard-buffer-draft-response.json '
               .action="hold-for-manual-buffer-review"
