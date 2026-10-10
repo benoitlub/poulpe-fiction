@@ -226,6 +226,16 @@ jobs:
           # Editorial repetitions are learning opportunities. Provider-side
           # reservation fingerprints still prevent accidental transport retries.
           EXCLUDED_IDS=""
+          # Curiosity: after three consecutive selections of the same seed,
+          # request an alternative from Publisher. This is a temporary preference,
+          # not a permanent ban on editorial repetition.
+          if [ -f garden/gerard-decision-history.json ] && [ -f garden/harvests.json ]; then
+            REPEATED_SEED="$(jq -r 'if length >= 3 and (.[-3].seedId == .[-2].seedId) and (.[-2].seedId == .[-1].seedId) then .[-1].seedId // "" else "" end' garden/gerard-decision-history.json)"
+            if [ -n "$REPEATED_SEED" ]; then
+              EXCLUDED_IDS="$(jq -r --arg seed "$REPEATED_SEED" '[.. | objects | select(.seedId? == $seed) | (.harvestId? // .id? // empty) | select(type == "string")] | unique | join(",")' garden/harvests.json)"
+              echo "Gerard explores alternatives to $REPEATED_SEED"
+            fi
+          fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next?excludeHarvestIds=$(printf '%s' "$EXCLUDED_IDS" | jq -sRr @uri)"
           HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' "$BRIDGE_URL")"
           if [ "$HTTP_STATUS" = "200" ]; then
