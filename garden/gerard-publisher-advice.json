@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-10-10T14:53:38Z",
+  "observedAt": "2026-10-10T14:56:28Z",
   "source": "publisher",
   "capability": "analytics.read",
   "response": {
@@ -38,7 +38,7 @@
         },
         "provenance": {
           "source": "live-composio-inventory",
-          "discoveredAt": "2026-10-10T14:53:37.603Z"
+          "discoveredAt": "2026-10-10T14:56:28.198Z"
         }
       },
       {
@@ -63,7 +63,7 @@
         },
         "provenance": {
           "source": "live-composio-inventory",
-          "discoveredAt": "2026-10-10T14:53:37.603Z"
+          "discoveredAt": "2026-10-10T14:56:28.198Z"
         }
       },
       {
@@ -177,7 +177,7 @@
         },
         "provenance": {
           "source": "live-composio-inventory",
-          "discoveredAt": "2026-10-10T14:53:37.603Z"
+          "discoveredAt": "2026-10-10T14:56:28.198Z"
         }
       }
     ],

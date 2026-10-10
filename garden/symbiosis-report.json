@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-10T14:50:23.880Z",
+  "at": "2026-10-10T14:56:15.617Z",
   "mode": "symbiosis",
   "status": "ok",
   "scope": "local-harvest-inventory-only",
@@ -17,9 +17,9 @@
       "neon_iter_iter_gerard-et-gerard_1786288530352"
     ]
   },
-  "totalHarvests": 18,
+  "totalHarvests": 19,
   "uniqueContent": 2,
-  "duplicateCount": 16,
+  "duplicateCount": 17,
   "duplicateHarvestIds": [
     "gerard-cultivate-1791546414654-harvest",
     "gerard-cultivate-1791548036301-harvest",
@@ -36,7 +36,8 @@
     "gerard-cultivate-1791593849833-harvest",
     "gerard-cultivate-1791631741026-harvest",
     "gerard-cultivate-1791643299054-harvest",
-    "gerard-cultivate-1791643600208-harvest"
+    "gerard-cultivate-1791643600208-harvest",
+    "gerard-cultivate-1791643998868-harvest"
   ],
   "candidateCount": 2,
   "candidateSample": [
