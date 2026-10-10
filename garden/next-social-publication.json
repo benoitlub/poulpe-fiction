@@ -1,47 +1,36 @@
 {
-  "preparedAt": "2026-10-10T15:09:34Z",
+  "preparedAt": "2026-10-10T15:21:24Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
-  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-  "seedId": "420-dice",
-  "title": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
+  "harvestId": "harvest_local_harvest_terra_1786215725146",
+  "seedId": "terra",
+  "title": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
   "score": 85,
   "copy": {
-    "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+    "text": "TERRA — Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH\\n\\nDécouvrez le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
     "strategy": "first-explicit-angle"
   },
-  "media": null,
+  "media": {
+    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
+    "direct": true,
+    "official": true
+  },
   "production": {
-    "capability": "text-only-fallback",
-    "generated": false,
-    "mediaFailures": [
-      "Mistral conversation 429"
-    ]
+    "capability": "official-media",
+    "generated": false
   },
   "compatibleNetworks": [
-    "facebook"
+    "facebook",
+    "instagram"
   ],
   "networkRules": {
-    "facebook": {
-      "mediaOptional": true
-    },
     "instagram": {
-      "compatible": false,
-      "reason": "media-required"
+      "requiresMedia": true,
+      "isAiGenerated": false
     },
     "youtube": {
       "compatible": false,
-      "reason": "video-required"
-    }
-  },
-  "metricool": {
-    "draft": true,
-    "autoPublish": false,
-    "destination": {
-      "category": "creative-promotable",
-      "brandId": "3350145",
-      "timezone": "Europe/Madrid",
-      "routing": "default-brand"
+      "reason": "image-only-media-requires-video"
     }
   },
   "guardrails": {
@@ -50,47 +39,62 @@
     "quotaScope": "metricool-brand",
     "quotaPolicy": "block-before-scheduling-when-monthly-limit-is-reached",
     "minimumSpacingHours": 4,
-    "duplicateProtection": "required-before-live-execution",
-    "action": "retain-until-scheduling-verified"
+    "duplicateProtection": "caller-supplied-excludeCopy"
   },
   "provenance": {
     "source": "garden-autoselection",
-    "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-    "seedId": "420-dice"
+    "harvestId": "harvest_local_harvest_terra_1786215725146",
+    "seedId": "terra"
   },
   "editorialLearning": {
-    "repeatedExactCopy": true,
+    "repeatedExactCopy": false,
     "lesson": "Compare repeated posts against reach and engagement; try another angle next time."
   },
   "editorialRoute": {
     "contract": "publisher-editorial-routing-v1",
     "status": "dry-run",
-    "topic": "game",
+    "topic": "book",
     "destination": {
-      "audience": "games",
-      "preferredProvider": "metricool",
-      "preferredAccount": "pro.hbtd",
+      "audience": "author-books",
+      "preferredProvider": "buffer",
+      "preferredAccount": "benoitlubert",
       "fallbackAccount": null,
       "requiresChannelVerification": true
     },
     "publishingEnabled": false
   },
   "delivery": {
-    "status": "blocked-by-publisher-guardrails",
-    "publishingEnabled": false,
-    "reason": "Metricool quota unavailable: no active Metricool account.",
-    "stage": "connection"
+    "status": "not-attempted",
+    "publishingEnabled": false
   },
+  "action": "hold-for-buffer-draft",
   "transport": {
-    "provider": "metricool",
-    "account": "pro.hbtd",
+    "provider": "buffer",
+    "account": "benoitlubert",
     "draftOnly": true
   },
-  "metricoolHandoff": {
-    "status": "waiting-for-metricool",
-    "stage": "connection",
-    "reason": "Metricool quota unavailable: no active Metricool account.",
-    "httpStatus": "503",
-    "scheduled": false
+  "editorialQuality": {
+    "kind": "book",
+    "bookTitle": "TERRA",
+    "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
+    "verifiedDestination": "https://www.amazon.fr/dp/B0H4CN5MSH",
+    "status": "complete"
+  },
+  "bufferPreflight": {
+    "contract": "publisher-buffer-book-preflight-v1",
+    "status": "ready-for-controlled-test",
+    "topic": "book",
+    "destination": {
+      "audience": "author-books",
+      "preferredProvider": "buffer",
+      "preferredAccount": "benoitlubert",
+      "fallbackAccount": null,
+      "requiresChannelVerification": true
+    },
+    "channelId": "6ac8c8226a5c39ccb65fdbf6",
+    "keyConfigured": true,
+    "textPresent": true,
+    "reason": null,
+    "publishingEnabled": false
   }
 }

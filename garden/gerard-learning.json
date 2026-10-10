@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T15:09:37Z",
+  "updatedAt": "2026-10-10T15:21:26Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -92,10 +92,27 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-10T15:21:26Z",
+      "seedId": "terra",
+      "harvestId": "harvest_local_harvest_terra_1786215725146",
+      "copyText": "TERRA — Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH\\n\\nDécouvrez le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+      "repeatCount": 0,
+      "chosenExperiment": "new-angle",
+      "experimentHypothesis": "A new creative angle may perform differently.",
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "unavailable",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-10T15:09:37Z",
+    "observedAt": "2026-10-10T15:21:26Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -134,7 +151,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:09:36.255Z"
+            "discoveredAt": "2026-10-10T15:21:25.966Z"
           }
         },
         {
@@ -159,7 +176,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:09:36.255Z"
+            "discoveredAt": "2026-10-10T15:21:25.966Z"
           }
         },
         {
@@ -273,7 +290,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:09:36.255Z"
+            "discoveredAt": "2026-10-10T15:21:25.966Z"
           }
         }
       ],
@@ -281,9 +298,9 @@
     }
   },
   "guidance": {
-    "seedId": "420-dice",
-    "chosenExperiment": "explore",
-    "nextExperiment": "Try a different creative angle or image next time; repeats remain allowed.",
+    "seedId": "terra",
+    "chosenExperiment": "new-angle",
+    "nextExperiment": "Explore a new angle and record delivery.",
     "performanceRankingEnabled": false
   }
 }

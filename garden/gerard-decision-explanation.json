@@ -1,70 +1,55 @@
 {
-  "explainedAt": "2026-10-10T15:09:34Z",
-  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-  "seedId": "420-dice",
-  "subject": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
-  "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+  "explainedAt": "2026-10-10T15:21:24Z",
+  "harvestId": "harvest_local_harvest_terra_1786215725146",
+  "seedId": "terra",
+  "subject": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
+  "copyText": "TERRA — Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH\\n\\nDécouvrez le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
   "editorialScore": 85,
   "chosenNetwork": [
-    "facebook"
+    "facebook",
+    "instagram"
   ],
   "destination": {
-    "audience": "games",
-    "preferredProvider": "metricool",
-    "preferredAccount": "pro.hbtd",
+    "audience": "author-books",
+    "preferredProvider": "buffer",
+    "preferredAccount": "benoitlubert",
     "fallbackAccount": null,
     "requiresChannelVerification": true
   },
   "evidence": {
     "source": "garden-autoselection",
     "copyStrategy": "first-explicit-angle",
-    "mediaCapability": "text-only-fallback",
-    "mediaFailures": [
-      "Mistral conversation 429"
-    ]
+    "mediaCapability": "official-media",
+    "mediaFailures": []
   },
-  "decision": "not-attempted",
-  "reasoning": "Récolte éligible sélectionnée par le classement du Publisher ; routage jeux vers Metricool. Ce score ne prouve pas une préférence du public.",
+  "decision": "hold-for-buffer-draft",
+  "reasoning": "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici.",
   "limits": [
     "Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.",
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 14,
-  "previousSelectionsOfSameCopy": 14,
-  "repeatedSelection": true,
-  "publishedExactCopy": true,
-  "publishedEvidence": [
-    {
-      "id": 388552621,
-      "publicationDate": {
-        "dateTime": "2026-10-06T10:35:00",
-        "timezone": "Europe/Madrid"
-      },
-      "networks": [
-        "facebook",
-        "instagram"
-      ]
-    }
-  ],
+  "previousSelectionsOfSameSeed": 0,
+  "previousSelectionsOfSameCopy": 0,
+  "repeatedSelection": false,
+  "publishedExactCopy": false,
+  "publishedEvidence": [],
   "historyEvidence": "Decision history and manually verified Metricool snapshot; no audience-performance inference.",
-  "warning": "Exact text already published in verified Metricool history; choose a fresh angle before publishing.",
+  "warning": null,
   "audienceFeedback": {
     "status": "unavailable",
     "checkedAt": "2026-10-10",
     "matchedMetrics": 0,
     "note": "Metricool connector queried directly on 2026-10-10 for Facebook and Instagram post metrics; response rows: []. No per-post metrics available. Missing data is not zero engagement."
   },
-  "nextAction": "Ask Publisher for a different eligible seed next cycle.",
+  "nextAction": "Try new copy or media while retaining the subject.",
   "performanceRankingEnabled": false,
   "reasoningModel": {
     "version": "evidence-hypothesis-experiment-v1",
     "known": [
-      "Publisher selected seed: 420-dice",
-      "The same copy appears in verified publication history.",
-      "This seed was previously selected."
+      "Publisher selected seed: terra"
     ],
-    "hypothesis": "A different subject or angle may broaden editorial coverage.",
+    "hypothesis": "This subject is worth an initial experiment.",
     "unknown": [
       "Audience response is not yet measured for this copy."
     ],
@@ -72,7 +57,7 @@
       "status": "covered",
       "capability": "analytics.read"
     },
-    "experiment": "Test a different angle or subject on the next cycle; compare only verified metrics.",
+    "experiment": "Publish when transport permits, then collect real outcome evidence.",
     "confidence": "tentative"
   },
   "deliberation": {
@@ -82,13 +67,13 @@
         "id": "explore",
         "hypothesis": "Another subject may improve editorial diversity.",
         "test": "Ask Publisher for a different eligible seed next cycle.",
-        "priority": 3
+        "priority": 1
       },
       {
         "id": "new-angle",
         "hypothesis": "A new creative angle may perform differently.",
         "test": "Try new copy or media while retaining the subject.",
-        "priority": 3
+        "priority": 2
       },
       {
         "id": "observe",
@@ -100,11 +85,11 @@
     "previouslyExploredSeedCount": 2,
     "evidencePolicy": "No metrics means unknown, not zero performance.",
     "chosen": {
-      "id": "explore",
-      "hypothesis": "Another subject may improve editorial diversity.",
-      "test": "Ask Publisher for a different eligible seed next cycle.",
-      "priority": 3
+      "id": "new-angle",
+      "hypothesis": "A new creative angle may perform differently.",
+      "test": "Try new copy or media while retaining the subject.",
+      "priority": 2
     },
-    "reason": "Repeated seed selections justify an exploration experiment."
+    "reason": "Try a distinct creative treatment and compare outcomes later."
   }
 }
