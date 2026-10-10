@@ -536,6 +536,24 @@ jobs:
           mv /tmp/gerard-metricool-package.json garden/next-social-publication.json
           jq -c '.metricoolHandoff' garden/next-social-publication.json
 
+      - name: Validate Buffer book payload (read-only)
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -c '
+            {harvestId,seedId,title,
+             provider:(.transport.provider // null),
+             action,
+             textLength:(.copy.text // "" | length),
+             textPresent:(.copy.text // "" | length > 0),
+             mediaUrl:(.media.url // null),
+             mediaHttps:(.media.url // "" | startswith("https://")),
+             preflight:(.bufferPreflight.status // null),
+             delivery:(.delivery.status // null),
+             existingBufferError:(.learning.bufferDraft // null)}
+          ' garden/next-social-publication.json
+
       - name: Inspect TERRA on Buffer (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
