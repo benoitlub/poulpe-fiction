@@ -461,6 +461,28 @@ jobs:
             | .nextAction = .reasoningModel.experiment
           ' garden/gerard-decision-explanation.json > /tmp/gerard-reasoning.json
           mv /tmp/gerard-reasoning.json garden/gerard-decision-explanation.json
+          # Deliberation: generate alternatives, select a testable experiment,
+          # and retain the rationale. Publisher remains an adviser, not a judge.
+          jq --slurpfile history /tmp/gerard-decision-history-before.json '
+            . as $d
+            | ([ $history[0][]? | .seedId // empty ] | unique) as $explored
+            | .deliberation = {
+                version:"editorial-experiments-v1",
+                alternatives:[
+                  {id:"explore",hypothesis:"Another subject may improve editorial diversity.",test:"Ask Publisher for a different eligible seed next cycle.",priority:(if $d.previousSelectionsOfSameSeed >= 2 then 3 else 1 end)},
+                  {id:"new-angle",hypothesis:"A new creative angle may perform differently.",test:"Try new copy or media while retaining the subject.",priority:(if $d.previousSelectionsOfSameCopy > 0 then 3 else 2 end)},
+                  {id:"observe",hypothesis:"Measured results may distinguish creative approaches.",test:"Collect verified per-post analytics before claiming an improvement.",priority:(if ($d.audienceFeedback.matchedMetrics // 0) > 0 then 3 else 1 end)}
+                ],
+                previouslyExploredSeedCount:($explored | length),
+                evidencePolicy:"No metrics means unknown, not zero performance."
+              }
+            | .deliberation.chosen = (.deliberation.alternatives | sort_by(-.priority, .id) | .[0])
+            | .deliberation.reason = (if .deliberation.chosen.id == "explore" then "Repeated seed selections justify an exploration experiment."
+               elif .deliberation.chosen.id == "new-angle" then "Try a distinct creative treatment and compare outcomes later."
+               else "Verified analytics exist; assess them before drawing conclusions." end)
+            | .nextAction = .deliberation.chosen.test
+          ' garden/gerard-decision-explanation.json > /tmp/gerard-deliberation.json
+          mv /tmp/gerard-deliberation.json garden/gerard-decision-explanation.json
           jq --slurpfile current garden/gerard-decision-explanation.json '
             ((if type == "array" then . else [] end) + [$current[0]])[-100:]
           ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
