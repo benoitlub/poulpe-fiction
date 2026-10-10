@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-10T19:49:01Z",
+  "preparedAt": "2026-10-10T19:52:26Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "harvest_local_harvest_terra_1786215725146",
@@ -64,11 +64,10 @@
     "publishingEnabled": false
   },
   "delivery": {
-    "status": "unknown",
-    "httpStatus": "502",
+    "status": "not-attempted",
     "publishingEnabled": false
   },
-  "action": "hold-for-manual-buffer-review",
+  "action": "hold-for-buffer-draft",
   "transport": {
     "provider": "buffer",
     "account": "benoitlubert",
@@ -96,20 +95,5 @@
     "textPresent": true,
     "reason": null,
     "publishingEnabled": false
-  },
-  "learning": {
-    "bufferDraft": {
-      "outcome": "unconfirmed",
-      "httpStatus": "502",
-      "publisherStatus": "unknown",
-      "reason": "buffer-unconfirmed-result",
-      "bufferHttpStatus": 200,
-      "graphqlErrorCodes": [],
-      "reservationStatus": "pending",
-      "lesson": "An uncertain external write is not evidence of a draft. Inspect reservation and provider response; never retry automatically.",
-      "nextAction": "diagnose-read-only",
-      "autonomousRetryAllowed": false,
-      "requiresHumanApprovalForNewWrite": true
-    }
   }
 }
