@@ -312,6 +312,23 @@
       "route": "octopus->publisher-adapter",
       "delivery": null,
       "state": "harvested"
+    },
+    {
+      "harvestId": "gerard-cultivate-1791645807719-harvest",
+      "harvestedAt": "2026-10-10T15:23:47.734Z",
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection",
+      "title": "Yaébali · Préqualification de prospects",
+      "content": "Contenu généré pour l'univers yael-prequalification-de-prospects par Sofia. Mode mock actif — configurez AI_PROVIDER et AI_API_KEY pour une génération réelle.",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "recipient": "Yaébali",
+        "mode": "propose-before-send",
+        "harvestState": "ready-to-offer"
+      },
+      "state": "ready-to-offer"
     }
   ]
 }

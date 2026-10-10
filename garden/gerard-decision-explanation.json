@@ -1,5 +1,5 @@
 {
-  "explainedAt": "2026-10-10T15:21:24Z",
+  "explainedAt": "2026-10-10T15:23:48Z",
   "harvestId": "harvest_local_harvest_terra_1786215725146",
   "seedId": "terra",
   "subject": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
@@ -29,9 +29,9 @@
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 0,
-  "previousSelectionsOfSameCopy": 0,
-  "repeatedSelection": false,
+  "previousSelectionsOfSameSeed": 1,
+  "previousSelectionsOfSameCopy": 1,
+  "repeatedSelection": true,
   "publishedExactCopy": false,
   "publishedEvidence": [],
   "historyEvidence": "Decision history and manually verified Metricool snapshot; no audience-performance inference.",
@@ -47,9 +47,10 @@
   "reasoningModel": {
     "version": "evidence-hypothesis-experiment-v1",
     "known": [
-      "Publisher selected seed: terra"
+      "Publisher selected seed: terra",
+      "This seed was previously selected."
     ],
-    "hypothesis": "This subject is worth an initial experiment.",
+    "hypothesis": "A different subject or angle may broaden editorial coverage.",
     "unknown": [
       "Audience response is not yet measured for this copy."
     ],
@@ -57,7 +58,7 @@
       "status": "covered",
       "capability": "analytics.read"
     },
-    "experiment": "Publish when transport permits, then collect real outcome evidence.",
+    "experiment": "Test a different angle or subject on the next cycle; compare only verified metrics.",
     "confidence": "tentative"
   },
   "deliberation": {
@@ -73,7 +74,7 @@
         "id": "new-angle",
         "hypothesis": "A new creative angle may perform differently.",
         "test": "Try new copy or media while retaining the subject.",
-        "priority": 2
+        "priority": 3
       },
       {
         "id": "observe",
@@ -82,13 +83,13 @@
         "priority": 1
       }
     ],
-    "previouslyExploredSeedCount": 2,
+    "previouslyExploredSeedCount": 3,
     "evidencePolicy": "No metrics means unknown, not zero performance.",
     "chosen": {
       "id": "new-angle",
       "hypothesis": "A new creative angle may perform differently.",
       "test": "Try new copy or media while retaining the subject.",
-      "priority": 2
+      "priority": 3
     },
     "reason": "Try a distinct creative treatment and compare outcomes later."
   }

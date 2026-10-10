@@ -1315,5 +1315,101 @@
       },
       "reason": "Try a distinct creative treatment and compare outcomes later."
     }
+  },
+  {
+    "explainedAt": "2026-10-10T15:23:48Z",
+    "harvestId": "harvest_local_harvest_terra_1786215725146",
+    "seedId": "terra",
+    "subject": "Récolte · TERRA — Un récit d'observation, une fable cosmique",
+    "copyText": "TERRA — Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH\\n\\nDécouvrez le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+    "editorialScore": 85,
+    "chosenNetwork": [
+      "facebook",
+      "instagram"
+    ],
+    "destination": {
+      "audience": "author-books",
+      "preferredProvider": "buffer",
+      "preferredAccount": "benoitlubert",
+      "fallbackAccount": null,
+      "requiresChannelVerification": true
+    },
+    "evidence": {
+      "source": "garden-autoselection",
+      "copyStrategy": "first-explicit-angle",
+      "mediaCapability": "official-media",
+      "mediaFailures": []
+    },
+    "decision": "hold-for-buffer-draft",
+    "reasoning": "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici.",
+    "limits": [
+      "Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.",
+      "Aucune comparaison des statistiques Metricool n’est établie ici.",
+      "Une répétition de texte déjà publié n’est pas automatiquement exclue."
+    ],
+    "previousSelectionsOfSameSeed": 1,
+    "previousSelectionsOfSameCopy": 1,
+    "repeatedSelection": true,
+    "publishedExactCopy": false,
+    "publishedEvidence": [],
+    "historyEvidence": "Decision history and manually verified Metricool snapshot; no audience-performance inference.",
+    "warning": null,
+    "audienceFeedback": {
+      "status": "unavailable",
+      "checkedAt": "2026-10-10",
+      "matchedMetrics": 0,
+      "note": "Metricool connector queried directly on 2026-10-10 for Facebook and Instagram post metrics; response rows: []. No per-post metrics available. Missing data is not zero engagement."
+    },
+    "nextAction": "Try new copy or media while retaining the subject.",
+    "performanceRankingEnabled": false,
+    "reasoningModel": {
+      "version": "evidence-hypothesis-experiment-v1",
+      "known": [
+        "Publisher selected seed: terra",
+        "This seed was previously selected."
+      ],
+      "hypothesis": "A different subject or angle may broaden editorial coverage.",
+      "unknown": [
+        "Audience response is not yet measured for this copy."
+      ],
+      "publisherSignal": {
+        "status": "covered",
+        "capability": "analytics.read"
+      },
+      "experiment": "Test a different angle or subject on the next cycle; compare only verified metrics.",
+      "confidence": "tentative"
+    },
+    "deliberation": {
+      "version": "editorial-experiments-v1",
+      "alternatives": [
+        {
+          "id": "explore",
+          "hypothesis": "Another subject may improve editorial diversity.",
+          "test": "Ask Publisher for a different eligible seed next cycle.",
+          "priority": 1
+        },
+        {
+          "id": "new-angle",
+          "hypothesis": "A new creative angle may perform differently.",
+          "test": "Try new copy or media while retaining the subject.",
+          "priority": 3
+        },
+        {
+          "id": "observe",
+          "hypothesis": "Measured results may distinguish creative approaches.",
+          "test": "Collect verified per-post analytics before claiming an improvement.",
+          "priority": 1
+        }
+      ],
+      "previouslyExploredSeedCount": 3,
+      "evidencePolicy": "No metrics means unknown, not zero performance.",
+      "chosen": {
+        "id": "new-angle",
+        "hypothesis": "A new creative angle may perform differently.",
+        "test": "Try new copy or media while retaining the subject.",
+        "priority": 3
+      },
+      "reason": "Try a distinct creative treatment and compare outcomes later."
+    }
   }
 ]
