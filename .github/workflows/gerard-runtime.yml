@@ -236,6 +236,19 @@ jobs:
               echo "Gerard explores alternatives to $REPEATED_SEED"
             fi
           fi
+          # Close the loop: last cycle's chosen experiment affects this cycle's
+          # Publisher request. Only exclude known harvest IDs, never guess them.
+          if [ -f garden/gerard-learning.json ] && [ -f garden/harvests.json ]; then
+            EXPERIMENT="$(jq -r '.guidance.chosenExperiment // ""' garden/gerard-learning.json)"
+            PREVIOUS_SEED="$(jq -r '.guidance.seedId // ""' garden/gerard-learning.json)"
+            if [ "$EXPERIMENT" = "explore" ] && [ -n "$PREVIOUS_SEED" ]; then
+              EXPERIMENT_IDS="$(jq -r --arg seed "$PREVIOUS_SEED" '[.. | objects | select(.seedId? == $seed) | (.harvestId? // .id? // empty) | select(type == "string")] | unique | join(",")' garden/harvests.json)"
+              if [ -n "$EXPERIMENT_IDS" ]; then
+                EXCLUDED_IDS="$(printf '%s,%s' "$EXCLUDED_IDS" "$EXPERIMENT_IDS" | sed 's/^,//;s/,$//')"
+                echo "Applying previous experiment: explore beyond $PREVIOUS_SEED"
+              fi
+            fi
+          fi
           BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next?excludeHarvestIds=$(printf '%s' "$EXCLUDED_IDS" | jq -sRr @uri)"
           HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' "$BRIDGE_URL")"
           if [ "$HTTP_STATUS" = "200" ]; then
@@ -680,8 +693,11 @@ jobs:
                  harvestId:($d.harvestId // null),
                  copyText:($d.copyText // null),
                  repeatCount:($d.previousSelectionsOfSameCopy // 0),
+                 chosenExperiment:($d.deliberation.chosen.id // null),
+                 experimentHypothesis:($d.deliberation.chosen.hypothesis // null),
                  delivery:($p.delivery // {status:"not-attempted"}),
                  metricsStatus:($a.status // "unavailable"),
+                 outcome:(if (($p.delivery.status // "") | IN("queued","published","sent")) then "transport-accepted" elif (($p.delivery.status // "") | IN("failed","error","rejected")) then "transport-failed" else "not-verified" end),
                  matchedMetrics:(if $a.status == "available" then [$a.posts[]? | select(.text == $d.copyText)] else [] end),
                  lesson:(if $a.status != "available" then "Analytics unavailable: do not infer failure or success; continue testing."
                          elif ([$a.posts[]? | select(.text == $d.copyText)] | length) == 0 then "No matching post analytics yet; retry observation later."
@@ -690,6 +706,7 @@ jobs:
                }])[-150:]),
                publisherAdvice:($publisher[0] // {}),
                guidance:{seedId:($d.seedId // null),
+                 chosenExperiment:($d.deliberation.chosen.id // "new-angle"),
                  nextExperiment:(if ($d.previousSelectionsOfSameCopy // 0) > 0 then "Try a different creative angle or image next time; repeats remain allowed." else "Explore a new angle and record delivery." end),
                  performanceRankingEnabled:($a.status == "available" and ([$a.posts[]? | select(.text == $d.copyText)] | length) > 0)}}
           ' > /tmp/gerard-learning-next.json
