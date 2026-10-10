@@ -1,20 +1,14 @@
 {
-  "explainedAt": "2026-10-10T00:57:46Z",
-  "harvestId": "harvest_local_harvest_gerard-et-gerard_1786215725072",
-  "seedId": "gerard-et-gerard",
-  "subject": "Récolte · Gérard & Gérard — Brèves histoires d'une simulation oubliée",
-  "copyText": "Et si deux extraterrestres essayaient de comprendre pourquoi les humains courent sur des tapis qui ne vont nulle part ?",
+  "explainedAt": "2026-10-10T09:57:53Z",
+  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+  "seedId": "420-dice",
+  "subject": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
+  "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
   "editorialScore": 85,
   "chosenNetwork": [
     "facebook"
   ],
-  "destination": {
-    "audience": "author-books",
-    "preferredProvider": "buffer",
-    "preferredAccount": "benoitlubert",
-    "fallbackAccount": null,
-    "requiresChannelVerification": true
-  },
+  "destination": null,
   "evidence": {
     "source": "garden-autoselection",
     "copyStrategy": "first-explicit-angle",
@@ -23,26 +17,38 @@
       "Mistral completed the conversation but returned no generated image file_id."
     ]
   },
-  "decision": "hold-for-buffer-draft",
-  "reasoning": "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici.",
+  "decision": "do-not-schedule",
+  "reasoning": "Aucun contenu prêt : décision suspendue.",
   "limits": [
     "Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.",
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 2,
-  "previousSelectionsOfSameCopy": 2,
+  "previousSelectionsOfSameSeed": 4,
+  "previousSelectionsOfSameCopy": 4,
   "repeatedSelection": true,
-  "publishedExactCopy": false,
-  "publishedEvidence": [],
+  "publishedExactCopy": true,
+  "publishedEvidence": [
+    {
+      "id": 388552621,
+      "publicationDate": {
+        "dateTime": "2026-10-06T10:35:00",
+        "timezone": "Europe/Madrid"
+      },
+      "networks": [
+        "facebook",
+        "instagram"
+      ]
+    }
+  ],
   "historyEvidence": "Decision history and manually verified Metricool snapshot; no audience-performance inference.",
-  "warning": null,
+  "warning": "Exact text already published in verified Metricool history; choose a fresh angle before publishing.",
   "audienceFeedback": {
     "status": "unavailable",
     "checkedAt": "2026-10-10",
     "matchedMetrics": 0,
     "note": "Metricool analytics query returned rows: []. This is missing analytics, not zero engagement. Do not optimize editorial choices from this sample."
   },
-  "nextAction": "Keep editorial ranking; retry analytics collection later.",
+  "nextAction": "Regenerate a different angle before any scheduling.",
   "performanceRankingEnabled": false
 }

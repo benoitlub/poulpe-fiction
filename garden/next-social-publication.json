@@ -1,13 +1,13 @@
 {
-  "preparedAt": "2026-10-10T00:57:45Z",
-  "status": "ready",
+  "preparedAt": "2026-10-10T09:57:53Z",
+  "status": "blocked",
   "contract": "gerard-metricool-bridge-next-v1",
-  "harvestId": "harvest_local_harvest_gerard-et-gerard_1786215725072",
-  "seedId": "gerard-et-gerard",
-  "title": "Récolte · Gérard & Gérard — Brèves histoires d'une simulation oubliée",
+  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+  "seedId": "420-dice",
+  "title": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
   "score": 85,
   "copy": {
-    "text": "Et si deux extraterrestres essayaient de comprendre pourquoi les humains courent sur des tapis qui ne vont nulle part ?",
+    "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
     "strategy": "first-explicit-angle"
   },
   "media": null,
@@ -45,47 +45,13 @@
   },
   "provenance": {
     "source": "garden-autoselection",
-    "harvestId": "harvest_local_harvest_gerard-et-gerard_1786215725072",
-    "seedId": "gerard-et-gerard"
+    "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+    "seedId": "420-dice"
   },
-  "editorialRoute": {
-    "contract": "publisher-editorial-routing-v1",
-    "status": "dry-run",
-    "topic": "book",
-    "destination": {
-      "audience": "author-books",
-      "preferredProvider": "buffer",
-      "preferredAccount": "benoitlubert",
-      "fallbackAccount": null,
-      "requiresChannelVerification": true
-    },
-    "publishingEnabled": false
-  },
+  "reason": "exact-copy-already-published",
+  "action": "do-not-schedule",
   "delivery": {
     "status": "not-attempted",
-    "publishingEnabled": false
-  },
-  "action": "hold-for-buffer-draft",
-  "transport": {
-    "provider": "buffer",
-    "account": "benoitlubert",
-    "draftOnly": true
-  },
-  "bufferPreflight": {
-    "contract": "publisher-buffer-book-preflight-v1",
-    "status": "ready-for-controlled-test",
-    "topic": "book",
-    "destination": {
-      "audience": "author-books",
-      "preferredProvider": "buffer",
-      "preferredAccount": "benoitlubert",
-      "fallbackAccount": null,
-      "requiresChannelVerification": true
-    },
-    "channelId": "6ac8c8226a5c39ccb65fdbf6",
-    "keyConfigured": true,
-    "textPresent": true,
-    "reason": null,
     "publishingEnabled": false
   }
 }
