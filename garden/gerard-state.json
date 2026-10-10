@@ -134,19 +134,19 @@
       "result": "ok"
     },
     {
-      "at": "2026-10-10T14:58:27.103Z",
+      "at": "2026-10-10T15:00:01.986Z",
       "mode": "cultivate",
       "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1791644290688",
+      "operationId": "gerard-cultivate-1791644382809",
       "result": "ok"
     }
   ],
   "lastMode": "cultivate",
-  "lastRunAt": "2026-10-10T14:58:27.103Z",
+  "lastRunAt": "2026-10-10T15:00:01.986Z",
   "lastResult": {
     "status": "ok",
     "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1791644290688",
+    "operationId": "gerard-cultivate-1791644382809",
     "seedId": "yael-prospection",
     "parcelId": "project-yael-prospection",
     "phase": "knowledge",
@@ -166,7 +166,7 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1791644290688-knowledge",
+        "operationId": "gerard-cultivate-1791644382809-knowledge",
         "status": "completed",
         "summary": "Knowledge Package yael-prequalification-de-prospects préparé par Publisher.",
         "output": {
@@ -185,19 +185,19 @@
             "digestedItems": 5
           }
         },
-        "missionId": "gerard-cultivate-1791644290688-knowledge",
+        "missionId": "gerard-cultivate-1791644382809-knowledge",
         "contextId": "project-yael-prospection",
         "adapterId": "publisher",
         "lifecycle": {
-          "missionId": "gerard-cultivate-1791644290688-knowledge",
+          "missionId": "gerard-cultivate-1791644382809-knowledge",
           "state": "completed",
-          "createdAt": "2026-10-10T14:58:10.716Z",
-          "updatedAt": "2026-10-10T14:58:18.789Z",
+          "createdAt": "2026-10-10T14:59:42.846Z",
+          "updatedAt": "2026-10-10T14:59:52.482Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-10T14:58:10.716Z",
+              "at": "2026-10-10T14:59:42.846Z",
               "metadata": {
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
@@ -208,11 +208,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-10T14:58:10.716Z",
+              "at": "2026-10-10T14:59:42.846Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-knowledge",
-                "missionId": "gerard-cultivate-1791644290688-knowledge",
+                "operationId": "gerard-cultivate-1791644382809-knowledge",
+                "missionId": "gerard-cultivate-1791644382809-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -222,11 +222,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-10T14:58:10.716Z",
+              "at": "2026-10-10T14:59:42.846Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-knowledge",
-                "missionId": "gerard-cultivate-1791644290688-knowledge",
+                "operationId": "gerard-cultivate-1791644382809-knowledge",
+                "missionId": "gerard-cultivate-1791644382809-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -236,11 +236,11 @@
             {
               "from": "planned",
               "to": "waiting-executor",
-              "at": "2026-10-10T14:58:10.717Z",
+              "at": "2026-10-10T14:59:42.846Z",
               "reason": "Compatible adapter selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-knowledge",
-                "missionId": "gerard-cultivate-1791644290688-knowledge",
+                "operationId": "gerard-cultivate-1791644382809-knowledge",
+                "missionId": "gerard-cultivate-1791644382809-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -251,11 +251,11 @@
             {
               "from": "waiting-executor",
               "to": "executing",
-              "at": "2026-10-10T14:58:10.717Z",
+              "at": "2026-10-10T14:59:42.846Z",
               "reason": "External adapter execution started.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-knowledge",
-                "missionId": "gerard-cultivate-1791644290688-knowledge",
+                "operationId": "gerard-cultivate-1791644382809-knowledge",
+                "missionId": "gerard-cultivate-1791644382809-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -266,11 +266,11 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-10T14:58:18.789Z",
+              "at": "2026-10-10T14:59:52.482Z",
               "reason": "Knowledge Package yael-prequalification-de-prospects préparé par Publisher.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-knowledge",
-                "missionId": "gerard-cultivate-1791644290688-knowledge",
+                "operationId": "gerard-cultivate-1791644382809-knowledge",
+                "missionId": "gerard-cultivate-1791644382809-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -302,7 +302,7 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1791644290688-harvest",
+        "operationId": "gerard-cultivate-1791644382809-harvest",
         "status": "completed",
         "summary": "content.generate exécuté à partir du Knowledge Package yael-prequalification-de-prospects.",
         "output": {
@@ -312,7 +312,7 @@
           "text": "Contenu généré pour l'univers yael-prequalification-de-prospects par Sofia. Mode mock actif — configurez AI_PROVIDER et AI_API_KEY pour une génération réelle.",
           "artifacts": [
             {
-              "id": "publisher-gerard-cultivate-1791644290688-harvest",
+              "id": "publisher-gerard-cultivate-1791644382809-harvest",
               "title": "Publication — yael-prequalification-de-prospects",
               "type": "markdown",
               "artifactType": "markdown",
@@ -333,19 +333,19 @@
           "isMock": true,
           "fallbackReason": "Échec de l'appel au fournisseur IA (Mistral API error 429: Rate limit exceeded) — repli sur le mode mock."
         },
-        "missionId": "gerard-cultivate-1791644290688-harvest",
+        "missionId": "gerard-cultivate-1791644382809-harvest",
         "contextId": "project-yael-prospection",
         "adapterId": "publisher",
         "lifecycle": {
-          "missionId": "gerard-cultivate-1791644290688-harvest",
+          "missionId": "gerard-cultivate-1791644382809-harvest",
           "state": "completed",
-          "createdAt": "2026-10-10T14:58:18.805Z",
-          "updatedAt": "2026-10-10T14:58:27.100Z",
+          "createdAt": "2026-10-10T14:59:52.502Z",
+          "updatedAt": "2026-10-10T15:00:01.982Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-10T14:58:18.805Z",
+              "at": "2026-10-10T14:59:52.502Z",
               "metadata": {
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
@@ -356,11 +356,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-10T14:58:18.805Z",
+              "at": "2026-10-10T14:59:52.502Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-harvest",
-                "missionId": "gerard-cultivate-1791644290688-harvest",
+                "operationId": "gerard-cultivate-1791644382809-harvest",
+                "missionId": "gerard-cultivate-1791644382809-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "content.generate"
@@ -370,11 +370,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-10T14:58:18.805Z",
+              "at": "2026-10-10T14:59:52.502Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-harvest",
-                "missionId": "gerard-cultivate-1791644290688-harvest",
+                "operationId": "gerard-cultivate-1791644382809-harvest",
+                "missionId": "gerard-cultivate-1791644382809-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "content.generate"
@@ -384,11 +384,11 @@
             {
               "from": "planned",
               "to": "waiting-executor",
-              "at": "2026-10-10T14:58:18.805Z",
+              "at": "2026-10-10T14:59:52.502Z",
               "reason": "Compatible adapter selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-harvest",
-                "missionId": "gerard-cultivate-1791644290688-harvest",
+                "operationId": "gerard-cultivate-1791644382809-harvest",
+                "missionId": "gerard-cultivate-1791644382809-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "content.generate"
@@ -399,11 +399,11 @@
             {
               "from": "waiting-executor",
               "to": "executing",
-              "at": "2026-10-10T14:58:18.805Z",
+              "at": "2026-10-10T14:59:52.502Z",
               "reason": "External adapter execution started.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-harvest",
-                "missionId": "gerard-cultivate-1791644290688-harvest",
+                "operationId": "gerard-cultivate-1791644382809-harvest",
+                "missionId": "gerard-cultivate-1791644382809-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "content.generate"
@@ -414,11 +414,11 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-10T14:58:27.100Z",
+              "at": "2026-10-10T15:00:01.982Z",
               "reason": "content.generate exécuté à partir du Knowledge Package yael-prequalification-de-prospects.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791644290688-harvest",
-                "missionId": "gerard-cultivate-1791644290688-harvest",
+                "operationId": "gerard-cultivate-1791644382809-harvest",
+                "missionId": "gerard-cultivate-1791644382809-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "content.generate"
@@ -431,7 +431,7 @@
                   "text": "Contenu généré pour l'univers yael-prequalification-de-prospects par Sofia. Mode mock actif — configurez AI_PROVIDER et AI_API_KEY pour une génération réelle.",
                   "artifacts": [
                     {
-                      "id": "publisher-gerard-cultivate-1791644290688-harvest",
+                      "id": "publisher-gerard-cultivate-1791644382809-harvest",
                       "title": "Publication — yael-prequalification-de-prospects",
                       "type": "markdown",
                       "artifactType": "markdown",
@@ -460,7 +460,7 @@
       "verification": {
         "seedId": "yael-prospection",
         "parcelId": "project-yael-prospection",
-        "operationId": "gerard-cultivate-1791644290688-harvest",
+        "operationId": "gerard-cultivate-1791644382809-harvest",
         "capability": "content.generate",
         "completed": true,
         "contentLength": 158,
@@ -469,8 +469,8 @@
       }
     },
     "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1791644290688-harvest",
-      "harvestedAt": "2026-10-10T14:58:27.102Z",
+      "harvestId": "gerard-cultivate-1791644382809-harvest",
+      "harvestedAt": "2026-10-10T15:00:01.985Z",
       "seedId": "yael-prospection",
       "parcelId": "project-yael-prospection",
       "title": "Yaébali · Préqualification de prospects",
@@ -487,7 +487,7 @@
     }
   },
   "lastDecision": {
-    "at": "2026-10-10T14:58:10.685Z",
+    "at": "2026-10-10T14:59:42.804Z",
     "mode": "cultivate",
     "reason": "deliverable-production-priority",
     "backlog": 19,
@@ -1089,8 +1089,8 @@
       "feedback": "observe-downstream-results"
     },
     {
-      "at": "2026-10-10T14:58:27.103Z",
-      "operationId": "gerard-cultivate-1791644290688",
+      "at": "2026-10-10T15:00:01.986Z",
+      "operationId": "gerard-cultivate-1791644382809",
       "mode": "cultivate",
       "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
       "outcome": "ok",

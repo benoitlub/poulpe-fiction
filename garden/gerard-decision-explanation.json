@@ -1,5 +1,5 @@
 {
-  "explainedAt": "2026-10-10T14:58:40Z",
+  "explainedAt": "2026-10-10T15:00:10Z",
   "harvestId": "harvest_local_harvest_420-dice_1786215725387",
   "seedId": "420-dice",
   "subject": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
@@ -20,7 +20,7 @@
     "copyStrategy": "first-explicit-angle",
     "mediaCapability": "text-only-fallback",
     "mediaFailures": [
-      "Mistral completed the conversation but returned no generated image file_id."
+      "Mistral conversation 429"
     ]
   },
   "decision": "not-attempted",
@@ -55,6 +55,24 @@
     "matchedMetrics": 0,
     "note": "Metricool connector queried directly on 2026-10-10 for Facebook and Instagram post metrics; response rows: []. No per-post metrics available. Missing data is not zero engagement."
   },
-  "nextAction": "Regenerate a different angle before any scheduling.",
-  "performanceRankingEnabled": false
+  "nextAction": "Test a different angle or subject on the next cycle; compare only verified metrics.",
+  "performanceRankingEnabled": false,
+  "reasoningModel": {
+    "version": "evidence-hypothesis-experiment-v1",
+    "known": [
+      "Publisher selected seed: 420-dice",
+      "The same copy appears in verified publication history.",
+      "This seed was previously selected."
+    ],
+    "hypothesis": "A different subject or angle may broaden editorial coverage.",
+    "unknown": [
+      "Audience response is not yet measured for this copy."
+    ],
+    "publisherSignal": {
+      "status": "covered",
+      "capability": "analytics.read"
+    },
+    "experiment": "Test a different angle or subject on the next cycle; compare only verified metrics.",
+    "confidence": "tentative"
+  }
 }
