@@ -213,6 +213,12 @@ jobs:
           set -euo pipefail
           mkdir -p garden
           # Rank again, excluding harvests whose exact copy is confirmed published.
+          # Feed prior observations into the autonomous selection cycle.
+          if [ -f garden/gerard-learning.json ]; then
+            jq -c '.guidance // {}' garden/gerard-learning.json > /tmp/gerard-prior-guidance.json
+            echo "Gerard prior learning:"
+            cat /tmp/gerard-prior-guidance.json
+          fi
           # Editorial repetitions are learning opportunities. Provider-side
           # reservation fingerprints still prevent accidental transport retries.
           EXCLUDED_IDS=""
@@ -419,6 +425,39 @@ jobs:
             ((if type == "array" then . else [] end) + [$current[0]])[-100:]
           ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
           jq '{seedId,reasoning,decision,repeatedSelection,previousSelectionsOfSameSeed,limits}' garden/gerard-decision-explanation.json
+
+      - name: Update Gerard learning from verified outcomes
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
+          jq -n --slurpfile previous garden/gerard-learning.json --slurpfile decision garden/gerard-decision-explanation.json --slurpfile package garden/next-social-publication.json --slurpfile analytics garden/metricool-analytics-snapshot.json '
+            ($decision[0] // {}) as $d
+            | ($package[0] // {}) as $p
+            | ($analytics[0] // {}) as $a
+            | ($previous[0].observations // []) as $old
+            | {updatedAt:(now | todateiso8601),
+               observations:(($old + [{
+                 observedAt:(now | todateiso8601),
+                 seedId:($d.seedId // null),
+                 harvestId:($d.harvestId // null),
+                 copyText:($d.copyText // null),
+                 repeatCount:($d.previousSelectionsOfSameCopy // 0),
+                 delivery:($p.delivery // {status:"not-attempted"}),
+                 metricsStatus:($a.status // "unavailable"),
+                 matchedMetrics:(if $a.status == "available" then [$a.posts[]? | select(.text == $d.copyText)] else [] end),
+                 lesson:(if $a.status != "available" then "Analytics unavailable: do not infer failure or success; continue testing."
+                         elif ([$a.posts[]? | select(.text == $d.copyText)] | length) == 0 then "No matching post analytics yet; retry observation later."
+                         elif ($d.previousSelectionsOfSameCopy // 0) > 0 then "Compare this repeated copy against other angles using verified metrics."
+                         else "Compare verified performance before choosing the next angle." end)
+               }])[-150:]),
+               guidance:{seedId:($d.seedId // null),
+                 nextExperiment:(if ($d.previousSelectionsOfSameCopy // 0) > 0 then "Try a different creative angle or image next time; repeats remain allowed." else "Explore a new angle and record delivery." end),
+                 performanceRankingEnabled:($a.status == "available" and ([$a.posts[]? | select(.text == $d.copyText)] | length) > 0)}}
+          ' > /tmp/gerard-learning-next.json
+          mv /tmp/gerard-learning-next.json garden/gerard-learning.json
 
       - name: Check Buffer GraphQL draft schema (read-only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
