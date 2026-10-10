@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T19:40:31Z",
+  "updatedAt": "2026-10-10T19:41:30Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -162,7 +162,7 @@
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     },
     {
-      "observedAt": "2026-10-10T19:40:31Z",
+      "observedAt": "2026-10-10T19:41:30Z",
       "seedId": "terra",
       "harvestId": "harvest_local_harvest_terra_1786215725146",
       "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
@@ -180,11 +180,27 @@
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-10T19:40:30Z",
+    "observedAt": "2026-10-10T19:41:30Z",
     "source": "publisher",
     "capability": "analytics.read",
-    "status": "unavailable",
-    "httpStatus": "400"
+    "response": {
+      "status": "gap",
+      "contract": "publisher-capability-gap-v1",
+      "capability": "analytics.read",
+      "mission": {
+        "role": "tool-discovery",
+        "query": "social media analytics API tool",
+        "acceptance": [
+          "documented capability match",
+          "developer/API access",
+          "executable integration path",
+          "no inferred capability from marketing nouns"
+        ],
+        "nextEndpoint": "/api/observatory/discovery/preview"
+      },
+      "discoveryRequired": true,
+      "connectedMatches": 0
+    }
   },
   "guidance": {
     "seedId": "terra",

@@ -134,17 +134,17 @@
       "result": "ok"
     },
     {
-      "at": "2026-10-10T19:40:29.428Z",
+      "at": "2026-10-10T19:41:27.949Z",
       "mode": "symbiosis",
       "reason": "delivery-backlog-priority",
-      "operationId": "gerard-symbiosis-1791661228951",
+      "operationId": "gerard-symbiosis-1791661287650",
       "result": "ok"
     }
   ],
   "lastMode": "symbiosis",
-  "lastRunAt": "2026-10-10T19:40:29.428Z",
+  "lastRunAt": "2026-10-10T19:41:27.949Z",
   "lastResult": {
-    "at": "2026-10-10T19:40:29.412Z",
+    "at": "2026-10-10T19:41:27.948Z",
     "mode": "symbiosis",
     "status": "ok",
     "scope": "local-harvest-inventory-only",
@@ -206,14 +206,14 @@
     "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   },
   "lastDecision": {
-    "at": "2026-10-10T19:40:28.946Z",
+    "at": "2026-10-10T19:41:27.646Z",
     "mode": "symbiosis",
     "reason": "delivery-backlog-priority",
     "backlog": 23
   },
   "lastSeedId": "gerard-restart-2026-10-04",
   "lastSymbiosis": {
-    "at": "2026-10-10T19:40:29.412Z",
+    "at": "2026-10-10T19:41:27.948Z",
     "duplicateCount": 21,
     "candidateCount": 2
   },
@@ -807,8 +807,8 @@
       "feedback": "observe-downstream-results"
     },
     {
-      "at": "2026-10-10T19:40:29.428Z",
-      "operationId": "gerard-symbiosis-1791661228951",
+      "at": "2026-10-10T19:41:27.949Z",
+      "operationId": "gerard-symbiosis-1791661287650",
       "mode": "symbiosis",
       "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
       "outcome": "ok",

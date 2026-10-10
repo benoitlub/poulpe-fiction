@@ -1,7 +1,23 @@
 {
-  "observedAt": "2026-10-10T19:40:30Z",
+  "observedAt": "2026-10-10T19:41:30Z",
   "source": "publisher",
   "capability": "analytics.read",
-  "status": "unavailable",
-  "httpStatus": "400"
+  "response": {
+    "status": "gap",
+    "contract": "publisher-capability-gap-v1",
+    "capability": "analytics.read",
+    "mission": {
+      "role": "tool-discovery",
+      "query": "social media analytics API tool",
+      "acceptance": [
+        "documented capability match",
+        "developer/API access",
+        "executable integration path",
+        "no inferred capability from marketing nouns"
+      ],
+      "nextEndpoint": "/api/observatory/discovery/preview"
+    },
+    "discoveryRequired": true,
+    "connectedMatches": 0
+  }
 }
