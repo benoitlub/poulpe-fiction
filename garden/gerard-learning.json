@@ -1,0 +1,24 @@
+{
+  "updatedAt": "2026-10-10T14:50:36Z",
+  "observations": [
+    {
+      "observedAt": "2026-10-10T14:50:36Z",
+      "seedId": "420-dice",
+      "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "repeatCount": 8,
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "unavailable",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    }
+  ],
+  "guidance": {
+    "seedId": "420-dice",
+    "nextExperiment": "Try a different creative angle or image next time; repeats remain allowed.",
+    "performanceRankingEnabled": false
+  }
+}
