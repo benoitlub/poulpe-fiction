@@ -127,24 +127,24 @@
       "result": "ok"
     },
     {
-      "at": "2026-10-10T14:58:27.103Z",
+      "at": "2026-10-10T15:00:01.986Z",
       "mode": "cultivate",
       "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1791644290688",
+      "operationId": "gerard-cultivate-1791644382809",
       "result": "ok"
     },
     {
-      "at": "2026-10-10T15:01:09.004Z",
+      "at": "2026-10-10T15:02:12.105Z",
       "mode": "symbiosis",
       "reason": "delivery-backlog-priority",
-      "operationId": "gerard-symbiosis-1791644468222",
+      "operationId": "gerard-symbiosis-1791644531858",
       "result": "ok"
     }
   ],
   "lastMode": "symbiosis",
-  "lastRunAt": "2026-10-10T15:01:09.004Z",
+  "lastRunAt": "2026-10-10T15:02:12.105Z",
   "lastResult": {
-    "at": "2026-10-10T15:01:09.003Z",
+    "at": "2026-10-10T15:02:12.104Z",
     "mode": "symbiosis",
     "status": "ok",
     "scope": "local-harvest-inventory-only",
@@ -183,7 +183,7 @@
       "gerard-cultivate-1791643299054-harvest",
       "gerard-cultivate-1791643600208-harvest",
       "gerard-cultivate-1791643998868-harvest",
-      "gerard-cultivate-1791644290688-harvest"
+      "gerard-cultivate-1791644382809-harvest"
     ],
     "candidateCount": 2,
     "candidateSample": [
@@ -204,14 +204,14 @@
     "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   },
   "lastDecision": {
-    "at": "2026-10-10T15:01:08.219Z",
+    "at": "2026-10-10T15:02:11.852Z",
     "mode": "symbiosis",
     "reason": "delivery-backlog-priority",
     "backlog": 20
   },
   "lastSeedId": "yael-prospection",
   "lastSymbiosis": {
-    "at": "2026-10-10T15:01:09.003Z",
+    "at": "2026-10-10T15:02:12.104Z",
     "duplicateCount": 18,
     "candidateCount": 2
   },
@@ -793,8 +793,8 @@
       "feedback": "observe-downstream-results"
     },
     {
-      "at": "2026-10-10T14:58:27.103Z",
-      "operationId": "gerard-cultivate-1791644290688",
+      "at": "2026-10-10T15:00:01.986Z",
+      "operationId": "gerard-cultivate-1791644382809",
       "mode": "cultivate",
       "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
       "outcome": "ok",
@@ -805,8 +805,8 @@
       "feedback": "observe-downstream-results"
     },
     {
-      "at": "2026-10-10T15:01:09.004Z",
-      "operationId": "gerard-symbiosis-1791644468222",
+      "at": "2026-10-10T15:02:12.105Z",
+      "operationId": "gerard-symbiosis-1791644531858",
       "mode": "symbiosis",
       "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
       "outcome": "ok",

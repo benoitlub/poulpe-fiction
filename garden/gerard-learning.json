@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T15:01:16Z",
+  "updatedAt": "2026-10-10T15:02:17Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -44,7 +44,7 @@
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     },
     {
-      "observedAt": "2026-10-10T14:58:43Z",
+      "observedAt": "2026-10-10T15:00:14Z",
       "seedId": "420-dice",
       "harvestId": "harvest_local_harvest_420-dice_1786215725387",
       "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
@@ -58,22 +58,25 @@
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     },
     {
-      "observedAt": "2026-10-10T15:01:16Z",
+      "observedAt": "2026-10-10T15:02:17Z",
       "seedId": "420-dice",
       "harvestId": "harvest_local_harvest_420-dice_1786215725387",
       "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
       "repeatCount": 12,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
       "delivery": {
         "status": "not-attempted",
         "publishingEnabled": false
       },
       "metricsStatus": "unavailable",
+      "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-10T15:01:16Z",
+    "observedAt": "2026-10-10T15:02:17Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -112,7 +115,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:01:15.829Z"
+            "discoveredAt": "2026-10-10T15:02:16.799Z"
           }
         },
         {
@@ -137,7 +140,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:01:15.829Z"
+            "discoveredAt": "2026-10-10T15:02:16.799Z"
           }
         },
         {
@@ -251,7 +254,7 @@
           },
           "provenance": {
             "source": "live-composio-inventory",
-            "discoveredAt": "2026-10-10T15:01:15.829Z"
+            "discoveredAt": "2026-10-10T15:02:16.799Z"
           }
         }
       ],
@@ -260,6 +263,7 @@
   },
   "guidance": {
     "seedId": "420-dice",
+    "chosenExperiment": "explore",
     "nextExperiment": "Try a different creative angle or image next time; repeats remain allowed.",
     "performanceRankingEnabled": false
   }
