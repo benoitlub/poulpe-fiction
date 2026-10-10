@@ -28,5 +28,5 @@
     ]
   },
   "posts": [],
-  "note": "Metricool analytics query returned rows: []. This is missing analytics, not zero engagement. Do not optimize editorial choices from this sample."
+  "note": "Metricool connector queried directly on 2026-10-10 for Facebook and Instagram post metrics; response rows: []. No per-post metrics available. Missing data is not zero engagement."
 }
