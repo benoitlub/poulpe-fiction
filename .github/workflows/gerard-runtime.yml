@@ -701,7 +701,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p garden
-          STATUS="$(curl --silent --show-error --max-time 18 --output /tmp/gerard-publisher-analytics.json --write-out '%{http_code}' "$PUBLISHER_URL/api/observatory/capability-gap?capability=analytics.read")" || STATUS="000"
+          STATUS="$(curl --silent --show-error --max-time 18 --output /tmp/gerard-publisher-analytics.json --write-out '%{http_code}' "$PUBLISHER_URL/api/observatory/capability-gap?capability=analytics.read\&mission=social%20media%20facebook%20instagram%20post%20engagement%20reach")" || STATUS="000"
           if [ "$STATUS" = "200" ] && jq -e 'type == "object"' /tmp/gerard-publisher-analytics.json >/dev/null 2>&1; then
             jq --arg observedAt "$(date -u +%FT%TZ)" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",response:.}' /tmp/gerard-publisher-analytics.json > garden/gerard-publisher-advice.json
           else
