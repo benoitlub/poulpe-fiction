@@ -516,7 +516,6 @@ jobs:
           fi
 
       - name: Inspect Buffer draft reservation (read-only)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
         env:
           BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
@@ -548,7 +547,6 @@ jobs:
           fi
 
       - name: Reconcile Buffer book draft (read-only)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
         env:
           BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
@@ -569,6 +567,12 @@ jobs:
           echo "Buffer reconciliation HTTP $STATUS"
           if [ "$STATUS" = "200" ]; then
             jq -c '{status,harvestId,reservations,retryAllowed,requiresManualConfirmation,publishingEnabled}' /tmp/gerard-buffer-reconcile.json
+            # Fresh harvests may autonomously create a Buffer draft, never a live post.
+            # Pending or uncertain reservations remain protected against transport retries.
+            if jq -e '.reservations == [] and .requiresManualConfirmation != true' /tmp/gerard-buffer-reconcile.json >/dev/null; then
+              rm -f /tmp/gerard-buffer-write-blocked
+              echo "Fresh harvest: autonomous Buffer draft permitted."
+            fi
             if [ "${{ inputs.retry_terra_draft }}" = "true" ] && [ "$HARVEST_ID" = "harvest_local_harvest_terra_1786215725146" ] && jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and (.reservations[0].status == "retry-authorized") and (.reservations[0].post_id == null)' /tmp/gerard-buffer-reconcile.json >/dev/null; then
               rm -f /tmp/gerard-buffer-write-blocked
               echo "One authorized TERRA draft attempt unlocked; no automatic publication."
@@ -578,7 +582,6 @@ jobs:
           fi
 
       - name: Request Buffer book draft via authenticated Publisher
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: poulpe-fiction
         env:
           BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
