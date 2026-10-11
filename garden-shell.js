@@ -35,6 +35,47 @@
     return `<section class="shell-list">${items.map((item) => `<article><span class="shell-dot ${esc(item.status || "calme")}"></span><div><strong>${esc(item.label || item.type)}</strong>${item.detail ? `<p>${esc(item.detail)}</p>` : ""}</div></article>`).join("")}</section>`;
   }
 
+  // Read-only server journal: never overwrite the browser's local garden.
+  let serverJournal = null;
+  let journalLoading = false;
+  async function loadServerJournal() {
+    if (journalLoading || !isOwner()) return;
+    journalLoading = true;
+    const base = "https://raw.githubusercontent.com/benoitlub/poulpe-fiction/main/garden/";
+    const names = ["harvests.json", "gerard-state.json", "metricool-published-snapshot.json"];
+    const results = await Promise.all(names.map(async (name) => {
+      try {
+        const response = await fetch(base + name + "?t=" + Date.now(), { cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        return await response.json();
+      } catch (error) { return { unavailable: String(error) }; }
+    }));
+    serverJournal = { harvests: results[0], state: results[1], published: results[2], fetchedAt: new Date().toISOString() };
+    journalLoading = false;
+    if (activeView() === "activity") mount();
+  }
+
+  function renderServerJournal() {
+    if (!isOwner()) return "";
+    if (!serverJournal) return '<section class="journey-card"><h3>Journal serveur de Gérard</h3><p>Chargement des traces GitHub…</p></section>';
+    const { harvests, state, published, fetchedAt } = serverJournal;
+    const h = Array.isArray(harvests?.harvests) ? harvests.harvests : [];
+    const posts = Array.isArray(published?.published) ? published.published : [];
+    const history = Array.isArray(state?.history) ? state.history : [];
+    const unavailable = [harvests, state, published].some((x) => x?.unavailable);
+    const entries = [
+      ...posts.map((x) => ({ at: x.publicationDate?.dateTime, label: "Publication confirmée dans le relevé Metricool", detail: (x.networks || []).join(", ") + " · " + (x.text || "").slice(0, 180), source: "Instantané Metricool — non temps réel" })),
+      ...h.slice(-12).map((x) => ({ at: x.harvestedAt, label: /mode mock actif|configurez AI_PROVIDER/i.test(x.content || "") ? "Récolte simulée" : "Récolte enregistrée", detail: x.title || x.seedId, source: "garden/harvests.json" })),
+      ...history.slice(-12).map((x) => ({ at: x.at, label: "Cycle " + (x.mode || "inconnu") + " · " + (x.result || "inconnu"), detail: x.reason || "", source: "garden/gerard-state.json" }))
+    ].filter((x) => x.at).sort((a,b) => String(b.at).localeCompare(String(a.at))).slice(0, 24);
+    return `<section class="journey-card"><p class="eyebrow">GitHub · lecture seule</p><h3>Journal serveur de Gérard</h3>
+      <p>${h.length} récoltes enregistrées · ${posts.length} publications dans le dernier relevé Metricool · ${history.length} cycles conservés</p>
+      <p><small>Actualisé à la consultation : ${esc(fetchedAt)}. Publications issues d'un instantané manuel, pas d'un flux temps réel. Les récoltes simulées ne sont pas des productions IA validées.</small></p>
+      ${unavailable ? '<p>Une ou plusieurs sources sont indisponibles : affichage partiel.</p>' : ""}
+      <div class="shell-list">${entries.map((x) => `<article><div><strong>${esc(x.label)}</strong><p>${esc(x.detail)}</p><small>${esc(x.at)} · ${esc(x.source)}</small></div></article>`).join("")}</div>
+    </section>`;
+  }
+
   function parcelForm() {
     return `<section class="journey-card parcel-create-card">
       <p class="eyebrow">Nouvelle parcelle client</p>
@@ -129,7 +170,7 @@
   }
 
   function renderView(view, data) {
-    if (view === "activity") return renderActivities();
+    if (view === "activity") return renderServerJournal() + renderActivities();
     if (view === "parcels") return renderParcels(data);
     if (view === "missions") return renderMissions(data);
     if (view === "harvests") return renderHarvests(data);
@@ -202,6 +243,7 @@
     if (objectiveGrid?.classList.contains("grid")) objectiveGrid.setAttribute("hidden", "");
     applyViewVisibility(view);
     bindActions();
+    if (view === "activity" && !serverJournal && !journalLoading) void loadServerJournal();
   }
 
   const baseRender = global.render;
