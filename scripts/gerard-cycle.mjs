@@ -31,7 +31,10 @@ function decideMode(state = {}, inventory = {}) {
   const recent = history.slice(-8);
   const lastMode = history.at(-1)?.mode;
   const cooldownUntil = Date.parse(state.aiCooldownUntil || "");
-  if (Number.isFinite(cooldownUntil) && Date.now() < cooldownUntil) return { mode: "symbiosis", reason: "ai-rate-limit-cooldown", retryAt: state.aiCooldownUntil };
+  // Publisher now retries alternate Mistral models on 429. Keep only a short
+  // circuit breaker so one quota error cannot suspend production for six hours.
+  const boundedCooldownUntil = Number.isFinite(cooldownUntil) ? Math.min(cooldownUntil, Date.parse(state.lastRunAt || "") + 15 * 60_000) : NaN;
+  if (Number.isFinite(boundedCooldownUntil) && Date.now() < boundedCooldownUntil) return { mode: "symbiosis", reason: "ai-rate-limit-cooldown", retryAt: new Date(boundedCooldownUntil).toISOString() };
   const backlog = inventory.activeHarvests ?? 0;
   const seedCount = inventory.seedCount ?? 0;
   const lastCultivate = [...recent].reverse().findIndex(x => x.mode === "cultivate");
@@ -337,7 +340,7 @@ async function main() {
         const rateLimited = /429|rate limit|quota/i.test(String(harvest.payload?.output?.fallbackReason || ""));
         if (mockFallback || rateLimited) {
           // Keep the run alive: record the unavailable provider, do not store fake content.
-          state.aiCooldownUntil = new Date(Date.now() + (rateLimited ? 6 : 2) * 60 * 60 * 1000).toISOString();
+          state.aiCooldownUntil = new Date(Date.now() + (rateLimited ? 15 : 30) * 60_000).toISOString();
           result.status = "ok";
           result.decision = rateLimited ? "ai-rate-limited-deferred" : "mock-rejected-deferred";
           result.deferred = { reason: harvest.payload?.output?.fallbackReason || "provider-unavailable", retryAt: state.aiCooldownUntil };
