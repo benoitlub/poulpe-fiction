@@ -30,6 +30,8 @@ function decideMode(state = {}, inventory = {}) {
   const history = Array.isArray(state.history) ? state.history : [];
   const recent = history.slice(-8);
   const lastMode = history.at(-1)?.mode;
+  const cooldownUntil = Date.parse(state.aiCooldownUntil || "");
+  if (Number.isFinite(cooldownUntil) && Date.now() < cooldownUntil) return { mode: "symbiosis", reason: "ai-rate-limit-cooldown", retryAt: state.aiCooldownUntil };
   const backlog = inventory.activeHarvests ?? 0;
   const seedCount = inventory.seedCount ?? 0;
   const lastCultivate = [...recent].reverse().findIndex(x => x.mode === "cultivate");
@@ -331,10 +333,21 @@ async function main() {
         const harvest = await runRealHarvest(selectedSeed, knowledgeOutput, operationId);
         result.harvest = harvest;
         if (harvest.status === "ok") result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
-        result.status = harvest.status === "ok" ? "ok" : "failed";
-        result.decision = harvest.status === "ok"
-          ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
-          : "harvest-failed";
+        const mockFallback = harvest.payload?.output?.isMock === true || harvest.verification?.simulated === true;
+        const rateLimited = /429|rate limit|quota/i.test(String(harvest.payload?.output?.fallbackReason || ""));
+        if (mockFallback || rateLimited) {
+          // Keep the run alive: record the unavailable provider, do not store fake content.
+          state.aiCooldownUntil = new Date(Date.now() + (rateLimited ? 6 : 2) * 60 * 60 * 1000).toISOString();
+          result.status = "ok";
+          result.decision = rateLimited ? "ai-rate-limited-deferred" : "mock-rejected-deferred";
+          result.deferred = { reason: harvest.payload?.output?.fallbackReason || "provider-unavailable", retryAt: state.aiCooldownUntil };
+        } else {
+          if (harvest.status === "ok") delete state.aiCooldownUntil;
+          result.status = harvest.status === "ok" ? "ok" : "failed";
+          result.decision = harvest.status === "ok"
+            ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
+            : "harvest-failed";
+        }
       }
       state.lastSeedId = selectedSeed.seedId;
     }
