@@ -239,7 +239,8 @@ async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
   const payload = result?.payload ?? {};
   const output = payload?.output ?? {};
   const text = typeof output?.text === "string" ? output.text.trim() : "";
-  const completed = result.status === "ok" && payload.status === "completed" && text.length > 0;
+  const simulated = /mode mock actif|configurez AI_PROVIDER|génération réelle/i.test(text) || output?.mock === true || output?.simulated === true;
+  const completed = result.status === "ok" && payload.status === "completed" && text.length > 0 && !simulated;
 
   return {
     ...result,
@@ -250,6 +251,7 @@ async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
       operationId: mission.operationId,
       capability: output?.capability ?? "content.generate",
       completed,
+      simulated,
       contentLength: text.length,
       producer: output?.producer ?? null,
       route: "octopus->publisher-adapter",
