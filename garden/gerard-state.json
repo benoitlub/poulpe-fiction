@@ -1,13 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-10-10T15:00:01.986Z",
-      "mode": "cultivate",
-      "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1791644382809",
-      "result": "ok"
-    },
-    {
       "at": "2026-10-10T15:02:12.105Z",
       "mode": "symbiosis",
       "reason": "delivery-backlog-priority",
@@ -139,12 +132,19 @@
       "reason": "ai-rate-limit-cooldown",
       "operationId": "gerard-symbiosis-1791713728907",
       "result": "ok"
+    },
+    {
+      "at": "2026-10-11T10:18:16.785Z",
+      "mode": "symbiosis",
+      "reason": "ai-rate-limit-cooldown",
+      "operationId": "gerard-symbiosis-1791713896527",
+      "result": "ok"
     }
   ],
   "lastMode": "symbiosis",
-  "lastRunAt": "2026-10-11T10:15:29.375Z",
+  "lastRunAt": "2026-10-11T10:18:16.785Z",
   "lastResult": {
-    "at": "2026-10-11T10:15:29.361Z",
+    "at": "2026-10-11T10:18:16.784Z",
     "mode": "symbiosis",
     "status": "ok",
     "scope": "local-harvest-inventory-only",
@@ -206,30 +206,18 @@
     "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   },
   "lastDecision": {
-    "at": "2026-10-11T10:15:28.903Z",
+    "at": "2026-10-11T10:18:16.523Z",
     "mode": "symbiosis",
     "reason": "ai-rate-limit-cooldown",
-    "retryAt": "2026-10-11T14:03:11.732Z"
+    "retryAt": "2026-10-11T10:30:29.375Z"
   },
   "lastSeedId": "gerard-restart-2026-10-04",
   "lastSymbiosis": {
-    "at": "2026-10-11T10:15:29.361Z",
+    "at": "2026-10-11T10:18:16.784Z",
     "duplicateCount": 26,
     "candidateCount": 2
   },
   "learningHistory": [
-    {
-      "at": "2026-10-09T20:14:56.697Z",
-      "operationId": "gerard-symbiosis-1791576895906",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
     {
       "at": "2026-10-09T20:16:18.535Z",
       "operationId": "gerard-dream-1791576975454",
@@ -809,6 +797,18 @@
     {
       "at": "2026-10-11T10:15:29.375Z",
       "operationId": "gerard-symbiosis-1791713728907",
+      "mode": "symbiosis",
+      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
+      "outcome": "ok",
+      "decision": null,
+      "seedId": null,
+      "parcelId": null,
+      "error": null,
+      "feedback": "observe-downstream-results"
+    },
+    {
+      "at": "2026-10-11T10:18:16.785Z",
+      "operationId": "gerard-symbiosis-1791713896527",
       "mode": "symbiosis",
       "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
       "outcome": "ok",
