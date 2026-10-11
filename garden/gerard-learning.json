@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-11T19:36:27Z",
+  "updatedAt": "2026-10-11T22:12:10Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -467,10 +467,26 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-11T22:12:10Z",
+      "seedId": null,
+      "harvestId": null,
+      "copyText": null,
+      "repeatCount": 0,
+      "chosenExperiment": null,
+      "experimentHypothesis": null,
+      "delivery": {
+        "status": "not-attempted"
+      },
+      "metricsStatus": "unavailable",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-11T19:36:27Z",
+    "observedAt": "2026-10-11T22:12:10Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -493,9 +509,9 @@
     }
   },
   "guidance": {
-    "seedId": "terra",
-    "chosenExperiment": "explore",
-    "nextExperiment": "Try a different creative angle or image next time; repeats remain allowed.",
+    "seedId": null,
+    "chosenExperiment": "new-angle",
+    "nextExperiment": "Explore a new angle and record delivery.",
     "performanceRankingEnabled": false
   }
 }
