@@ -352,7 +352,7 @@ jobs:
                   kind:"book",
                   officialCover:(if .media.official == true then .media.url else null end),
                   verifiedDestination:(.copy.text | (try capture("https://www\\.amazon\\.fr/dp/[A-Za-z0-9]+").string catch null)),
-                  status:(if .media.official == true and ((.copy.text // "") | test("https://www\\.amazon\\.fr/dp/")) then "complete" else "incomplete" end)
+                  status:(if .media.official == true and ((.media.url // "") | test("^https://")) and ((.title // "") | length > 3) and ((.copy.text // "") | ascii_downcase | contains((.title // "") | ascii_downcase)) and ((.copy.text // "") | test("https://www\\.amazon\\.fr/dp/[A-Za-z0-9]+")) then "complete" else "incomplete" end)
                 }
                 | if .editorialQuality.status != "complete" then
                     .status="blocked"
