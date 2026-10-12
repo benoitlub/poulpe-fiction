@@ -223,7 +223,7 @@ async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
     title: `Récolte · ${selectedSeed.title ?? selectedSeed.seedId}`,
     objective: selectedSeed.objective || "Produire une récolte exploitable.",
     prompt,
-    requiredCapabilities: ["content.generate"],
+    requiredCapabilities: ["copy.generate"],
     authorizedResources: [],
     context: {
       id: selectedSeed.parcelId,
