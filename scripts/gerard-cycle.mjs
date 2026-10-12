@@ -33,7 +33,7 @@ function decideMode(state = {}, inventory = {}) {
   const cooldownUntil = Date.parse(state.aiCooldownUntil || "");
   // Publisher now retries alternate Mistral models on 429. Keep only a short
   // circuit breaker so one quota error cannot suspend production for six hours.
-  const boundedCooldownUntil = Number.isFinite(cooldownUntil) ? Math.min(cooldownUntil, Date.parse(state.lastRunAt || "") + 15 * 60_000) : NaN;
+  const boundedCooldownUntil = cooldownUntil;
   if (Number.isFinite(boundedCooldownUntil) && Date.now() < boundedCooldownUntil) return { mode: "symbiosis", reason: "ai-rate-limit-cooldown", retryAt: new Date(boundedCooldownUntil).toISOString() };
   const backlog = inventory.activeHarvests ?? 0;
   const seedCount = inventory.seedCount ?? 0;
@@ -340,12 +340,14 @@ async function main() {
         const rateLimited = /429|rate limit|quota/i.test(String(harvest.payload?.output?.fallbackReason || ""));
         if (mockFallback || rateLimited) {
           // Keep the run alive: record the unavailable provider, do not store fake content.
-          state.aiCooldownUntil = new Date(Date.now() + (rateLimited ? 15 : 30) * 60_000).toISOString();
+          state.aiConsecutiveRateLimits = rateLimited ? Math.min(10, (state.aiConsecutiveRateLimits || 0) + 1) : 0;
+          const cooldownMinutes = rateLimited ? Math.min(1440, 15 * 2 ** Math.min(state.aiConsecutiveRateLimits - 1, 7)) : 30;
+          state.aiCooldownUntil = new Date(Date.now() + cooldownMinutes * 60_000).toISOString();
           result.status = "ok";
           result.decision = rateLimited ? "ai-rate-limited-deferred" : "mock-rejected-deferred";
           result.deferred = { reason: harvest.payload?.output?.fallbackReason || "provider-unavailable", retryAt: state.aiCooldownUntil };
         } else {
-          if (harvest.status === "ok") delete state.aiCooldownUntil;
+          if (harvest.status === "ok") { delete state.aiCooldownUntil; state.aiConsecutiveRateLimits = 0; }
           result.status = harvest.status === "ok" ? "ok" : "failed";
           result.decision = harvest.status === "ok"
             ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
