@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-12T11:01:41Z",
+  "updatedAt": "2026-10-12T21:19:31Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -515,10 +515,26 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-12T21:19:31Z",
+      "seedId": null,
+      "harvestId": null,
+      "copyText": null,
+      "repeatCount": 0,
+      "chosenExperiment": null,
+      "experimentHypothesis": null,
+      "delivery": {
+        "status": "not-attempted"
+      },
+      "metricsStatus": "unavailable",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-12T11:01:41Z",
+    "observedAt": "2026-10-12T21:19:31Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
