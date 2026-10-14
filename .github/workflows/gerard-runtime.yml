@@ -842,7 +842,13 @@ jobs:
           if jq -e '.status == "already-queued-or-sent" and .scheduled == true and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
             cp /tmp/gerard-existing-buffer-check.json /tmp/gerard-existing-buffer-confirmation.json
           elif jq -e '.status == "ready-to-queue-existing-draft" and .scheduled == false and .imageCount >= 1 and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
-            QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"schedule-existing-verified-gerard-draft"}')"
+            # Buffer explicitly rejected the first edit because its existing image
+            # was not resent. Permit ONE targeted recovery with the same cover.
+            if jq -e '.recoveryEligible == true' /tmp/gerard-existing-buffer-check.json >/dev/null 2>&1; then
+              QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"retry-once-with-confirmed-official-cover",priorRunId:38646496703}')"
+            else
+              QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"schedule-existing-verified-gerard-draft"}')"
+            fi
             QUEUE_HTTP="$(curl --silent --show-error --output /tmp/gerard-existing-buffer-confirmation.json --write-out '%{http_code}' --max-time 35 -X POST "$ENDPOINT" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data "$QUEUE_REQUEST")" || QUEUE_HTTP="000"
             echo "Existing Gérard Buffer draft scheduling HTTP $QUEUE_HTTP"
             if [ -s /tmp/gerard-existing-buffer-confirmation.json ]; then
