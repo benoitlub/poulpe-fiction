@@ -10,7 +10,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isSimulatedHarvest } from "./gerard-compost.mjs";
+import { isSimulatedHarvest, isCrossParcelYaebaliHarvest } from "./gerard-compost.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
@@ -117,6 +117,12 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   // Mock output is an operational attempt, not a deliverable. Preserve it in
   // learningHistory, but never add a new fake harvest to the active garden.
   if (isSimulatedHarvest({ content: text, isMock: output?.isMock, simulated: harvest?.verification?.simulated })) return null;
+  // Client identity guard: a 420 Dice advert can never become a Yaébali lead
+  // generation deliverable, even if the upstream language model emits one.
+  if (isCrossParcelYaebaliHarvest({ seedId: selectedSeed.seedId, parcelId: selectedSeed.parcelId, content: text })) {
+    console.log(JSON.stringify({ event:"gerard-harvest.rejected", reason:"cross-parcel-420-dice-in-yaebali", seedId:selectedSeed.seedId }));
+    return null;
+  }
 
   let existing = { harvests: [] };
   try { existing = JSON.parse(await readFile(HARVESTS_PATH, "utf8")); } catch (_) {}
