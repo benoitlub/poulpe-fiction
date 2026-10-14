@@ -1,5 +1,5 @@
 {
-  "explainedAt": "2026-10-14T18:57:17Z",
+  "explainedAt": "2026-10-14T19:08:42Z",
   "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
   "seedId": "gerard-et-gerard",
   "subject": "☁️ Récolte serveur · Gérard & Gérard (itération 3)",
@@ -29,8 +29,8 @@
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 6,
-  "previousSelectionsOfSameCopy": 0,
+  "previousSelectionsOfSameSeed": 7,
+  "previousSelectionsOfSameCopy": 1,
   "repeatedSelection": true,
   "publishedExactCopy": false,
   "publishedEvidence": [],
@@ -74,7 +74,7 @@
         "id": "new-angle",
         "hypothesis": "A new creative angle may perform differently.",
         "test": "Try new copy or media while retaining the subject.",
-        "priority": 2
+        "priority": 3
       },
       {
         "id": "observe",
