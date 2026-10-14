@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-14T17:45:55.917Z",
+  "checkedAt": "2026-10-14T18:52:12.755Z",
   "timezone": "Europe/Paris",
   "day": "2026-10-14",
   "month": "2026-10",
@@ -10,8 +10,8 @@
     "exhausted": null,
     "verified": false,
     "status": "incomplete-provider-history",
-    "minimumObservedPosts": 3,
-    "minimumObservedNetworkDeliveries": 4,
+    "minimumObservedPosts": 4,
+    "minimumObservedNetworkDeliveries": 5,
     "observedPostsToday": 0,
     "source": "metricool-manually-verified-snapshot",
     "policy": "Do not auto-schedule from this report; verify the actual Metricool monthly usage first.",

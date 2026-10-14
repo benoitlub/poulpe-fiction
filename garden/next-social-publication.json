@@ -1,0 +1,83 @@
+{
+  "preparedAt": "2026-10-14T18:52:50Z",
+  "status": "blocked",
+  "contract": "gerard-metricool-bridge-next-v1",
+  "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
+  "seedId": "gerard-et-gerard",
+  "title": "☁️ Récolte serveur · Gérard & Gérard (itération 3)",
+  "score": 70,
+  "copy": {
+    "text": "🎥 *[Plan serré sur deux mains tenant un livre, voix off énergique]*\n*\"Deux Gérard. Un seul livre. Et si c’était VOUS le troisième ?*\n*Gérard A ou Gérard B ? Faites votre choix… et découvrez lequel vous ressemble !*\n*👉 [Lien en bio] #GérardEtGérard",
+    "strategy": "explicit-social-content"
+  },
+  "media": {
+    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
+    "direct": true,
+    "official": true
+  },
+  "production": {
+    "capability": "official-media",
+    "generated": false
+  },
+  "compatibleNetworks": [
+    "facebook",
+    "instagram"
+  ],
+  "networkRules": {
+    "instagram": {
+      "requiresMedia": true,
+      "isAiGenerated": false
+    },
+    "youtube": {
+      "compatible": false,
+      "reason": "image-only-media-requires-video"
+    }
+  },
+  "guardrails": {
+    "monthlyPublicationLimit": 20,
+    "quotaPeriod": "calendar-month",
+    "quotaScope": "metricool-brand",
+    "quotaPolicy": "block-before-scheduling-when-monthly-limit-is-reached",
+    "minimumSpacingHours": 4,
+    "duplicateProtection": "caller-supplied-excludeCopy"
+  },
+  "provenance": {
+    "source": "garden-autoselection",
+    "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
+    "seedId": "gerard-et-gerard"
+  },
+  "editorialLearning": {
+    "repeatedExactCopy": false,
+    "lesson": "Compare repeated posts against reach and engagement; try another angle next time."
+  },
+  "editorialRoute": {
+    "contract": "publisher-editorial-routing-v1",
+    "status": "dry-run",
+    "topic": "book",
+    "destination": {
+      "audience": "author-books",
+      "preferredProvider": "buffer",
+      "preferredAccount": "benoitlubert",
+      "fallbackAccount": null,
+      "requiresChannelVerification": true
+    },
+    "publishingEnabled": false
+  },
+  "delivery": {
+    "status": "not-attempted",
+    "publishingEnabled": false
+  },
+  "action": "do-not-schedule",
+  "transport": {
+    "provider": "buffer",
+    "account": "benoitlubert",
+    "draftOnly": true
+  },
+  "editorialQuality": {
+    "kind": "book",
+    "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
+    "verifiedDestination": null,
+    "status": "incomplete"
+  },
+  "reason": "book-editorial-metadata-incomplete"
+}
