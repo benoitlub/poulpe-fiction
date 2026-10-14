@@ -1,32 +1,179 @@
 {
-  "source": "metricool-analytics",
+  "source": "metricool-connected-analytics",
   "brandId": "3350145",
-  "checkedAt": "2026-10-10",
+  "checkedAt": "2026-10-14",
   "period": {
     "from": "2026-10-01",
-    "to": "2026-10-10"
+    "to": "2026-10-14"
   },
-  "status": "unavailable",
+  "status": "available",
+  "completeness": "partial-provider-response",
+  "verifiedPostCount": 5,
   "requestedMetrics": {
+    "instagram": [
+      "IGPO01",
+      "IGPO03",
+      "IGPO06",
+      "IGPO08",
+      "IGPO10",
+      "IGPO12",
+      "IGPO13",
+      "IGPO14",
+      "IGPO15"
+    ],
     "facebook": [
-      "FBPO02",
+      "FBPO01",
       "FBPO03",
-      "FBPO04",
+      "FBPO06",
       "FBPO08",
+      "FBPO09",
       "FBPO10",
       "FBPO12",
       "FBPO13",
       "FBPO14"
-    ],
-    "instagram": [
-      "IGPO02",
-      "IGPO03",
-      "IGPO04",
-      "IGPO10",
-      "IGPO12",
-      "IGPO14"
     ]
   },
-  "posts": [],
-  "note": "Metricool connector queried directly on 2026-10-10 for Facebook and Instagram post metrics; response rows: []. No per-post metrics available. Missing data is not zero engagement."
+  "posts": [
+    {
+      "network": "facebook",
+      "date": "2026-10-05",
+      "text": "Test de transmission. Si vous voyez ceci, Gérard a trouvé la sortie. 🐙",
+      "url": "https://facebook.com/122158707854022326/posts/122317665002022326",
+      "metrics": {
+        "comments": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0,
+        "reach": 7,
+        "reactions": 0,
+        "shares": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "FBPO01",
+        "FBPO03",
+        "FBPO06",
+        "FBPO08",
+        "FBPO09",
+        "FBPO10",
+        "FBPO12",
+        "FBPO13",
+        "FBPO14"
+      ],
+      "verified": true
+    },
+    {
+      "network": "facebook",
+      "date": "2026-10-06",
+      "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "url": "https://facebook.com/122158707854022326/posts/122317783394022326",
+      "metrics": {
+        "comments": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0,
+        "reach": 1,
+        "reactions": 0,
+        "shares": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "FBPO01",
+        "FBPO03",
+        "FBPO06",
+        "FBPO08",
+        "FBPO09",
+        "FBPO10",
+        "FBPO12",
+        "FBPO13",
+        "FBPO14"
+      ],
+      "verified": true
+    },
+    {
+      "network": "instagram",
+      "date": "2026-10-06",
+      "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "url": "https://www.instagram.com/p/DeJXjGFFZFw/",
+      "metrics": {
+        "comments": 0,
+        "engagementPerThousand": 0,
+        "interactions": 0,
+        "likes": 0,
+        "reach": 17,
+        "saves": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "IGPO01",
+        "IGPO03",
+        "IGPO06",
+        "IGPO08",
+        "IGPO10",
+        "IGPO12",
+        "IGPO13",
+        "IGPO14",
+        "IGPO15"
+      ],
+      "verified": true
+    },
+    {
+      "network": "facebook",
+      "date": "2026-10-09",
+      "text": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
+      "url": "https://facebook.com/122158707854022326/posts/122318218490022326",
+      "metrics": {
+        "comments": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0,
+        "reach": 4,
+        "reactions": 0,
+        "shares": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "FBPO01",
+        "FBPO03",
+        "FBPO06",
+        "FBPO08",
+        "FBPO09",
+        "FBPO10",
+        "FBPO12",
+        "FBPO13",
+        "FBPO14"
+      ],
+      "verified": true
+    },
+    {
+      "network": "facebook",
+      "date": "2026-10-13",
+      "text": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
+      "url": "https://facebook.com/122158707854022326/posts/122318927600022326",
+      "metrics": {
+        "comments": 0,
+        "linkClicks": 1,
+        "engagementPerThousand": 100,
+        "reach": 1,
+        "reactions": 0,
+        "shares": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "FBPO01",
+        "FBPO03",
+        "FBPO06",
+        "FBPO08",
+        "FBPO09",
+        "FBPO10",
+        "FBPO12",
+        "FBPO13",
+        "FBPO14"
+      ],
+      "verified": true
+    }
+  ],
+  "caveats": [
+    "Rows may be incomplete: do not infer that other posts do not exist.",
+    "Zero is a provider-returned metric; absent or null metrics must not be treated as zero.",
+    "Compare only within the same network and comparable formats; do not infer post quality from small samples.",
+    "Publication cannot be attributed to Gerard solely from the content of a post."
+  ]
 }
