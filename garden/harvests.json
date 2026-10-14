@@ -672,7 +672,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "off-domain-generic-prospecting-in-yaebali",
+        "compostedAt": "2026-10-14T22:40:59.775Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791995774206-harvest",

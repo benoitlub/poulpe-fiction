@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-14T22:23:19.664Z",
+  "at": "2026-10-14T22:41:00.224Z",
   "mode": "symbiosis",
   "status": "ok",
   "scope": "local-harvest-inventory-only",
@@ -18,12 +18,12 @@
     ]
   },
   "totalHarvests": 37,
-  "activeHarvests": 9,
-  "compostedCount": 28,
-  "uniqueContent": 9,
+  "activeHarvests": 5,
+  "compostedCount": 32,
+  "uniqueContent": 5,
   "duplicateCount": 0,
   "duplicateHarvestIds": [],
-  "candidateCount": 9,
+  "candidateCount": 5,
   "candidateSample": [
     {
       "harvestId": "gerard-cultivate-1791969338280-harvest",
@@ -31,19 +31,9 @@
       "state": "harvested"
     },
     {
-      "harvestId": "gerard-cultivate-1791979340112-harvest",
-      "parcelId": "project-yael-prospection",
-      "state": "ready-to-offer"
-    },
-    {
       "harvestId": "gerard-cultivate-1791995774206-harvest",
       "parcelId": "poulpe-fiction",
       "state": "harvested"
-    },
-    {
-      "harvestId": "gerard-cultivate-1791998368146-harvest",
-      "parcelId": "project-yael-prospection",
-      "state": "ready-to-offer"
     },
     {
       "harvestId": "gerard-cultivate-1791999233517-harvest",
@@ -51,19 +41,9 @@
       "state": "harvested"
     },
     {
-      "harvestId": "gerard-cultivate-1792003932910-harvest",
-      "parcelId": "project-yael-prospection",
-      "state": "ready-to-offer"
-    },
-    {
       "harvestId": "gerard-cultivate-1792004897205-harvest",
       "parcelId": "poulpe-fiction",
       "state": "harvested"
-    },
-    {
-      "harvestId": "gerard-cultivate-1792005304058-harvest",
-      "parcelId": "project-yael-prospection",
-      "state": "ready-to-offer"
     },
     {
       "harvestId": "gerard-cultivate-1792016250702-harvest",

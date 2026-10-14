@@ -1,22 +1,21 @@
 {
-  "at": "2026-10-14T22:36:11.914Z",
+  "at": "2026-10-14T22:40:59.775Z",
   "contract": "gerard-compost-report-v1",
   "scope": "local-harvests-only",
   "previousTotal": 37,
   "totalHarvests": 37,
-  "newlyComposted": 3,
+  "newlyComposted": 1,
   "reasons": {
     "simulated": 0,
     "exactDuplicate": 0,
-    "crossParcel": 3
+    "crossParcel": 0,
+    "offDomainClient": 1
   },
-  "activeHarvests": 6,
-  "compostedHarvests": 31,
+  "activeHarvests": 5,
+  "compostedHarvests": 32,
   "archivedHarvests": 0,
   "newlyCompostedIds": [
-    "gerard-cultivate-1791998368146-harvest",
-    "gerard-cultivate-1792003932910-harvest",
-    "gerard-cultivate-1792005304058-harvest"
+    "gerard-cultivate-1791979340112-harvest"
   ],
   "action": "marked-composted",
   "safeguards": {
