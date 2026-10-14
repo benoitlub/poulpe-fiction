@@ -1,0 +1,128 @@
+{
+  "contract": "gerard-yaebali-client-outreach-v1",
+  "client": "Yaébali",
+  "seedId": "yael-prospection",
+  "parcelId": "project-yael-prospection",
+  "source": "verified-user-brief",
+  "status": "ready-for-client-review",
+  "clientApproval": false,
+  "published": false,
+  "sentToClient": false,
+  "consentedLeadsVerified": null,
+  "leadEvidenceStatus": "not-verified",
+  "generatedAt": "2026-10-15",
+  "objective": "Préparer un essai réel de captation de 1 à 2 contacts entrants qualifiés par mois, sans annoncer de résultats avant mesure.",
+  "service": "Courtage immobilier, clarification de projet et besoins de financement.",
+  "geographicHypotheses": [
+    "Montigny-le-Bretonneux",
+    "Guyancourt",
+    "Voisins-le-Bretonneux",
+    "Bois-d'Arcy"
+  ],
+  "channel": {
+    "preferred": "LinkedIn ou page professionnelle dédiée à Yaél Bali",
+    "verified": false,
+    "accountId": null,
+    "doNotUse": [
+      "Instagram @pro.hbtd",
+      "Facebook Pro.Hibited",
+      "comptes de jeux et livres"
+    ]
+  },
+  "offer": {
+    "title": "Un projet immobilier ? Clarifions les premières étapes avant de parler financement.",
+    "promises": [
+      "Comprendre le projet, sa localisation et son calendrier",
+      "Identifier les questions de financement à traiter avec la courtière",
+      "Proposer, après demande volontaire, un échange humain"
+    ],
+    "forbidden": [
+      "Taux garanti",
+      "Financement garanti",
+      "Partenariats bancaires non prouvés",
+      "Témoignages inventés",
+      "Création de faux prospects"
+    ]
+  },
+  "organicPostDraft": {
+    "network": "professional-channel-pending-validation",
+    "text": "Vous préparez un achat immobilier à Guyancourt, Montigny-le-Bretonneux, Voisins-le-Bretonneux ou Bois-d'Arcy ? 🏡\\n\\nAvant de chercher un crédit, trois questions peuvent aider à clarifier votre projet : où souhaitez-vous acheter, dans quel délai, et quelles informations vous manquent sur le financement ?\\n\\nUn échange avec une professionnelle du courtage peut aider à identifier les prochaines étapes — sans promesse de taux ou d'accord de prêt.\\n\\nSi ce sujet vous concerne, vous pouvez demander un premier échange par le canal professionnel qui sera confirmé ici. Évitez de communiquer des informations financières personnelles en commentaire.",
+    "ctaStatus": "pending-verified-client-contact-or-booking-link",
+    "mediaStatus": "not-provided",
+    "requiresHumanApproval": true
+  },
+  "optInFormDraft": {
+    "status": "schema-only-not-live",
+    "fields": [
+      {
+        "name": "firstName",
+        "label": "Prénom",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "contact",
+        "label": "Email ou numéro communiqué volontairement",
+        "type": "contact",
+        "required": true
+      },
+      {
+        "name": "projectArea",
+        "label": "Commune du projet",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "projectTimeline",
+        "label": "Échéance du projet",
+        "type": "choice",
+        "options": [
+          "0-3 mois",
+          "3-6 mois",
+          "6-12 mois",
+          "Plus tard",
+          "À définir"
+        ],
+        "required": true
+      },
+      {
+        "name": "question",
+        "label": "Votre question principale",
+        "type": "multiline",
+        "required": false
+      },
+      {
+        "name": "consent",
+        "label": "J'accepte d'être recontacté(e) pour cette demande",
+        "type": "checkbox",
+        "required": true
+      }
+    ],
+    "note": "Finaliser la notice de confidentialité, responsable, conservation, destination des données et lien de contact avant toute collecte.",
+    "noDataCollectionConfigured": true
+  },
+  "qualification": {
+    "realLeadDefinition": "Contact volontaire avec coordonnées fournies et consentement, projet immobilier exprimé et origine traçable.",
+    "scoringPolicy": "Ne pas inférer une solvabilité ou une approbation bancaire; prioriser uniquement la pertinence d'un échange humain.",
+    "stages": [
+      "nouvelle demande",
+      "à préciser",
+      "échange humain proposé",
+      "rendez-vous accepté",
+      "sans suite"
+    ]
+  },
+  "experiment": {
+    "durationDays": 7,
+    "plan": "Une publication pédagogique et un point de contact validé, puis relevé quotidien du nombre de demandes entrantes consenties (zéro si mesure réellement vérifiée). Tester un autre angle au cycle suivant selon retour.",
+    "successMetric": "nombre de prises de contact volontaires et qualifiées, pas likes ni vues",
+    "exposureStatus": "not-launched"
+  },
+  "safeguards": {
+    "autoPublish": false,
+    "autoDM": false,
+    "clientDataTransfer": false,
+    "avoidPersonalDataInGitHub": true,
+    "doNotCrossPromoteOtherParcels": true
+  }
+}
