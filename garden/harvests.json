@@ -419,6 +419,19 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1791969338280-harvest",
+      "harvestedAt": "2026-10-14T09:15:51.899Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "content": "**Action immédiate : Commencer par observer et noter les \"Tiens...\"**\n\n**Étape 1 : Activer le mode \"Garden\"**\n- **Demander à Gérard** (via l’interface de *Poulpe Fiction*) :\n  *« Qu’est-ce qui t’a marqué récemment dans ce jardin ? Montre-moi tes \"Tiens...\" »*\n  *(Cible les signaux faibles d’étonnement depuis les 3 dernières sessions.)*\n\n**Étape 2 : Préparer le sac pour une micro-aventure**\n- **Sac à remplir** (exemples concrets) :\n  - *Observation* : « Les greffons *Document AI* et *OCR* sont souvent utilisés ensemble pour les documents PDF. »\n  - *Rêve* : « Et si je testais une combinaison *Voice* + *Lovable* pour reformuler des Harvests orales ? »\n  - *Souvenir* : « La dernière fois, j’ai ignoré une curiosité sur les *tokens* : elle est revenue 2 fois. »\n  - *Limite connue* : « *GitHub* est bloqué sur les dépôts sensibles sans validation. »\n\n- **Pique-nique** (outils à annoncer) :\n  *« Pour explorer ça, j’ai besoin de :\n  - 1 token Mistral (pour reformuler) ;\n  - Greffon *Document AI* (pour analyser un texte) ;\n  - *Voice* (pour tester une sortie orale). »*\n\n**Étape 3 : Valider le départ**\n- **Demander explicitement** :\n  *« Ce sac est-il prêt pour une aventure légère ? (Pas de données sensibles, budget maîtrisé.) »*\n  *(Attendre confirmation du jardinier avant action.)*\n\n**Étape 4 : Retour au Garden**\n- **Format attendu** :\n  Gérard doit revenir avec :\n  - Une *Harvest* (ex : « *Voice* + *Lovable* améliore les feedbacks oraux de 30% en clarté ») ;\n  - **OU** une note de carnet (ex : *« J’ai abandonné l’idée des tokens optimisés : trop de bruit. »*) ;\n  - **OU** un nouvel *étonnement* (ex : *« Pourquoi *OCR* échoue-t-il sur les tableaux ? »*).\n\n---\n**Prochaine étape** :\n- **Lister les 3 curiosités persistantes** dans le carnet (format : *« Tiens… [parcelle] : [phénomène] »*).\n- **Choisir une Seed** parmi elles pour une aventure plus poussée (ex : *« Pourquoi les greffons *Dream Weaver* sont-ils rarement utilisés ? »*).\n\n---\n**À éviter** :\n- ❌ Lancer une aventure sans sac préparé.\n- ❌ Confondre *curiosité* et *mission client* (ex : ne pas transformer un rêve en tâche urgente).\n- ❌ Oublier de noter dans le carnet **ce qui change Gérard**, pas juste les faits.\n\n---\n**Exemple concret de sortie attendue** :\n*« Tiens… Dans la parcelle *Blacklace*, les utilisateurs ignorent systématiquement les suggestions de *GitHub* après 3 essais. Je note :\n- Hypothèse : peur de l’inconnu ?\n- Expérience à faire : tester un ton plus narratif (comme *Lovable*). »*\n\n---\n**Prochaine action** :\n*(À faire après validation du jardinier)*\n**→ Demander à Gérard :**\n*« Montre-moi tes 3 dernières curiosités marquées comme \"persistantes\". On en choisit une pour une aventure. »*",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": null,
+      "state": "harvested"
     }
   ]
 }
