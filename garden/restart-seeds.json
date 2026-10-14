@@ -12,8 +12,8 @@
       "seedId": "yael-prospection",
       "parcelId": "project-yael-prospection",
       "title": "Yaébali · Préqualification de prospects",
-      "objective": "Produire une récolte directement exploitable pour Yaébali : critères de qualification, score sur 100, informations à vérifier, fiche prospect, requêtes de recherche, trois messages de premier contact et tableau de suivi. Quand elle est suffisamment mûre, la marquer prête à être proposée à Yaébali, sans effectuer l'envoi automatiquement.",
-      "firstHarvest": "Kit de préqualification commerciale prêt à livrer à Yaébali, accompagné d'un résumé court de sa valeur et d'une proposition d'envoi.",
+      "objective": "Priorité acquisition de prospects consentants pour Yaébali (courtage immobilier secteur Montigny-le-Bretonneux, Guyancourt, Voisins-le-Bretonneux, Bois-d'Arcy). Vérifier d'abord le nombre de vrais contacts entrants et leur source; exclure les fiches TEST, les contacts inventés et les doublons. S'il n'y a pas de leads, produire un dispositif concret de captation: offre claire, texte de publication pédagogique conforme, appel à prise de rendez-vous uniquement avec URL confirmée, formulaire avec consentement explicite, critères de qualification et plan de diffusion sur un canal professionnel adapté. Ne pas prétendre avoir généré de leads sans coordonnées volontairement transmises. Répéter chaque cycle en mesurant les vrais signaux, en changeant l'angle si aucune conversion et en conservant l'historique. Toute publication au nom de Yaébali ou transfert de données personnelles requiert validation et canal autorisé; ne pas publier la promotion de courtage sur les comptes Pro.hibited de jeux.",
+      "firstHarvest": "Audit des leads réels (hors TEST), puis campagne de captation prête à valider: message, canal professionnel, formulaire opt-in, qualification, suivi et prochaine expérience mesurable. Pas de nouveau kit générique sans preuve de diffusion.",
       "knowledgeSlug": "yael-prequalification-de-prospects",
       "delivery": {
         "recipient": "Yaébali",
