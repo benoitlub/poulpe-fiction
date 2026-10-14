@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compostHarvests, isSimulatedHarvest, isCrossParcelYaebaliHarvest } from "../scripts/gerard-compost.mjs";
+import { compostHarvests, isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "../scripts/gerard-compost.mjs";
 
 const now = "2026-10-14T18:00:00.000Z";
 const fallback = "Contenu généré pour l'univers poulpe-fiction par Sofia. Mode mock actif — configurez AI_PROVIDER et AI_API_KEY pour une génération réelle.";
@@ -89,4 +89,16 @@ test("Yaebali 420 Dice campaigns are composted but their original text is retain
 test("a warning mentioning another universe is not itself a client ad", () => {
   const warning = make("warning", "Ne pas diffuser 420 Dice sur la page de Yaébali; la prospection immobilière doit rester séparée.", "yael-prospection", "project-yael-prospection");
   assert.equal(isCrossParcelYaebaliHarvest(warning), false);
+});
+
+test("generic B2B cold outreach is not a Yaebali mortgage deliverable", () => {
+  const misplaced = make("b2b", "Yaelbali : prospects consultants et entrepreneurs locaux, comment automatiser les relances clients, score 9/10.", "yael-prospection", "project-yael-prospection", { state: "ready-to-offer" });
+  const property = make("real-estate", "Yael Bali, courtage immobilier, achat de logement à Guyancourt : formulaire de contact volontaire.", "yael-prospection", "project-yael-prospection", { state: "ready-to-offer" });
+  assert.equal(isOffDomainYaebaliHarvest(misplaced), true);
+  assert.equal(isOffDomainYaebaliHarvest(property), false);
+  const cleaned = compostHarvests([misplaced, property], { now });
+  assert.equal(cleaned.report.reasons.offDomainClient, 1);
+  assert.equal(cleaned.harvests[0].state, "composted");
+  assert.equal(cleaned.harvests[0].compost.reason, "off-domain-generic-prospecting-in-yaebali");
+  assert.equal(cleaned.harvests[1].state, "ready-to-offer");
 });
