@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compostHarvests, isSimulatedHarvest } from "../scripts/gerard-compost.mjs";
+import { compostHarvests, isSimulatedHarvest, isCrossParcelYaebaliHarvest } from "../scripts/gerard-compost.mjs";
 
 const now = "2026-10-14T18:00:00.000Z";
 const fallback = "Contenu généré pour l'univers poulpe-fiction par Sofia. Mode mock actif — configurez AI_PROVIDER et AI_API_KEY pour une génération réelle.";
@@ -64,4 +64,29 @@ test("explicit provider mock flag is respected, archived entries remain untouche
   const { harvests } = compostHarvests([flagged, archived], { now });
   assert.equal(harvests[0].state, "composted");
   assert.equal(harvests[1].state, "archived");
+});
+
+test("Yaebali 420 Dice campaigns are composted but their original text is retained", () => {
+  const bad = make("client-bad", "### Campagne Instagram (@pro.hbtd) – Reel 420 Dice Game Reboot\\nProspects via le jeu.", "yael-prospection", "project-yael-prospection",
+    { state: "ready-to-offer", delivery: { recipient:"Yaébali", mode:"propose-before-send" } });
+  const good = make("client-good", "Yael Bali accompagne les projets immobiliers à Guyancourt, proposer un formulaire opt-in.", "yael-prospection", "project-yael-prospection", { state:"ready-to-offer" });
+  const other = make("game-real", bad.content, "420-dice", "poulpe-fiction");
+  assert.equal(isCrossParcelYaebaliHarvest(bad), true);
+  assert.equal(isCrossParcelYaebaliHarvest(good), false);
+  assert.equal(isCrossParcelYaebaliHarvest(other), false);
+  const first = compostHarvests([bad, good, other], { now });
+  assert.equal(first.report.reasons.crossParcel, 1);
+  assert.equal(first.harvests[0].state, "composted");
+  assert.equal(first.harvests[0].compost.reason, "cross-parcel-420-dice-in-yaebali");
+  assert.equal(first.harvests[0].compost.previousState, "ready-to-offer");
+  assert.equal(first.harvests[0].content, bad.content);
+  assert.deepEqual(first.harvests[0].delivery, bad.delivery);
+  assert.equal(first.harvests[1].state, "ready-to-offer");
+  assert.equal(first.harvests[2].state, "harvested");
+  assert.equal(compostHarvests(first.harvests, { now }).report.newlyComposted, 0);
+});
+
+test("a warning mentioning another universe is not itself a client ad", () => {
+  const warning = make("warning", "Ne pas diffuser 420 Dice sur la page de Yaébali; la prospection immobilière doit rester séparée.", "yael-prospection", "project-yael-prospection");
+  assert.equal(isCrossParcelYaebaliHarvest(warning), false);
 });
