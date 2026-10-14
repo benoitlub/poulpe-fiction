@@ -1,0 +1,40 @@
+name: Gerard Reel 420 visual proof
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Produce a real 9:16 visual asset
+        shell: bash
+        run: |
+          mkdir -p output
+          cat > output/420-dice-reel-vertical.svg <<'SVG'
+          <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+          <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#131321"/><stop offset="1" stop-color="#39235e"/></linearGradient></defs>
+          <rect width="1080" height="1920" fill="url(#bg)"/>
+          <circle cx="930" cy="310" r="290" fill="#a56bff" opacity=".15"/>
+          <text x="90" y="215" fill="#c8a9ff" font-family="Arial,sans-serif" font-weight="bold" font-size="58">420 DICE GAME</text>
+          <text x="90" y="450" fill="white" font-family="Arial,sans-serif" font-weight="900" font-size="106">PAS DE 420 ?</text>
+          <text x="90" y="580" fill="#f7d75b" font-family="Arial,sans-serif" font-weight="900" font-size="103">TU PRENDS</text>
+          <text x="90" y="710" fill="#f7d75b" font-family="Arial,sans-serif" font-weight="900" font-size="103">UN GAGE.</text>
+          <g transform="translate(180 910) rotate(-12)"><rect width="290" height="290" rx="42" fill="#fff"/><circle cx="145" cy="145" r="34" fill="#30244e"/></g>
+          <g transform="translate(555 1020) rotate(13)"><rect width="290" height="290" rx="42" fill="#fff"/><circle cx="75" cy="75" r="27" fill="#30244e"/><circle cx="215" cy="215" r="27" fill="#30244e"/></g>
+          <text x="90" y="1480" fill="white" font-family="Arial,sans-serif" font-size="65" font-weight="bold">3 DÉS · 3 LANCERS</text>
+          <text x="90" y="1585" fill="#c8a9ff" font-family="Arial,sans-serif" font-size="48">Visuel promotionnel conceptuel</text>
+          <text x="90" y="1650" fill="#c8a9ff" font-family="Arial,sans-serif" font-size="42">Dés illustratifs, pas une capture du jeu</text>
+          <text x="90" y="1790" fill="white" font-family="Arial,sans-serif" font-size="38">benoitlub.github.io/420-dice-game-reboot/</text>
+          </svg>
+          SVG
+          test -s output/420-dice-reel-vertical.svg
+      - name: Upload visual for human review
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-420-dice-vertical-visual
+          path: output/420-dice-reel-vertical.svg
+          retention-days: 14
