@@ -15,7 +15,7 @@ function publishedDay(entry) {
   // Verified connector data sometimes contains only a calendar date. Accept
   // that precision rather than inventing a time of day.
   const dateOnly = entry?.publicationDate?.date;
-  if (typeof dateOnly === "string" && /^\\d{4}-\\d{2}-\\d{2}$/.test(dateOnly)) return dateOnly;
+  if (typeof dateOnly === "string" && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dateOnly)) return dateOnly;
   const dateTime = entry?.publicationDate?.dateTime;
   if (typeof dateTime !== "string") return null;
   // Metricool snapshot supplies a local wall-clock time and Europe/Madrid
