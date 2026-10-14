@@ -462,6 +462,23 @@
       "route": "octopus->publisher-adapter",
       "delivery": null,
       "state": "harvested"
+    },
+    {
+      "harvestId": "gerard-cultivate-1791998368146-harvest",
+      "harvestedAt": "2026-10-14T17:19:50.561Z",
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection",
+      "title": "Yaébali · Préqualification de prospects",
+      "content": "### **Audit des leads réels (hors TEST) – Plan d’action concis**\n\n#### **1. Campagne Instagram (@pro.hbtd) – Reel 420 Dice Game**\n**Objectif** : Générer des leads qualifiés via un Reel viral + lien vers le jeu.\n**Canal** : Instagram (Reel 9:16, 15s).\n**Message clé** :\n*\"Pas de 420 en 3 lancers ? À toi le gage ! 🎲*\n**Lien** : [https://benoitlub.github.io/420-dice-game-reboot/](https://benoitlub.github.io/420-dice-game-reboot/)\"\n\n**Étapes** :\n- **Prise de vue réelle** :\n  - Dés et lancers **réels** (pas de synthèse IA).\n  - Gage **réel** (ex : \"boire une bière\", \"faire un selfie avec un ami\").\n- **Montage** :\n  - Hook (0-5s) : Personnage mystérieux + texte \"Pas de 420 ? Gage\".\n  - Plan 2 (5-10s) : Lancers rapides + dés réels.\n  - Plan 3 (10-15s) : Réaction du gage + légende \"3 dés, 3 lancers. Sinon, c’est le jeu qui décide !\".\n- **Validation** :\n  - Lien cliquable (bio ou lien en commentaire).\n  - Droits des personnes filmées (autorisation signée si visage visible).\n- **Suivi** :\n  - Collecter les DM/réactions via un **formulaire Google/Typeform** (lien dans bio).\n  - **Qualification** : Noter si le prospect exprime un intérêt pour des jeux/expériences similaires.\n\n---\n\n#### **2. Campagne de préqualification prospects (Facebook/Messenger)**\n**Objectif** : Créer un système **Notion + IA** pour trier les leads Facebook/Messenger.\n**Livrables** :\n1. **Base Notion** (template prêt à partager avec Yaelbali) :\n   - Champs : Nom, Source, Besoin, Urgence, Budget, Compatibilité, Score, Message de relance.\n   - Vues : \"Prospects chauds\", \"À vérifier\", \"Contactés\".\n2. **Grille de qualification** :\n   - Critères : Besoin clair/flou, Urgence (Faible/Moyenne/Forte), Capacité à payer.\n3. **IA (Mistral)** :\n   - **Prompt** (à intégrer dans Make/n8n) :\n     ```json\n     {\n       \"role\": \"user\",\n       \"content\": \"Analyse ce prospect et retourne un JSON avec :\n       - resume_qualification (string)\n       - score_sur_10 (int)\n       - priorite (Chaud/Tiède/Froid)\n       - action_recommandee (string)\n       - message_propose (string)\n       Données : {{Nom}}, {{Besoin}}, {{Urgence}}, {{Source}}\"\n     }\n     ```\n4. **Formulaire d’entrée** (optionnel) :\n   - Page GitHub Pages + **Formspree** → Notion.\n   - Champs : Prénom, Email, Besoin, Urgence, Budget.\n   - **RGPD** : Case de consentement + phrase de confidentialité.\n\n**Automatisation** (Make/n8n) :\n- **Trigger** : Nouvelle entrée Notion.\n- **Action** : Appel Mistral → Mise à jour Notion (résumé + score).\n- **Notification** : Email/Telegram pour Yaelbali si prospect \"Chaud\".\n\n---\n#### **3. Prochaine expérience mesurable**\n**KPI** :\n- **Reel Instagram** : Taux de clics sur le lien (objectif : 5%+).\n- **Base Notion** : % de prospects \"Chauds\" convertis en rendez-vous (objectif : 20%).\n- **Formulaire** (si activé) : Taux de remplissage + score moyen des prospects.\n\n**Calendrier** :\n| Jour  | Action                          | Responsable       |\n|-------|----------------------------------|-------------------|\n| 1     | Finaliser Reel + prise de vue     | [Nom]             |\n| 2     | Créer base Notion + grille       | [Nom]             |\n| 3     | Configurer Make/n8n + IA         | [Nom]             |\n| 4     | Partager template à Yaelbali     | [Nom]             |\n| 5     | Lancer Reel + suivre DMs        | [Nom] + Yaelbali  |\n\n---\n#### **4. Budget & Validation**\n- **Coût pilote** : 200€ (base Notion + qualification manuelle).\n- **Option IA automatique** : +300€ (Make/n8n + Mistral).\n- **Validation** :\n  - Yaelbali valide le Reel **avant publication**.\n  - Test du scénario Make avec 1 prospect fictif avant diffusion.\n\n---\n#### **5. Jet d’encre (ADR Poulpe)**\n- **Si risque détecté** (ex : clé API exposée) :\n  - Suspendre l’automatisation.\n  - Notifier Yaelbali : *\"Le système a détecté un risque. Je propose une solution alternative (qualification manuelle).\"*\n\n---\n**Résumé actionnable** :\n1. **Reel**",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "recipient": "Yaébali",
+        "mode": "propose-before-send",
+        "harvestState": "ready-to-offer"
+      },
+      "state": "ready-to-offer"
     }
   ]
 }
