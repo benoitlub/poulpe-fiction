@@ -597,8 +597,7 @@ jobs:
           PY
           fi
 
-      - name: Inspect TERRA on Buffer (read-only)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: Inspect selected book in Buffer before any write (read-only)
         working-directory: poulpe-fiction
         env:
           BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
@@ -609,14 +608,21 @@ jobs:
             echo "Buffer lookup unavailable: token missing."
             exit 0
           fi
-          STATUS="$(curl --silent --show-error --output /tmp/buffer-terra-lookup.json --write-out '%{http_code}' --max-time 35 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/buffer-lookup" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
-          echo "Buffer TERRA lookup HTTP $STATUS"
-          if [ -f /tmp/buffer-terra-lookup.json ]; then
-            jq -c '{status,channel,postsHttpStatus,postsInspected,hasNextPage,terraMatches,errorMessages,reason}' /tmp/buffer-terra-lookup.json
+          if ! jq -e '.transport.provider == "buffer" and .harvestId != null' garden/next-social-publication.json >/dev/null; then
+            echo "Buffer lookup skipped: no selected book."
+            exit 0
+          fi
+          HARVEST_ID="$(jq -r '.harvestId' garden/next-social-publication.json)"
+          STATUS="$(curl --silent --show-error --get --output /tmp/buffer-book-lookup.json --write-out '%{http_code}' --max-time 35 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/buffer-lookup" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" --data-urlencode "harvestId=$HARVEST_ID")" || STATUS="000"
+          echo "Buffer selected-book lookup HTTP $STATUS"
+          if [ "$STATUS" = "200" ] && [ -s /tmp/buffer-book-lookup.json ]; then
+            jq -c '{status,channel,postsHttpStatus,postsInspected,hasNextPage,target:{harvestId:.target.harvestId,status:.target.status,copyVerified:.target.copyVerified,exactMatches:.target.exactMatches,complete:.target.complete,safeToAssumeNoPost:.target.safeToAssumeNoPost},errorMessages}' /tmp/buffer-book-lookup.json
+          else
+            echo "No verified Buffer lookup response; keeping existing reservations."
           fi
 
       - name: Check Buffer GraphQL draft schema (read-only)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'push' }}
         working-directory: poulpe-fiction
         env:
           BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
