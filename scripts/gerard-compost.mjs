@@ -34,6 +34,18 @@ export function isCrossParcelYaebaliHarvest(item) {
      /@pro\.hbtd/.test(text) || /benoitlub\.github\.io\/420-dice-game-reboot/.test(text));
 }
 
+/**
+ * An output about generic B2B lead scoring cannot be sent as a real estate
+ * brokerage campaign, even if the prompt happened to name Yaébali.
+ */
+export function isOffDomainYaebaliHarvest(item) {
+  if (!item || typeof item !== "object" ||
+      (item.seedId !== "yael-prospection" && item.parcelId !== "project-yael-prospection")) return false;
+  const text = String(item.content ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!text.trim()) return false;
+  return !/\b(immobilier|courtage|credit immobilier|financement immobilier|pret immobilier|emprunt|achat de logement)\b/.test(text);
+}
+
 function normalizedContent(content) {
   return String(content || "").trim().toLocaleLowerCase("fr").replace(/\s+/g, " ");
 }
@@ -46,7 +58,7 @@ export function compostHarvests(harvests, { now = new Date().toISOString() } = {
   if (!Array.isArray(harvests)) throw new TypeError("harvests must be an array");
   const seen = new Map();
   const changedIds = [];
-  const counts = { simulated: 0, exactDuplicate: 0, crossParcel: 0 };
+  const counts = { simulated: 0, exactDuplicate: 0, crossParcel: 0, offDomainClient: 0 };
   const updated = harvests.map(original => {
     if (!original || typeof original !== "object" || !active(original)) return original;
     const value = normalizedContent(original.content);
@@ -59,6 +71,9 @@ export function compostHarvests(harvests, { now = new Date().toISOString() } = {
     } else if (isCrossParcelYaebaliHarvest(original)) {
       reason = "cross-parcel-420-dice-in-yaebali";
       counts.crossParcel += 1;
+    } else if (isOffDomainYaebaliHarvest(original)) {
+      reason = "off-domain-generic-prospecting-in-yaebali";
+      counts.offDomainClient += 1;
     } else {
       // Do NOT dedupe different parcels or seeds: they may have different
       // recipients, rights, or publication histories.
