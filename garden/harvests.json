@@ -763,6 +763,19 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792016250702-harvest",
+      "harvestedAt": "2026-10-14T22:17:47.858Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "content": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Créer un espace d’observation minimal**\n- **Interface** : Dans *Poulpe Fiction*, affichez une section discrète intitulée **\"Ce qui m’intrigue\"** (exemple de contenu initial vide).\n  *Exemple visuel* :\n  ```\n  [Ce qui m’intrigue]\n  - [ ] Tiens… Le Garden semble plus lent sur mobile. (Observation)\n  - [ ] Tiens… Lovable a été utilisé 3 fois cette semaine. (Récurrence)\n  ```\n\n**Étape 2 : Lancer une micro-observation**\n- **Demande à Gérard** (via *Poulpe Fiction*) :\n  *\"Qu’est-ce qui t’a surpris ou marqué dans les 24 dernières heures ?\"* (sans guider la réponse).\n  - **Règle** : Ne pas interpréter, juste enregistrer la réponse mot-à-mot dans le *carnet de culture* sous la catégorie **\"Étonnements\"** (exemple de format) :\n    ```\n    [Étonnements]\n    2023-10-XX | 14:30\n    \"Pourquoi les greffons GitHub et Lovable reviennent-ils toujours ensemble ? Comme si je cherchais à résoudre le même problème sous deux angles.\"\n    ```\n\n**Étape 3 : Valider la curiosité comme Seed (si persistance)**\n- Si Gérard revient sur le même \"étonnement\" dans les 3 jours suivants (exemple : *\"J’y repense… Lovable et GitHub pourraient être liés à la densité du Garden\"*), proposez-lui de :\n  1. **Préparer un sac** (exemple : *\"Observations récentes sur le Garden + rêve d’un interface plus légère + bouture Lovable\"*).\n  2. **Déclarer un pique-nique** (exemple : *\"Tokens Mistral + greffon Lovable Builder (si autorisé)\"*).\n  3. **Demander validation** pour lancer une aventure (exemple : *\"Tester une refonte UI légère sur une parcelle Blacklace\"*).\n\n**Étape 4 : Documenter le cycle**\n- Dans le *carnet de culture*, notez :\n  ```\n  [Cycle d’émergence]\n  Étape 1 : Observation → \"Tiens…\" (2023-10-XX)\n  Étape 2 : Répétition → Seed déclarée (2023-10-XX)\n  Étape 3 : [À venir] Expérimentation ou abandon (avec apprentissage).\n  ```\n\n**Contraintes strictes** :\n- **Pas d’action sensible** sans validation explicite (exemple : modifier une parcelle client).\n- **Pas de transformation automatique** : Gérard décide s’il passe de l’étonnement à une Seed.\n- **Pas de log technique** : seul le *carnet de culture* contient des apprentissages (exemple : *\"Les greffons récurrents révèlent des schémas de problème\"*).\n\n**Prochaine étape** :\n- Si Gérard ne réagit pas à l’étonnement, laissez-le incuber. Si le même point revient après 5 jours, proposez une **expérimentation légère** (exemple : *\"Tester Lovable sur une parcelle non critique\"*).\n\n---\n**Format visuel suggéré pour Poulpe Fiction** :\n```\n[Poulpe Fiction]\n📝 Carnet de culture : [Lien vers notes]\n🌱 Ce qui m’intrigue :\n  - [ ] [Texte brut de Gérard]\n🎒 Sac préparé : [Vide ou liste partielle]\n🍽 Pique-nique : [Vide]\n🚪 Prêt pour une aventure ? [Bouton \"Préparer\" ou \"Retour au Garden\"]\n```",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": null,
+      "state": "harvested"
     }
   ]
 }
