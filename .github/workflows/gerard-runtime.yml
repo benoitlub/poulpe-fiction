@@ -179,6 +179,10 @@ jobs:
         working-directory: poulpe-fiction
         run: node scripts/gerard-compost.mjs
 
+      - name: Verify book package never disappears on missing metadata
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-book-quality.test.mjs
+
       - name: Prepare next social publication package
         working-directory: poulpe-fiction
         shell: bash
@@ -320,24 +324,21 @@ jobs:
             # resolves verified book destinations and official artwork; do not
             # append another Amazon link or reject unrelated books by seed name.
             if [ "$(jq -r '.editorialRoute.topic // ""' garden/next-social-publication.json)" = "book" ]; then
-              jq '
-                .editorialQuality = {
-                  kind:"book",
-                  officialCover:(if .media.official == true then .media.url else null end),
-                  verifiedDestination:(.copy.text | (try capture("https://www\\.amazon\\.fr/dp/[A-Za-z0-9]+").string catch null)),
-                  status:(if .media.official == true and ((.media.url // "") | test("^https://")) and ((.title // "") | length > 3) and ((.copy.text // "") | ascii_downcase | contains((.title // "") | ascii_downcase)) and ((.copy.text // "") | test("https://www\\.amazon\\.fr/dp/[A-Za-z0-9]+")) then "complete" else "incomplete" end)
-                }
-                | if .editorialQuality.status != "complete" then
-                    .status="blocked"
-                    | .reason="book-editorial-metadata-incomplete"
-                    | .action="do-not-schedule"
-                    | .delivery={status:"not-attempted",publishingEnabled:false}
-                  else . end
-              ' garden/next-social-publication.json > /tmp/gerard-book-quality.json
-              mv /tmp/gerard-book-quality.json garden/next-social-publication.json
+              # Always return exactly one JSON document. A failed jq capture()
+              # previously emitted zero bytes while exiting 0; this erased
+              # Gerard's package and prevented both delivery and learning.
+              if jq -f scripts/gerard-book-quality.jq garden/next-social-publication.json > /tmp/gerard-book-quality.json \
+                 && jq -e 'type == "object" and (.harvestId | type == "string") and (.editorialQuality | type == "object")' /tmp/gerard-book-quality.json >/dev/null; then
+                mv /tmp/gerard-book-quality.json garden/next-social-publication.json
+              else
+                echo "Book quality returned no valid package; preserving candidate and blocking its delivery."
+                jq '.status="blocked" | .reason="book-quality-evaluation-invalid" | .action="do-not-schedule" | .delivery={status:"not-attempted",publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-book-quality-fallback.json
+                jq -e 'type == "object" and (.harvestId | type == "string")' /tmp/gerard-book-quality-fallback.json >/dev/null
+                mv /tmp/gerard-book-quality-fallback.json garden/next-social-publication.json
+              fi
             fi
             # Buffer readiness check uses Gerard's own copy; no external draft or publication.
-            if [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json)" = "buffer" ]; then
+            if [ "$(jq -r '.status // ""' garden/next-social-publication.json)" = "ready" ] && [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json)" = "buffer" ]; then
               PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json)"
               PREFLIGHT_HTTP="$(curl --silent --show-error --output /tmp/gerard-buffer-preflight.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-preflight" -H 'Content-Type: application/json' --data "$PREFLIGHT_BODY")"
               if [ "$PREFLIGHT_HTTP" = "200" ] && jq -e '.status == "ready-for-controlled-test"' /tmp/gerard-buffer-preflight.json >/dev/null 2>&1; then
