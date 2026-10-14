@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-14T17:34:20Z",
+  "updatedAt": "2026-10-14T17:46:08.117Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -723,10 +723,126 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
+    },
+    {
+      "observedAt": "2026-10-14T17:46:08Z",
+      "seedId": null,
+      "harvestId": null,
+      "copyText": null,
+      "repeatCount": 0,
+      "chosenExperiment": null,
+      "experimentHypothesis": null,
+      "delivery": {
+        "status": "not-attempted"
+      },
+      "metricsStatus": "available",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "No matching post analytics yet; retry observation later."
+    },
+    {
+      "observedAt": "2026-10-14T17:46:08.117Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-05",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122317665002022326",
+      "copyText": "Test de transmission. Si vous voyez ceci, Gérard a trouvé la sortie. 🐙",
+      "postPurpose": "technical-test",
+      "metrics": {
+        "reach": 7,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-14T17:46:08.117Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-06",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122317783394022326",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 1,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-14T17:46:08.117Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "instagram",
+      "publishedDate": "2026-10-06",
+      "postUrl": "https://www.instagram.com/p/DeJXjGFFZFw/",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 17,
+        "interactions": 0,
+        "comments": 0,
+        "likes": 0,
+        "saves": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-14T17:46:08.117Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-09",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122318218490022326",
+      "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 4,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-14T17:46:08.117Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-13",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122318927600022326",
+      "copyText": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 1,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 1,
+        "engagementPerThousand": 100
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-14T17:34:20Z",
+    "observedAt": "2026-10-14T17:46:07Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -752,6 +868,143 @@
     "seedId": null,
     "chosenExperiment": "new-angle",
     "nextExperiment": "Explore a new angle and record delivery.",
-    "performanceRankingEnabled": false
+    "performanceRankingEnabled": false,
+    "metricoolSignalsAvailable": true,
+    "metricoolLatestSnapshot": "2026-10-14",
+    "nextPublicExperiment": "Create a new differentiated post, then compare verified outcomes on the same network and format."
+  },
+  "socialFeedback": {
+    "status": "observed",
+    "source": "metricool-connected-analytics",
+    "snapshotCheckedAt": "2026-10-14",
+    "snapshotPeriod": {
+      "from": "2026-10-01",
+      "to": "2026-10-14"
+    },
+    "completeness": "partial-provider-response",
+    "measuredPostCount": 5,
+    "technicalTestPostCount": 1,
+    "networks": {
+      "facebook": {
+        "promotionalPostsObserved": 3,
+        "reachSamples": 3,
+        "medianObservedReach": 1,
+        "linkClicksObserved": 1,
+        "comparison": "descriptive-only",
+        "note": "Small, possibly incomplete sample. Do not rank subjects or infer audience preference."
+      },
+      "instagram": {
+        "promotionalPostsObserved": 1,
+        "reachSamples": 1,
+        "medianObservedReach": 17,
+        "linkClicksObserved": null,
+        "comparison": "descriptive-only",
+        "note": "Small, possibly incomplete sample. Do not rank subjects or infer audience preference."
+      }
+    },
+    "posts": [
+      {
+        "observedAt": "2026-10-14T17:46:08.117Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "facebook",
+        "publishedDate": "2026-10-05",
+        "postUrl": "https://facebook.com/122158707854022326/posts/122317665002022326",
+        "copyText": "Test de transmission. Si vous voyez ceci, Gérard a trouvé la sortie. 🐙",
+        "postPurpose": "technical-test",
+        "metrics": {
+          "reach": 7,
+          "comments": 0,
+          "shares": 0,
+          "reactions": 0,
+          "linkClicks": 0,
+          "engagementPerThousand": 0
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      },
+      {
+        "observedAt": "2026-10-14T17:46:08.117Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "facebook",
+        "publishedDate": "2026-10-06",
+        "postUrl": "https://facebook.com/122158707854022326/posts/122317783394022326",
+        "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+        "postPurpose": "promotion-unattributed",
+        "metrics": {
+          "reach": 1,
+          "comments": 0,
+          "shares": 0,
+          "reactions": 0,
+          "linkClicks": 0,
+          "engagementPerThousand": 0
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      },
+      {
+        "observedAt": "2026-10-14T17:46:08.117Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "instagram",
+        "publishedDate": "2026-10-06",
+        "postUrl": "https://www.instagram.com/p/DeJXjGFFZFw/",
+        "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+        "postPurpose": "promotion-unattributed",
+        "metrics": {
+          "reach": 17,
+          "interactions": 0,
+          "comments": 0,
+          "likes": 0,
+          "saves": 0,
+          "engagementPerThousand": 0
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      },
+      {
+        "observedAt": "2026-10-14T17:46:08.117Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "facebook",
+        "publishedDate": "2026-10-09",
+        "postUrl": "https://facebook.com/122158707854022326/posts/122318218490022326",
+        "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
+        "postPurpose": "promotion-unattributed",
+        "metrics": {
+          "reach": 4,
+          "comments": 0,
+          "shares": 0,
+          "reactions": 0,
+          "linkClicks": 0,
+          "engagementPerThousand": 0
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      },
+      {
+        "observedAt": "2026-10-14T17:46:08.117Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "facebook",
+        "publishedDate": "2026-10-13",
+        "postUrl": "https://facebook.com/122158707854022326/posts/122318927600022326",
+        "copyText": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
+        "postPurpose": "promotion-unattributed",
+        "metrics": {
+          "reach": 1,
+          "comments": 0,
+          "shares": 0,
+          "reactions": 0,
+          "linkClicks": 1,
+          "engagementPerThousand": 100
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      }
+    ],
+    "lastIntegratedAt": "2026-10-14T17:46:08.117Z",
+    "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   }
 }
