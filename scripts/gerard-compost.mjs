@@ -28,10 +28,10 @@ export function isSimulatedHarvest(item) {
 export function isCrossParcelYaebaliHarvest(item) {
   if (!item || typeof item !== "object" ||
       (item.seedId !== "yael-prospection" && item.parcelId !== "project-yael-prospection")) return false;
-  const text = String(item.content ?? "").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+  const text = String(item.content ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   return /420 dice/.test(text) &&
-    (/(?:reel|campagne)\\s+(?:instagram\\s+)?(?:\\([^)]*\\)\\s*[-–]\\s*)?420 dice/.test(text) ||
-     /@pro\\.hbtd/.test(text) || /benoitlub\\.github\\.io\\/420-dice-game-reboot/.test(text));
+    (/(?:reel|campagne)\s+(?:instagram\s+)?(?:\([^)]*\)\s*[-–]\s*)?420 dice/.test(text) ||
+     /@pro\.hbtd/.test(text) || /benoitlub\.github\.io\/420-dice-game-reboot/.test(text));
 }
 
 function normalizedContent(content) {
