@@ -745,10 +745,10 @@ jobs:
             echo "Not an eligible Buffer book draft; skipped."
             exit 0
           fi
-          jq -c '{harvestId,seedId,title,text:.copy.text,mediaUrl:.media.url,publish:true}' garden/next-social-publication.json > /tmp/gerard-buffer-request.json
+          jq -c '{harvestId,seedId,title,text:.copy.text,mediaUrl:.media.url,publish:false}' garden/next-social-publication.json > /tmp/gerard-buffer-request.json
           HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-buffer-draft-response.json --write-out '%{http_code}' --max-time 25 -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-draft" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data-binary @/tmp/gerard-buffer-request.json)" || HTTP_STATUS="000"
-          if [ "$HTTP_STATUS" = "200" ] && jq -e '.status == "queued" and .publishingEnabled == true and (.postId | type == "string")' /tmp/gerard-buffer-draft-response.json >/dev/null 2>&1; then
-            jq --slurpfile response /tmp/gerard-buffer-draft-response.json '.action="queued-for-buffer-publication" | .delivery={status:"confirmed-queued",kind:"buffer-queue",postId:$response[0].postId,publishingEnabled:true}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
+          if [ "$HTTP_STATUS" = "200" ] && jq -e '.status == "draft-created" and .draftCreated == true and .publishingEnabled == false and (.postId | type == "string")' /tmp/gerard-buffer-draft-response.json >/dev/null 2>&1; then
+            jq --slurpfile response /tmp/gerard-buffer-draft-response.json '.action="buffer-draft-created" | .delivery={status:"confirmed-draft",kind:"buffer-draft",postId:$response[0].postId,publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
           else
             echo "Buffer draft not confirmed (HTTP $HTTP_STATUS). No automatic retry."
             if [ -s /tmp/gerard-buffer-draft-response.json ]; then
