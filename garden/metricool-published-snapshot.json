@@ -2,7 +2,7 @@
   "source": "metricool-connected-account",
   "brandId": "3350145",
   "period": "2026-10",
-  "note": "Manual verified snapshot; refresh required for later publications.",
+  "note": "Partial manually verified publication history; original entries have source timestamps and any newly added provider analytics entry may have date-only precision. Not a complete Metricool quota ledger.",
   "published": [
     {
       "id": 388552621,
@@ -37,6 +37,19 @@
       "networks": [
         "facebook"
       ]
+    },
+    {
+      "id": "125537380634601_122318927600022326",
+      "text": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
+      "publicationDate": {
+        "date": "2026-10-13",
+        "timezone": "Europe/Madrid"
+      },
+      "networks": [
+        "facebook"
+      ],
+      "url": "https://facebook.com/122158707854022326/posts/122318927600022326",
+      "source": "metricool-connected-per-post-analytics"
     }
   ]
 }
