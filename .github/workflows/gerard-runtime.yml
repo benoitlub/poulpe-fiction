@@ -814,6 +814,65 @@ jobs:
           fi
           mv /tmp/gerard-buffer-result.json garden/next-social-publication.json
 
+      - name: Queue the confirmed existing Gerard Buffer draft once
+        if: ${{ github.event_name == 'push' }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Existing Buffer draft scheduling unavailable: authenticated token missing."
+            exit 0
+          fi
+          ENDPOINT="$PUBLISHER_URL/api/social/transports/buffer/book-draft/queue-existing-gerard"
+          HARVEST_ID="neon_iter_iter_gerard-et-gerard_1786288530352"
+          POST_ID="6acfd4de0b61877d1315e86b"
+          REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,dryRun:true}')"
+          READ_STATUS="$(curl --silent --show-error --output /tmp/gerard-existing-buffer-check.json --write-out '%{http_code}' --max-time 35 -X POST "$ENDPOINT" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data "$REQUEST")" || READ_STATUS="000"
+          echo "Existing Gérard Buffer draft check HTTP $READ_STATUS"
+          if [ -s /tmp/gerard-existing-buffer-check.json ]; then
+            jq -c '{status,scheduled,postId,channelId,imageCount,providerStatus,dueAt,reason}' /tmp/gerard-existing-buffer-check.json || true
+          fi
+          if [ "$READ_STATUS" != "200" ]; then
+            echo "Provider did not verify the original draft: no scheduling attempted."
+            exit 0
+          fi
+          if jq -e '.status == "already-queued-or-sent" and .scheduled == true and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
+            cp /tmp/gerard-existing-buffer-check.json /tmp/gerard-existing-buffer-confirmation.json
+          elif jq -e '.status == "ready-to-queue-existing-draft" and .scheduled == false and .imageCount >= 1 and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
+            QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"schedule-existing-verified-gerard-draft"}')"
+            QUEUE_HTTP="$(curl --silent --show-error --output /tmp/gerard-existing-buffer-confirmation.json --write-out '%{http_code}' --max-time 35 -X POST "$ENDPOINT" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data "$QUEUE_REQUEST")" || QUEUE_HTTP="000"
+            echo "Existing Gérard Buffer draft scheduling HTTP $QUEUE_HTTP"
+            if [ -s /tmp/gerard-existing-buffer-confirmation.json ]; then
+              jq -c '{status,scheduled,postId,channelId,dueAt,providerStatus,providerError,providerResultType}' /tmp/gerard-existing-buffer-confirmation.json || true
+            fi
+            [ "$QUEUE_HTTP" = "200" ] || exit 0
+          else
+            echo "Draft check does not authorize an edit. No post created."
+            exit 0
+          fi
+          if jq -e '.scheduled == true and (.status == "confirmed-queued" or .status == "already-queued-or-sent") and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-confirmation.json >/dev/null; then
+            jq -n --arg at "$(date -u +%FT%TZ)" --slurpfile confirmation /tmp/gerard-existing-buffer-confirmation.json '{
+              recordedAt:$at,source:"Buffer GraphQL provider confirmation",
+              contract:"gerard-existing-buffer-post-v1",
+              harvestId:"neon_iter_iter_gerard-et-gerard_1786288530352",
+              seedId:"gerard-et-gerard",
+              originalPostId:"6acfd4de0b61877d1315e86b",
+              status:$confirmation[0].status,
+              scheduled:$confirmation[0].scheduled,
+              channelId:($confirmation[0].channelId // "6ac8c8226a5c39ccb65fdbf6"),
+              scheduledAt:($confirmation[0].dueAt // null),
+              providerStatus:($confirmation[0].providerStatus // null),
+              duplicateCreated:false,
+              note:"Existing Buffer draft modified in place; no new Buffer post created."
+            }' > garden/buffer-book-publication.json
+            echo "Existing draft is confirmed scheduled by Buffer; provider ID preserved."
+          else
+            echo "Buffer scheduling was not confirmed. No success recorded."
+          fi
+
       - name: Listen to Publisher analytics capability
         working-directory: poulpe-fiction
         shell: bash
@@ -892,11 +951,11 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json; do
+            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
@@ -915,7 +974,7 @@ jobs:
                 fi
               else
                 echo "Generated state conflicts with upstream; resolving snapshot files only."
-                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json; do
+                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json; do
                   if git ls-files -u -- "$file" | grep -q .; then
                     if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
                       git show REBASE_HEAD:"$file" > "$file"
