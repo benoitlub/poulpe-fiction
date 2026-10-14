@@ -8,6 +8,8 @@ on:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
       - ".github/workflows/gerard-runtime.yml"
+  issues:
+    types: [opened, reopened, edited]
   workflow_dispatch:
     inputs:
       retry_terra_draft:
@@ -22,6 +24,7 @@ concurrency:
 
 jobs:
   cycle:
+    if: github.event_name != 'issues'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -932,3 +935,45 @@ jobs:
             octopus.log
             publisher.log
           retention-days: 7
+
+  gerard_issue_diagnostic:
+    name: Gerard mission intake (no publication)
+    if: github.event_name == 'issues' && startsWith(github.event.issue.title, '[POULPE]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Respond to diagnostic mission with evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$ISSUE_TITLE" != *"420 Dice"* ]]; then
+            echo "Mission received, but no diagnostic template exists for this subject."
+            exit 0
+          fi
+          cat > /tmp/gerard-diagnostic.md <<'REPORT'
+          🐙 **Gérard — diagnostic technique automatique (lecture du dépôt, sans génération ni publication)**
+
+          Cette réponse est produite par le déclencheur GitHub Actions, **pas par un agent IA ayant exécuté les huit étapes**. Les capacités ci-dessous restent à tester de bout en bout.
+
+          | Étape | État vérifié | Preuve / action suivante |
+          | --- | --- | --- |
+          | Lecture du pack Notion | À vérifier | Pack : https://app.notion.com/p/3f939119725381bdbe8af5b297983cb6 ; aucune lecture API réalisée dans ce job |
+          | Images verticales 9:16 | À vérifier | Générer un fichier image et fournir son URL |
+          | Vidéos de 4–5 secondes | À vérifier | Générer et fournir trois clips réels |
+          | Capture réelle du jeu | Non réalisée | Capturer https://benoitlub.github.io/420-dice-game-reboot/ avec vrais dés et gage |
+          | Montage MP4 de 15 s | Non réalisé | Fournir un MP4 lisible et sa durée |
+          | Livraison d'un média | Non réalisée | Fournir un artefact téléchargeable |
+          | Brouillon Metricool | À vérifier | Fournir un identifiant de brouillon et confirmer le bon compte @pro.hbtd |
+          | Statistiques et apprentissage | À vérifier | Fournir la source, les chiffres et l'itération concernée |
+
+          **Conclusion :** ce dépôt dispose d'un cycle Gérard, mais cette mission n'a pas démontré la production d'un Reel. La publication et la programmation restent interdites sans validation humaine (`externalAction: requires-human-approval`).
+          REPORT
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file /tmp/gerard-diagnostic.md
