@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Gérard Garden compost: reversible classification, never deletion.
- * Only explicit mock placeholders and exact duplicates within the SAME
+ * Only explicit mock placeholders, cross-client ads and exact duplicates within the SAME
  * parcel/seed may be composted. The learning log and publication records
  * are intentionally untouched. No LLM or external provider is called.
  */
@@ -20,6 +20,20 @@ export function isSimulatedHarvest(item) {
   return /^Contenu généré pour l'univers .+ par Sofia\. Mode mock actif\s*[—-]\s*configurez AI_PROVIDER et AI_API_KEY pour une génération réelle\.$/i.test(content);
 }
 
+/**
+ * A 420 Dice promotional campaign inside Yaébali's real-estate parcel is a
+ * cross-client contamination. Preserve the historic artifact but never offer
+ * it as a client deliverable. This does not match a mere negative warning.
+ */
+export function isCrossParcelYaebaliHarvest(item) {
+  if (!item || typeof item !== "object" ||
+      (item.seedId !== "yael-prospection" && item.parcelId !== "project-yael-prospection")) return false;
+  const text = String(item.content ?? "").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+  return /420 dice/.test(text) &&
+    (/(?:reel|campagne)\\s+(?:instagram\\s+)?(?:\\([^)]*\\)\\s*[-–]\\s*)?420 dice/.test(text) ||
+     /@pro\\.hbtd/.test(text) || /benoitlub\\.github\\.io\\/420-dice-game-reboot/.test(text));
+}
+
 function normalizedContent(content) {
   return String(content || "").trim().toLocaleLowerCase("fr").replace(/\s+/g, " ");
 }
@@ -32,7 +46,7 @@ export function compostHarvests(harvests, { now = new Date().toISOString() } = {
   if (!Array.isArray(harvests)) throw new TypeError("harvests must be an array");
   const seen = new Map();
   const changedIds = [];
-  const counts = { simulated: 0, exactDuplicate: 0 };
+  const counts = { simulated: 0, exactDuplicate: 0, crossParcel: 0 };
   const updated = harvests.map(original => {
     if (!original || typeof original !== "object" || !active(original)) return original;
     const value = normalizedContent(original.content);
@@ -42,6 +56,9 @@ export function compostHarvests(harvests, { now = new Date().toISOString() } = {
     if (isSimulatedHarvest(original)) {
       reason = "simulated-provider-placeholder";
       counts.simulated += 1;
+    } else if (isCrossParcelYaebaliHarvest(original)) {
+      reason = "cross-parcel-420-dice-in-yaebali";
+      counts.crossParcel += 1;
     } else {
       // Do NOT dedupe different parcels or seeds: they may have different
       // recipients, rights, or publication histories.
@@ -88,7 +105,7 @@ export function compostHarvests(harvests, { now = new Date().toISOString() } = {
       learningHistoryChanged: false,
       remotePublisherChanged: false,
       socialPostsChanged: false,
-      onlyExactDuplicates: true,
+      onlyExactDuplicatesOrExplicitContamination: true,
       reversible: true,
     },
     note: "Contents, IDs and provenance stay in garden/harvests.json. The state can be restored manually. No remote data or publication was changed.",
