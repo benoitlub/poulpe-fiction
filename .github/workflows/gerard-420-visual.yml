@@ -6,7 +6,11 @@ on:
       generate_ai_image:
         description: 'Ask existing Publisher/Mistral to generate one image (no publication)'
         type: boolean
-        default: true
+        default: false
+      harvest_id:
+        description: 'Existing Gerard harvest ID for proven Publisher social media path'
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -90,6 +94,35 @@ jobs:
         with:
           name: gerard-420-dice-mistral-attempt
           path: output/ai-*
+          retention-days: 14
+      - name: Reuse Gerard existing harvest media producer
+        if: ${{ inputs.harvest_id != '' }}
+        env:
+          HARVEST_ID: ${{ inputs.harvest_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, json, urllib.request, pathlib
+          endpoint="https://blacklace-publisher-worker.benoitlubert.workers.dev/api/social/media/request"
+          payload=json.dumps({"harvestId":os.environ["HARVEST_ID"]}).encode()
+          req=urllib.request.Request(endpoint,data=payload,headers={"Content-Type":"application/json"},method="POST")
+          try:
+              with urllib.request.urlopen(req,timeout=150) as response:
+                  data=json.load(response)
+          except Exception as exc:
+              raise SystemExit("Existing harvest media producer failed: "+str(exc))
+          pathlib.Path("output/gerard-harvest-media.json").write_text(json.dumps(data,ensure_ascii=False,indent=2))
+          if data.get("status")!="publishable":
+              raise SystemExit("Existing harvest not publishable; see output/gerard-harvest-media.json")
+          print("Verified existing Gerard harvest media production:",data.get("verification",{}))
+          PY
+      - name: Upload existing producer response
+        if: ${{ inputs.harvest_id != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-420-existing-media-production
+          path: output/gerard-harvest-media.json
           retention-days: 14
       - name: Upload visual for autonomous learning
         uses: actions/upload-artifact@v4
