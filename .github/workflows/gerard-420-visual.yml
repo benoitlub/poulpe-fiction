@@ -32,9 +32,25 @@ jobs:
           </svg>
           SVG
           test -s output/420-dice-reel-vertical.svg
+      - name: Render PNG and validate vertical format
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --user cairosvg pillow
+          python3 - <<'PY'
+          import cairosvg
+          from PIL import Image
+          cairosvg.svg2png(url="output/420-dice-reel-vertical.svg",write_to="output/420-dice-reel-vertical.png",output_width=1080,output_height=1920)
+          with Image.open("output/420-dice-reel-vertical.png") as image:
+              assert image.size == (1080,1920),image.size
+              image.verify()
+          print("PNG validated: 1080x1920")
+          PY
       - name: Upload visual for human review
         uses: actions/upload-artifact@v4
         with:
           name: gerard-420-dice-vertical-visual
-          path: output/420-dice-reel-vertical.svg
+          path: |
+            output/420-dice-reel-vertical.svg
+            output/420-dice-reel-vertical.png
           retention-days: 14
