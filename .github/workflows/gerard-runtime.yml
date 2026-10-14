@@ -7,6 +7,8 @@ on:
     paths:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
+      - "scripts/gerard-book-quality.jq"
+      - "tests/gerard-book-quality.test.mjs"
       - ".github/workflows/gerard-runtime.yml"
   issues:
     types: [opened, reopened, edited]
