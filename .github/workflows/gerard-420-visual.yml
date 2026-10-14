@@ -6,7 +6,7 @@ on:
       generate_ai_image:
         description: 'Ask existing Publisher/Mistral to generate one image (no publication)'
         type: boolean
-        default: false
+        default: true
 
 permissions:
   contents: read
@@ -84,14 +84,14 @@ jobs:
           if len(content)<1000: raise SystemExit("Downloaded image too small")
           pathlib.Path("output/420-dice-ai-image.png").write_bytes(content)
           PY
-      - name: Upload AI result for human review
+      - name: Upload AI result for autonomous learning
         if: ${{ inputs.generate_ai_image == true }}
         uses: actions/upload-artifact@v4
         with:
           name: gerard-420-dice-mistral-attempt
           path: output/ai-*
           retention-days: 14
-      - name: Upload visual for human review
+      - name: Upload visual for autonomous learning
         uses: actions/upload-artifact@v4
         with:
           name: gerard-420-dice-vertical-visual
