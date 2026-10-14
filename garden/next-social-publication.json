@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-14T19:10:21Z",
+  "preparedAt": "2026-10-14T19:15:39Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
@@ -64,10 +64,12 @@
     "publishingEnabled": false
   },
   "delivery": {
-    "status": "not-attempted",
+    "status": "confirmed-draft",
+    "kind": "buffer-draft",
+    "postId": "6acfd4de0b61877d1315e86b",
     "publishingEnabled": false
   },
-  "action": "hold-for-buffer-draft",
+  "action": "buffer-draft-created",
   "transport": {
     "provider": "buffer",
     "account": "benoitlubert",

@@ -746,6 +746,23 @@
       "route": "octopus->publisher-adapter",
       "delivery": null,
       "state": "harvested"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792005304058-harvest",
+      "harvestedAt": "2026-10-14T19:15:34.385Z",
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection",
+      "title": "Yaébali · Préqualification de prospects",
+      "content": "### **Audit des leads réels (hors TEST) – Campagne de captation prête à valider**\n\n---\n\n#### **1. Campagne Instagram (@pro.hbtd) – Reel \"420 Dice Game Reboot\"**\n**Objectif** : Générer des leads qualifiés via un Reel viral + lien vers le jeu.\n\n**Action concrète** :\n- **Création du Reel** (à valider par Yaelbali) :\n  - **Hook** : *\"Pas de 420 ? Tu prends un gage.\"* (Texte à l’écran, 0–5s).\n  - **Plan 1** : Défis (3 lancers pour obtenir 420).\n    - *Visuel* : Close-up cinématique d’un joueur (prompt fourni).\n    - *Montage* : Capture réelle des dés et du gage (pas de génération IA).\n  - **Plan 2** : Lancers (5–10s).\n    - *Visuel* : Montage dynamique des dés (séquence réelle du jeu).\n  - **Plan 3** : Gage (10–15s).\n    - *Visuel* : Réaction du joueur + amis qui rient (capture réelle).\n  - **Légende** : *\"Trois dés, trois lancers pour obtenir 420. 🎲 Sinon, c’est le jeu qui décide de ton gage !\"*\n  - **CTA** : *\"Lance le défi avec tes potes !\"* + lien vers [https://benoitlub.github.io/420-dice-game-reboot/](https://benoitlub.github.io/420-dice-game-reboot/).\n\n**Validation requise** :\n✅ Lien cliquable (testé depuis Instagram).\n✅ Captures réelles des dés/gage (pas de synthèse IA).\n✅ Droits des personnes filmées (si applicable).\n\n**Prochaine étape** :\n- Publier après validation humaine.\n- **Suivi** : Analyser les clics/engagements (ex : \"Qui dans ta bande finirait avec le plus de gages ? 😂\" en commentaire épinglé).\n\n---\n\n#### **2. Campagne de préqualification prospects (Facebook/Messenger) – Système Notion**\n**Objectif** : Transformer les signaux sociaux en leads qualifiés pour Yaelbali.\n\n**Livrables à valider** :\n1. **Base Notion** (template prêt à partager) :\n   - Champs : Nom, Source, Besoin, Urgence, Budget, Compatibilité, Score, Prochaine Action.\n   - Vues : *Prospects chauds*, *À vérifier*, *Contactés*.\n   - Exemple de fiche remplie (à personnaliser avec Yaelbali).\n\n2. **Grille de qualification** :\n   - Critères : Besoin clair/flou, Urgence (Faible/Moyenne/Forte), Capacité à payer, Cohérence avec l’offre.\n   - Score global (0–10) + recommandation d’action.\n\n3. **Modèles de messages** :\n   - 3 templates adaptables (doux, direct, relance).\n   - Exemple : *\"J’ai vu que vous cherchiez [besoin]. Je peux vous aider à [solution] ?\"*\n\n4. **IA légère (optionnel)** :\n   - **Prompt Mistral** pour résumer/scorer (à tester en local avant intégration Make/n8n).\n   - Exemple de sortie JSON :\n     ```json\n     {\n       \"resume\": \"Prospect intéressé par [besoin], budget ~[montant], urgence moyenne.\",\n       \"score\": 8,\n       \"priorite\": \"Chaud\",\n       \"action\": \"Relancer avec offre ciblée.\"\n     }\n     ```\n\n**Validation requise** :\n✅ Base Notion dupliquée et partagée avec Yaelbali (accès limité à cette page).\n✅ Grille de qualification alignée sur son offre.\n✅ Messages testés avec des prospects fictifs.\n\n**Prochaine étape** :\n- **Pilote à 200 €** : Base + 5 prospects qualifiés manuellement.\n- **Option IA (+150 €)** : Intégration Make/n8n pour scoring automatique (à valider après pilote).\n\n---\n\n#### **3. Formulaire de préqualification (GitHub Pages + Notion)**\n**Objectif** : Automatiser l’entrée des leads via un lien partagé.\n\n**Architecture minimale** :\n- **Page** : GitHub Pages (design simple, formulaire HTML).\n- **Formulaire** : Champs clés (Prénom, Email, Besoin, Urgence, Budget).\n- **Destination** : Notion (via Make/n8n) ou Google Sheets (pour tester).\n- **Consentement RGPD** : Case cochée + phrase type : *\"Les données servent à comprendre votre demande.\"*\n\n**Livrable** :\n- Lien public à envoyer aux prospects (ex : `yaelbali.link/prequalif`).\n- Base Notion mise à jour automatiquement.\n\n**Validation requise** :\n✅ Lien testé (formulaire fonctionnel).\n✅ Données arrivées dans Notion sans erreur.\n✅ Message de confirmation envoyé au prospect.\n\n**Prochaine étape** :\n- **Pack \"Formulaire + Notion\"** : 250 € (optionnel après pilote).\n\n---\n\n#### **4. Prochaine expérience mesurable**\n**Indicateurs clés** :",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "recipient": "Yaébali",
+        "mode": "propose-before-send",
+        "harvestState": "ready-to-offer"
+      },
+      "state": "ready-to-offer"
     }
   ]
 }
