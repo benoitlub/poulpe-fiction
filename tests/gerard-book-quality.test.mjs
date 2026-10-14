@@ -54,3 +54,22 @@ test("missing or empty copy never erases provenance and always blocks", () => {
   assert.deepEqual(result.provenance, value.provenance);
   assert.equal(result.editorialQuality.verifiedDestination, null);
 });
+
+test("verified Gerard seed accepts a technical iteration title but requires correct book URL", () => {
+  const value = {
+    ...base,
+    seedId: "gerard-et-gerard",
+    title: "☁️ Récolte serveur · Gérard & Gérard (itération 3)",
+    copy: { text: "Deux Gérard. Un seul livre. Découvrir : https://www.amazon.fr/dp/B0H68811RL" },
+  };
+  const accepted = evaluate(value);
+  assert.equal(accepted.status, "ready");
+  assert.equal(accepted.editorialQuality.verifiedDestination, "https://www.amazon.fr/dp/B0H68811RL");
+  const unrelated = evaluate({ ...value, copy: { text: "Deux Gérard. Un seul livre. https://www.amazon.fr/dp/B0H4CN5MSH" } });
+  assert.equal(unrelated.status, "blocked");
+});
+
+test("verified TERRA seed rejects a link to another book", () => {
+  const unrelated = evaluate({ ...base, seedId: "terra", copy: { text: "TERRA https://www.amazon.fr/dp/B0H68811RL" } });
+  assert.equal(unrelated.status, "blocked");
+});
