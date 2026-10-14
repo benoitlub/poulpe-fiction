@@ -10,7 +10,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isSimulatedHarvest, isCrossParcelYaebaliHarvest } from "./gerard-compost.mjs";
+import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
@@ -121,6 +121,10 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   // generation deliverable, even if the upstream language model emits one.
   if (isCrossParcelYaebaliHarvest({ seedId: selectedSeed.seedId, parcelId: selectedSeed.parcelId, content: text })) {
     console.log(JSON.stringify({ event:"gerard-harvest.rejected", reason:"cross-parcel-420-dice-in-yaebali", seedId:selectedSeed.seedId }));
+    return null;
+  }
+  if (isOffDomainYaebaliHarvest({ seedId: selectedSeed.seedId, parcelId: selectedSeed.parcelId, content: text })) {
+    console.log(JSON.stringify({ event:"gerard-harvest.rejected", reason:"off-domain-generic-prospecting-in-yaebali", seedId:selectedSeed.seedId }));
     return null;
   }
 
