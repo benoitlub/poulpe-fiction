@@ -702,7 +702,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "cross-parcel-420-dice-in-yaebali",
+        "compostedAt": "2026-10-14T22:36:11.914Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791999233517-harvest",
@@ -732,7 +740,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "cross-parcel-420-dice-in-yaebali",
+        "compostedAt": "2026-10-14T22:36:11.914Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1792004897205-harvest",
@@ -762,7 +778,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "cross-parcel-420-dice-in-yaebali",
+        "compostedAt": "2026-10-14T22:36:11.914Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1792016250702-harvest",
