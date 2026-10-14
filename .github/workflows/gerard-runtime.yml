@@ -151,6 +151,10 @@ jobs:
             -H "Content-Type: application/json" \
             --data @garden/restart-seeds.json
 
+      - name: Verify Gerard publication accounting
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-publication-coverage.test.mjs
+
       - name: Check daily parcel publication coverage
         working-directory: poulpe-fiction
         shell: bash
