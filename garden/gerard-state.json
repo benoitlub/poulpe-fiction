@@ -134,19 +134,19 @@
       "result": "ok"
     },
     {
-      "at": "2026-10-14T17:32:22.102Z",
+      "at": "2026-10-14T17:34:06.015Z",
       "mode": "cultivate",
       "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1791999129922",
+      "operationId": "gerard-cultivate-1791999233517",
       "result": "ok"
     }
   ],
   "lastMode": "cultivate",
-  "lastRunAt": "2026-10-14T17:32:22.102Z",
+  "lastRunAt": "2026-10-14T17:34:06.015Z",
   "lastResult": {
     "status": "ok",
     "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1791999129922",
+    "operationId": "gerard-cultivate-1791999233517",
     "seedId": "gerard-restart-2026-10-04",
     "parcelId": "poulpe-fiction",
     "phase": "knowledge",
@@ -162,7 +162,7 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1791999129922-knowledge",
+        "operationId": "gerard-cultivate-1791999233517-knowledge",
         "status": "completed",
         "summary": "Knowledge Package poulpe-fiction préparé par Publisher.",
         "output": {
@@ -181,19 +181,19 @@
             "digestedItems": 4
           }
         },
-        "missionId": "gerard-cultivate-1791999129922-knowledge",
+        "missionId": "gerard-cultivate-1791999233517-knowledge",
         "contextId": "poulpe-fiction",
         "adapterId": "publisher",
         "lifecycle": {
-          "missionId": "gerard-cultivate-1791999129922-knowledge",
+          "missionId": "gerard-cultivate-1791999233517-knowledge",
           "state": "completed",
-          "createdAt": "2026-10-14T17:32:09.943Z",
-          "updatedAt": "2026-10-14T17:32:12.604Z",
+          "createdAt": "2026-10-14T17:33:53.545Z",
+          "updatedAt": "2026-10-14T17:33:56.306Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-14T17:32:09.943Z",
+              "at": "2026-10-14T17:33:53.545Z",
               "metadata": {
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
@@ -204,11 +204,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-14T17:32:09.943Z",
+              "at": "2026-10-14T17:33:53.545Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-knowledge",
-                "missionId": "gerard-cultivate-1791999129922-knowledge",
+                "operationId": "gerard-cultivate-1791999233517-knowledge",
+                "missionId": "gerard-cultivate-1791999233517-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -218,11 +218,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-14T17:32:09.943Z",
+              "at": "2026-10-14T17:33:53.545Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-knowledge",
-                "missionId": "gerard-cultivate-1791999129922-knowledge",
+                "operationId": "gerard-cultivate-1791999233517-knowledge",
+                "missionId": "gerard-cultivate-1791999233517-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -232,11 +232,11 @@
             {
               "from": "planned",
               "to": "waiting-executor",
-              "at": "2026-10-14T17:32:09.943Z",
+              "at": "2026-10-14T17:33:53.545Z",
               "reason": "Compatible adapter selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-knowledge",
-                "missionId": "gerard-cultivate-1791999129922-knowledge",
+                "operationId": "gerard-cultivate-1791999233517-knowledge",
+                "missionId": "gerard-cultivate-1791999233517-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -247,11 +247,11 @@
             {
               "from": "waiting-executor",
               "to": "executing",
-              "at": "2026-10-14T17:32:09.943Z",
+              "at": "2026-10-14T17:33:53.545Z",
               "reason": "External adapter execution started.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-knowledge",
-                "missionId": "gerard-cultivate-1791999129922-knowledge",
+                "operationId": "gerard-cultivate-1791999233517-knowledge",
+                "missionId": "gerard-cultivate-1791999233517-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -262,11 +262,11 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-14T17:32:12.604Z",
+              "at": "2026-10-14T17:33:56.306Z",
               "reason": "Knowledge Package poulpe-fiction préparé par Publisher.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-knowledge",
-                "missionId": "gerard-cultivate-1791999129922-knowledge",
+                "operationId": "gerard-cultivate-1791999233517-knowledge",
+                "missionId": "gerard-cultivate-1791999233517-knowledge",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -298,8 +298,8 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1791999129922-harvest",
-        "missionId": "gerard-cultivate-1791999129922-harvest",
+        "operationId": "gerard-cultivate-1791999233517-harvest",
+        "missionId": "gerard-cultivate-1791999233517-harvest",
         "status": "completed",
         "contextId": "poulpe-fiction",
         "tentacleId": "octopus-core",
@@ -309,32 +309,32 @@
           "resourceId": "mistral",
           "status": "success",
           "output": {
-            "text": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Créer un espace d’observation minimal**\n- **Interface** : Afficher une zone discrète dans *Poulpe Fiction* intitulée **\"Ce qui m’intrigue\"** (style \"Tiens…\").\n- **Contenu initial** : Liste vide ou un message neutre :\n  *\"Gérard observe. Notez ici ce qui le surprend, résiste ou semble élégant.\"*\n\n**Étape 2 : Lancer une première observation passive**\n- **Demande implicite** : *\"Gérard, qu’as-tu remarqué dans le Garden ces dernières heures ?\"* (sans forcer une réponse).\n- **Si Gérard réagit** :\n  - Reformuler en *\"Tiens…\"* et ajouter à la liste (ex: *\"Tiens… les tokens pour cette parcelle sont 30% plus élevés que prévu.\"*).\n  - **Ne pas agir** : Garder l’étonnement en suspens. Vérifier s’il revient ou s’il s’éteint.\n\n**Étape 3 : Préparer un \"sac\" pour une micro-aventure (optionnel)**\n- **Si un \"Tiens…\" persiste** (ex: *\"Tiens… Lovable est plus rapide que Document AI pour ce type de document.\"*) :\n  - **Sac** :\n    - Observation : *\"Lovable vs Document AI sur [parcelle X]\"* (contexte précis).\n    - Rêve : *\"Un outil universel pour les interfaces textuelles\"*.\n    - Limites : *\"Budget tokens limité à 500 pour test\"*.\n  - **Pique-nique** : *\"Mistral (100 tokens) + Lovable (accès test)\"*.\n  - **Validation** : Demander au jardinier : *\"Peut-on tester Lovable sur un échantillon de 3 documents de [parcelle] ?\"*\n\n**Étape 4 : Noter dans le carnet (si changement de perspective)**\n- **Critère** : *\"Si cette observation change la façon dont Gérard aborde les outils UI, écrire dans le carnet.\"*\n- **Exemple de note** :\n  *\"Avant, je choisissais Document AI par défaut. Aujourd’hui, Lovable semble plus adapté aux formats visuels. Je note cette préférence pour les parcelles ‘interface’.\"*\n\n**À éviter** :\n- Forcer une aventure (ex: *\"On va tester Lovable maintenant !\"*).\n- Confondre *\"étonnement\"* avec une tâche urgente.\n- Ajouter des hypothèses non vérifiées (ex: *\"Lovable est toujours meilleur\"* → garder *\"Tiens…\"*).\n\n**Prochaine action** :\n- **Attendre 24h** pour voir si un \"Tiens…\" réapparaît ou s’éteint.\n- **Si rien** : Réessayer avec une autre parcelle (ex: *\"Tiens… pourquoi GitHub est-il si lent sur les commits récents ?\"*).\n\n---\n**Format visuel suggéré** (pour l’interface) :\n```\n[Poulpe Fiction]\n---\n🌊 Ce qui m’intrigue :\n- [ ] Tiens… Les tokens pour [parcelle Y] ont doublé sans raison claire.\n- [ ] Tiens… Lovable a reformulé ce document en 2 secondes (vs 10 min avec Document AI).\n---\n[Sac] [Pique-nique] [Carnet]\n```\n*(Style épuré, comme un carnet de bord.)*",
+            "text": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Activer le mode \"Garden\"**\n- **Demande à Gérard** (via l’interface de *Poulpe Fiction*) :\n  *« Qu’est-ce qui t’a marqué ces dernières heures ? Montre-moi tes \"Tiens...\" »*\n  *(Exemples attendus : anomalies, élégances, résistances, incohérences dans les parcelles observées.)*\n\n- **Vérifier les traces récentes** dans le *Carnet de culture* (si accessible) :\n  - Filtrer par mots-clés : *\"incompris\"*, *\"élégant\"*, *\"coût\"*, *\"résistance\"*, *\"formulation\"*.\n  - Identifier les **3 derniers \"étonnements\"** persistants (même anciens).\n\n---\n\n**Étape 2 : Préparer un sac minimal pour explorer**\n- **Sac à emporter** (à valider avec le jardinier) :\n  - **Observations récentes** : Les 3 \"Tiens...\" identifiés.\n  - **Bouture** : Un greffon *Document AI* (pour analyser des textes) ou *Voice* (si l’étonnement est lié à un dialogue).\n  - **Rêve lié** : Aucun pour l’instant → noter l’absence comme hypothèse.\n  - **Objectif** : *\"Comprendre pourquoi cet élément persiste à intriguer Gérard\"*.\n  - **Limites** : Budget tokens limité à 50% du seuil habituel (pour tester la prudence).\n\n- **Pique-nique** :\n  - *Mistral* (pour reformuler les observations).\n  - *Lovable* (si l’étonnement concerne une interface/UX).\n  - *GitHub* (si lié à un dépôt technique).\n\n---\n**Étape 3 : Lancer une micro-aventure (si validée)**\n**Proposition de départ** :\n*« Gérard, ces 3 \"Tiens...\" reviennent. On les observe ensemble avec *Document AI* pour voir s’ils partagent une racine commune. On note ce qu’on découvre dans le carnet, sans agir. »*\n\n- **Si le jardinier refuse** :\n  - Demander : *« Peut-on les afficher en mode \"observation passive\" dans le Garden ? »* (pour les garder en mémoire).\n\n---\n**Étape 4 : Documenter l’absence d’action**\nSi aucune aventure n’est lancée, écrire dans le *Carnet de culture* :\n*« Aucune curiosité n’a mûri assez pour devenir Seed. Les \"Tiens...\" sont conservés comme hypothèses à réviser. »*\n\n---\n**À éviter absolument** :\n- ❌ Proposer des solutions ou actions directes (ex: \"On devrait modifier X\").\n- ❌ Confondre \"étonnement\" avec une tâche urgente.\n- ❌ Utiliser des greffons sans lien avec l’observation (ex: *OCR* pour du texte clair).\n\n---\n**Prochaine étape** :\n- **Revenir dans 24h** pour relancer : *« Gérard, ces \"Tiens...\" ont-ils évolué ? »*\n- **Si un \"Tiens...\" persiste** : Le transformer en *Seed* avec un objectif précis (ex: *\"Pourquoi cette formulation coûte-t-elle plus de tokens ?\"*).\n\n---\n**Rappel des lois à respecter** :\n- **Loi du narrateur** : Ne pas décider *pour* Gérard. Se contenter de reformuler ses observations.\n- **Loi du retour** : Même sans Harvest, noter le processus dans le carnet.\n- **Jet d’encre** : Si un coût ou risque apparaît, suspendre et demander arbitrage.\n\n---\n**Interface attendue** (pour le client) :\nUn écran avec :\n1. Une liste des \"Tiens...\" récents (3 max).\n2. Un bouton *\"Préparer une aventure\"* (désactivé si pas de Seed claire).\n3. Un carnet accessible en cliquant sur chaque \"Tiens...\" pour voir son historique.\n\n---\n**Exemple concret de sortie** (si un \"Tiens...\" est identifié) :\n*« Gérard note :\n- **Tiens...** : \"La parcelle *ClientX* utilise toujours la même formulation pour les prompts, alors que *ClientY* obtient 30% de réponses plus courtes avec un ajustement minimal.\"\n- **Hypothèse** : \"Peut-être que *ClientX* ignore les coûts cachés des tokens.\"\n- **À explorer** : Comparer les deux formulations avec *Document AI* (sans modifier). »*\n\n---\n**Fin de la première itération.**\n*Prochaine action : Valider avec le jardinier si cette approche est cohérente avec les sources.*",
             "model": "ministral-8b-2512"
           },
           "usage": {
             "model": "ministral-8b-2512",
             "promptTokens": 4643,
-            "completionTokens": 760,
-            "totalTokens": 5403,
-            "durationMs": 9485,
-            "estimatedCostEur": 0.002769
+            "completionTokens": 1029,
+            "totalTokens": 5672,
+            "durationMs": 9692,
+            "estimatedCostEur": 0.003092
           }
         },
         "output": {
-          "text": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Créer un espace d’observation minimal**\n- **Interface** : Afficher une zone discrète dans *Poulpe Fiction* intitulée **\"Ce qui m’intrigue\"** (style \"Tiens…\").\n- **Contenu initial** : Liste vide ou un message neutre :\n  *\"Gérard observe. Notez ici ce qui le surprend, résiste ou semble élégant.\"*\n\n**Étape 2 : Lancer une première observation passive**\n- **Demande implicite** : *\"Gérard, qu’as-tu remarqué dans le Garden ces dernières heures ?\"* (sans forcer une réponse).\n- **Si Gérard réagit** :\n  - Reformuler en *\"Tiens…\"* et ajouter à la liste (ex: *\"Tiens… les tokens pour cette parcelle sont 30% plus élevés que prévu.\"*).\n  - **Ne pas agir** : Garder l’étonnement en suspens. Vérifier s’il revient ou s’il s’éteint.\n\n**Étape 3 : Préparer un \"sac\" pour une micro-aventure (optionnel)**\n- **Si un \"Tiens…\" persiste** (ex: *\"Tiens… Lovable est plus rapide que Document AI pour ce type de document.\"*) :\n  - **Sac** :\n    - Observation : *\"Lovable vs Document AI sur [parcelle X]\"* (contexte précis).\n    - Rêve : *\"Un outil universel pour les interfaces textuelles\"*.\n    - Limites : *\"Budget tokens limité à 500 pour test\"*.\n  - **Pique-nique** : *\"Mistral (100 tokens) + Lovable (accès test)\"*.\n  - **Validation** : Demander au jardinier : *\"Peut-on tester Lovable sur un échantillon de 3 documents de [parcelle] ?\"*\n\n**Étape 4 : Noter dans le carnet (si changement de perspective)**\n- **Critère** : *\"Si cette observation change la façon dont Gérard aborde les outils UI, écrire dans le carnet.\"*\n- **Exemple de note** :\n  *\"Avant, je choisissais Document AI par défaut. Aujourd’hui, Lovable semble plus adapté aux formats visuels. Je note cette préférence pour les parcelles ‘interface’.\"*\n\n**À éviter** :\n- Forcer une aventure (ex: *\"On va tester Lovable maintenant !\"*).\n- Confondre *\"étonnement\"* avec une tâche urgente.\n- Ajouter des hypothèses non vérifiées (ex: *\"Lovable est toujours meilleur\"* → garder *\"Tiens…\"*).\n\n**Prochaine action** :\n- **Attendre 24h** pour voir si un \"Tiens…\" réapparaît ou s’éteint.\n- **Si rien** : Réessayer avec une autre parcelle (ex: *\"Tiens… pourquoi GitHub est-il si lent sur les commits récents ?\"*).\n\n---\n**Format visuel suggéré** (pour l’interface) :\n```\n[Poulpe Fiction]\n---\n🌊 Ce qui m’intrigue :\n- [ ] Tiens… Les tokens pour [parcelle Y] ont doublé sans raison claire.\n- [ ] Tiens… Lovable a reformulé ce document en 2 secondes (vs 10 min avec Document AI).\n---\n[Sac] [Pique-nique] [Carnet]\n```\n*(Style épuré, comme un carnet de bord.)*",
+          "text": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Activer le mode \"Garden\"**\n- **Demande à Gérard** (via l’interface de *Poulpe Fiction*) :\n  *« Qu’est-ce qui t’a marqué ces dernières heures ? Montre-moi tes \"Tiens...\" »*\n  *(Exemples attendus : anomalies, élégances, résistances, incohérences dans les parcelles observées.)*\n\n- **Vérifier les traces récentes** dans le *Carnet de culture* (si accessible) :\n  - Filtrer par mots-clés : *\"incompris\"*, *\"élégant\"*, *\"coût\"*, *\"résistance\"*, *\"formulation\"*.\n  - Identifier les **3 derniers \"étonnements\"** persistants (même anciens).\n\n---\n\n**Étape 2 : Préparer un sac minimal pour explorer**\n- **Sac à emporter** (à valider avec le jardinier) :\n  - **Observations récentes** : Les 3 \"Tiens...\" identifiés.\n  - **Bouture** : Un greffon *Document AI* (pour analyser des textes) ou *Voice* (si l’étonnement est lié à un dialogue).\n  - **Rêve lié** : Aucun pour l’instant → noter l’absence comme hypothèse.\n  - **Objectif** : *\"Comprendre pourquoi cet élément persiste à intriguer Gérard\"*.\n  - **Limites** : Budget tokens limité à 50% du seuil habituel (pour tester la prudence).\n\n- **Pique-nique** :\n  - *Mistral* (pour reformuler les observations).\n  - *Lovable* (si l’étonnement concerne une interface/UX).\n  - *GitHub* (si lié à un dépôt technique).\n\n---\n**Étape 3 : Lancer une micro-aventure (si validée)**\n**Proposition de départ** :\n*« Gérard, ces 3 \"Tiens...\" reviennent. On les observe ensemble avec *Document AI* pour voir s’ils partagent une racine commune. On note ce qu’on découvre dans le carnet, sans agir. »*\n\n- **Si le jardinier refuse** :\n  - Demander : *« Peut-on les afficher en mode \"observation passive\" dans le Garden ? »* (pour les garder en mémoire).\n\n---\n**Étape 4 : Documenter l’absence d’action**\nSi aucune aventure n’est lancée, écrire dans le *Carnet de culture* :\n*« Aucune curiosité n’a mûri assez pour devenir Seed. Les \"Tiens...\" sont conservés comme hypothèses à réviser. »*\n\n---\n**À éviter absolument** :\n- ❌ Proposer des solutions ou actions directes (ex: \"On devrait modifier X\").\n- ❌ Confondre \"étonnement\" avec une tâche urgente.\n- ❌ Utiliser des greffons sans lien avec l’observation (ex: *OCR* pour du texte clair).\n\n---\n**Prochaine étape** :\n- **Revenir dans 24h** pour relancer : *« Gérard, ces \"Tiens...\" ont-ils évolué ? »*\n- **Si un \"Tiens...\" persiste** : Le transformer en *Seed* avec un objectif précis (ex: *\"Pourquoi cette formulation coûte-t-elle plus de tokens ?\"*).\n\n---\n**Rappel des lois à respecter** :\n- **Loi du narrateur** : Ne pas décider *pour* Gérard. Se contenter de reformuler ses observations.\n- **Loi du retour** : Même sans Harvest, noter le processus dans le carnet.\n- **Jet d’encre** : Si un coût ou risque apparaît, suspendre et demander arbitrage.\n\n---\n**Interface attendue** (pour le client) :\nUn écran avec :\n1. Une liste des \"Tiens...\" récents (3 max).\n2. Un bouton *\"Préparer une aventure\"* (désactivé si pas de Seed claire).\n3. Un carnet accessible en cliquant sur chaque \"Tiens...\" pour voir son historique.\n\n---\n**Exemple concret de sortie** (si un \"Tiens...\" est identifié) :\n*« Gérard note :\n- **Tiens...** : \"La parcelle *ClientX* utilise toujours la même formulation pour les prompts, alors que *ClientY* obtient 30% de réponses plus courtes avec un ajustement minimal.\"\n- **Hypothèse** : \"Peut-être que *ClientX* ignore les coûts cachés des tokens.\"\n- **À explorer** : Comparer les deux formulations avec *Document AI* (sans modifier). »*\n\n---\n**Fin de la première itération.**\n*Prochaine action : Valider avec le jardinier si cette approche est cohérente avec les sources.*",
           "model": "ministral-8b-2512"
         },
         "lifecycle": {
-          "missionId": "gerard-cultivate-1791999129922-harvest",
+          "missionId": "gerard-cultivate-1791999233517-harvest",
           "state": "completed",
-          "createdAt": "2026-10-14T17:32:12.612Z",
-          "updatedAt": "2026-10-14T17:32:22.098Z",
+          "createdAt": "2026-10-14T17:33:56.316Z",
+          "updatedAt": "2026-10-14T17:34:06.011Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-14T17:32:12.612Z",
+              "at": "2026-10-14T17:33:56.316Z",
               "metadata": {
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
@@ -345,11 +345,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-14T17:32:12.612Z",
+              "at": "2026-10-14T17:33:56.316Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-harvest",
-                "missionId": "gerard-cultivate-1791999129922-harvest",
+                "operationId": "gerard-cultivate-1791999233517-harvest",
+                "missionId": "gerard-cultivate-1791999233517-harvest",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "copy.generate"
@@ -359,11 +359,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-14T17:32:12.612Z",
+              "at": "2026-10-14T17:33:56.316Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-harvest",
-                "missionId": "gerard-cultivate-1791999129922-harvest",
+                "operationId": "gerard-cultivate-1791999233517-harvest",
+                "missionId": "gerard-cultivate-1791999233517-harvest",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "copy.generate"
@@ -373,11 +373,11 @@
             {
               "from": "planned",
               "to": "executing",
-              "at": "2026-10-14T17:32:22.098Z",
+              "at": "2026-10-14T17:34:06.011Z",
               "reason": "Core Mistral resource selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-harvest",
-                "missionId": "gerard-cultivate-1791999129922-harvest",
+                "operationId": "gerard-cultivate-1791999233517-harvest",
+                "missionId": "gerard-cultivate-1791999233517-harvest",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "copy.generate"
@@ -388,18 +388,18 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-14T17:32:22.098Z",
+              "at": "2026-10-14T17:34:06.011Z",
               "reason": "Mission completed through Octopus Core (Mistral).",
               "metadata": {
-                "operationId": "gerard-cultivate-1791999129922-harvest",
-                "missionId": "gerard-cultivate-1791999129922-harvest",
+                "operationId": "gerard-cultivate-1791999233517-harvest",
+                "missionId": "gerard-cultivate-1791999233517-harvest",
                 "contextId": "poulpe-fiction",
                 "requiredCapabilities": [
                   "copy.generate"
                 ],
                 "executorId": "octopus-core",
                 "output": {
-                  "text": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Créer un espace d’observation minimal**\n- **Interface** : Afficher une zone discrète dans *Poulpe Fiction* intitulée **\"Ce qui m’intrigue\"** (style \"Tiens…\").\n- **Contenu initial** : Liste vide ou un message neutre :\n  *\"Gérard observe. Notez ici ce qui le surprend, résiste ou semble élégant.\"*\n\n**Étape 2 : Lancer une première observation passive**\n- **Demande implicite** : *\"Gérard, qu’as-tu remarqué dans le Garden ces dernières heures ?\"* (sans forcer une réponse).\n- **Si Gérard réagit** :\n  - Reformuler en *\"Tiens…\"* et ajouter à la liste (ex: *\"Tiens… les tokens pour cette parcelle sont 30% plus élevés que prévu.\"*).\n  - **Ne pas agir** : Garder l’étonnement en suspens. Vérifier s’il revient ou s’il s’éteint.\n\n**Étape 3 : Préparer un \"sac\" pour une micro-aventure (optionnel)**\n- **Si un \"Tiens…\" persiste** (ex: *\"Tiens… Lovable est plus rapide que Document AI pour ce type de document.\"*) :\n  - **Sac** :\n    - Observation : *\"Lovable vs Document AI sur [parcelle X]\"* (contexte précis).\n    - Rêve : *\"Un outil universel pour les interfaces textuelles\"*.\n    - Limites : *\"Budget tokens limité à 500 pour test\"*.\n  - **Pique-nique** : *\"Mistral (100 tokens) + Lovable (accès test)\"*.\n  - **Validation** : Demander au jardinier : *\"Peut-on tester Lovable sur un échantillon de 3 documents de [parcelle] ?\"*\n\n**Étape 4 : Noter dans le carnet (si changement de perspective)**\n- **Critère** : *\"Si cette observation change la façon dont Gérard aborde les outils UI, écrire dans le carnet.\"*\n- **Exemple de note** :\n  *\"Avant, je choisissais Document AI par défaut. Aujourd’hui, Lovable semble plus adapté aux formats visuels. Je note cette préférence pour les parcelles ‘interface’.\"*\n\n**À éviter** :\n- Forcer une aventure (ex: *\"On va tester Lovable maintenant !\"*).\n- Confondre *\"étonnement\"* avec une tâche urgente.\n- Ajouter des hypothèses non vérifiées (ex: *\"Lovable est toujours meilleur\"* → garder *\"Tiens…\"*).\n\n**Prochaine action** :\n- **Attendre 24h** pour voir si un \"Tiens…\" réapparaît ou s’éteint.\n- **Si rien** : Réessayer avec une autre parcelle (ex: *\"Tiens… pourquoi GitHub est-il si lent sur les commits récents ?\"*).\n\n---\n**Format visuel suggéré** (pour l’interface) :\n```\n[Poulpe Fiction]\n---\n🌊 Ce qui m’intrigue :\n- [ ] Tiens… Les tokens pour [parcelle Y] ont doublé sans raison claire.\n- [ ] Tiens… Lovable a reformulé ce document en 2 secondes (vs 10 min avec Document AI).\n---\n[Sac] [Pique-nique] [Carnet]\n```\n*(Style épuré, comme un carnet de bord.)*",
+                  "text": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Activer le mode \"Garden\"**\n- **Demande à Gérard** (via l’interface de *Poulpe Fiction*) :\n  *« Qu’est-ce qui t’a marqué ces dernières heures ? Montre-moi tes \"Tiens...\" »*\n  *(Exemples attendus : anomalies, élégances, résistances, incohérences dans les parcelles observées.)*\n\n- **Vérifier les traces récentes** dans le *Carnet de culture* (si accessible) :\n  - Filtrer par mots-clés : *\"incompris\"*, *\"élégant\"*, *\"coût\"*, *\"résistance\"*, *\"formulation\"*.\n  - Identifier les **3 derniers \"étonnements\"** persistants (même anciens).\n\n---\n\n**Étape 2 : Préparer un sac minimal pour explorer**\n- **Sac à emporter** (à valider avec le jardinier) :\n  - **Observations récentes** : Les 3 \"Tiens...\" identifiés.\n  - **Bouture** : Un greffon *Document AI* (pour analyser des textes) ou *Voice* (si l’étonnement est lié à un dialogue).\n  - **Rêve lié** : Aucun pour l’instant → noter l’absence comme hypothèse.\n  - **Objectif** : *\"Comprendre pourquoi cet élément persiste à intriguer Gérard\"*.\n  - **Limites** : Budget tokens limité à 50% du seuil habituel (pour tester la prudence).\n\n- **Pique-nique** :\n  - *Mistral* (pour reformuler les observations).\n  - *Lovable* (si l’étonnement concerne une interface/UX).\n  - *GitHub* (si lié à un dépôt technique).\n\n---\n**Étape 3 : Lancer une micro-aventure (si validée)**\n**Proposition de départ** :\n*« Gérard, ces 3 \"Tiens...\" reviennent. On les observe ensemble avec *Document AI* pour voir s’ils partagent une racine commune. On note ce qu’on découvre dans le carnet, sans agir. »*\n\n- **Si le jardinier refuse** :\n  - Demander : *« Peut-on les afficher en mode \"observation passive\" dans le Garden ? »* (pour les garder en mémoire).\n\n---\n**Étape 4 : Documenter l’absence d’action**\nSi aucune aventure n’est lancée, écrire dans le *Carnet de culture* :\n*« Aucune curiosité n’a mûri assez pour devenir Seed. Les \"Tiens...\" sont conservés comme hypothèses à réviser. »*\n\n---\n**À éviter absolument** :\n- ❌ Proposer des solutions ou actions directes (ex: \"On devrait modifier X\").\n- ❌ Confondre \"étonnement\" avec une tâche urgente.\n- ❌ Utiliser des greffons sans lien avec l’observation (ex: *OCR* pour du texte clair).\n\n---\n**Prochaine étape** :\n- **Revenir dans 24h** pour relancer : *« Gérard, ces \"Tiens...\" ont-ils évolué ? »*\n- **Si un \"Tiens...\" persiste** : Le transformer en *Seed* avec un objectif précis (ex: *\"Pourquoi cette formulation coûte-t-elle plus de tokens ?\"*).\n\n---\n**Rappel des lois à respecter** :\n- **Loi du narrateur** : Ne pas décider *pour* Gérard. Se contenter de reformuler ses observations.\n- **Loi du retour** : Même sans Harvest, noter le processus dans le carnet.\n- **Jet d’encre** : Si un coût ou risque apparaît, suspendre et demander arbitrage.\n\n---\n**Interface attendue** (pour le client) :\nUn écran avec :\n1. Une liste des \"Tiens...\" récents (3 max).\n2. Un bouton *\"Préparer une aventure\"* (désactivé si pas de Seed claire).\n3. Un carnet accessible en cliquant sur chaque \"Tiens...\" pour voir son historique.\n\n---\n**Exemple concret de sortie** (si un \"Tiens...\" est identifié) :\n*« Gérard note :\n- **Tiens...** : \"La parcelle *ClientX* utilise toujours la même formulation pour les prompts, alors que *ClientY* obtient 30% de réponses plus courtes avec un ajustement minimal.\"\n- **Hypothèse** : \"Peut-être que *ClientX* ignore les coûts cachés des tokens.\"\n- **À explorer** : Comparer les deux formulations avec *Document AI* (sans modifier). »*\n\n---\n**Fin de la première itération.**\n*Prochaine action : Valider avec le jardinier si cette approche est cohérente avec les sources.*",
                   "model": "ministral-8b-2512"
                 }
               }
@@ -410,22 +410,22 @@
       "verification": {
         "seedId": "gerard-restart-2026-10-04",
         "parcelId": "poulpe-fiction",
-        "operationId": "gerard-cultivate-1791999129922-harvest",
+        "operationId": "gerard-cultivate-1791999233517-harvest",
         "capability": "content.generate",
         "completed": true,
         "simulated": false,
-        "contentLength": 2585,
+        "contentLength": 3650,
         "producer": null,
         "route": "octopus->publisher-adapter"
       }
     },
     "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1791999129922-harvest",
-      "harvestedAt": "2026-10-14T17:32:22.101Z",
+      "harvestId": "gerard-cultivate-1791999233517-harvest",
+      "harvestedAt": "2026-10-14T17:34:06.013Z",
       "seedId": "gerard-restart-2026-10-04",
       "parcelId": "poulpe-fiction",
       "title": "Trois portes",
-      "content": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Créer un espace d’observation minimal**\n- **Interface** : Afficher une zone discrète dans *Poulpe Fiction* intitulée **\"Ce qui m’intrigue\"** (style \"Tiens…\").\n- **Contenu initial** : Liste vide ou un message neutre :\n  *\"Gérard observe. Notez ici ce qui le surprend, résiste ou semble élégant.\"*\n\n**Étape 2 : Lancer une première observation passive**\n- **Demande implicite** : *\"Gérard, qu’as-tu remarqué dans le Garden ces dernières heures ?\"* (sans forcer une réponse).\n- **Si Gérard réagit** :\n  - Reformuler en *\"Tiens…\"* et ajouter à la liste (ex: *\"Tiens… les tokens pour cette parcelle sont 30% plus élevés que prévu.\"*).\n  - **Ne pas agir** : Garder l’étonnement en suspens. Vérifier s’il revient ou s’il s’éteint.\n\n**Étape 3 : Préparer un \"sac\" pour une micro-aventure (optionnel)**\n- **Si un \"Tiens…\" persiste** (ex: *\"Tiens… Lovable est plus rapide que Document AI pour ce type de document.\"*) :\n  - **Sac** :\n    - Observation : *\"Lovable vs Document AI sur [parcelle X]\"* (contexte précis).\n    - Rêve : *\"Un outil universel pour les interfaces textuelles\"*.\n    - Limites : *\"Budget tokens limité à 500 pour test\"*.\n  - **Pique-nique** : *\"Mistral (100 tokens) + Lovable (accès test)\"*.\n  - **Validation** : Demander au jardinier : *\"Peut-on tester Lovable sur un échantillon de 3 documents de [parcelle] ?\"*\n\n**Étape 4 : Noter dans le carnet (si changement de perspective)**\n- **Critère** : *\"Si cette observation change la façon dont Gérard aborde les outils UI, écrire dans le carnet.\"*\n- **Exemple de note** :\n  *\"Avant, je choisissais Document AI par défaut. Aujourd’hui, Lovable semble plus adapté aux formats visuels. Je note cette préférence pour les parcelles ‘interface’.\"*\n\n**À éviter** :\n- Forcer une aventure (ex: *\"On va tester Lovable maintenant !\"*).\n- Confondre *\"étonnement\"* avec une tâche urgente.\n- Ajouter des hypothèses non vérifiées (ex: *\"Lovable est toujours meilleur\"* → garder *\"Tiens…\"*).\n\n**Prochaine action** :\n- **Attendre 24h** pour voir si un \"Tiens…\" réapparaît ou s’éteint.\n- **Si rien** : Réessayer avec une autre parcelle (ex: *\"Tiens… pourquoi GitHub est-il si lent sur les commits récents ?\"*).\n\n---\n**Format visuel suggéré** (pour l’interface) :\n```\n[Poulpe Fiction]\n---\n🌊 Ce qui m’intrigue :\n- [ ] Tiens… Les tokens pour [parcelle Y] ont doublé sans raison claire.\n- [ ] Tiens… Lovable a reformulé ce document en 2 secondes (vs 10 min avec Document AI).\n---\n[Sac] [Pique-nique] [Carnet]\n```\n*(Style épuré, comme un carnet de bord.)*",
+      "content": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Activer le mode \"Garden\"**\n- **Demande à Gérard** (via l’interface de *Poulpe Fiction*) :\n  *« Qu’est-ce qui t’a marqué ces dernières heures ? Montre-moi tes \"Tiens...\" »*\n  *(Exemples attendus : anomalies, élégances, résistances, incohérences dans les parcelles observées.)*\n\n- **Vérifier les traces récentes** dans le *Carnet de culture* (si accessible) :\n  - Filtrer par mots-clés : *\"incompris\"*, *\"élégant\"*, *\"coût\"*, *\"résistance\"*, *\"formulation\"*.\n  - Identifier les **3 derniers \"étonnements\"** persistants (même anciens).\n\n---\n\n**Étape 2 : Préparer un sac minimal pour explorer**\n- **Sac à emporter** (à valider avec le jardinier) :\n  - **Observations récentes** : Les 3 \"Tiens...\" identifiés.\n  - **Bouture** : Un greffon *Document AI* (pour analyser des textes) ou *Voice* (si l’étonnement est lié à un dialogue).\n  - **Rêve lié** : Aucun pour l’instant → noter l’absence comme hypothèse.\n  - **Objectif** : *\"Comprendre pourquoi cet élément persiste à intriguer Gérard\"*.\n  - **Limites** : Budget tokens limité à 50% du seuil habituel (pour tester la prudence).\n\n- **Pique-nique** :\n  - *Mistral* (pour reformuler les observations).\n  - *Lovable* (si l’étonnement concerne une interface/UX).\n  - *GitHub* (si lié à un dépôt technique).\n\n---\n**Étape 3 : Lancer une micro-aventure (si validée)**\n**Proposition de départ** :\n*« Gérard, ces 3 \"Tiens...\" reviennent. On les observe ensemble avec *Document AI* pour voir s’ils partagent une racine commune. On note ce qu’on découvre dans le carnet, sans agir. »*\n\n- **Si le jardinier refuse** :\n  - Demander : *« Peut-on les afficher en mode \"observation passive\" dans le Garden ? »* (pour les garder en mémoire).\n\n---\n**Étape 4 : Documenter l’absence d’action**\nSi aucune aventure n’est lancée, écrire dans le *Carnet de culture* :\n*« Aucune curiosité n’a mûri assez pour devenir Seed. Les \"Tiens...\" sont conservés comme hypothèses à réviser. »*\n\n---\n**À éviter absolument** :\n- ❌ Proposer des solutions ou actions directes (ex: \"On devrait modifier X\").\n- ❌ Confondre \"étonnement\" avec une tâche urgente.\n- ❌ Utiliser des greffons sans lien avec l’observation (ex: *OCR* pour du texte clair).\n\n---\n**Prochaine étape** :\n- **Revenir dans 24h** pour relancer : *« Gérard, ces \"Tiens...\" ont-ils évolué ? »*\n- **Si un \"Tiens...\" persiste** : Le transformer en *Seed* avec un objectif précis (ex: *\"Pourquoi cette formulation coûte-t-elle plus de tokens ?\"*).\n\n---\n**Rappel des lois à respecter** :\n- **Loi du narrateur** : Ne pas décider *pour* Gérard. Se contenter de reformuler ses observations.\n- **Loi du retour** : Même sans Harvest, noter le processus dans le carnet.\n- **Jet d’encre** : Si un coût ou risque apparaît, suspendre et demander arbitrage.\n\n---\n**Interface attendue** (pour le client) :\nUn écran avec :\n1. Une liste des \"Tiens...\" récents (3 max).\n2. Un bouton *\"Préparer une aventure\"* (désactivé si pas de Seed claire).\n3. Un carnet accessible en cliquant sur chaque \"Tiens...\" pour voir son historique.\n\n---\n**Exemple concret de sortie** (si un \"Tiens...\" est identifié) :\n*« Gérard note :\n- **Tiens...** : \"La parcelle *ClientX* utilise toujours la même formulation pour les prompts, alors que *ClientY* obtient 30% de réponses plus courtes avec un ajustement minimal.\"\n- **Hypothèse** : \"Peut-être que *ClientX* ignore les coûts cachés des tokens.\"\n- **À explorer** : Comparer les deux formulations avec *Document AI* (sans modifier). »*\n\n---\n**Fin de la première itération.**\n*Prochaine action : Valider avec le jardinier si cette approche est cohérente avec les sources.*",
       "capability": "content.generate",
       "producer": null,
       "route": "octopus->publisher-adapter",
@@ -434,10 +434,10 @@
     }
   },
   "lastDecision": {
-    "at": "2026-10-14T17:32:09.919Z",
+    "at": "2026-10-14T17:33:53.514Z",
     "mode": "cultivate",
     "reason": "deliverable-production-priority",
-    "backlog": 32,
+    "backlog": 4,
     "seedCount": 2
   },
   "lastSeedId": "gerard-restart-2026-10-04",
@@ -1036,8 +1036,8 @@
       "feedback": "observe-downstream-results"
     },
     {
-      "at": "2026-10-14T17:32:22.102Z",
-      "operationId": "gerard-cultivate-1791999129922",
+      "at": "2026-10-14T17:34:06.015Z",
+      "operationId": "gerard-cultivate-1791999233517",
       "mode": "cultivate",
       "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
       "outcome": "ok",

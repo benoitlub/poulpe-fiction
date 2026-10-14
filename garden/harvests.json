@@ -11,7 +11,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791470859848-harvest",
@@ -28,7 +36,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791546414654-harvest",
@@ -41,7 +57,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791548036301-harvest",
@@ -58,7 +82,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791553245798-harvest",
@@ -71,7 +103,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791554438762-harvest",
@@ -88,7 +128,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791555880028-harvest",
@@ -101,7 +149,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791576091909-harvest",
@@ -118,7 +174,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791577819287-harvest",
@@ -131,7 +195,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791579351282-harvest",
@@ -148,7 +220,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791580886903-harvest",
@@ -161,7 +241,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791585855614-harvest",
@@ -178,7 +266,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791586062789-harvest",
@@ -191,7 +287,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791586643664-harvest",
@@ -208,7 +312,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791593849833-harvest",
@@ -221,7 +333,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791631741026-harvest",
@@ -238,7 +358,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791643299054-harvest",
@@ -251,7 +379,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791643600208-harvest",
@@ -268,7 +404,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791643998868-harvest",
@@ -281,7 +425,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791644382809-harvest",
@@ -298,7 +450,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791644965120-harvest",
@@ -311,7 +471,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791645807719-harvest",
@@ -328,7 +496,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791652991844-harvest",
@@ -341,7 +517,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791661711525-harvest",
@@ -358,7 +542,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791662296056-harvest",
@@ -371,7 +563,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791667497487-harvest",
@@ -388,7 +588,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791667960618-harvest",
@@ -401,7 +609,15 @@
       "producer": null,
       "route": "octopus->publisher-adapter",
       "delivery": null,
-      "state": "harvested"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "harvested",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791669037487-harvest",
@@ -418,7 +634,15 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "state": "ready-to-offer"
+      "state": "composted",
+      "compost": {
+        "reason": "simulated-provider-placeholder",
+        "compostedAt": "2026-10-14T17:33:53.468Z",
+        "previousState": "ready-to-offer",
+        "canonicalHarvestId": null,
+        "policy": "gerard-local-compost-v1",
+        "recoverable": true
+      }
     },
     {
       "harvestId": "gerard-cultivate-1791969338280-harvest",
@@ -481,12 +705,12 @@
       "state": "ready-to-offer"
     },
     {
-      "harvestId": "gerard-cultivate-1791999129922-harvest",
-      "harvestedAt": "2026-10-14T17:32:22.101Z",
+      "harvestId": "gerard-cultivate-1791999233517-harvest",
+      "harvestedAt": "2026-10-14T17:34:06.013Z",
       "seedId": "gerard-restart-2026-10-04",
       "parcelId": "poulpe-fiction",
       "title": "Trois portes",
-      "content": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Créer un espace d’observation minimal**\n- **Interface** : Afficher une zone discrète dans *Poulpe Fiction* intitulée **\"Ce qui m’intrigue\"** (style \"Tiens…\").\n- **Contenu initial** : Liste vide ou un message neutre :\n  *\"Gérard observe. Notez ici ce qui le surprend, résiste ou semble élégant.\"*\n\n**Étape 2 : Lancer une première observation passive**\n- **Demande implicite** : *\"Gérard, qu’as-tu remarqué dans le Garden ces dernières heures ?\"* (sans forcer une réponse).\n- **Si Gérard réagit** :\n  - Reformuler en *\"Tiens…\"* et ajouter à la liste (ex: *\"Tiens… les tokens pour cette parcelle sont 30% plus élevés que prévu.\"*).\n  - **Ne pas agir** : Garder l’étonnement en suspens. Vérifier s’il revient ou s’il s’éteint.\n\n**Étape 3 : Préparer un \"sac\" pour une micro-aventure (optionnel)**\n- **Si un \"Tiens…\" persiste** (ex: *\"Tiens… Lovable est plus rapide que Document AI pour ce type de document.\"*) :\n  - **Sac** :\n    - Observation : *\"Lovable vs Document AI sur [parcelle X]\"* (contexte précis).\n    - Rêve : *\"Un outil universel pour les interfaces textuelles\"*.\n    - Limites : *\"Budget tokens limité à 500 pour test\"*.\n  - **Pique-nique** : *\"Mistral (100 tokens) + Lovable (accès test)\"*.\n  - **Validation** : Demander au jardinier : *\"Peut-on tester Lovable sur un échantillon de 3 documents de [parcelle] ?\"*\n\n**Étape 4 : Noter dans le carnet (si changement de perspective)**\n- **Critère** : *\"Si cette observation change la façon dont Gérard aborde les outils UI, écrire dans le carnet.\"*\n- **Exemple de note** :\n  *\"Avant, je choisissais Document AI par défaut. Aujourd’hui, Lovable semble plus adapté aux formats visuels. Je note cette préférence pour les parcelles ‘interface’.\"*\n\n**À éviter** :\n- Forcer une aventure (ex: *\"On va tester Lovable maintenant !\"*).\n- Confondre *\"étonnement\"* avec une tâche urgente.\n- Ajouter des hypothèses non vérifiées (ex: *\"Lovable est toujours meilleur\"* → garder *\"Tiens…\"*).\n\n**Prochaine action** :\n- **Attendre 24h** pour voir si un \"Tiens…\" réapparaît ou s’éteint.\n- **Si rien** : Réessayer avec une autre parcelle (ex: *\"Tiens… pourquoi GitHub est-il si lent sur les commits récents ?\"*).\n\n---\n**Format visuel suggéré** (pour l’interface) :\n```\n[Poulpe Fiction]\n---\n🌊 Ce qui m’intrigue :\n- [ ] Tiens… Les tokens pour [parcelle Y] ont doublé sans raison claire.\n- [ ] Tiens… Lovable a reformulé ce document en 2 secondes (vs 10 min avec Document AI).\n---\n[Sac] [Pique-nique] [Carnet]\n```\n*(Style épuré, comme un carnet de bord.)*",
+      "content": "**Action immédiate : Commencer par observer et noter les \"étonnements\" de Gérard**\n\n**Étape 1 : Activer le mode \"Garden\"**\n- **Demande à Gérard** (via l’interface de *Poulpe Fiction*) :\n  *« Qu’est-ce qui t’a marqué ces dernières heures ? Montre-moi tes \"Tiens...\" »*\n  *(Exemples attendus : anomalies, élégances, résistances, incohérences dans les parcelles observées.)*\n\n- **Vérifier les traces récentes** dans le *Carnet de culture* (si accessible) :\n  - Filtrer par mots-clés : *\"incompris\"*, *\"élégant\"*, *\"coût\"*, *\"résistance\"*, *\"formulation\"*.\n  - Identifier les **3 derniers \"étonnements\"** persistants (même anciens).\n\n---\n\n**Étape 2 : Préparer un sac minimal pour explorer**\n- **Sac à emporter** (à valider avec le jardinier) :\n  - **Observations récentes** : Les 3 \"Tiens...\" identifiés.\n  - **Bouture** : Un greffon *Document AI* (pour analyser des textes) ou *Voice* (si l’étonnement est lié à un dialogue).\n  - **Rêve lié** : Aucun pour l’instant → noter l’absence comme hypothèse.\n  - **Objectif** : *\"Comprendre pourquoi cet élément persiste à intriguer Gérard\"*.\n  - **Limites** : Budget tokens limité à 50% du seuil habituel (pour tester la prudence).\n\n- **Pique-nique** :\n  - *Mistral* (pour reformuler les observations).\n  - *Lovable* (si l’étonnement concerne une interface/UX).\n  - *GitHub* (si lié à un dépôt technique).\n\n---\n**Étape 3 : Lancer une micro-aventure (si validée)**\n**Proposition de départ** :\n*« Gérard, ces 3 \"Tiens...\" reviennent. On les observe ensemble avec *Document AI* pour voir s’ils partagent une racine commune. On note ce qu’on découvre dans le carnet, sans agir. »*\n\n- **Si le jardinier refuse** :\n  - Demander : *« Peut-on les afficher en mode \"observation passive\" dans le Garden ? »* (pour les garder en mémoire).\n\n---\n**Étape 4 : Documenter l’absence d’action**\nSi aucune aventure n’est lancée, écrire dans le *Carnet de culture* :\n*« Aucune curiosité n’a mûri assez pour devenir Seed. Les \"Tiens...\" sont conservés comme hypothèses à réviser. »*\n\n---\n**À éviter absolument** :\n- ❌ Proposer des solutions ou actions directes (ex: \"On devrait modifier X\").\n- ❌ Confondre \"étonnement\" avec une tâche urgente.\n- ❌ Utiliser des greffons sans lien avec l’observation (ex: *OCR* pour du texte clair).\n\n---\n**Prochaine étape** :\n- **Revenir dans 24h** pour relancer : *« Gérard, ces \"Tiens...\" ont-ils évolué ? »*\n- **Si un \"Tiens...\" persiste** : Le transformer en *Seed* avec un objectif précis (ex: *\"Pourquoi cette formulation coûte-t-elle plus de tokens ?\"*).\n\n---\n**Rappel des lois à respecter** :\n- **Loi du narrateur** : Ne pas décider *pour* Gérard. Se contenter de reformuler ses observations.\n- **Loi du retour** : Même sans Harvest, noter le processus dans le carnet.\n- **Jet d’encre** : Si un coût ou risque apparaît, suspendre et demander arbitrage.\n\n---\n**Interface attendue** (pour le client) :\nUn écran avec :\n1. Une liste des \"Tiens...\" récents (3 max).\n2. Un bouton *\"Préparer une aventure\"* (désactivé si pas de Seed claire).\n3. Un carnet accessible en cliquant sur chaque \"Tiens...\" pour voir son historique.\n\n---\n**Exemple concret de sortie** (si un \"Tiens...\" est identifié) :\n*« Gérard note :\n- **Tiens...** : \"La parcelle *ClientX* utilise toujours la même formulation pour les prompts, alors que *ClientY* obtient 30% de réponses plus courtes avec un ajustement minimal.\"\n- **Hypothèse** : \"Peut-être que *ClientX* ignore les coûts cachés des tokens.\"\n- **À explorer** : Comparer les deux formulations avec *Document AI* (sans modifier). »*\n\n---\n**Fin de la première itération.**\n*Prochaine action : Valider avec le jardinier si cette approche est cohérente avec les sources.*",
       "capability": "content.generate",
       "producer": null,
       "route": "octopus->publisher-adapter",
