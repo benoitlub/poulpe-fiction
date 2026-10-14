@@ -1019,12 +1019,12 @@ jobs:
               pack_ok=False
               count=0
           report=(
-              "### Gérard — vérification réelle des connexions (GitHub Actions)\\n\\n"
-              +f"- Publisher Worker \`/api/healthz\` : HTTP **{health}** (réponse réseau vérifiée, pas preuve de génération).\\n"
-              +f"- Notion pack Reel : HTTP **{status}**, **{count}** blocs lus, contenu attendu détecté : **{'oui' if pack_ok else 'non'}**.\\n"
-              +"- Images, vidéos, capture du jeu et MP4 : **aucun média créé par cette étape**.\\n"
-              +"- Publication et programmation : **aucune**. Validation humaine obligatoire.\\n"
-              +"- Prochaine étape : brancher une capacité de production média réellement exécutable, avec artefact vérifiable.\\n"
+              "### Gérard — vérification réelle des connexions (GitHub Actions)\n\n"
+              +f"- Publisher Worker `/api/healthz` : HTTP **{health}** (réponse réseau vérifiée, pas preuve de génération).\n"
+              +f"- Notion pack Reel : HTTP **{status}**, **{count}** blocs lus, contenu attendu détecté : **{'oui' if pack_ok else 'non'}**.\n"
+              +"- Images, vidéos, capture du jeu et MP4 : **aucun média créé par cette étape**.\n"
+              +"- Publication et programmation : **aucune**. Validation humaine obligatoire.\n"
+              +"- Prochaine étape : brancher une capacité de production média réellement exécutable, avec artefact vérifiable.\n"
           )
           with open("/tmp/gerard-probes.md","w") as f: f.write(report)
           print(report)
