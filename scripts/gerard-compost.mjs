@@ -43,7 +43,7 @@ export function isOffDomainYaebaliHarvest(item) {
       (item.seedId !== "yael-prospection" && item.parcelId !== "project-yael-prospection")) return false;
   const text = String(item.content ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   if (!text.trim()) return false;
-  return !/\b(immobilier|courtage|credit immobilier|financement immobilier|pret immobilier|emprunt|achat de logement)\b/.test(text);
+  return !/\b(immobilier(?:s|e|es)?|courtage|credit immobilier|financement immobilier|pret immobilier|emprunt|achat de logement)\b/.test(text);
 }
 
 function normalizedContent(content) {
