@@ -785,6 +785,10 @@ jobs:
           fi
           jq -c '{source,capability,status:(.status // .response.status // "received")}' garden/gerard-publisher-advice.json
 
+      - name: Verify Metricool feedback memory safeguards
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-social-feedback.test.mjs
+
       - name: Update Gerard learning from verified outcomes
         working-directory: poulpe-fiction
         shell: bash
@@ -822,6 +826,7 @@ jobs:
                  performanceRankingEnabled:($a.status == "available" and ([$a.posts[]? | select(.text == $d.copyText)] | length) > 0)}}
           ' > /tmp/gerard-learning-next.json
           mv /tmp/gerard-learning-next.json garden/gerard-learning.json
+          node scripts/gerard-social-feedback.mjs
 
       - name: Validate real harvest result
         if: ${{ github.event_name == 'workflow_dispatch' }}
