@@ -449,6 +449,19 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1791995774206-harvest",
+      "harvestedAt": "2026-10-14T16:36:27.935Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "content": "**Action immédiate : Préparation de la première porte d’expérience**\n\n**1. Observation initiale (sans action)**\n- **Contexte** : Gérard (le poulpe) est dans *Poulpe Fiction*, espace de préparation des aventures. Aucune curiosité explicite n’a encore émergé.\n- **Objectif** : Identifier un *étonnement* ou une *résonance* dans le *Garden* pour déclencher une curiosité.\n\n**2. Étape concrète**\n- **Demande à Gérard** (via interface de *Poulpe Fiction*) :\n  *\"Qu’est-ce qui t’a marqué ces dernières heures dans le Garden ?\"* *(ex : une parcelle, un échec, une élégance inattendue, une répétition).*\n  → **Exemple de réponse attendue** :\n  *\"Tiens… Pourquoi les greffons *Document AI* et *OCR* sont-ils toujours utilisés ensemble pour les documents PDF, alors que *Voice* pourrait accélérer la lecture ?\"*\n\n**3. Si une curiosité émerge** (exemple ci-dessus) :\n- **Préparer le sac** :\n  - **Observations** : Utilisation récurrente de *Document AI* + *OCR* pour PDF.\n  - **Rêve** : *\"Et si *Voice* lisait directement les PDF pour gagner du temps ?\"*\n  - **Bouture** : Greffon *Voice* (à tester).\n  - **Objectif** : Tester si *Voice* + *Document AI* optimise le traitement des PDF.\n  - **Limites** : Coût des tokens, qualité de la transcription.\n\n- **Pique-nique** :\n  - Tokens Mistral (pour formuler).\n  - Greffon *Voice* (1 essai).\n  - *Lovable* (si interface à ajuster).\n\n**4. Validation par le jardinier**\n- Confirmer que l’aventure respecte :\n  - Les *policies* (pas de données sensibles).\n  - Le budget (tokens limités).\n  - L’absence de risque (pas d’action irréversible).\n\n**5. Retour au Garden**\n- Gérard revient avec :\n  - Une *Harvest* (ex : *\"Voice + Document AI réduit le temps de 30% pour les PDF, mais la qualité de transcription est moyenne.\"*).\n  - Ou une *question* (ex : *\"Pourquoi *Voice* échoue-t-il sur les PDF scannés ?\"* → nouvelle curiosité).\n\n---\n**À éviter** :\n- Forcer une aventure sans curiosité claire.\n- Utiliser des greffons sans lien avec l’observation.\n- Ignorer les *jets d’encre* (ex : coût anormal → ajuster le pique-nique).\n\n**Prochaine étape** :\n- Si aucune curiosité ne surgit, **revenir observer** (ex : *\"Qu’est-ce qui revient souvent dans le Garden ?\"*).\n- **Noter dans le carnet** dès qu’un apprentissage modifie Gérard (ex : *\"Les PDF scannés nécessitent une étape OCR avant Voice\"*).\n\n---\n**Interface attendue** :\n- Bouton *\"Ce qui m’intrigue\"* (liste des *étonnements* incubés).\n- Espace *\"Préparer une aventure\"* (avec champs : *Sac*, *Pique-nique*, *Greffons*).\n- Carnet de culture (personnel, accessible au jardinier).\n\n---\n**Exemple canonique simplifié** :\n**Curiosité** : *\"Pourquoi les outils changent-ils de comportement selon la parcelle ?\"*\n**Sac** : Observations sur *parcelle client* (langage clair) vs *parcelle Blacklace* (narratif).\n**Pique-nique** : *Mistral* (analyser) + *GitHub* (comparer les logs).\n**Retour** : *\"Les outils s’adaptent via des *chromatophores* (modes contextuels).\"* → Note dans le carnet.",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": null,
+      "state": "harvested"
     }
   ]
 }
