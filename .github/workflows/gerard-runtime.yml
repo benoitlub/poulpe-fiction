@@ -666,6 +666,31 @@ jobs:
             exit 1
           fi
 
+      - name: Reconcile one proven Gérard Buffer validation rejection
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          HARVEST_ID="$(jq -r '.harvestId // ""' garden/next-social-publication.json)"
+          if [ "$HARVEST_ID" != "neon_iter_iter_gerard-et-gerard_1786288530352" ] || [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Known invalid Buffer reservation not selected; no changes."
+            exit 0
+          fi
+          if ! jq -e '.status == "ready" and .transport.provider == "buffer" and .editorialQuality.status == "complete"' garden/next-social-publication.json >/dev/null; then
+            echo "Known book package incomplete; leaving reservation locked."
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --output /tmp/gerard-known-recovery.json --write-out '%{http_code}' --max-time 40 -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-draft/recover-gerard-invalid-input" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data '{"harvestId":"neon_iter_iter_gerard-et-gerard_1786288530352","intent":"recover-known-buffer-InvalidInputError"}')" || STATUS="000"
+          echo "Known Buffer validation reconciliation HTTP $STATUS"
+          if [ -s /tmp/gerard-known-recovery.json ]; then
+            jq -c '{status,harvestId,changed,postCreated,retryScope,freshProviderCheck,reason}' /tmp/gerard-known-recovery.json || true
+          fi
+          if [ "$STATUS" != "200" ]; then
+            echo "Provider evidence missing or incident already handled; no unlock."
+          fi
+
       - name: Inspect Buffer draft reservation (read-only)
         working-directory: poulpe-fiction
         env:
@@ -727,6 +752,15 @@ jobs:
             if [ "${{ inputs.retry_terra_draft }}" = "true" ] && [ "$HARVEST_ID" = "harvest_local_harvest_terra_1786215725146" ] && jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and (.reservations[0].status == "retry-authorized") and (.reservations[0].post_id == null)' /tmp/gerard-buffer-reconcile.json >/dev/null; then
               rm -f /tmp/gerard-buffer-write-blocked
               echo "One authorized TERRA draft attempt unlocked; no automatic publication."
+            fi
+            # Only after an authenticated, complete read-only Buffer check and
+            # a one-time database state transition. Never unblock on absence alone.
+            if [ "$HARVEST_ID" = "neon_iter_iter_gerard-et-gerard_1786288530352" ] &&
+               [ -s /tmp/gerard-known-recovery.json ] &&
+               jq -e '.status == "reconciled-known-invalid-input" and .changed == 1 and .postCreated == false and .retryScope == "draft-only" and .freshProviderCheck == true' /tmp/gerard-known-recovery.json >/dev/null 2>&1 &&
+               jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and .reservations[0].status == "validation-rejected" and .reservations[0].post_id == null' /tmp/gerard-buffer-reconcile.json >/dev/null 2>&1; then
+              rm -f /tmp/gerard-buffer-write-blocked
+              echo "One verified Gérard book draft attempt unlocked; no automatic publication."
             fi
           else
             echo "Reconciliation unavailable; Buffer write remains blocked."
