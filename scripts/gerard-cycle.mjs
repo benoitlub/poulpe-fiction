@@ -10,6 +10,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isSimulatedHarvest } from "./gerard-compost.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
@@ -113,6 +114,9 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   const output = harvest?.payload?.output ?? {};
   const text = typeof output?.text === "string" ? output.text.trim() : "";
   if (harvest?.status !== "ok" || !text) return null;
+  // Mock output is an operational attempt, not a deliverable. Preserve it in
+  // learningHistory, but never add a new fake harvest to the active garden.
+  if (isSimulatedHarvest({ content: text, isMock: output?.isMock, simulated: harvest?.verification?.simulated })) return null;
 
   let existing = { harvests: [] };
   try { existing = JSON.parse(await readFile(HARVESTS_PATH, "utf8")); } catch (_) {}
@@ -145,7 +149,9 @@ async function runSymbiosis(state) {
   const seen = new Set();
   const duplicates = [];
   const candidates = [];
-  for (const item of harvests) {
+  const activeHarvests = harvests.filter(item => item?.state !== "archived" && item?.state !== "composted");
+  const compostedCount = harvests.filter(item => item?.state === "composted").length;
+  for (const item of activeHarvests) {
     const content = typeof item.content === "string" ? item.content.trim() : "";
     if (!content) continue;
     const key = content.toLocaleLowerCase().replace(/\s+/g, " ");
@@ -179,7 +185,7 @@ async function runSymbiosis(state) {
     scope: "local-harvest-inventory-only",
     publisherReconciliation: publisher.status === "observed" ? "candidate-inventory-only" : "not-verified",
     publisher,
-    totalHarvests: harvests.length, uniqueContent: seen.size,
+    totalHarvests: harvests.length, activeHarvests: activeHarvests.length, compostedCount, uniqueContent: seen.size,
     duplicateCount: duplicates.length, duplicateHarvestIds: duplicates.slice(0, 20),
     candidateCount: candidates.length, candidateSample: candidates.slice(-10),
     action: "observe-only", aiCalls: 0, externalCalls: 1,
