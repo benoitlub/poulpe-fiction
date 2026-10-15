@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-14T22:41:00.224Z",
+  "at": "2026-10-15T11:39:38.330Z",
   "mode": "symbiosis",
   "status": "ok",
   "scope": "local-harvest-inventory-only",
@@ -17,13 +17,13 @@
       "neon_iter_iter_gerard-et-gerard_1786288530352"
     ]
   },
-  "totalHarvests": 37,
-  "activeHarvests": 5,
+  "totalHarvests": 38,
+  "activeHarvests": 6,
   "compostedCount": 32,
-  "uniqueContent": 5,
+  "uniqueContent": 6,
   "duplicateCount": 0,
   "duplicateHarvestIds": [],
-  "candidateCount": 5,
+  "candidateCount": 6,
   "candidateSample": [
     {
       "harvestId": "gerard-cultivate-1791969338280-harvest",
@@ -47,6 +47,11 @@
     },
     {
       "harvestId": "gerard-cultivate-1792016250702-harvest",
+      "parcelId": "poulpe-fiction",
+      "state": "harvested"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792039785929-harvest",
       "parcelId": "poulpe-fiction",
       "state": "harvested"
     }
