@@ -298,6 +298,29 @@ jobs:
               ' garden/next-social-publication.json > /tmp/gerard-repeat-learning.json
               mv /tmp/gerard-repeat-learning.json garden/next-social-publication.json
             fi
+            # Reconcile human-verified external posts (e.g. Instagram outside Metricool).
+            # This is read-only evidence: it does not attribute the post to Gerard,
+            # change deployed apps, or authorize any publication.
+            if [ -f garden/verified-external-publications.json ]; then
+              jq --slurpfile verified garden/verified-external-publications.json '
+                . as $candidate
+                | ([$verified[0].entries[]? | select(.publicationConfirmed == true and .seedId == $candidate.seedId)]) as $matches
+                | . + {externalPublicationEvidence: {
+                    previouslyPublished: ($matches | length > 0),
+                    confirmedNetworks: ([$matches[].network] | unique),
+                    accountNames: ([$matches[].account] | unique),
+                    publisherAttribution: "unknown",
+                    source: "human-verified-external-publications",
+                    editorialAdvice: (if ($matches | length) > 0 then "Previously promoted: use a fresh creative angle; verify against the existing post before scheduling." else "No verified external post for this seed." end)
+                  }}
+                | if any($matches[]; (.captionExcerpt // "") != "" and ((.captionExcerpt | ascii_downcase) == (($candidate.copy.text // "") | ascii_downcase))) then
+                    .status = "blocked"
+                    | .reason = "exact-verified-external-copy"
+                    | .action = "do-not-schedule"
+                  else . end
+              ' garden/next-social-publication.json > /tmp/gerard-external-evidence.json
+              mv /tmp/gerard-external-evidence.json garden/next-social-publication.json
+            fi
             # Route Gerard's autonomous selection by editorial topic; never publish here.
             if [ "$(jq -r '.status' garden/next-social-publication.json)" = "blocked" ]; then
               echo "Duplicate package blocked: skipping editorial route."
