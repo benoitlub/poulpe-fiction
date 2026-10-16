@@ -88,7 +88,7 @@ jobs:
       - name: Install and build Octopus Engine
         working-directory: octopus
         run: |
-          npm install
+          npm install --legacy-peer-deps
           npm run build
 
       - name: Install Publisher
