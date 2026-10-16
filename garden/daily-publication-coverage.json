@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-10-15T11:39:37.650Z",
+  "checkedAt": "2026-10-16T08:45:12.106Z",
   "timezone": "Europe/Paris",
-  "day": "2026-10-15",
+  "day": "2026-10-16",
   "month": "2026-10",
   "metricoolBudget": {
     "limit": 20,
@@ -34,6 +34,14 @@
       "publicationCountMonth": null,
       "status": "not-verifiable-from-iterations",
       "publisherIterationCount": 16
+    },
+    {
+      "parcelId": "benoit-business-growth",
+      "publishedToday": null,
+      "publicationCountToday": null,
+      "publicationCountMonth": null,
+      "status": "not-verifiable-from-iterations",
+      "publisherIterationCount": 0
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-10-14T22:41:08Z",
+  "recordedAt": "2026-10-16T08:46:05Z",
   "source": "Buffer GraphQL provider confirmation",
   "contract": "gerard-existing-buffer-post-v1",
   "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
@@ -9,7 +9,7 @@
   "scheduled": true,
   "channelId": "6ac8c8226a5c39ccb65fdbf6",
   "scheduledAt": "2026-10-15T06:27:00.000Z",
-  "providerStatus": "scheduled",
+  "providerStatus": "sent",
   "duplicateCreated": false,
   "note": "Existing Buffer draft modified in place; no new Buffer post created."
 }
