@@ -1,0 +1,25 @@
+{
+  "schema": "gerard-verified-external-publications-v1",
+  "purpose": "Human-verified external posts to reconcile with Gerard editorial selection; never assume the publishing transport or automate reposting.",
+  "entries": [
+    {
+      "seedId": "gerard-et-gerard",
+      "network": "instagram",
+      "account": "benoitlubert",
+      "postUrl": null,
+      "verification": "user-supplied-instagram-screenshots",
+      "observedOn": "2026-10-16",
+      "publishedAt": "approximately 2026-10-15 (Instagram displayed 'il y a 1 jour')",
+      "captionExcerpt": "Deux Gérard. Une simulation oubliée. Et l’humanité observée de travers.",
+      "mediaDescription": "Official Gérard et Gérard visual, two FRUNCH glasses with Earth in the background",
+      "observedMetrics": {
+        "views": 24,
+        "likes": 1
+      },
+      "publicationConfirmed": true,
+      "publisherUnknown": true,
+      "doNotTreatAsUnpublished": true,
+      "notes": "Screenshot verifies publication but not whether Gerard, Buffer, or a human posted it. Avoid exact duplicate; use fresh creative angle."
+    }
+  ]
+}
