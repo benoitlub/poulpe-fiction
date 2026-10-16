@@ -20,6 +20,19 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       }
+    },
+    {
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "title": "Benoît · Acquisition clients rapide",
+      "objective": "Priorité commerciale immédiate pour Benoît Lubert : trouver des prospects réels et plausibles pour des missions indépendantes réalisables en 4 à 6 heures par semaine, avec un ticket cible d'environ 200 à 1000 € et potentiel récurrent. Se concentrer d'abord sur des offres simples à vendre rapidement à partir du profil professionnel existant : ateliers/formation IA et multimédia, création de contenus/visuels/vidéo, accompagnement web/communication, automatisation légère avec Publisher/Poulpe. Rechercher des signaux publics et contacts professionnels pertinents, vérifier la réalité de chaque piste, exclure les contacts inventés, doublons et leads sans preuve. Pour chaque prospect réel : consigner source vérifiable, besoin observable, adéquation avec une offre précise, urgence probable, prochaine action et brouillon de message personnalisé. Ne jamais prétendre à un intérêt non exprimé. Ne pas envoyer automatiquement de message commercial sans validation humaine ; préparer les meilleurs contacts à approcher et les brouillons prêts à envoyer. Objectif opérationnel : produire rapidement une shortlist de 5 prospects réels et 3 offres ultra-claires, puis itérer selon réponses et conversions plutôt que générer du contenu générique.",
+      "firstHarvest": "Shortlist de 5 prospects réels et vérifiables + 3 offres commercialisables immédiatement pour Benoît. Pour chaque prospect : nom/organisation, source publique, besoin ou signal observé, offre proposée, fourchette de prix adaptée 200–1000 €, message d'approche personnalisé et niveau de confiance. Si moins de 5 pistes vérifiables sont accessibles avec les outils disponibles, le dire explicitement et livrer uniquement les pistes prouvées, avec le canal ou connecteur manquant à activer. Pas de faux leads, pas de campagne générique.",
+      "knowledgeSlug": "benoit-lubert-professional",
+      "delivery": {
+        "recipient": "Benoît",
+        "mode": "propose-before-send",
+        "harvestState": "ready-to-offer"
+      }
     }
   ]
 }
