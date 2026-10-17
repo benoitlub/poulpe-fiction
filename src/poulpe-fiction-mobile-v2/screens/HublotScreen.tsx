@@ -47,7 +47,7 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
   if (!progress) {
     return (
       <section className="pf-hublot pf-garden-home" aria-label="Garden">
-        <div className="pf-garden-world">${scene}${livingParcels}</div>
+        <div className="pf-garden-world">{scene}{livingParcels}</div>
         <ActiveExplorations />
         <div className="pf-card pf-full-width">
           <div className="pf-empty">
