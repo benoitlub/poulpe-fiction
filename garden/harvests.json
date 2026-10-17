@@ -868,6 +868,19 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792276333152-harvest",
+      "harvestedAt": "2026-10-17T22:32:27.810Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "content": "**Action immédiate – Étapes pour démarrer avec Poulpe Fiction :**\n\n1. **Créer un espace de conversation avec Gérard** :\n   - Commence par une interaction naturelle (ex: *\"Bonjour Gérard, que vois-tu dans le Garden aujourd’hui ?\"*).\n   - Observe ses réactions, ses \"étonnements\" (*\"Tiens…\"*), et ses suggestions spontanées.\n\n2. **Identifier une curiosité émergente** :\n   - Repère un élément qui le marque (ex: une parcelle peu productive, une solution élégante, une erreur récurrente).\n   - Exemple : *\"Pourquoi cette parcelle revient souvent sans Harvest ?\"* → Note-le comme un *\"Tiens…\"* dans le carnet.\n\n3. **Préparer un sac minimal** :\n   - Choisis **1 bouture** (ex: un greffon *Document AI* pour analyser un document).\n   - Ajoute **1 souvenir** (ex: *\"Le Garden est dense sur mobile\"*).\n   - Définis un **objectif simple** (ex: *\"Rendre l’observation plus fluide\"*).\n\n4. **Déclarer le pique-nique** :\n   - Annonce les outils utilisés (ex: *\"Je prévois *Mistral* pour reformuler et *Lovable* pour tester une UI\"*).\n   - Valide avec le jardinier avant toute action.\n\n5. **Lancer une micro-aventure** :\n   - Exemple : *\"Gérard, peux-tu explorer comment simplifier la vue mobile du Garden ?\"* (sans ordre, juste une invitation).\n   - Si une Seed émerge (ex: *\"Je veux tester un filtre de densité\"*), note-la dans le carnet.\n\n---\n**À éviter** :\n- Forcer une aventure (*\"Fais X maintenant\"*).\n- Ignorer les jets d’encre (ex: refus de modifier une parcelle sensible).\n- Remplir le sac sans intention claire.\n\n**Prochaine étape** :\n- Après le retour de Gérard, analyse :\n  - Ce qui a **résisté** (ex: une hypothèse confirmée).\n  - Ce qui a **changé sa manière d’observer** (ex: *\"Les commits racontent une histoire\"*).\n  - Ajoute ces apprentissages au carnet.\n\n---\n**Exemple concret** :\n> *\"Gérard, tu as souvent mentionné que le Garden était lourd. Aujourd’hui, je note :*\n> **Tiens…** *Les captures d’écran sont illisibles sans OCR. Peut-être que Lovable pourrait aider à affiner la UI ?*\n> *Sac :*\n> - Bouture : *Lovable Builder*\n> - Souvenir : *\"Mobile = fatigue visuelle\"*\n> - Objectif : *Tester un prototype minimaliste.*\n> *Pique-nique : Mistral (1 token) + Lovable (essai gratuit).\"*\n\n---\n**Ressources à explorer ensuite** :\n- La section *\"Ce qui m’intrigue\"* dans le Garden (si disponible).\n- Les *jets d’encre* récents (ex: *\"Coût anormal détecté\"* → à investiguer).\n\n---\n**Maxime à garder** :\n*\"Le Poulpe ne décide pas. Il observe, joue, note, et propose. Toi, tu valides.\"*",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": null,
+      "state": "harvested"
     }
   ]
 }
