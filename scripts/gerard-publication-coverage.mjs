@@ -106,7 +106,7 @@ async function main() {
     const end = new Date(Date.parse(start + "T00:00:00Z") + experiment.goal.days * 86400000).toISOString().slice(0, 10);
     const dated = confirmed.filter(e => {
       const date = String(e.publishedAt ?? e.publicationDate ?? e.date ?? "").slice(0, 10);
-      return /^\\d{4}-\\d{2}-\\d{2}$/.test(date) && date >= start && date < end;
+      return /^\d{4}-\d{2}-\d{2}$/.test(date) && date >= start && date < end;
     });
     const unique = new Set(dated.map(e => String(e.url ?? e.postUrl ?? e.postId ?? e.id ?? "")).filter(Boolean));
     report.experiment = {
@@ -114,7 +114,7 @@ async function main() {
       window: { start, endExclusive: end }, target: experiment.goal.publications,
       verifiedDatedPublications: unique.size,
       remainingTarget: Math.max(0, experiment.goal.publications - unique.size),
-      evidenceStatus: "partial", missingDateOrIdentity: confirmed.length - dated.length,
+      evidenceStatus: "partial", missingDateOrIdentity: confirmed.length - unique.size,
       metricoolQuotaVerified: report.metricoolBudget.verified,
       publishingEnabled: false,
       note: "Only uniquely identified, dated, confirmed publications count; unknown is not zero. No scheduling permission granted."
