@@ -95,6 +95,31 @@ async function main() {
   const metricoolSnapshot = await readFile("garden/metricool-published-snapshot.json", "utf8")
     .then(JSON.parse).catch(() => null);
   const report = buildPublicationCoverage({ iterationsPayload, seedsPayload, metricoolSnapshot });
+  const experiment = await readFile("garden/publication-experiment-30d.json", "utf8").then(JSON.parse).catch(() => null);
+  const evidence = await readFile("garden/verified-external-publications.json", "utf8").then(JSON.parse).catch(() => null);
+  if (experiment?.contract === "gerard-publication-experiment-v1") {
+    const entries = Array.isArray(evidence?.entries) ? evidence.entries : [];
+    const confirmed = entries.filter(e => e?.publicationConfirmed === true && e?.seedId !== "yael-prospection" &&
+      e?.parcelId !== "project-yael-prospection");
+    // Evidence may omit exact posting dates; count only date-stamped items in the window.
+    const start = experiment.createdAt;
+    const end = new Date(Date.parse(start + "T00:00:00Z") + experiment.goal.days * 86400000).toISOString().slice(0, 10);
+    const dated = confirmed.filter(e => {
+      const date = String(e.publishedAt ?? e.publicationDate ?? e.date ?? "").slice(0, 10);
+      return /^\\d{4}-\\d{2}-\\d{2}$/.test(date) && date >= start && date < end;
+    });
+    const unique = new Set(dated.map(e => String(e.url ?? e.postUrl ?? e.postId ?? e.id ?? "")).filter(Boolean));
+    report.experiment = {
+      contract: experiment.contract, status: "observing-not-authorized-to-publish",
+      window: { start, endExclusive: end }, target: experiment.goal.publications,
+      verifiedDatedPublications: unique.size,
+      remainingTarget: Math.max(0, experiment.goal.publications - unique.size),
+      evidenceStatus: "partial", missingDateOrIdentity: confirmed.length - dated.length,
+      metricoolQuotaVerified: report.metricoolBudget.verified,
+      publishingEnabled: false,
+      note: "Only uniquely identified, dated, confirmed publications count; unknown is not zero. No scheduling permission granted."
+    };
+  }
   await writeFile("garden/daily-publication-coverage.json", JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify({ day: report.day, metricoolBudget: report.metricoolBudget, coverage: report.coverage }, null, 2));
 }
