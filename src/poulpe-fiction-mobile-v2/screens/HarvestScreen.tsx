@@ -23,6 +23,18 @@ function openHtml(content: string) {
 const PARCEL_PAGE_SIZE = 15;
 const LATEST_LIMIT = 12;
 const GERARD_LIMIT = 8;
+type ServerHarvest = { harvestId: string; parcelId: string; title: string; content: string; harvestedAt: string; state: string };
+const SERVER_URL = "https://raw.githubusercontent.com/benoitlub/poulpe-fiction/main/garden/harvests.json";
+function validServerHarvests(data: any): ServerHarvest[] {
+  if (!Array.isArray(data?.harvests)) return [];
+  return data.harvests.filter((h: any) =>
+    typeof h?.harvestId === "string" && typeof h?.parcelId === "string" &&
+    typeof h?.content === "string" && h.content.trim() &&
+    ["harvested", "ready-to-offer", "ready-to-use", "ready-to-review"].includes(h.state) &&
+    !/mode mock actif|configurez AI_PROVIDER/i.test(h.content) &&
+    !(h.parcelId === "project-yael-prospection" && /420 dice|pro[.]hbtd|blacklace dice/i.test(h.content))
+  ).sort((a: ServerHarvest, b: ServerHarvest) => String(b.harvestedAt).localeCompare(String(a.harvestedAt)));
+}
 
 function parcelLabel(parcelId: string): string {
   return parcelId.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -123,6 +135,18 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
   const visibleHarvests = () => restoreAllGardenHarvests().filter((item) => !visibleParcelId || item.intent.parcelId === visibleParcelId);
   const [stored, setStored] = useState<HarvestBundle[]>(visibleHarvests);
   const [view, setView] = useState<"recent" | "projects" | "archive">("recent");
+  const [remote, setRemote] = useState<ServerHarvest[]>([]);
+  const [remoteStatus, setRemoteStatus] = useState("Chargement des récoltes serveur…");
+  useEffect(() => {
+    let cancelled = false;
+    void fetch(SERVER_URL, { cache: "no-store" })
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((data) => { if (!cancelled) { setRemote(validServerHarvests(data)); setRemoteStatus(""); } })
+      .catch(() => { if (!cancelled) setRemoteStatus("Journal serveur momentanément indisponible."); });
+    return () => { cancelled = true; };
+  }, []);
+  const serverItems = remote.filter((h) => !visibleParcelId || h.parcelId === visibleParcelId);
+
 
   useEffect(() => {
     const refresh = () => setStored(visibleHarvests());
@@ -162,12 +186,21 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
   const projectLatest = useMemo(() => groups.map(([parcelId, items]) => [parcelId, items[0]] as const).filter((entry) => Boolean(entry[1])).sort((left, right) => new Date(right[1].createdAt).getTime() - new Date(left[1].createdAt).getTime()), [groups]);
   const latestHarvests = useMemo(() => harvests.slice(0, LATEST_LIMIT), [harvests]);
 
-  if (!harvests.length) {
+  if (!harvests.length && !serverItems.length && !remoteStatus) {
     return <section className="pf-card"><div className="pf-empty"><h2>Pas encore de récolte</h2><p>Gérard n’affiche rien de fictif. Les vraies récoltes apparaîtront ici lorsqu’elles seront prêtes.</p><button className="pf-btn pf-btn-primary" onClick={onBackToGerard}>Confier une culture</button></div></section>;
   }
 
   return (
     <section className="pf-harvest-library" aria-label="Bibliothèque des récoltes">
+      <section className="pf-card" aria-label="Récoltes du serveur">
+        <h2 className="pf-harvest-title">Récoltes du serveur GitHub</h2>
+        <p className="pf-meta">{remoteStatus || `${serverItems.length} récolte(s) conservée(s) — simulations et compost exclus`}</p>
+        {serverItems.slice(0, 20).map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
+          <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
+          <p style={{ whiteSpace: "pre-wrap" }}>{item.content}</p>
+          <HarvestActions actions={[{ label: "Copier", onClick: () => copy(item.content) }]} />
+        </details>)}
+      </section>
       <div className="pf-library-summary"><strong>{harvests.length}</strong><span>récoltes</span><i /> <strong>{groups.length}</strong><span>projets</span></div>
       <nav className="pf-library-tabs" aria-label="Vues des récoltes">
         <button type="button" data-active={view === "recent"} onClick={() => setView("recent")}>Récentes</button>
