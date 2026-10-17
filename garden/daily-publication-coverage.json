@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-17T22:32:12.968Z",
+  "checkedAt": "2026-10-17T23:11:35.704Z",
   "timezone": "Europe/Paris",
   "day": "2026-10-18",
   "month": "2026-10",
@@ -43,5 +43,21 @@
       "status": "not-verifiable-from-iterations",
       "publisherIterationCount": 0
     }
-  ]
+  ],
+  "experiment": {
+    "contract": "gerard-publication-experiment-v1",
+    "status": "observing-not-authorized-to-publish",
+    "window": {
+      "start": "2026-10-18",
+      "endExclusive": "2026-11-17"
+    },
+    "target": 30,
+    "verifiedDatedPublications": 0,
+    "remainingTarget": 30,
+    "evidenceStatus": "partial",
+    "missingDateOrIdentity": 1,
+    "metricoolQuotaVerified": false,
+    "publishingEnabled": false,
+    "note": "Only uniquely identified, dated, confirmed publications count; unknown is not zero. No scheduling permission granted."
+  }
 }

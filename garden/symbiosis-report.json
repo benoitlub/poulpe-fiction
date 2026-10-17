@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-17T20:42:10.589Z",
+  "at": "2026-10-17T23:11:37.067Z",
   "mode": "symbiosis",
   "status": "ok",
   "scope": "local-harvest-inventory-only",
@@ -17,13 +17,13 @@
       "neon_iter_iter_gerard-et-gerard_1786288530352"
     ]
   },
-  "totalHarvests": 41,
-  "activeHarvests": 9,
+  "totalHarvests": 42,
+  "activeHarvests": 10,
   "compostedCount": 32,
-  "uniqueContent": 9,
+  "uniqueContent": 10,
   "duplicateCount": 0,
   "duplicateHarvestIds": [],
-  "candidateCount": 9,
+  "candidateCount": 10,
   "candidateSample": [
     {
       "harvestId": "gerard-cultivate-1791969338280-harvest",
@@ -69,6 +69,11 @@
       "harvestId": "gerard-cultivate-1792251714141-harvest",
       "parcelId": "benoit-business-growth",
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792276333152-harvest",
+      "parcelId": "poulpe-fiction",
+      "state": "harvested"
     }
   ],
   "action": "observe-only",
