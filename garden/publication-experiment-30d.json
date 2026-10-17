@@ -1,0 +1,56 @@
+{
+  "contract": "gerard-publication-experiment-v1",
+  "createdAt": "2026-10-18",
+  "status": "planned-awaiting-verified-delivery",
+  "goal": {
+    "publications": 30,
+    "days": 30
+  },
+  "scope": {
+    "eligible": [
+      "books",
+      "games",
+      "benoit-creative-services"
+    ],
+    "excluded": [
+      "project-yael-prospection"
+    ],
+    "yaebaliRequiresApproval": true
+  },
+  "rotation": {
+    "avoidSameSeedConsecutively": true,
+    "distinctAnglesPerProduct": 3,
+    "minimumSpacingHours": 4
+  },
+  "channels": {
+    "metricool": {
+      "monthlyLimit": 20,
+      "requireVerifiedRemainingQuota": true
+    },
+    "buffer": {
+      "requireVerifiedChannel": true
+    },
+    "neverCountDraftAsPublication": true
+  },
+  "measurement": {
+    "checkAfterHours": [
+      24,
+      168
+    ],
+    "metrics": [
+      "reach",
+      "impressions",
+      "engagements",
+      "clicks",
+      "inboundLeads"
+    ],
+    "recordUnavailableAsNull": true
+  },
+  "safety": {
+    "publishingEnabled": false,
+    "doNotOverrideExistingGuards": true,
+    "noDuplicatePosts": true,
+    "onlyOfficialMedia": true
+  },
+  "nextStep": "Connect this experiment to the verified publication scheduler; do not activate automatic posting until account, quota and metrics checks pass."
+}
