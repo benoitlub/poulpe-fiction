@@ -187,6 +187,11 @@ jobs:
         working-directory: poulpe-fiction
         run: node --test tests/gerard-book-quality.test.mjs
 
+      - name: Learn Publisher creative Tool Packs (read-only)
+        if: always()
+        continue-on-error: true
+        run: node scripts/gerard-publisher-skill-intake.mjs
+
       - name: Prepare next social publication package
         working-directory: poulpe-fiction
         shell: bash
@@ -982,7 +987,7 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json)" ]; then
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/gerard-creative-tool-packs.json garden/compost-report.json garden/buffer-book-publication.json)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
