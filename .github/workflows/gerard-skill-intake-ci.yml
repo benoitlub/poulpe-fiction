@@ -1,0 +1,26 @@
+name: Gerard creative Tool Pack intake validation
+on:
+  pull_request:
+    paths:
+      - "scripts/gerard-publisher-skill-intake.mjs"
+      - ".github/workflows/gerard-runtime.yml"
+      - ".github/workflows/gerard-skill-intake-ci.yml"
+jobs:
+  validate-intake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Fetch packs read-only
+        run: node scripts/gerard-publisher-skill-intake.mjs
+      - name: Check bundle readiness and safety
+        run: |
+          node --input-type=module -e '
+            import {readFileSync} from "node:fs";
+            const r=JSON.parse(readFileSync("garden/gerard-creative-tool-packs.json","utf8"));
+            if(r.items.length!==4 || r.status!=="prepared" || r.items.some(x=>x.executionEnabled!==false))
+              throw new Error(JSON.stringify({status:r.status,items:r.items.map(x=>({id:x.id,status:x.status}))}));
+            console.log("Four Publisher Tool Packs available in Gerrard read-only inventory.");
+          '
