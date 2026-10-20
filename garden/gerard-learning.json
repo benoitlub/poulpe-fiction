@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-19T23:05:00.374Z",
+  "updatedAt": "2026-10-20T00:26:11.157Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -1460,10 +1460,84 @@
         }
       ],
       "lesson": "Compare this repeated copy against other angles using verified metrics."
+    },
+    {
+      "observedAt": "2026-10-20T00:26:11Z",
+      "seedId": "420-dice",
+      "harvestId": "harvest_local_harvest_420-dice_1786190554657",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "repeatCount": 16,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "blocked-by-publisher-guardrails",
+        "publishingEnabled": false,
+        "reason": "Metricool quota unavailable: no active Metricool account.",
+        "stage": "connection"
+      },
+      "metricsStatus": "available",
+      "outcome": "not-verified",
+      "matchedMetrics": [
+        {
+          "network": "facebook",
+          "date": "2026-10-06",
+          "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+          "url": "https://facebook.com/122158707854022326/posts/122317783394022326",
+          "metrics": {
+            "comments": 0,
+            "linkClicks": 0,
+            "engagementPerThousand": 0,
+            "reach": 1,
+            "reactions": 0,
+            "shares": 0
+          },
+          "source": "metricool-connector",
+          "sourceMetricFields": [
+            "FBPO01",
+            "FBPO03",
+            "FBPO06",
+            "FBPO08",
+            "FBPO09",
+            "FBPO10",
+            "FBPO12",
+            "FBPO13",
+            "FBPO14"
+          ],
+          "verified": true
+        },
+        {
+          "network": "instagram",
+          "date": "2026-10-06",
+          "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+          "url": "https://www.instagram.com/p/DeJXjGFFZFw/",
+          "metrics": {
+            "comments": 0,
+            "engagementPerThousand": 0,
+            "interactions": 0,
+            "likes": 0,
+            "reach": 17,
+            "saves": 0
+          },
+          "source": "metricool-connector",
+          "sourceMetricFields": [
+            "IGPO01",
+            "IGPO03",
+            "IGPO06",
+            "IGPO08",
+            "IGPO10",
+            "IGPO12",
+            "IGPO13",
+            "IGPO14",
+            "IGPO15"
+          ],
+          "verified": true
+        }
+      ],
+      "lesson": "Compare this repeated copy against other angles using verified metrics."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-19T23:05:00Z",
+    "observedAt": "2026-10-20T00:26:10Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -1525,7 +1599,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-19T23:05:00.374Z",
+        "observedAt": "2026-10-20T00:26:11.157Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -1545,7 +1619,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-19T23:05:00.374Z",
+        "observedAt": "2026-10-20T00:26:11.157Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -1565,7 +1639,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-19T23:05:00.374Z",
+        "observedAt": "2026-10-20T00:26:11.157Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -1585,7 +1659,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-19T23:05:00.374Z",
+        "observedAt": "2026-10-20T00:26:11.157Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -1605,7 +1679,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-19T23:05:00.374Z",
+        "observedAt": "2026-10-20T00:26:11.157Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -1625,7 +1699,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-19T23:05:00.374Z",
+    "lastIntegratedAt": "2026-10-20T00:26:11.157Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   }
 }

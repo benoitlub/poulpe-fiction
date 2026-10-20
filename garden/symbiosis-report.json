@@ -1,35 +1,33 @@
 {
-  "at": "2026-10-19T20:38:09.096Z",
+  "at": "2026-10-20T00:25:50.782Z",
   "mode": "symbiosis",
   "status": "ok",
   "scope": "local-harvest-inventory-only",
   "publisherReconciliation": "candidate-inventory-only",
   "publisher": {
     "status": "observed",
-    "candidateCount": 7,
+    "candidateCount": 10,
     "candidateHarvestIds": [
       "harvest_local_harvest_420-dice_1786215725387",
       "harvest_local_harvest_terra_1786215725146",
       "harvest_local_harvest_gerard-et-gerard_1786215725072",
+      "harvest_local_harvest_420-dice_1786190554657",
+      "harvest_local_harvest_terra_1786190554611",
+      "harvest_local_harvest_gerard-et-gerard_1786190554601",
       "harvest_local_harvest_gerard-et-gerard_1784579429759",
       "neon_iter_iter_feulette-tachetee_1786291228831",
       "neon_iter_iter_terra_1786289427863",
       "neon_iter_iter_gerard-et-gerard_1786288530352"
     ]
   },
-  "totalHarvests": 45,
-  "activeHarvests": 13,
+  "totalHarvests": 46,
+  "activeHarvests": 14,
   "compostedCount": 32,
-  "uniqueContent": 13,
+  "uniqueContent": 14,
   "duplicateCount": 0,
   "duplicateHarvestIds": [],
-  "candidateCount": 13,
+  "candidateCount": 14,
   "candidateSample": [
-    {
-      "harvestId": "gerard-cultivate-1792004897205-harvest",
-      "parcelId": "poulpe-fiction",
-      "state": "harvested"
-    },
     {
       "harvestId": "gerard-cultivate-1792016250702-harvest",
       "parcelId": "poulpe-fiction",
@@ -73,6 +71,11 @@
     {
       "harvestId": "gerard-cultivate-1792416640377-harvest",
       "parcelId": "project-yael-prospection",
+      "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792451055250-harvest",
+      "parcelId": "benoit-business-growth",
       "state": "ready-to-offer"
     }
   ],
