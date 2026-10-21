@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-20T23:57:17.428Z",
+  "at": "2026-10-21T11:59:33.395Z",
   "mode": "symbiosis",
   "status": "ok",
   "scope": "local-harvest-inventory-only",
@@ -20,19 +20,14 @@
       "neon_iter_iter_gerard-et-gerard_1786288530352"
     ]
   },
-  "totalHarvests": 48,
-  "activeHarvests": 16,
+  "totalHarvests": 49,
+  "activeHarvests": 17,
   "compostedCount": 32,
-  "uniqueContent": 16,
+  "uniqueContent": 17,
   "duplicateCount": 0,
   "duplicateHarvestIds": [],
-  "candidateCount": 16,
+  "candidateCount": 17,
   "candidateSample": [
-    {
-      "harvestId": "gerard-cultivate-1792150396782-harvest",
-      "parcelId": "benoit-business-growth",
-      "state": "ready-to-offer"
-    },
     {
       "harvestId": "gerard-cultivate-1792169122897-harvest",
       "parcelId": "poulpe-fiction",
@@ -76,6 +71,11 @@
     {
       "harvestId": "gerard-cultivate-1792524072200-harvest",
       "parcelId": "project-yael-prospection",
+      "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792558696932-harvest",
+      "parcelId": "benoit-business-growth",
       "state": "ready-to-offer"
     }
   ],
