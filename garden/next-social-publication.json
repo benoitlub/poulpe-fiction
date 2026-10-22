@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-22T12:02:17Z",
+  "preparedAt": "2026-10-22T17:17:19Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "harvest_local_harvest_420-dice_1786190554657",
@@ -15,7 +15,7 @@
     "capability": "text-only-fallback",
     "generated": false,
     "mediaFailures": [
-      "Mistral completed the conversation but returned no generated image file_id."
+      "API budget exhausted."
     ]
   },
   "compatibleNetworks": [
