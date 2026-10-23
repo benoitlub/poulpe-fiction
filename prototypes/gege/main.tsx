@@ -16,6 +16,7 @@ import {
 } from "../../src/garden-gege/core.mjs";
 import { demoSnapshot } from "./demo";
 import "./style.css";
+import { Gege, roleColors as colors } from "./Gege";
 const stations = {
   cueilleur: [235, 190],
   tresseur: [750, 200],
@@ -25,70 +26,6 @@ const stations = {
   jardinier: [205, 440],
   semeur: [520, 140],
 };
-const colors = {
-  cueilleur: "#8caf64",
-  tresseur: "#d8b069",
-  enlumineur: "#c78bb5",
-  passeur: "#6ec5c4",
-  greffeur: "#c88b62",
-  jardinier: "#8b9d66",
-  semeur: "#9fa9de",
-};
-function Gege({
-  role = "jardinier",
-  chief = false,
-}: {
-  role?: string;
-  chief?: boolean;
-}) {
-  const color = chief ? "#dcb46e" : colors[role];
-  const tools = {
-    cueilleur: "✿",
-    tresseur: "✎",
-    enlumineur: "✧",
-    passeur: "↗",
-    greffeur: "⚒",
-    jardinier: "♧",
-    semeur: "⋆",
-  };
-  return (
-    <svg viewBox="0 0 70 90" aria-hidden="true">
-      <ellipse cx="35" cy="82" rx="25" ry="6" fill="#051f28" opacity=".45" />
-      <path
-        d="M23 70v10m24-10v10"
-        stroke="#443d35"
-        strokeWidth="10"
-        strokeLinecap="round"
-      />
-      <path d="M17 45Q35 32 53 45L55 72Q35 81 15 72Z" fill={color} />
-      <path
-        d="M18 48L8 66m44-18 9 16"
-        stroke={color}
-        strokeWidth="10"
-        strokeLinecap="round"
-      />
-      <circle cx="35" cy="32" r="18" fill="#e0b495" />
-      <path
-        d="M16 35Q18 66 35 69Q54 61 54 35L43 44H27Z"
-        fill={chief ? "#eee2c9" : "#e0d1b4"}
-      />
-      <ellipse cx="35" cy="40" rx="6" ry="4" fill="#d5977d" />
-      <circle cx="28" cy="30" r="2" fill="#233336" />
-      <circle cx="42" cy="30" r="2" fill="#233336" />
-      <path d="M15 23Q16 4 34 5Q54 5 54 23Z" fill={color} />
-      <path
-        d="M9 24Q34 19 61 24"
-        stroke={color}
-        strokeWidth="7"
-        strokeLinecap="round"
-      />
-      <path d="M24 49q11 8 23 0" fill="none" stroke="#baa58a" strokeWidth="2" />
-      <text x="52" y="67" fontSize="24" fill="#f5df9d">
-        {chief ? "❋" : tools[role]}
-      </text>
-    </svg>
-  );
-}
 function Garden({
   missions,
   onSelect,
@@ -110,7 +47,7 @@ function Garden({
   return (
     <section
       className={"garden " + (!animate ? "still" : "")}
-      aria-label="Jardin interactif"
+      aria-label="Jardin aquatique des hamsters Gégé"
     >
       <div className="camera" aria-label="Commandes de caméra">
         <button
@@ -606,8 +543,8 @@ function App() {
             <>
               <strong>DONNÉES FICTIVES</strong>
               <span>
-                Sept métiers en démonstration. Aucune mission réelle n’est
-                exécutée.
+                Sept hamsters spécialisés en démonstration. Aucune mission
+                réelle n’est exécutée.
               </span>
             </>
           ) : (
@@ -919,8 +856,9 @@ function App() {
                   <br />a sa saison.
                 </h2>
                 <p>
-                  Gérard veille sur le jardin. Choisissez un petit jardinier
-                  pour découvrir son travail et suivre ses traces.
+                  Gérard et ses petits hamsters veillent sur le jardin.
+                  Choisissez un Gégé pour découvrir son métier et suivre ses
+                  traces.
                 </p>
                 <div className="note">
                   <strong>

@@ -21,7 +21,7 @@ npx vite preview --config prototypes/gege/vite.config.mjs --port 4174
 
 Le build est dans `dist-gege/`, ignoré par Git et absent du workflow de déploiement Pages. Sans le fichier réel généré, le mode réel affiche un état hors ligne ; il ne remplace jamais les données manquantes par de la démo.
 
-Les sept métiers sont inspectables. Les filtres, le carnet des événements, le mode synthèse et les commandes de caméra fonctionnent au clavier. Une reprise fictive peut être déclenchée explicitement dans l’inspecteur d’une mission bloquée/échouée, puis une réussite fictive ; l’historique de l’échec reste visible. La préférence système de réduction des animations est respectée.
+Les Gégé sont de petits hamsters anthropomorphes habitant le jardin aquatique. Gérard et les sept métiers partagent le composant SVG `Gege.tsx` : oreilles rondes, abajoues, petites pattes, tenues et outils spécialisés. Les sept métiers sont inspectables. Les filtres, le carnet des événements, le mode synthèse et les commandes de caméra fonctionnent au clavier. Une reprise fictive peut être déclenchée explicitement dans l’inspecteur d’une mission bloquée/échouée, puis une réussite fictive ; l’historique de l’échec reste visible. La préférence système de réduction des animations est respectée.
 
 Voir [l’audit](../../docs/jardin-gege/AUDIT.md), [le contrat TypeScript](../../src/garden-gege/contracts.ts) et [le passage à Lovable](../../docs/jardin-gege/LOVABLE-HANDOFF.md).
 

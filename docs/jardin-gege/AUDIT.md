@@ -1,6 +1,6 @@
 # Le Jardin des Gégé — audit et prototype isolé
 
-Audit du 23 octobre 2026. Le prototype est une greffe dans Poulpe Fiction, sans remplacement de sa home. Les fichiers de production et les workflows ne sont pas modifiés.
+Audit du 23 octobre 2026. Le prototype est une greffe dans Poulpe Fiction, sans remplacement de sa home. Sa direction artistique représente Gérard et les Gégé comme de petits hamsters anthropomorphes spécialisés, habitants du jardin aquatique. Les fichiers de production et les workflows ne sont pas modifiés.
 
 ## Sources inspectées
 
