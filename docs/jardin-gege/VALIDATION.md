@@ -9,7 +9,7 @@
 - Chromium : vue 1440 × 1100 et 390 × 844, pas de débordement horizontal de page sur mobile, inspection avec focus, filtres, synthèse, reprise fictive puis réussite avec conservation de l’échec, rejet d’une réponse invalide, état vide, coupure réseau avec maintien des traces déjà lues, réduction des animations.
 - Axe WCAG 2 A/AA et WCAG 2.1 AA : **aucune violation détectée** sur les deux vues testées. Cela ne vaut pas audit complet au lecteur d’écran.
 - Aucune erreur JavaScript et aucune requête d’écriture pendant le scénario navigateur. Le seul accès aux sources réelles effectué hors tests est la lecture de `/events` d’Octopus (réponse vide) ; le navigateur lit le fichier local assaini.
-- Comparaison Git : `index.html`, `mobile-v2.html`, `vite.config.mjs`, `package.json`, `garden/` et `.github/` inchangés.
+- Comparaison initiale : home, configuration Vite principale, données et workflows inchangés. Pour le déploiement autorisé, `package.json` ajoute ensuite la construction et la copie de l’aperçu dans `dist/jardin-gege/`. Les modifications intervenues sur `main` sont conservées.
 
 ## Dette existante vérifiée sur la base
 
@@ -41,3 +41,9 @@ Cette livraison couvre l’audit et un prototype fonctionnel isolé. Elle ne pr�
 ## Direction artistique : hamsters
 
 Gérard, les sept métiers et les portraits utilisent désormais la même silhouette de hamster. Les textes UI, commentaires du composant, descriptions et référence de génération Lovable ont été harmonisés. Typecheck et build du prototype réussis après cette modification ; scénario Chromium ordinateur/mobile et Axe relancés avec succès, sans erreur JavaScript ni requête d’écriture. Les captures et l’archive d’aperçu ont été régénérées.
+
+## Déploiement de l’aperçu autorisé
+
+La mise en ligne ajoute `/jardin-gege/` au site GitHub Pages existant. Le script `stage-gege.mjs` vérifie le contrat du fichier assaini avant de copier le build isolé dans le dossier publié. La home ne redirige pas vers le prototype. Le jardin s’ouvre en démonstration ; les traces réelles restent un instantané explicitement daté, régénéré lors du build. Aucune source brute ni clé n’est copiée. Aucun workflow métier n’est déclenché pour tester.
+
+Validation du build intégré : 104 tests réussis après prise en compte des nouveaux tests de `main`, typecheck du prototype réussi. Le scénario navigateur est exécuté sur `/jardin-gege/` dans l’artefact construit, avec attente du transfert de focus au prochain frame avant son assertion.

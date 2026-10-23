@@ -102,9 +102,10 @@ mkdirSync(artifactDir, { recursive: true });
     .getByRole("button", { name: "Vue synthétique", exact: true })
     .click();
   await page.locator(".mission-row").first().click();
-  assert.equal(
-    await page.locator("aside").evaluate((e) => document.activeElement === e),
-    true,
+  await page.waitForFunction(
+    () => document.activeElement === document.querySelector("aside"),
+    null,
+    { timeout: 2000 },
   );
   const mobileAxe = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])

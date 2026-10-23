@@ -895,7 +895,7 @@ function App() {
         </div>
       </main>
       <footer>
-        <span>LE JARDIN DES GÉGÉ</span>
+        <a href="../mobile-v2.html">Retour à Poulpe Fiction</a>
         <span>
           Prototype de travail · aucune publication ni commande de production
         </span>

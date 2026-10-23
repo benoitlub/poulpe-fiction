@@ -32,7 +32,7 @@ Douze hamsters maximum visibles ; toute mission reste dans la synthèse. Panoram
 
 ## Garde-fous d’intégration
 
-La lecture de `snapshot.json` est le seul appel réseau applicatif du prototype. Aucune API de publication, purge, synchronisation, génération ou diagnostic à effets de bord n’est importée. Les bibliothèques de l’ancienne home ne sont pas chargées. Aucune dépendance nouvelle n’est ajoutée au package de production.
+La lecture de `snapshot.json` est le seul appel réseau applicatif du prototype. L’aperçu est intégré au build Pages sous `/jardin-gege/` après autorisation de mise en ligne ; la home reste conservée. Aucune API de publication, purge, synchronisation, génération ou diagnostic à effets de bord n’est importée. Les bibliothèques de l’ancienne home ne sont pas chargées. Aucune dépendance nouvelle n’est ajoutée au package de production.
 
 Ne pas déduire une connexion fournisseur à partir d’un métier représenté. Ne pas faire progresser une tâche par durée d’animation. Ne pas annoncer un pourcentage absent des données. Une carte résultat ne doit être cliquable que si son URL validée est présente. Les priorités de Gérard non raccordées restent signalées comme indisponibles.
 

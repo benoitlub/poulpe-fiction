@@ -1,6 +1,6 @@
 # Le Jardin des Gégé — audit et prototype isolé
 
-Audit du 23 octobre 2026. Le prototype est une greffe dans Poulpe Fiction, sans remplacement de sa home. Sa direction artistique représente Gérard et les Gégé comme de petits hamsters anthropomorphes spécialisés, habitants du jardin aquatique. Les fichiers de production et les workflows ne sont pas modifiés.
+Audit du 23 octobre 2026. Le prototype est une greffe dans Poulpe Fiction, sans remplacement de sa home. Sa direction artistique représente Gérard et les Gégé comme de petits hamsters anthropomorphes spécialisés, habitants du jardin aquatique. Les workflows et la home restent conservés. Après autorisation de déploiement, le build principal ajoute uniquement une route d’aperçu dédiée.
 
 ## Sources inspectées
 
@@ -18,7 +18,7 @@ Les trois premiers dépôts ont été récupérés dans des copies locales. Les 
 
 `poulpe-fiction/index.html` est l’entrée historique du build Vite ; `mobile-v2.html` charge l’interface React existante. La configuration `vite.config.mjs` construit ces deux entrées sous `/poulpe-fiction/`. Le workflow `.github/workflows/deploy-pages.yml` publie `dist` après un push sur `main`. Il est donc exclu d’y intégrer une home non validée.
 
-Le prototype possède sa propre configuration `prototypes/gege/vite.config.mjs`, son entrée HTML et son dossier de sortie `dist-gege`. Le build normal ne l’inclut pas. L’ancienne home reste exactement à sa place : retour arrière immédiat, aucune migration de données à annuler.
+Le prototype possède sa propre configuration `prototypes/gege/vite.config.mjs`, son entrée HTML et son dossier de sortie `dist-gege`. Après autorisation de mise en ligne, le build normal copie cet aperçu dans `dist/jardin-gege/`, sans remplacer les entrées existantes. L’ancienne home reste exactement à sa place : retour arrière immédiat, aucune migration de données à annuler.
 
 Sources réutilisables : `garden-domain.js`, `garden-store.js`, `poulpe-octopus-adapter.js`, `publisher-client.js`, les composants React mobile et les adaptateurs `src/poulpe-fiction-mobile-v2/runtime/`. Le nouveau lecteur n’importe pas leurs scripts d’autonomie : ouvrir le prototype ne doit pas démarrer un travail.
 
@@ -68,4 +68,4 @@ Le collecteur local livré lit uniquement des fichiers et n’effectue aucun app
 
 ## Passage à la home
 
-La phase C et la validation d’au moins un cycle réel complet restent requises. Observer un cycle planifié autorisé ; comparer ses transitions, ses erreurs et son livrable dans les sources et dans le jardin. Ne pas lancer une publication pour les besoins du test. Valider les accès privés, les reconnexions après redémarrage du moteur et la rétention durable. Ensuite seulement, proposer une entrée alternative sous indicateur de fonctionnalité, conserver une route explicite vers l’ancienne home, puis faire valider le déploiement. Aucun déploiement n’est inclus dans cette livraison.
+La phase C et la validation d’au moins un cycle réel complet restent requises. Observer un cycle planifié autorisé ; comparer ses transitions, ses erreurs et son livrable dans les sources et dans le jardin. Ne pas lancer une publication pour les besoins du test. Valider les accès privés, les reconnexions après redémarrage du moteur et la rétention durable. Ensuite seulement, proposer une entrée alternative sous indicateur de fonctionnalité, conserver une route explicite vers l’ancienne home, puis faire valider le déploiement. La mise en ligne autorisée porte uniquement sur l’aperçu `/jardin-gege/`. Le remplacement de la home et la supervision en direct restent des étapes ultérieures.
