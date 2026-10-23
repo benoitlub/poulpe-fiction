@@ -50,6 +50,70 @@
       ],
       "url": "https://facebook.com/122158707854022326/posts/122318927600022326",
       "source": "metricool-connected-per-post-analytics"
+    },
+    {
+      "id": 393765144,
+      "text": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
+      "publicationDate": {
+        "dateTime": "2026-10-13T10:00:00",
+        "timezone": "Europe/Paris"
+      },
+      "networks": [
+        "facebook"
+      ],
+      "urls": {
+        "facebook": "https://facebook.com/122158707854022326/posts/122318927600022326"
+      },
+      "source": "metricool-connected-provider-published-status"
+    },
+    {
+      "id": 400567357,
+      "text": "🌍 Et si les vacances les plus extraordinaires ne se déroulaient pas là où l'on croit ?\n\nDans « Les Vacances Interdites », de jeunes Ilvaardiens partent à la découverte d'une Terre pleine de surprises. Une aventure de science-fiction jeunesse entre exploration, mystères et imprévus.\n\n📖 Découvrir le roman de Benoît Lubert sur Amazon : https://www.amazon.fr/dp/B0HJNC4GQK\n\n#LesVacancesInterdites #ScienceFictionJeunesse #RomanAdo #Lecture",
+      "publicationDate": {
+        "dateTime": "2026-10-21T10:00:00",
+        "timezone": "Europe/Paris"
+      },
+      "networks": [
+        "facebook"
+      ],
+      "urls": {
+        "facebook": "https://facebook.com/122158707854022326/posts/122320005536022326"
+      },
+      "source": "metricool-connected-provider-published-status"
+    },
+    {
+      "id": 400570577,
+      "text": "🌍 Certains voyages ne devraient jamais avoir lieu…\n\nQuatre jeunes Ilvaardiens découvrent une Terre qu'ils n'auraient peut-être jamais dû explorer.\n\n📖 LES VACANCES INTERDITES — un roman de science-fiction jeunesse de Benoît Lubert.\n👉 https://www.amazon.fr/dp/B0HJNC4GQK\n\n#LesVacancesInterdites #ScienceFiction #RomanAdo #Bookstagram #Lecture",
+      "publicationDate": {
+        "dateTime": "2026-10-21T12:00:00",
+        "timezone": "Europe/Paris"
+      },
+      "networks": [
+        "instagram",
+        "youtube"
+      ],
+      "urls": {
+        "instagram": "https://www.instagram.com/reel/DewJfLrjceS/",
+        "youtube": "https://www.youtube.com/shorts/e-UK3WehfaM"
+      },
+      "source": "metricool-connected-provider-published-status"
+    },
+    {
+      "id": 402133906,
+      "text": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+      "publicationDate": {
+        "dateTime": "2026-10-21T19:00:00",
+        "timezone": "Europe/Paris"
+      },
+      "networks": [
+        "facebook",
+        "instagram"
+      ],
+      "urls": {
+        "facebook": "https://facebook.com/122158707854022326/posts/122320049402022326",
+        "instagram": "https://www.instagram.com/p/Dew5ztpFZFc/"
+      },
+      "source": "metricool-connected-provider-published-status"
     }
   ]
 }
