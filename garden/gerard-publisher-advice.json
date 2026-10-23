@@ -1,11 +1,13 @@
 {
-  "observedAt": "2026-10-23T11:47:54Z",
+  "observedAt": "2026-10-23T13:34:07Z",
   "source": "publisher",
   "capability": "analytics.read",
   "response": {
     "status": "gap",
     "contract": "publisher-capability-gap-v1",
     "capability": "analytics.read",
+    "discoveryRequired": true,
+    "connectedMatches": 0,
     "mission": {
       "role": "tool-discovery",
       "query": "social media analytics API tool",
@@ -16,8 +18,6 @@
         "no inferred capability from marketing nouns"
       ],
       "nextEndpoint": "/api/observatory/discovery/preview"
-    },
-    "discoveryRequired": true,
-    "connectedMatches": 0
+    }
   }
 }
