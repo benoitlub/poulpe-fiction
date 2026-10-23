@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "strict": false,
+    "target": "ES2022",
+    "skipLibCheck": true
+  },
+  "include": ["*.tsx", "*.ts", "../../src/garden-gege/**/*"]
+}
