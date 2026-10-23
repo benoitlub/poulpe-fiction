@@ -25,6 +25,7 @@ test("books routed to Buffer and blocked candidates never enter Metricool", () =
 });
 test("an image does not add Instagram to Gerard's Facebook-only decision", () => {
   assert.deepEqual(metricoolMission({ ...candidate, media: { url: "https://example.org/image.png" } }).context.metadata.socialPublication.networks, ["facebook"]);
+  assert.equal(metricoolMission({ ...candidate, compatibleNetworks: ["facebook", "unknown"] }), null);
 });
 test("only provider-confirmed scheduled outcomes become confirmed deliveries", async () => {
   const updated = await submitMetricoolPublication(candidate, { execute: true, fetchImpl: async (url, init) => {
@@ -45,4 +46,22 @@ test("acceptance/ID alone, quota blocks and timeouts remain unconfirmed and reta
     assert.equal(updated.status, "ready"); assert.deepEqual(updated.copy, candidate.copy);
     assert.ok(updated.metricoolHandoff.operationId);
   }
+});
+
+test("Buffer requires Gerard's exact channel, image and single Instagram destination", async () => {
+  const { bufferMission, submitBufferPublication } = await import("../scripts/gerard-metricool-publication.mjs");
+  const book = { ...candidate, transport: { provider: "buffer", channelId: "chosen-channel" },
+    editorialRoute: { destination: { preferredProvider: "buffer" } }, media: { url: "https://example.org/cover.jpg" }, compatibleNetworks: ["instagram"] };
+  const mission = bufferMission(book);
+  assert.equal(mission.context.metadata.socialPublication.transport, "buffer");
+  assert.equal(mission.context.metadata.socialPublication.channelId, "chosen-channel");
+  assert.equal(mission.context.metadata.socialPublication.dryRun, true);
+  for (const invalid of [{ ...book, transport: { provider: "buffer" } }, { ...book, media: null }, { ...book, compatibleNetworks: ["facebook", "instagram"] }]) assert.equal(bufferMission(invalid), null);
+  const out = await submitBufferPublication(book, { execute: true, fetchImpl: async (_url, init) => {
+    const publication = JSON.parse(init.body).context.metadata.socialPublication;
+    assert.equal(publication.text, book.copy.text); assert.deepEqual(publication.media, [book.media.url]);
+    return Response.json({ status: "completed", output: { status: "confirmed-scheduled", scheduled: true, postId: "buffer-simulated" } });
+  } });
+  assert.equal(out.bufferHandoff.postId, "buffer-simulated"); assert.equal(out.delivery.publishingEnabled, true);
+  assert.equal(metricoolMission(book), null);
 });

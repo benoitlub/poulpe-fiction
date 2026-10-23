@@ -12,7 +12,8 @@ export function metricoolMission(candidate, { execute = false, now = new Date() 
   const allowed = media.length ? ["facebook", "instagram"] : ["facebook"];
   // Respect the networks supplied by the media/selection capability. Do not
   // quietly add Instagram to a Facebook-only decision because a URL exists.
-  const networks = [...new Set(candidate.compatibleNetworks ?? [])].filter(n => allowed.includes(n));
+  const networks = [...new Set(candidate.compatibleNetworks ?? [])];
+  if (networks.some(n => !allowed.includes(n))) return null;
   if (!harvestId || !networks.length || (!text.trim() && !media.length)) return null;
   const stable = createHash("sha256").update(JSON.stringify([harvestId, text, media, [...networks].sort()])).digest("hex");
   const operationId = `gerard-metricool-${stable}`;
@@ -31,8 +32,28 @@ export function metricoolMission(candidate, { execute = false, now = new Date() 
   };
 }
 
-export async function submitMetricoolPublication(candidate, options = {}) {
-  const mission = metricoolMission(candidate, options);
+export function bufferMission(candidate, { execute = false, now = new Date() } = {}) {
+  if (candidate?.status !== "ready" || candidate?.transport?.provider !== "buffer" ||
+      candidate?.editorialRoute?.destination?.preferredProvider !== "buffer" || candidate?.action === "do-not-schedule") return null;
+  const channelId = candidate.transport.channelId;
+  const harvestId = candidate.harvestId;
+  const text = candidate.copy?.text;
+  const media = candidate.media?.url ? [candidate.media.url] : [];
+  // The destination is Gerard's explicit decision, not inferred from a handle.
+  if (!channelId || !harvestId || typeof text !== "string" || !text.trim() || media.length !== 1 ||
+      !Array.isArray(candidate.compatibleNetworks) || candidate.compatibleNetworks.length !== 1 || candidate.compatibleNetworks[0] !== "instagram") return null;
+  const stable = createHash("sha256").update(JSON.stringify([harvestId, channelId, text, media])).digest("hex");
+  const operationId = `gerard-buffer-${stable}`;
+  return { operationId: `${operationId}-${now.getTime()}`, title: `Programmer la récolte ${harvestId}`,
+    objective: "Exécuter la décision Buffer de Gérard, du brouillon au statut confirmé, sans remplacement du transport.",
+    requiredCapabilities: ["social.publish"], authorizedResources: ["social.publish"],
+    context: { id: "poulpe-fiction", label: "Gérard", metadata: { source: "gerard-cycle", socialPublication: {
+      operationId, transport: "buffer", harvestId, mediaHarvestId: candidate.media.sourceHarvestId ?? harvestId,
+      text, media, networks: ["instagram"], channelId, source: "gerard", decision: "schedule", dryRun: !execute,
+    } } } };
+}
+
+async function submitPublication(candidate, mission, handoffKey, options) {
   if (!mission) return candidate;
   let outcome;
   try {
@@ -57,8 +78,17 @@ export async function submitMetricoolPublication(candidate, options = {}) {
     outcome = { status: "confirmation-required", stage: "octopus-transport", reason: "OCTOPUS_RESPONSE_UNCONFIRMED",
       operationId: mission.context.metadata.socialPublication.operationId, missionId: mission.operationId, scheduled: false, published: false };
   }
-  return { ...candidate, metricoolHandoff: outcome,
+  return { ...candidate, [handoffKey]: outcome,
     delivery: { status: outcome.status, publishingEnabled: outcome.scheduled || outcome.published, stage: outcome.stage, reason: outcome.reason } };
+}
+
+export async function submitMetricoolPublication(candidate, options = {}) {
+  return submitPublication(candidate, metricoolMission(candidate, options), "metricoolHandoff", options);
+}
+
+// Opt-in API only: the existing cron and its Buffer recovery circuit are unchanged.
+export async function submitBufferPublication(candidate, options = {}) {
+  return submitPublication(candidate, bufferMission(candidate, options), "bufferHandoff", options);
 }
 
 async function main() {
