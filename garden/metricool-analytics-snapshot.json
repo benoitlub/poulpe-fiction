@@ -1,14 +1,14 @@
 {
   "source": "metricool-connected-analytics",
   "brandId": "3350145",
-  "checkedAt": "2026-10-14",
+  "checkedAt": "2026-10-23",
   "period": {
     "from": "2026-10-01",
-    "to": "2026-10-14"
+    "to": "2026-10-23"
   },
   "status": "available",
   "completeness": "partial-provider-response",
-  "verifiedPostCount": 5,
+  "verifiedPostCount": 8,
   "requestedMetrics": {
     "instagram": [
       "IGPO01",
@@ -31,6 +31,15 @@
       "FBPO12",
       "FBPO13",
       "FBPO14"
+    ],
+    "youtube": [
+      "YTVP01",
+      "YTVP05",
+      "YTVP06",
+      "YTVP09",
+      "YTVP11",
+      "YTVP12",
+      "YTVP17"
     ]
   },
   "posts": [
@@ -95,10 +104,10 @@
       "url": "https://www.instagram.com/p/DeJXjGFFZFw/",
       "metrics": {
         "comments": 0,
-        "engagementPerThousand": 0,
-        "interactions": 0,
-        "likes": 0,
-        "reach": 17,
+        "engagementPerThousand": 5,
+        "interactions": 1,
+        "likes": 1,
+        "reach": 20,
         "saves": 0
       },
       "source": "metricool-connector",
@@ -166,6 +175,87 @@
         "FBPO12",
         "FBPO13",
         "FBPO14"
+      ],
+      "verified": true
+    },
+    {
+      "network": "facebook",
+      "date": "2026-10-21",
+      "text": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+      "url": "https://facebook.com/122158707854022326/posts/122320049402022326",
+      "metrics": {
+        "comments": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0,
+        "reach": 5,
+        "reactions": 0,
+        "shares": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "FBPO01",
+        "FBPO03",
+        "FBPO06",
+        "FBPO08",
+        "FBPO09",
+        "FBPO10",
+        "FBPO12",
+        "FBPO13",
+        "FBPO14"
+      ],
+      "verified": true
+    },
+    {
+      "network": "facebook",
+      "date": "2026-10-21",
+      "text": "🌍 Et si les vacances les plus extraordinaires ne se déroulaient pas là où l'on croit ?\n\nDans « Les Vacances Interdites », de jeunes Ilvaardiens partent à la découverte d'une Terre pleine de surprises. Une aventure de science-fiction jeunesse entre exploration, mystères et imprévus.\n\n📖 Découvrir le roman de Benoît Lubert sur Amazon : https://www.amazon.fr/dp/B0HJNC4GQK\n\n#LesVacancesInterdites #ScienceFictionJeunesse #RomanAdo #Lecture",
+      "url": "https://facebook.com/122158707854022326/posts/122320005536022326",
+      "metrics": {
+        "comments": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0,
+        "reach": 1,
+        "reactions": 0,
+        "shares": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "FBPO01",
+        "FBPO03",
+        "FBPO06",
+        "FBPO08",
+        "FBPO09",
+        "FBPO10",
+        "FBPO12",
+        "FBPO13",
+        "FBPO14"
+      ],
+      "verified": true
+    },
+    {
+      "network": "instagram",
+      "date": "2026-10-21",
+      "text": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+      "url": "https://www.instagram.com/p/Dew5ztpFZFc/",
+      "metrics": {
+        "comments": 0,
+        "engagementPerThousand": 0,
+        "interactions": 0,
+        "likes": 0,
+        "reach": 17,
+        "saves": 0
+      },
+      "source": "metricool-connector",
+      "sourceMetricFields": [
+        "IGPO01",
+        "IGPO03",
+        "IGPO06",
+        "IGPO08",
+        "IGPO10",
+        "IGPO12",
+        "IGPO13",
+        "IGPO14",
+        "IGPO15"
       ],
       "verified": true
     }
