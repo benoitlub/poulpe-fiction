@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: resolve(process.cwd(), "index.html"),
         mobileV2: resolve(process.cwd(), "mobile-v2.html"),
+        recoltesYaebali: resolve(process.cwd(), "recoltes-yaebali.html"),
       },
     },
   },
