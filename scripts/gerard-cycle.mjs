@@ -2,9 +2,9 @@
 /**
  * Cycle autonome de Gérard — version headless (Node), sans navigateur.
  *
- * CULTIVATE déclenche le vrai moteur de tentacules Neon du Publisher Worker
- * déployé sur Cloudflare. L'API Express locale de blacklace-publisher-ai ne
- * porte pas les routes /api/tentacles/* et ne doit donc pas être utilisée.
+ * CULTIVATE passe par l'Octopus existant et l'adaptateur Publisher local.
+ * Pour le B2B, Express relaie vers le Worker qui possède Composio ; les
+ * récoltes de sources sont enregistrées localement, sans appel LLM ni publication.
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
@@ -86,7 +86,7 @@ async function loadState() {
 
 async function loadSeeds() {
   const parsed = JSON.parse(await readFile(SEEDS_PATH, "utf8"));
-  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && seed?.knowledgeSlug) : [];
+  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && (seed.seedId === "benoit-client-acquisition" || seed?.knowledgeSlug)) : [];
 }
 
 function selectSeedForRotation(seeds, state) {
@@ -102,7 +102,8 @@ function selectSeedForRotation(seeds, state) {
   for (const entry of recent) {
     if (entry?.seedId) lastBySeed.set(entry.seedId, entry);
   }
-  return rotated.find(seed => lastBySeed.get(seed.seedId)?.outcome !== "failed") ?? rotated[0];
+  const due = rotated.filter(seed => !(Date.parse(state.sourceRetryAtBySeed?.[seed.seedId] || "") > Date.now()));
+  return due.find(seed => lastBySeed.get(seed.seedId)?.outcome !== "failed") ?? due[0] ?? null;
 }
 
 async function saveState(state) {
@@ -133,6 +134,10 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   let existing = { harvests: [] };
   try { existing = JSON.parse(await readFile(HARVESTS_PATH, "utf8")); } catch (_) {}
   const harvests = Array.isArray(existing?.harvests) ? existing.harvests : [];
+  if (selectedSeed.seedId === "benoit-client-acquisition") {
+    const same = harvests.find(item => item.seedId === selectedSeed.seedId && item.parcelId === selectedSeed.parcelId && item.content === text && !["archived","composted"].includes(item.state));
+    if (same) return { ...same, reused: true };
+  }
   const item = {
     harvestId: operationId + "-harvest",
     harvestedAt: nowIso(),
@@ -144,7 +149,8 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
     producer: output.producer ?? null,
     route: "octopus->publisher-adapter",
     delivery: selectedSeed.delivery ?? null,
-    state: selectedSeed.delivery?.harvestState ?? "harvested",
+    state: output.capability === "business.sources.search" ? "harvested" : selectedSeed.delivery?.harvestState ?? "harvested",
+    ...(output.capability === "business.sources.search" ? { verification: { ...harvest.verification, qualifiedProspects: 0, contacted: false, orders: 0 } } : {}),
   };
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
   await writeFile(HARVESTS_PATH, JSON.stringify({ harvests: [...harvests.slice(-99), item] }, null, 2) + "\n", "utf8");
@@ -307,7 +313,8 @@ async function main() {
     const seeds = await loadSeeds();
     const selectedSeed = selectSeedForRotation(seeds, state);
     if (!selectedSeed) {
-      result = { status: "failed", operationId, decision: "no-active-seed" };
+      const retries = Object.values(state.sourceRetryAtBySeed ?? {}).filter(value => Date.parse(value) > Date.now()).sort();
+      result = { status: "failed", operationId, decision: retries.length ? "source-quota-deferred" : "no-active-seed", ...(retries.length ? { deferred: { retryAt: retries[0] }, executed: false, verifiedProspects: 0, contacted: false, orders: 0 } : {}) };
     } else {
       const knowledgeMission = {
         operationId: `${operationId}-knowledge`,
@@ -333,39 +340,47 @@ async function main() {
       // Read-only B2B sourcing is independent of Publisher's internal Knowledge Package.
       // The adapter must be deployed and registered before this can return candidates.
       let businessSources = null;
+      let businessSourceLookup = null;
       if (selectedSeed.seedId === "benoit-client-acquisition") {
         try {
           const lookup = await callOctopus({
             operationId: `${operationId}-business-sources`,
             title: "Recherche de distributeurs et partenaires B2B",
             objective: selectedSeed.objective,
-            prompt: "Distributeurs grossistes jeux de cartes accessoires cannabis légal, partenaires événements, coédition jeux, acheteurs B2B Europe ; sources professionnelles officielles et pages contact",
+            prompt: selectedSeed.businessSearchQuery || selectedSeed.objective || "Rechercher des sources professionnelles B2B publiques et vérifiables.",
             requiredCapabilities: ["business.sources.search"],
-            authorizedResources: [],
-            context: { id: selectedSeed.parcelId, metadata: { seedId: selectedSeed.seedId, source: "gerard-cycle" } },
+            authorizedResources: ["tools.read"],
+            context: { id: selectedSeed.parcelId, metadata: { seedId: selectedSeed.seedId, source: "gerard-cycle", toolRequest: { dryRun: false } } },
           });
           const output = lookup?.payload?.output ?? {};
-          businessSources = output?.capability === "business.sources.search" && Array.isArray(output.candidates)
+          businessSources = lookup.status === "ok" && lookup.payload?.status === "completed" && output?.status === "sources-found" && output?.executed === true && output?.capability === "business.sources.search" && Array.isArray(output.candidates)
             ? output.candidates.filter(c => typeof c?.url === "string" && /^https?:\/\//.test(c.url)).slice(0, 10)
             : [];
+          businessSourceLookup = { missionStatus: lookup.payload?.status ?? lookup.status, status: output.status ?? "unavailable", reason: output.reason ?? (lookup.status !== "ok" || lookup.payload?.status !== "completed" ? "OCTOPUS_MISSION_NOT_COMPLETED" : null), stage: output.stage ?? null, selectedTool: output.selectedTool ?? null, executed: lookup.status === "ok" && lookup.payload?.status === "completed" && output.executed === true, sourceCount: businessSources.length, verifiedProspects: 0, contacted: false, orders: 0, budget: output.budget ?? null, trace: output.trace ?? [], retryAfterSeconds: output.retryAfterSeconds ?? null };
+          if (output.reason === "COMPOSIO_RATE_LIMITED" && Number.isFinite(output.retryAfterSeconds) && output.retryAfterSeconds > 0) {
+            state.sourceRetryAtBySeed = { ...(state.sourceRetryAtBySeed ?? {}), [selectedSeed.seedId]: new Date(Date.now() + output.retryAfterSeconds * 1000).toISOString() };
+          }
           console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, status: output?.status ?? lookup?.status ?? "unavailable" }));
         } catch (error) {
           businessSources = [];
+          businessSourceLookup = { status: "blocked", reason: "BUSINESS_SOURCE_TRANSPORT_UNAVAILABLE", executed: false, sourceCount: 0 };
           console.log(JSON.stringify({ event: "gerard-b2b-sources", status: "unavailable", reason: String(error).slice(0, 180) }));
         }
       }
-      const knowledgeResult = await callOctopus(knowledgeMission);
+      const knowledgeResult = businessSources !== null ? { status: "not-required", payload: { status: "not-required", output: {} } } : await callOctopus(knowledgeMission);
       const knowledgePayload = knowledgeResult?.payload ?? {};
       const knowledgeOutput = knowledgePayload?.output ?? {};
       const knowledgeReady = knowledgeResult.status === "ok" && knowledgePayload.status === "completed" && knowledgeOutput.verified === true;
 
+      const inputsReady = businessSources !== null ? businessSources.length > 0 : knowledgeReady;
       result = {
-        status: knowledgeReady ? "ok" : "failed",
+        status: inputsReady ? "ok" : "failed",
         harvestMode: "garden-prepare-bag",
         operationId,
         seedId: selectedSeed.seedId,
         parcelId: selectedSeed.parcelId,
-        phase: "knowledge",
+        phase: businessSources !== null ? "business-sources" : "knowledge",
+        ...(businessSourceLookup ? { businessSourceLookup } : {}),
         knowledge: {
           status: knowledgePayload.status ?? knowledgeResult.status,
           verified: knowledgeOutput.verified === true,
@@ -373,19 +388,13 @@ async function main() {
           source: knowledgeOutput.source ?? null,
         },
         delivery: selectedSeed.delivery ?? null,
-        decision: knowledgeReady ? "knowledge-ready" : "knowledge-unavailable",
+        decision: businessSources !== null ? (inputsReady ? "b2b-sources-ready" : businessSourceLookup?.status === "no-sources" ? "b2b-no-sources" : "b2b-source-blocked") : knowledgeReady ? "knowledge-ready" : "knowledge-unavailable",
         octopus: knowledgeResult,
       };
 
-      if (knowledgeReady) {
+      if (inputsReady) {
         // A sourced research inventory is itself a deliverable: do not ask a
         // generative model to invent company names or imply outreach happened.
-        const sourcedKnowledge = businessSources !== null ? {
-          ...knowledgeOutput,
-          context: "Données internes sur les créations (hors anciennes offres freelance) :\n" +
-            String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0] +
-            "\n\nSources B2B candidates : " + JSON.stringify(businessSources),
-        } : knowledgeOutput;
         const sourceText = (businessSources || []).map((candidate, index) =>
           `${index + 1}. ${candidate.title || "Sans titre"}\n   Source : ${candidate.url}\n   Extrait : ${candidate.snippet || "Non fourni"}\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.`
         ).join("\n\n");
@@ -393,12 +402,15 @@ async function main() {
           ? businessSources.length === 0
             ? { status: "failed", verification: { reason: "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
             : { status: "ok", payload: { output: {
-                capability: "business.sources.search", producer: "composio-web-search",
+                capability: "business.sources.search", producer: businessSourceLookup?.selectedTool ?? "composio-search",
                 text: "# Sources B2B candidates — vérification nécessaire\n\nRésultats de recherche publics, non qualifiés individuellement. Aucun contact ni vente.\n\n" + sourceText,
               } }, verification: { completed: true, verifiedContacts: 0, contacted: false } }
-          : await runRealHarvest(selectedSeed, sourcedKnowledge, operationId);
+          : await runRealHarvest(selectedSeed, knowledgeOutput, operationId);
         result.harvest = harvest;
-        if (harvest.status === "ok") result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
+        if (harvest.status === "ok") {
+          result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
+          if (!result.persistedHarvest) { harvest.status = "failed"; harvest.error = "harvest-persistence-rejected"; }
+        }
         const mockFallback = harvest.payload?.output?.isMock === true || harvest.verification?.simulated === true;
         const rateLimited = /429|rate limit|quota/i.test(String(harvest.payload?.output?.fallbackReason || ""));
         if (mockFallback || rateLimited) {
@@ -413,7 +425,7 @@ async function main() {
           if (harvest.status === "ok") { delete state.aiCooldownUntil; state.aiConsecutiveRateLimits = 0; }
           result.status = harvest.status === "ok" ? "ok" : "failed";
           result.decision = harvest.status === "ok"
-            ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
+            ? (businessSources !== null ? "b2b-sources-produced" : selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
             : "harvest-failed";
         }
       }
@@ -430,7 +442,7 @@ async function main() {
     outcome: result.status, decision: result.decision ?? null,
     seedId: result.seedId ?? null, parcelId: result.parcelId ?? null,
     error: result.status === "ok" ? null :
-      String(result.error ?? result.decision ?? result.harvest?.error ?? "operation-failed").slice(0, 500),
+      String(result.error ?? result.businessSourceLookup?.reason ?? result.harvest?.error ?? result.decision ?? "operation-failed").slice(0, 500),
     feedback: result.status === "ok" ? "observe-downstream-results" : "avoid-blind-retry",
   };
   state.learningHistory = [...(Array.isArray(state.learningHistory) ? state.learningHistory : []).slice(-49), learningEntry];
