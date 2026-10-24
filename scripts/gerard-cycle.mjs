@@ -330,6 +330,30 @@ async function main() {
           },
         },
       };
+      // Read-only B2B sourcing is independent of Publisher's internal Knowledge Package.
+      // The adapter must be deployed and registered before this can return candidates.
+      let businessSources = null;
+      if (selectedSeed.seedId === "benoit-client-acquisition") {
+        try {
+          const lookup = await callOctopus({
+            operationId: `${operationId}-business-sources`,
+            title: "Recherche de distributeurs et partenaires B2B",
+            objective: selectedSeed.objective,
+            prompt: "Distributeurs grossistes jeux de cartes accessoires cannabis légal, partenaires événements, coédition jeux, acheteurs B2B Europe ; sources professionnelles officielles et pages contact",
+            requiredCapabilities: ["business.sources.search"],
+            authorizedResources: [],
+            context: { id: selectedSeed.parcelId, metadata: { seedId: selectedSeed.seedId, source: "gerard-cycle" } },
+          });
+          const output = lookup?.payload?.output ?? {};
+          businessSources = output?.capability === "business.sources.search" && Array.isArray(output.candidates)
+            ? output.candidates.filter(c => typeof c?.url === "string" && /^https?:\/\//.test(c.url)).slice(0, 10)
+            : [];
+          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, status: output?.status ?? lookup?.status ?? "unavailable" }));
+        } catch (error) {
+          businessSources = [];
+          console.log(JSON.stringify({ event: "gerard-b2b-sources", status: "unavailable", reason: String(error).slice(0, 180) }));
+        }
+      }
       const knowledgeResult = await callOctopus(knowledgeMission);
       const knowledgePayload = knowledgeResult?.payload ?? {};
       const knowledgeOutput = knowledgePayload?.output ?? {};
@@ -354,7 +378,8 @@ async function main() {
       };
 
       if (knowledgeReady) {
-        const harvest = await runRealHarvest(selectedSeed, knowledgeOutput, operationId);
+        const sourcedKnowledge = businessSources !== null ? { ...knowledgeOutput, context: String(knowledgeOutput.context || knowledgeOutput.text || "") + "\\n\\nSources B2B publiques candidates (non vérifiées individuellement) : " + JSON.stringify(businessSources) } : knowledgeOutput;
+        const harvest = await runRealHarvest(selectedSeed, sourcedKnowledge, operationId);
         result.harvest = harvest;
         if (harvest.status === "ok") result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
         const mockFallback = harvest.payload?.output?.isMock === true || harvest.verification?.simulated === true;
