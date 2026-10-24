@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-24T04:46:09.502Z",
+  "updatedAt": "2026-10-24T11:13:09.485Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -2735,10 +2735,47 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "No matching post analytics yet; retry observation later."
+    },
+    {
+      "observedAt": "2026-10-24T11:13:09Z",
+      "seedId": "terra",
+      "harvestId": "neon_iter_iter_terra_1786289427863",
+      "copyText": "**Version \"mystère\"** : Photo floue d’un livre TERRA avec la phrase *\"Devinez ce que vous tenez entre vos mains.\"*\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+      "repeatCount": 2,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "available",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "No matching post analytics yet; retry observation later."
+    },
+    {
+      "observedAt": "2026-10-24T11:13:09.485Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "instagram",
+      "publishedDate": "2026-10-21",
+      "postUrl": "https://www.instagram.com/p/Dew5ztpFZFc/",
+      "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 27,
+        "interactions": 0,
+        "comments": 0,
+        "likes": 0,
+        "saves": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-24T04:46:09Z",
+    "observedAt": "2026-10-24T11:13:09Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -2761,21 +2798,21 @@
     }
   },
   "guidance": {
-    "seedId": "gerard-et-gerard",
+    "seedId": "terra",
     "chosenExperiment": "explore",
     "nextExperiment": "Try a different creative angle or image next time; repeats remain allowed.",
     "performanceRankingEnabled": false,
     "metricoolSignalsAvailable": true,
-    "metricoolLatestSnapshot": "2026-10-23",
+    "metricoolLatestSnapshot": "2026-10-24",
     "nextPublicExperiment": "Create a new differentiated post, then compare verified outcomes on the same network and format."
   },
   "socialFeedback": {
     "status": "observed",
     "source": "metricool-connected-analytics",
-    "snapshotCheckedAt": "2026-10-23",
+    "snapshotCheckedAt": "2026-10-24",
     "snapshotPeriod": {
       "from": "2026-10-01",
-      "to": "2026-10-23"
+      "to": "2026-10-24"
     },
     "completeness": "partial-provider-response",
     "measuredPostCount": 8,
@@ -2792,7 +2829,7 @@
       "instagram": {
         "promotionalPostsObserved": 2,
         "reachSamples": 2,
-        "medianObservedReach": 18.5,
+        "medianObservedReach": 23.5,
         "linkClicksObserved": null,
         "comparison": "descriptive-only",
         "note": "Small, possibly incomplete sample. Do not rank subjects or infer audience preference."
@@ -2800,7 +2837,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -2820,7 +2857,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -2840,7 +2877,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -2860,7 +2897,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -2880,7 +2917,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -2900,7 +2937,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -2920,7 +2957,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -2940,7 +2977,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T04:46:09.502Z",
+        "observedAt": "2026-10-24T11:13:09.485Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -2949,7 +2986,7 @@
         "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
         "postPurpose": "promotion-unattributed",
         "metrics": {
-          "reach": 17,
+          "reach": 27,
           "interactions": 0,
           "comments": 0,
           "likes": 0,
@@ -2960,7 +2997,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-24T04:46:09.502Z",
+    "lastIntegratedAt": "2026-10-24T11:13:09.485Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   }
 }
