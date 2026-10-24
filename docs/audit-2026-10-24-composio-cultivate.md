@@ -24,4 +24,8 @@ Les sources de test sont des fixtures `example.org`, pas des prospects. **Résul
 
 Dépend de la PR Publisher de l'issue #114 pour le relais et le contrôleur dynamique. Les identifiants Composio ne sont pas ajoutés au runtime Poulpe. Les lectures externes autres que le Search géré existant, les outils payants et les écritures restent soumis aux connexions et autorisations appropriées ; une découverte ou une connexion active ne vaut jamais réussite d'exécution.
 
+CI vérifiées : [108 tests et build Poulpe](https://github.com/benoitlub/poulpe-fiction/actions/runs/40124269989) et [vrai cycle + Octopus + deux adaptateurs Publisher](https://github.com/benoitlub/blacklace-publisher-ai/actions/runs/40124344849) passent. Les trois diagnostics de production répondent HTTP 200 depuis le runner le 24/10 à 19:14 UTC : Composio/utilisateur configurés, dix schémas Search retournés, zéro compte OAuth Search listé. Le planner valide une preview sur ces métadonnées réelles avec authentification gérée par Composio ; aucune recherche fournisseur réelle exécutée. Cela remplace le blocage réseau local pour l'inspection des métadonnées, sans prouver l'exécution ou les crédits disponibles. [PR Publisher #146](https://github.com/benoitlub/blacklace-publisher-ai/pull/146) contient le snapshot expurgé et les autres CI vertes.
+
+Restent la revue et la mise à disposition contrôlée des deux PR, puis la vérification des crédits et d'une lecture effectivement autorisée en production. Aucune reconnexion OAuth n'est demandée pour le Search géré sur la seule base de zéro compte listé.
+
 Aucune source Octopus modifiée, nouveau cron/agent, modification de secrets/budgets, suppression de récolte réelle, annulation de publication, déploiement ou fusion.
