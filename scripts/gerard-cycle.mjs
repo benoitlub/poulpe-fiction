@@ -378,8 +378,10 @@ async function main() {
       };
 
       if (knowledgeReady) {
-        const sourcedKnowledge = businessSources !== null ? { ...knowledgeOutput, context: String(knowledgeOutput.context || knowledgeOutput.text || "") + "\\n\\nSources B2B publiques candidates (non vérifiées individuellement) : " + JSON.stringify(businessSources) } : knowledgeOutput;
-        const harvest = await runRealHarvest(selectedSeed, sourcedKnowledge, operationId);
+        const sourcedKnowledge = businessSources !== null ? { ...knowledgeOutput, context: String(knowledgeOutput.context || knowledgeOutput.text || "") + "\n\nSources B2B publiques candidates (non vérifiées individuellement) : " + JSON.stringify(businessSources) } : knowledgeOutput;
+        const harvest = businessSources !== null && businessSources.length === 0
+          ? { status: "failed", verification: { reason: "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
+          : await runRealHarvest(selectedSeed, sourcedKnowledge, operationId);
         result.harvest = harvest;
         if (harvest.status === "ok") result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
         const mockFallback = harvest.payload?.output?.isMock === true || harvest.verification?.simulated === true;
