@@ -378,7 +378,7 @@ async function main() {
       };
 
       if (knowledgeReady) {
-        const sourcedKnowledge = businessSources !== null ? { ...knowledgeOutput, context: String(knowledgeOutput.context || knowledgeOutput.text || "") + "\n\nSources B2B publiques candidates (non vérifiées individuellement) : " + JSON.stringify(businessSources) } : knowledgeOutput;
+        const sourcedKnowledge = businessSources !== null ? { ...knowledgeOutput, context: "Données internes sur les créations de Benoît (ne pas reprendre les offres freelance ou tarifs de prestations) :\n" + String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0] + "\n\nSources B2B publiques candidates (non vérifiées individuellement) : " + JSON.stringify(businessSources) } : knowledgeOutput;
         const harvest = businessSources !== null && businessSources.length === 0
           ? { status: "failed", verification: { reason: "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
           : await runRealHarvest(selectedSeed, sourcedKnowledge, operationId);
