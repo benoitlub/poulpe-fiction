@@ -378,9 +378,24 @@ async function main() {
       };
 
       if (knowledgeReady) {
-        const sourcedKnowledge = businessSources !== null ? { ...knowledgeOutput, context: "Données internes sur les créations de Benoît (ne pas reprendre les offres freelance ou tarifs de prestations) :\n" + String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0] + "\n\nSources B2B publiques candidates (non vérifiées individuellement) : " + JSON.stringify(businessSources) } : knowledgeOutput;
-        const harvest = businessSources !== null && businessSources.length === 0
-          ? { status: "failed", verification: { reason: "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
+        // A sourced research inventory is itself a deliverable: do not ask a
+        // generative model to invent company names or imply outreach happened.
+        const sourcedKnowledge = businessSources !== null ? {
+          ...knowledgeOutput,
+          context: "Données internes sur les créations (hors anciennes offres freelance) :\\n" +
+            String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0] +
+            "\\n\\nSources B2B candidates : " + JSON.stringify(businessSources),
+        } : knowledgeOutput;
+        const sourceText = (businessSources || []).map((candidate, index) =>
+          `${index + 1}. ${candidate.title || "Sans titre"}\\n   Source : ${candidate.url}\\n   Extrait : ${candidate.snippet || "Non fourni"}\\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.`
+        ).join("\\n\\n");
+        const harvest = businessSources !== null
+          ? businessSources.length === 0
+            ? { status: "failed", verification: { reason: "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
+            : { status: "ok", payload: { output: {
+                capability: "business.sources.search", producer: "composio-web-search",
+                text: "# Sources B2B candidates — vérification nécessaire\\n\\nRésultats de recherche publics, non qualifiés individuellement. Aucun contact ni vente.\\n\\n" + sourceText,
+              } }, verification: { completed: true, verifiedContacts: 0, contacted: false } }
           : await runRealHarvest(selectedSeed, sourcedKnowledge, operationId);
         result.harvest = harvest;
         if (harvest.status === "ok") result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
