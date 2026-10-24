@@ -117,6 +117,8 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   // Mock output is an operational attempt, not a deliverable. Preserve it in
   // learningHistory, but never add a new fake harvest to the active garden.
   if (isSimulatedHarvest({ content: text, isMock: output?.isMock, simulated: harvest?.verification?.simulated })) return null;
+  // An explicit missing-source diagnostic is not a verified B2B lead.
+  if (selectedSeed.seedId === "benoit-client-acquisition" && text.includes("SOURCE_EXTERNE_MANQUANTE")) return null;
   // Client identity guard: a 420 Dice advert can never become a Yaébali lead
   // generation deliverable, even if the upstream language model emits one.
   if (isCrossParcelYaebaliHarvest({ seedId: selectedSeed.seedId, parcelId: selectedSeed.parcelId, content: text })) {
@@ -225,11 +227,14 @@ async function callOctopus(mission) {
 }
 
 async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
+  const isB2B = selectedSeed.seedId === "benoit-client-acquisition";
+  const verifiedContext = String(knowledgeOutput?.context || knowledgeOutput?.text || "").trim();
   const prompt = [
     selectedSeed.firstHarvest || selectedSeed.objective || "Produire une récolte utile et directement exploitable.",
+    ...(isB2B ? ["", "GARDE-FOU B2B : knowledge.search ne prouve pas une recherche Web actuelle. Si les sources fournies ne contiennent pas de sociétés réelles et leurs URL vérifiables, répondre explicitement SOURCE_EXTERNE_MANQUANTE. Ne produire aucun faux prospect, aucune fausse adresse et aucun statut de contact envoyé."] : []),
     "",
     "Contexte vérifié de la parcelle :",
-    String(knowledgeOutput?.context || knowledgeOutput?.text || "").trim(),
+    verifiedContext,
     "",
     "Contraintes : utilise uniquement ce contexte vérifié. N'invente aucun fait manquant.",
   ].join("\n").trim();
