@@ -1,10 +1,10 @@
 {
   "source": "metricool-connected-analytics",
   "brandId": "3350145",
-  "checkedAt": "2026-10-23",
+  "checkedAt": "2026-10-24",
   "period": {
     "from": "2026-10-01",
-    "to": "2026-10-23"
+    "to": "2026-10-24"
   },
   "status": "available",
   "completeness": "partial-provider-response",
@@ -242,7 +242,7 @@
         "engagementPerThousand": 0,
         "interactions": 0,
         "likes": 0,
-        "reach": 17,
+        "reach": 27,
         "saves": 0
       },
       "source": "metricool-connector",
