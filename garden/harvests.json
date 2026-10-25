@@ -1146,6 +1146,23 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1792933976346-harvest",
+      "harvestedAt": "2026-10-25T13:13:01.041Z",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "title": "Benoît · Partenaires, distributeurs et acheteurs B2B",
+      "content": "# Sources B2B candidates — vérification nécessaire\n\nRésultats de recherche publics, non qualifiés individuellement. Aucun contact ni vente.\n\n1. B2B Partner werden | OnlyGrams\n   Source : https://www.only-grams.de/pages/onlygrams-b2b\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.\n\n2. Multi-I — Un seul fournisseur. Toutes les catégories.\n   Source : https://multi-i.eu/fr\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.\n\n3. Retailers & Shops - Blackfire\n   Source : https://business.blackfire.eu/retailers-shops/\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.\n\n4. Accès revendeur B2B | Grossiste TCG | cardcosmos\n   Source : https://cardcosmos.fr/pages/acces-b2b\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.\n\n5. B2B Partnerships - Playhouse\n   Source : https://playhousegames.eu/b2b/\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.\n\n6. and we talk Business – offres pour les entreprises\n   Source : https://andwetalk.com/fr/pages/business\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.\n\n7. Éditeur et distributeur de jeux de société - IELLO\n   Source : https://iello.fr/iello/\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.\n\n8. Partenaires de localisation pour jeux de société | Pubblo\n   Source : https://pubblo.com/fr/localization-partners\n   Extrait : Non fourni\n   Statut : résultat de recherche à qualifier ; aucun contact effectué.",
+      "capability": "business.sources.search",
+      "producer": "composio-web-search",
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "recipient": "Benoît",
+        "mode": "propose-before-send",
+        "harvestState": "ready-to-offer"
+      },
+      "state": "ready-to-offer"
     }
   ]
 }

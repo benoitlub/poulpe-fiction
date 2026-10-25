@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-24T16:03:40.117Z",
+  "updatedAt": "2026-10-25T13:13:33.371Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -2908,10 +2908,167 @@
       "outcome": "not-verified",
       "matchedMetrics": [],
       "lesson": "No matching post analytics yet; retry observation later."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33Z",
+      "seedId": "gerard-et-gerard",
+      "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
+      "copyText": "🎥 *[Plan serré sur deux mains tenant un livre, voix off énergique]*\n*\"Deux Gérard. Un seul livre. Et si c’était VOUS le troisième ?*\n*Gérard A ou Gérard B ? Faites votre choix… et découvrez lequel vous ressemble !*\n*👉 [Lien en bio] #GérardEtGérard\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
+      "repeatCount": 38,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "metricsStatus": "available",
+      "outcome": "not-verified",
+      "matchedMetrics": [],
+      "lesson": "No matching post analytics yet; retry observation later."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33.371Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-05",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122317665002022326",
+      "copyText": "Test de transmission. Si vous voyez ceci, Gérard a trouvé la sortie. 🐙",
+      "postPurpose": "technical-test",
+      "metrics": {
+        "reach": 8,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33.371Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-06",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122317783394022326",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 2,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33.371Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-09",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122318218490022326",
+      "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 5,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33.371Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-13",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122318927600022326",
+      "copyText": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 2,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 1,
+        "engagementPerThousand": 50
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33.371Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-21",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122320005536022326",
+      "copyText": "🌍 Et si les vacances les plus extraordinaires ne se déroulaient pas là où l'on croit ?\n\nDans « Les Vacances Interdites », de jeunes Ilvaardiens partent à la découverte d'une Terre pleine de surprises. Une aventure de science-fiction jeunesse entre exploration, mystères et imprévus.\n\n📖 Découvrir le roman de Benoît Lubert sur Amazon : https://www.amazon.fr/dp/B0HJNC4GQK\n\n#LesVacancesInterdites #ScienceFictionJeunesse #RomanAdo #Lecture",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 2,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33.371Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "facebook",
+      "publishedDate": "2026-10-21",
+      "postUrl": "https://facebook.com/122158707854022326/posts/122320049402022326",
+      "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 6,
+        "comments": 0,
+        "shares": 0,
+        "reactions": 0,
+        "linkClicks": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "observedAt": "2026-10-25T13:13:33.371Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "instagram",
+      "publishedDate": "2026-10-21",
+      "postUrl": "https://www.instagram.com/p/Dew5ztpFZFc/",
+      "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 28,
+        "interactions": 0,
+        "comments": 0,
+        "likes": 0,
+        "saves": 0,
+        "engagementPerThousand": 0
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-24T16:03:39Z",
+    "observedAt": "2026-10-25T13:13:33Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -2934,21 +3091,21 @@
     }
   },
   "guidance": {
-    "seedId": "terra",
+    "seedId": "gerard-et-gerard",
     "chosenExperiment": "explore",
     "nextExperiment": "Try a different creative angle or image next time; repeats remain allowed.",
     "performanceRankingEnabled": false,
     "metricoolSignalsAvailable": true,
-    "metricoolLatestSnapshot": "2026-10-24",
+    "metricoolLatestSnapshot": "2026-10-25",
     "nextPublicExperiment": "Create a new differentiated post, then compare verified outcomes on the same network and format."
   },
   "socialFeedback": {
     "status": "observed",
     "source": "metricool-connected-analytics",
-    "snapshotCheckedAt": "2026-10-24",
+    "snapshotCheckedAt": "2026-10-25",
     "snapshotPeriod": {
       "from": "2026-10-01",
-      "to": "2026-10-24"
+      "to": "2026-10-25"
     },
     "completeness": "partial-provider-response",
     "measuredPostCount": 8,
@@ -2957,7 +3114,7 @@
       "facebook": {
         "promotionalPostsObserved": 5,
         "reachSamples": 5,
-        "medianObservedReach": 1,
+        "medianObservedReach": 2,
         "linkClicksObserved": 1,
         "comparison": "descriptive-only",
         "note": "Small, possibly incomplete sample. Do not rank subjects or infer audience preference."
@@ -2965,7 +3122,7 @@
       "instagram": {
         "promotionalPostsObserved": 2,
         "reachSamples": 2,
-        "medianObservedReach": 23.5,
+        "medianObservedReach": 24,
         "linkClicksObserved": null,
         "comparison": "descriptive-only",
         "note": "Small, possibly incomplete sample. Do not rank subjects or infer audience preference."
@@ -2973,7 +3130,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-24T16:03:40.117Z",
+        "observedAt": "2026-10-25T13:13:33.371Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -2982,7 +3139,7 @@
         "copyText": "Test de transmission. Si vous voyez ceci, Gérard a trouvé la sortie. 🐙",
         "postPurpose": "technical-test",
         "metrics": {
-          "reach": 7,
+          "reach": 8,
           "comments": 0,
           "shares": 0,
           "reactions": 0,
@@ -2993,7 +3150,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T16:03:40.117Z",
+        "observedAt": "2026-10-25T13:13:33.371Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3002,7 +3159,7 @@
         "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
         "postPurpose": "promotion-unattributed",
         "metrics": {
-          "reach": 1,
+          "reach": 2,
           "comments": 0,
           "shares": 0,
           "reactions": 0,
@@ -3013,7 +3170,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T16:03:40.117Z",
+        "observedAt": "2026-10-25T13:13:33.371Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3033,73 +3190,13 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T16:03:40.117Z",
+        "observedAt": "2026-10-25T13:13:33.371Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
         "publishedDate": "2026-10-09",
         "postUrl": "https://facebook.com/122158707854022326/posts/122318218490022326",
         "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?",
-        "postPurpose": "promotion-unattributed",
-        "metrics": {
-          "reach": 4,
-          "comments": 0,
-          "shares": 0,
-          "reactions": 0,
-          "linkClicks": 0,
-          "engagementPerThousand": 0
-        },
-        "outcome": "measured-not-ranked",
-        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
-      },
-      {
-        "observedAt": "2026-10-24T16:03:40.117Z",
-        "kind": "metricool-post-measurement",
-        "source": "metricool-connected-analytics",
-        "network": "facebook",
-        "publishedDate": "2026-10-13",
-        "postUrl": "https://facebook.com/122158707854022326/posts/122318927600022326",
-        "copyText": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
-        "postPurpose": "promotion-unattributed",
-        "metrics": {
-          "reach": 1,
-          "comments": 0,
-          "shares": 0,
-          "reactions": 0,
-          "linkClicks": 1,
-          "engagementPerThousand": 100
-        },
-        "outcome": "measured-not-ranked",
-        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
-      },
-      {
-        "observedAt": "2026-10-24T16:03:40.117Z",
-        "kind": "metricool-post-measurement",
-        "source": "metricool-connected-analytics",
-        "network": "facebook",
-        "publishedDate": "2026-10-21",
-        "postUrl": "https://facebook.com/122158707854022326/posts/122320005536022326",
-        "copyText": "🌍 Et si les vacances les plus extraordinaires ne se déroulaient pas là où l'on croit ?\n\nDans « Les Vacances Interdites », de jeunes Ilvaardiens partent à la découverte d'une Terre pleine de surprises. Une aventure de science-fiction jeunesse entre exploration, mystères et imprévus.\n\n📖 Découvrir le roman de Benoît Lubert sur Amazon : https://www.amazon.fr/dp/B0HJNC4GQK\n\n#LesVacancesInterdites #ScienceFictionJeunesse #RomanAdo #Lecture",
-        "postPurpose": "promotion-unattributed",
-        "metrics": {
-          "reach": 1,
-          "comments": 0,
-          "shares": 0,
-          "reactions": 0,
-          "linkClicks": 0,
-          "engagementPerThousand": 0
-        },
-        "outcome": "measured-not-ranked",
-        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
-      },
-      {
-        "observedAt": "2026-10-24T16:03:40.117Z",
-        "kind": "metricool-post-measurement",
-        "source": "metricool-connected-analytics",
-        "network": "facebook",
-        "publishedDate": "2026-10-21",
-        "postUrl": "https://facebook.com/122158707854022326/posts/122320049402022326",
-        "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
         "postPurpose": "promotion-unattributed",
         "metrics": {
           "reach": 5,
@@ -3113,7 +3210,67 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-24T16:03:40.117Z",
+        "observedAt": "2026-10-25T13:13:33.371Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "facebook",
+        "publishedDate": "2026-10-13",
+        "postUrl": "https://facebook.com/122158707854022326/posts/122318927600022326",
+        "copyText": "Et si un lancer de dés décidait de la suite de l'histoire ? 🎲\n\nSur Blacklace Island, Blacklace Dice propose quatre façons de laisser le hasard intervenir : Action, Feuch, Fée et Décision.\n\nÀ essayer ici : https://benoitlub.github.io/blacklace-dice/\n\n#BlacklaceDice #BlacklaceIsland #JeuDeDés",
+        "postPurpose": "promotion-unattributed",
+        "metrics": {
+          "reach": 2,
+          "comments": 0,
+          "shares": 0,
+          "reactions": 0,
+          "linkClicks": 1,
+          "engagementPerThousand": 50
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      },
+      {
+        "observedAt": "2026-10-25T13:13:33.371Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "facebook",
+        "publishedDate": "2026-10-21",
+        "postUrl": "https://facebook.com/122158707854022326/posts/122320005536022326",
+        "copyText": "🌍 Et si les vacances les plus extraordinaires ne se déroulaient pas là où l'on croit ?\n\nDans « Les Vacances Interdites », de jeunes Ilvaardiens partent à la découverte d'une Terre pleine de surprises. Une aventure de science-fiction jeunesse entre exploration, mystères et imprévus.\n\n📖 Découvrir le roman de Benoît Lubert sur Amazon : https://www.amazon.fr/dp/B0HJNC4GQK\n\n#LesVacancesInterdites #ScienceFictionJeunesse #RomanAdo #Lecture",
+        "postPurpose": "promotion-unattributed",
+        "metrics": {
+          "reach": 2,
+          "comments": 0,
+          "shares": 0,
+          "reactions": 0,
+          "linkClicks": 0,
+          "engagementPerThousand": 0
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      },
+      {
+        "observedAt": "2026-10-25T13:13:33.371Z",
+        "kind": "metricool-post-measurement",
+        "source": "metricool-connected-analytics",
+        "network": "facebook",
+        "publishedDate": "2026-10-21",
+        "postUrl": "https://facebook.com/122158707854022326/posts/122320049402022326",
+        "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+        "postPurpose": "promotion-unattributed",
+        "metrics": {
+          "reach": 6,
+          "comments": 0,
+          "shares": 0,
+          "reactions": 0,
+          "linkClicks": 0,
+          "engagementPerThousand": 0
+        },
+        "outcome": "measured-not-ranked",
+        "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+      },
+      {
+        "observedAt": "2026-10-25T13:13:33.371Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3122,7 +3279,7 @@
         "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
         "postPurpose": "promotion-unattributed",
         "metrics": {
-          "reach": 27,
+          "reach": 28,
           "interactions": 0,
           "comments": 0,
           "likes": 0,
@@ -3133,7 +3290,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-24T16:03:40.117Z",
+    "lastIntegratedAt": "2026-10-25T13:13:33.371Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   }
 }
