@@ -14,11 +14,13 @@ import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarv
 import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
+import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
 const SEEDS_PATH = new URL("../garden/restart-seeds.json", import.meta.url);
 const HARVESTS_PATH = new URL("../garden/harvests.json", import.meta.url);
+const MAIL_OUTBOX_PATH = new URL("../garden/gerard-mail-outbox.json", import.meta.url);
 
 const OCTOPUS_URL = (process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "");
 const PUBLISHER_URL = (process.env.PUBLISHER_URL || "https://blacklace-publisher-worker.benoitlubert.workers.dev").replace(/\/$/, "");
@@ -111,6 +113,20 @@ function selectSeedForRotation(seeds, state) {
 async function saveState(state) {
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
   await writeFile(STATE_PATH, JSON.stringify(state, null, 2) + "\n", "utf8");
+}
+
+async function saveMailDrafts(sources, parcelId) {
+  const proposed = createMailDrafts(sources, { parcelId });
+  if (!proposed.length) return 0;
+  let existing = { drafts: [] };
+  try { existing = JSON.parse(await readFile(MAIL_OUTBOX_PATH, "utf8")); } catch (_) {}
+  const previous = Array.isArray(existing.drafts) ? existing.drafts : [];
+  const drafts = mergeMailDrafts(previous, proposed);
+  if (drafts.length !== previous.length) {
+    await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
+    await writeFile(MAIL_OUTBOX_PATH, JSON.stringify({ version: 1, sendingEnabled: false, drafts }, null, 2) + "\n", "utf8");
+  }
+  return drafts.length - previous.length;
 }
 
 async function saveHarvest(selectedSeed, harvest, operationId) {
@@ -349,8 +365,9 @@ async function main() {
           state.businessSourceMemory = { ...(state.businessSourceMemory || {}), [parcel]: learned.memory };
           businessSourceChanges = learned.changed;
           businessSources = [...examined, ...plan.reused].sort((a, b) => (b.fitScore ?? -1) - (a.fitScore ?? -1));
+          const newDrafts = await saveMailDrafts(businessSources, parcel);
           businessSourceState = lookup.status;
-          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
+          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, newMailDrafts: newDrafts, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
         } catch (error) {
           businessSources = [];
           businessSourceState = "unavailable";
