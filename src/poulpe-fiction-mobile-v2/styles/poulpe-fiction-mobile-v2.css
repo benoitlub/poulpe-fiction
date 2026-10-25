@@ -56,6 +56,7 @@
 
 
 /* Mobile performance: avoid full-screen/frosted repaint storms while scrolling. */
+.pf-readable-harvest{font-size:14px;line-height:1.65;overflow-wrap:anywhere;white-space:normal}.pf-readable-harvest p{margin:0 0 13px}.pf-readable-harvest h3{margin:18px 0 8px;color:var(--pf-cream);font-size:16px}.pf-readable-harvest ul,.pf-readable-harvest ol{padding-left:20px;margin:7px 0 16px}.pf-readable-harvest li{margin:5px 0}.pf-readable-harvest blockquote{margin:12px 0;padding:10px 14px;border-left:3px solid var(--pf-moss);background:rgba(127,224,208,.06);border-radius:0 12px 12px 0}.pf-readable-harvest blockquote p:last-child{margin-bottom:0}.pf-readable-harvest a{color:var(--pf-cyan);text-decoration:underline}
 @media (max-width: 699px) {
   .pf-v3-organic {
     background-attachment: scroll;
