@@ -10,7 +10,9 @@ node scripts/gege-snapshot.mjs
 npx vite --config prototypes/gege/vite.config.mjs
 ```
 
-Ouvrir `http://localhost:4174`. Le mode par défaut affiche **DONNÉES FICTIVES**. « Traces réelles » lit un instantané local assaini de `garden/gerard-state.json` ; il ne suit pas les automatisations en direct. Relancer le collecteur après une mise à jour des fichiers sources puis cliquer « Relire ». Les compteurs de cycles terminés ne sont pas des compteurs de publications.
+Ouvrir `http://localhost:4174`. Le mode réel relit toutes les minutes le point de lecture Publisher `/api/garden/v1/snapshot` : états de Gérard, récoltes enregistrées et journal Octopus disponible. Les dates de lecture et de dernière trace sont distinctes. La démo reste explicitement fictive ; une panne ne bascule jamais automatiquement sur celle-ci. L’historique est partiel, et les cycles terminés ne sont pas des publications. Voir [l’audit du raccordement](../../docs/jardin-gege/READONLY-FEED.md).
+
+Le fichier local `snapshot.json` est toujours généré pour l’archive et les vérifications du build, mais ne fournit plus la source périodique de la vue réelle.
 
 ```sh
 node --test tests/garden-gege.test.mjs
@@ -19,7 +21,7 @@ npx vite build --config prototypes/gege/vite.config.mjs
 npx vite preview --config prototypes/gege/vite.config.mjs --port 4174
 ```
 
-Le build indépendant est dans `dist-gege/`, ignoré par Git. `npm run build` construit aussi cet aperçu, génère un instantané assaini, puis le copie dans `dist/jardin-gege/` pour le workflow GitHub Pages existant. URL dédiée : https://benoitlub.github.io/poulpe-fiction/jardin-gege/. La home historique et `mobile-v2.html` restent accessibles. Sans le fichier réel généré, le mode réel affiche un état hors ligne ; il ne remplace jamais les données manquantes par de la démo.
+Le build indépendant est dans `dist-gege/`, ignoré par Git. `npm run build` construit aussi cet aperçu, génère un instantané assaini, puis le copie dans `dist/jardin-gege/` pour le workflow GitHub Pages existant. URL dédiée : https://benoitlub.github.io/poulpe-fiction/jardin-gege/. La home historique et `mobile-v2.html` restent accessibles. Si le point de lecture est inaccessible, le mode réel affiche un état hors ligne et conserve les traces déjà lues pendant la session.
 
 Les Gégé sont de petits hamsters anthropomorphes habitant le jardin aquatique. Gérard et les sept métiers partagent le composant SVG `Gege.tsx` : oreilles rondes, abajoues, petites pattes, tenues et outils spécialisés. Les sept métiers sont inspectables. Les filtres, le carnet des événements, le mode synthèse et les commandes de caméra fonctionnent au clavier. Une reprise fictive peut être déclenchée explicitement dans l’inspecteur d’une mission bloquée/échouée, puis une réussite fictive ; l’historique de l’échec reste visible. La préférence système de réduction des animations est respectée.
 

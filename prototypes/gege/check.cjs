@@ -1,7 +1,7 @@
 const { chromium } = require("playwright");
 const AxeBuilder = require("@axe-core/playwright").default;
 const assert = require("node:assert/strict");
-const { mkdirSync } = require("node:fs");
+const { mkdirSync, readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const artifactDir = process.env.GEGE_ARTIFACTS || "/tmp/gege-artifacts";
 mkdirSync(artifactDir, { recursive: true });
@@ -20,7 +20,28 @@ mkdirSync(artifactDir, { recursive: true });
   page.on("request", (r) => {
     if (r.method() !== "GET") writes.push(r.method() + " " + r.url());
   });
+  const recorded = JSON.parse(
+    readFileSync(join(__dirname, "public/snapshot.json"), "utf8"),
+  );
+  recorded.sources = [
+    {
+      id: "test-transport",
+      state: "available",
+      observedAt: recorded.generatedAt,
+    },
+  ];
+  // Transport stub only; recorded events remain unchanged. No live API is called by this test.
+  await page.route("**/api/garden/v1/snapshot", (r) =>
+    r.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(recorded),
+    }),
+  );
   await page.goto(process.env.GEGE_PREVIEW_URL || "http://localhost:4174");
+  await page
+    .getByRole("button", { name: "Démonstration", exact: true })
+    .click();
   await page.getByText("DONNÉES FICTIVES", { exact: true }).waitFor();
   assert.equal(await page.locator(".worker").count(), 7);
   await page.screenshot({
@@ -42,7 +63,7 @@ mkdirSync(artifactDir, { recursive: true });
   await page
     .getByRole("button", { name: "Traces réelles", exact: true })
     .click();
-  await page.getByText("INSTANTANÉ RÉEL", { exact: true }).waitFor();
+  await page.getByText("LECTURE CONNECTÉE", { exact: true }).waitFor();
   assert.equal(await page.locator(".worker").count(), 12);
   assert.equal(
     await page.getByText("DONNÉES FICTIVES", { exact: true }).count(),
@@ -55,11 +76,11 @@ mkdirSync(artifactDir, { recursive: true });
   await page.getByLabel("Métier", { exact: true }).selectOption("enlumineur");
   await page.getByText("Aucune mission ne correspond à ces filtres.").waitFor();
   await page.getByLabel("Métier", { exact: true }).selectOption("");
-  await page.route("**/snapshot.json", (route) => route.abort());
+  await page.route("**/api/garden/v1/snapshot", (route) => route.abort());
   await page.getByRole("button", { name: "Relire", exact: true }).click();
   await page.getByText("HORS LIGNE", { exact: true }).waitFor();
   assert.ok((await page.locator(".mission-row").count()) > 0);
-  await page.unroute("**/snapshot.json");
+  await page.unroute("**/api/garden/v1/snapshot");
   await page
     .getByRole("button", { name: "Démonstration", exact: true })
     .click();
@@ -122,7 +143,7 @@ mkdirSync(artifactDir, { recursive: true });
   );
   assert.equal(mobileAxe.violations.length, 0);
   await page.reload();
-  await page.route("**/snapshot.json", (r) =>
+  await page.route("**/api/garden/v1/snapshot", (r) =>
     r.fulfill({
       status: 200,
       contentType: "application/json",
@@ -134,8 +155,8 @@ mkdirSync(artifactDir, { recursive: true });
     .click();
   await page.getByText("RÉPONSE INVALIDE", { exact: true }).waitFor();
   assert.equal(await page.locator(".worker").count(), 0);
-  await page.unroute("**/snapshot.json");
-  await page.route("**/snapshot.json", (r) =>
+  await page.unroute("**/api/garden/v1/snapshot");
+  await page.route("**/api/garden/v1/snapshot", (r) =>
     r.fulfill({
       status: 200,
       contentType: "application/json",
@@ -153,7 +174,7 @@ mkdirSync(artifactDir, { recursive: true });
     }),
   );
   await page.getByRole("button", { name: "Relire", exact: true }).click();
-  await page.getByText("INSTANTANÉ RÉEL", { exact: true }).waitFor();
+  await page.getByText("LECTURE CONNECTÉE", { exact: true }).waitFor();
   await page
     .getByText("Le jardin est calme. Aucune activité connue à afficher.")
     .waitFor();

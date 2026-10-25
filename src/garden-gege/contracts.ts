@@ -56,5 +56,13 @@ export interface GardenSnapshot {
   projects: { id: string; label: string }[];
   events: GardenEvent[];
   rejectedCount: number;
+  sources?: GardenSourceState[];
 }
-export type ConnectionState = "loading" | "snapshot" | "offline" | "invalid";
+export interface GardenSourceState {
+  id: string;
+  state: "available" | "unavailable";
+  observedAt: string;
+  lastEventAt?: string;
+}
+export type ConnectionState =
+  "loading" | "snapshot" | "connected" | "partial" | "offline" | "invalid";

@@ -60,3 +60,7 @@ Le nom du métier « Jardinier de fond » reste une fonction du système. Tous l
 Exclusions visuelles : nains de jardin, silhouettes humaines, barbes, bonnets pointus, esthétique cyberpunk ou corporate. Les animations de travail restent pilotées par les événements ; une illustration ne constitue jamais une preuve d’activité réelle.
 
 Aucune image générée ni ancien prompt de génération n’était intégré au prototype : les personnages sont des SVG construits dans React. Ce prompt sert de référence commune pour la suite du travail visuel.
+
+## Raccordement du 25 octobre
+
+Le lecteur réel est maintenant isolé dans `src/garden-gege/useGardenFeed.ts`. Utiliser son `snapshot`, son `connection` et sa fonction `refresh` pour les futures scènes Lovable. L’ouverture se fait en mode réel ; la démo reste distincte. Le point de lecture, les métadonnées publiques exposées et les limites de couverture sont documentés dans [READONLY-FEED.md](READONLY-FEED.md), qui remplace les anciennes indications de lecture uniquement locale.
