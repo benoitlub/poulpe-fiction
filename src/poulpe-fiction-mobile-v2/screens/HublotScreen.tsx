@@ -47,6 +47,7 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
   if (!progress) {
     return (
       <section className="pf-hublot pf-garden-home" aria-label="Garden">
+        <div className="pf-garden-link-card"><div><strong>🌿 Le Jardin des Gégé</strong><small>Observer les équipes du jardin et leurs traces réelles</small></div><a className="pf-btn pf-btn-primary" href="./jardin-gege/">Explorer</a></div>
         <div className="pf-garden-world">{scene}{livingParcels}</div>
         <ActiveExplorations />
         <div className="pf-card pf-full-width">
@@ -75,6 +76,7 @@ export function HublotScreen({ progress, runtime, onGoToHarvest, onBackToGerard,
 
   return (
     <section className="pf-hublot pf-garden-home" aria-label="Garden">
+      <div className="pf-garden-link-card"><div><strong>🌿 Le Jardin des Gégé</strong><small>Observer les équipes du jardin et leurs traces réelles</small></div><a className="pf-btn pf-btn-primary" href="./jardin-gege/">Explorer</a></div>
       {scene}
       <ActiveExplorations />
       <div className="pf-card pf-full-width">
