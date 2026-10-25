@@ -1,0 +1,45 @@
+name: Gerard - TERRA Instagram video comparison
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/terra-instagram-comparison.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gerard-terra-instagram-comparison
+  cancel-in-progress: false
+
+jobs:
+  instagram-reel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+    steps:
+      - name: Check authorized comparative Reel and reserve a single posting
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$BUFFER_DRAFT_WRITE_TOKEN"
+          payload=$(jq -nc '{channelId:"6ac8c8226a5c39ccb65fdbf6",intent:"compare-terra-morphic-video-with-existing-post",dryRun:true}')
+          status=$(curl -sS --max-time 45 -o /tmp/terra-instagram-preflight.json -w '%{http_code}' \
+            -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H 'Content-Type: application/json' \
+            --data "$payload" "$PUBLISHER_URL/api/social/transports/buffer/terra-video")
+          jq '{status,channelId,service,mediaUrl,publishAttempted}' /tmp/terra-instagram-preflight.json
+          if [[ "$status" != 200 || "$(jq -r '.status' /tmp/terra-instagram-preflight.json)" != ready ]]; then
+            echo 'Comparative Reel blocked: inspect duplicate or provider state before retry.'
+            exit 1
+          fi
+          payload=$(jq -nc '{channelId:"6ac8c8226a5c39ccb65fdbf6",intent:"compare-terra-morphic-video-with-existing-post",dryRun:false}')
+          status=$(curl -sS --max-time 45 -o /tmp/terra-instagram-result.json -w '%{http_code}' \
+            -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H 'Content-Type: application/json' \
+            --data "$payload" "$PUBLISHER_URL/api/social/transports/buffer/terra-video")
+          jq '{status,channelId,postId,queued,published,retryAllowed,reason}' /tmp/terra-instagram-result.json
+          test "$status" = 200
+          test "$(jq -r '.status' /tmp/terra-instagram-result.json)" = provider-accepted
