@@ -1,0 +1,8 @@
+.pf-secondary-links{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 12px}
+.pf-secondary-links a{color:var(--pf-cream);background:rgba(127,224,208,.1);border:1px solid var(--pf-border);border-radius:12px;padding:9px 11px;font-size:12px;text-decoration:none}
+.pf-garden-link-card{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box;background:rgba(9,15,35,.85);border:1px solid rgba(127,224,208,.25);border-radius:18px;padding:14px}
+.pf-garden-link-card strong,.pf-garden-link-card small{display:block}
+.pf-garden-link-card strong{color:var(--pf-cream);font-size:14px}
+.pf-garden-link-card small{color:var(--pf-dim);font-size:11px;margin-top:4px}
+.pf-garden-link-card .pf-btn{flex:0 0 auto;text-decoration:none;font-size:12px;padding:10px 14px}
+@media(max-width:360px){.pf-garden-link-card{flex-direction:column;align-items:stretch}.pf-garden-link-card .pf-btn{text-align:center}}

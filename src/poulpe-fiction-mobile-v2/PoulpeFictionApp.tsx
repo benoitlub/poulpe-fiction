@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import "./styles/poulpe-fiction-mobile-v2.css";
+import "./styles/garden-links.css";
 import gardenV3Background from "./assets/garden-v3.webp";
 import { BottomNav } from "./components/BottomNav";
 import { GerardScreen } from "./screens/GerardScreen";
@@ -88,6 +89,7 @@ export function PoulpeFictionApp({ adapter }: { adapter?: PoulpeRuntimeAdapter }
   return (
     <div className="pf-root pf-v3-organic" style={{ "--pf-garden-bg": `url(${gardenV3Background})` } as CSSProperties}><div className="pf-shell">
       <header className="pf-topbar pf-v3-topbar"><div><div className="pf-q-eyebrow">Poulpe Fiction</div><h1>{pageIdentity.title}</h1><div className="pf-sub">{pageIdentity.subtitle}</div></div><div className="pf-topbar-mark" aria-hidden>🐙</div></header>
+      {tab === "harvest" ? <div className="pf-secondary-links"><a href="./recoltes-yaebali.html">📥 Récoltes Yaébali</a><a href="./jardin-gege/">🌿 Jardin des Gégé</a></div> : null}
       {runtimeError ? <div className="pf-runtime-note">{runtimeError}</div> : null}
       <main className="pf-screen" role="main">
         {tab === "gerard" ? <GerardScreen runtime={runtime} onSubmit={handleSubmit} /> : null}
