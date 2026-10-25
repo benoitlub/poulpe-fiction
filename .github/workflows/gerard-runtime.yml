@@ -9,6 +9,8 @@ on:
     paths:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
+      - "scripts/gerard-b2b-qualification.mjs"
+      - "tests/gerard-b2b-qualification.test.mjs"
       - "scripts/gerard-compost.mjs"
       - "tests/gerard-compost.test.mjs"
       - "scripts/gerard-book-quality.jq"
@@ -179,6 +181,10 @@ jobs:
       - name: Verify Publisher B2B bridge
         working-directory: poulpe-fiction
         run: node --test tests/gerard-b2b-bridge.test.mjs
+
+      - name: Test B2B source qualification
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-b2b-qualification.test.mjs
 
       - name: Compost obsolete local harvests
         working-directory: poulpe-fiction
