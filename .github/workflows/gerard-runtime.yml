@@ -176,6 +176,10 @@ jobs:
         working-directory: poulpe-fiction
         run: node --test tests/gerard-compost.test.mjs
 
+      - name: Verify Publisher B2B bridge
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-b2b-bridge.test.mjs
+
       - name: Compost obsolete local harvests
         working-directory: poulpe-fiction
         run: node scripts/gerard-compost.mjs
