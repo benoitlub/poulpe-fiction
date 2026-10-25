@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FC } from "react";
 import "../styles/html-harvest.css";
 import { HarvestActions } from "../components/HarvestActions";
+import { ReadableHarvest, plainHarvestText } from "../components/ReadableHarvest";
 import { restoreAllGardenHarvests } from "../runtime/restoreGardenHarvest";
 import type { HarvestBundle, HarvestStatus } from "../types";
 
@@ -197,8 +198,9 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
         <p className="pf-meta">{remoteStatus || `${serverItems.length} récolte(s) conservée(s) — simulations et compost exclus`}</p>
         {serverItems.slice(0, 20).map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
           <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
-          <p style={{ whiteSpace: "pre-wrap" }}>{item.content}</p>
-          <HarvestActions actions={[{ label: "Copier", onClick: () => copy(item.content) }]} />
+          <ReadableHarvest content={item.content} />
+          {/\[(?:[^\]]*à confirmer|URL[^\]]*)\]|\[lien[^\]]*\]/i.test(item.content) ? <p className="pf-meta" role="note">⚠️ Ce document contient encore des liens ou informations à compléter avant utilisation.</p> : null}
+          <HarvestActions actions={[{ label: "Copier le texte propre", onClick: () => copy(plainHarvestText(item.content)) }, { label: "Télécharger .md", onClick: () => download("recolte.md", item.content, "text/markdown;charset=utf-8") }]} />
         </details>)}
       </section>
       <div className="pf-library-summary"><strong>{harvests.length}</strong><span>récoltes</span><i /> <strong>{groups.length}</strong><span>projets</span></div>
