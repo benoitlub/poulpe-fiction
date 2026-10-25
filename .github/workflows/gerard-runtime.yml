@@ -10,7 +10,9 @@ on:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
       - "scripts/gerard-b2b-qualification.mjs"
+      - "scripts/gerard-b2b-memory.mjs"
       - "tests/gerard-b2b-qualification.test.mjs"
+      - "tests/gerard-b2b-memory.test.mjs"
       - "scripts/gerard-compost.mjs"
       - "tests/gerard-compost.test.mjs"
       - "scripts/gerard-book-quality.jq"
@@ -185,6 +187,10 @@ jobs:
       - name: Test B2B source qualification
         working-directory: poulpe-fiction
         run: node --test tests/gerard-b2b-qualification.test.mjs
+
+      - name: Test B2B prospect memory
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-b2b-memory.test.mjs
 
       - name: Compost obsolete local harvests
         working-directory: poulpe-fiction
