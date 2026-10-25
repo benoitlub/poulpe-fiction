@@ -528,3 +528,609 @@ jobs:
                 experiment: (if $d.repeatedSelection then "Test a different angle or subject on the next cycle; compare only verified metrics." else "Publish when transport permits, then collect real outcome evidence." end),
                 confidence: (if ($d.audienceFeedback.matchedMetrics // 0) > 0 then "measured" else "tentative" end)
               }
+            | .nextAction = .reasoningModel.experiment
+          ' garden/gerard-decision-explanation.json > /tmp/gerard-reasoning.json
+          mv /tmp/gerard-reasoning.json garden/gerard-decision-explanation.json
+          # Deliberation: generate alternatives, select a testable experiment,
+          # and retain the rationale. Publisher remains an adviser, not a judge.
+          jq --slurpfile history /tmp/gerard-decision-history-before.json '
+            . as $d
+            | ([ $history[0][]? | .seedId // empty ] | unique) as $explored
+            | .deliberation = {
+                version:"editorial-experiments-v1",
+                alternatives:[
+                  {id:"explore",hypothesis:"Another subject may improve editorial diversity.",test:"Ask Publisher for a different eligible seed next cycle.",priority:(if $d.previousSelectionsOfSameSeed >= 2 then 3 else 1 end)},
+                  {id:"new-angle",hypothesis:"A new creative angle may perform differently.",test:"Try new copy or media while retaining the subject.",priority:(if $d.previousSelectionsOfSameCopy > 0 then 3 else 2 end)},
+                  {id:"observe",hypothesis:"Measured results may distinguish creative approaches.",test:"Collect verified per-post analytics before claiming an improvement.",priority:(if ($d.audienceFeedback.matchedMetrics // 0) > 0 then 3 else 1 end)}
+                ],
+                previouslyExploredSeedCount:($explored | length),
+                evidencePolicy:"No metrics means unknown, not zero performance."
+              }
+            | .deliberation.chosen = (.deliberation.alternatives | sort_by(-.priority, .id) | .[0])
+            | .deliberation.reason = (if .deliberation.chosen.id == "explore" then "Repeated seed selections justify an exploration experiment."
+               elif .deliberation.chosen.id == "new-angle" then "Try a distinct creative treatment and compare outcomes later."
+               else "Verified analytics exist; assess them before drawing conclusions." end)
+            | .nextAction = .deliberation.chosen.test
+          ' garden/gerard-decision-explanation.json > /tmp/gerard-deliberation.json
+          mv /tmp/gerard-deliberation.json garden/gerard-decision-explanation.json
+          jq --slurpfile current garden/gerard-decision-explanation.json '
+            ((if type == "array" then . else [] end) + [$current[0]])[-100:]
+          ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
+          jq '{seedId,reasoning,decision,repeatedSelection,previousSelectionsOfSameSeed,limits}' garden/gerard-decision-explanation.json
+
+      - name: Reconnect Metricool handoff with publication safeguards
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-metricool-publication.mjs
+
+      - name: Validate Buffer book payload (read-only)
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -c '
+            {harvestId,seedId,title,
+             provider:(.transport.provider // null),
+             action,
+             textLength:(.copy.text // "" | length),
+             textPresent:(.copy.text // "" | length > 0),
+             mediaUrl:(.media.url // null),
+             mediaHttps:(.media.url // "" | startswith("https://")),
+             preflight:(.bufferPreflight.status // null),
+             delivery:(.delivery.status // null),
+             existingBufferError:(.learning.bufferDraft // null)}
+          ' garden/next-social-publication.json
+
+      - name: Check TERRA cover HTTP and image dimensions (read-only)
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="$(jq -r 'select(.seedId == "terra") | .media.url // empty' garden/next-social-publication.json)"
+          if [ -z "$URL" ]; then
+            echo "TERRA cover check skipped: no TERRA media URL."
+            exit 0
+          fi
+          STATUS="$(curl --location --silent --show-error --output /tmp/terra-cover-check.jpg --write-out '%{http_code}' --max-time 25 --max-filesize 20000000 "$URL")" || STATUS="000"
+          echo "TERRA cover HTTP $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            file /tmp/terra-cover-check.jpg
+            wc -c < /tmp/terra-cover-check.jpg | awk '{print "TERRA cover bytes: " $1}'
+            python3 - <<'PY'
+          import struct
+          path="/tmp/terra-cover-check.jpg"
+          with open(path,"rb") as f: data=f.read()
+          if data[:2]!=b"\\xff\\xd8":
+              print("TERRA image validation: not JPEG")
+          else:
+              p=2
+              while p+9<len(data):
+                  if data[p]!=255: p+=1;continue
+                  marker=data[p+1];p+=2
+                  if marker in (0xD8,0xD9): continue
+                  if p+2>len(data): break
+                  size=int.from_bytes(data[p:p+2],"big")
+                  if marker in (0xC0,0xC1,0xC2,0xC3) and p+7<len(data):
+                      h=int.from_bytes(data[p+3:p+5],"big");w=int.from_bytes(data[p+5:p+7],"big")
+                      print(f"TERRA image dimensions: {w}x{h}; aspect ratio: {w/h:.3f}; Instagram feed aspect valid: {0.8<=w/h<=1.91}")
+                      break
+                  p+=max(size,2)
+              else: print("TERRA image dimensions: unknown")
+          PY
+          fi
+
+      - name: Inspect selected book in Buffer before any write (read-only)
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Buffer lookup unavailable: token missing."
+            exit 0
+          fi
+          if ! jq -e '.transport.provider == "buffer" and .harvestId != null' garden/next-social-publication.json >/dev/null; then
+            echo "Buffer lookup skipped: no selected book."
+            exit 0
+          fi
+          HARVEST_ID="$(jq -r '.harvestId' garden/next-social-publication.json)"
+          STATUS="$(curl --silent --show-error --get --output /tmp/buffer-book-lookup.json --write-out '%{http_code}' --max-time 35 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/buffer-lookup" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" --data-urlencode "harvestId=$HARVEST_ID")" || STATUS="000"
+          echo "Buffer selected-book lookup HTTP $STATUS"
+          if [ "$STATUS" = "200" ] && [ -s /tmp/buffer-book-lookup.json ]; then
+            jq -c '{status,channel,postsHttpStatus,postsInspected,hasNextPage,target:{harvestId:.target.harvestId,status:.target.status,copyVerified:.target.copyVerified,exactMatches:.target.exactMatches,complete:.target.complete,safeToAssumeNoPost:.target.safeToAssumeNoPost},errorMessages}' /tmp/buffer-book-lookup.json
+          else
+            echo "No verified Buffer lookup response; keeping existing reservations."
+          fi
+
+      - name: Check Buffer GraphQL draft schema (read-only)
+        if: ${{ github.event_name == 'push' }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Schema inspection unavailable: token missing."
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --output /tmp/buffer-schema-check.json --write-out '%{http_code}' --max-time 20 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/schema-check" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
+          echo "Buffer schema inspection HTTP $STATUS"
+          if [ -f /tmp/buffer-schema-check.json ]; then
+            jq -c '{status,bufferHttpStatus,createPostAvailable,createPostReturnType,inputTypeFound,createPostInputFields,createPostFieldTypes,assetInputFound,assetTypeName,assetsTypePath,assetInputFields,imageInputFields,postActionVariants,postActionFields,invalidInputErrorFields,channelInputFields,channelFields,readOnlyPostQueries,readOnlyLookupTypes,graphqlErrorCodes,reason}' /tmp/buffer-schema-check.json
+          fi
+
+      - name: Authorize one TERRA draft retry (explicit manual opt-in)
+        if: ${{ false }} # Disabled: TERRA retry authorization was already consumed; read-only diagnostics remain available
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "TERRA retry refused: token missing."
+            exit 1
+          fi
+          HARVEST_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
+          if [ "$HARVEST_ID" != "harvest_local_harvest_terra_1786215725146" ]; then
+            echo "TERRA retry refused: current harvest does not match."
+            exit 1
+          fi
+          STATUS="$(curl --silent --show-error --request POST --output /tmp/gerard-terra-release.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/release-terra" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
+          echo "TERRA retry release HTTP $STATUS"
+          if [ -f /tmp/gerard-terra-release.json ]; then
+            jq -c '{status,harvestId,changed,reason,publishingEnabled}' /tmp/gerard-terra-release.json || true
+          fi
+          if [ "$STATUS" != "200" ] || ! jq -e '(.status == "retry-authorized" and .changed == 1) or (.status == "no-change" and .changed == 0 and (.reservations | length == 1) and .reservations[0].status == "retry-authorized" and .reservations[0].post_id == null)' /tmp/gerard-terra-release.json >/dev/null; then
+            echo "TERRA retry release failed or already used; refusing write."
+            exit 1
+          fi
+
+      - name: Reconcile one proven Gérard Buffer validation rejection
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          HARVEST_ID="$(jq -r '.harvestId // ""' garden/next-social-publication.json)"
+          if [ "$HARVEST_ID" != "neon_iter_iter_gerard-et-gerard_1786288530352" ] || [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Known invalid Buffer reservation not selected; no changes."
+            exit 0
+          fi
+          if ! jq -e '.status == "ready" and .transport.provider == "buffer" and .editorialQuality.status == "complete"' garden/next-social-publication.json >/dev/null; then
+            echo "Known book package incomplete; leaving reservation locked."
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --output /tmp/gerard-known-recovery.json --write-out '%{http_code}' --max-time 40 -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-draft/recover-gerard-invalid-input" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data '{"harvestId":"neon_iter_iter_gerard-et-gerard_1786288530352","intent":"recover-known-buffer-InvalidInputError"}')" || STATUS="000"
+          echo "Known Buffer validation reconciliation HTTP $STATUS"
+          if [ -s /tmp/gerard-known-recovery.json ]; then
+            jq -c '{status,harvestId,changed,postCreated,retryScope,freshProviderCheck,reason}' /tmp/gerard-known-recovery.json || true
+          fi
+          if [ "$STATUS" != "200" ]; then
+            echo "Provider evidence missing or incident already handled; no unlock."
+          fi
+
+      - name: Inspect Buffer draft reservation (read-only)
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Buffer reservation inspection unavailable: token missing. Blocking write."
+            touch /tmp/gerard-buffer-write-blocked
+            exit 0
+          fi
+          HARVEST_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
+          if [ -z "$HARVEST_ID" ]; then
+            echo "No harvest to inspect. Blocking write."
+            touch /tmp/gerard-buffer-write-blocked
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --get --output /tmp/gerard-buffer-reservations.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/reservations" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" --data-urlencode "harvestId=$HARVEST_ID")" || STATUS="000"
+          echo "Buffer reservation inspection HTTP $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            jq -c '{status,harvestId,reservations}' /tmp/gerard-buffer-reservations.json
+            if jq -e '.reservations | any(.status == "pending" or .status == "draft-created" or .status == "queued")' /tmp/gerard-buffer-reservations.json >/dev/null; then
+              echo "Buffer reservation exists: blocking draft write for this run."
+              touch /tmp/gerard-buffer-write-blocked
+            fi
+          else
+            echo "Inspection failed: blocking any draft write."
+            touch /tmp/gerard-buffer-write-blocked
+          fi
+
+      - name: Reconcile Buffer book draft (read-only)
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          touch /tmp/gerard-buffer-write-blocked
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Reconciliation unavailable: token missing."
+            exit 0
+          fi
+          HARVEST_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
+          if [ -z "$HARVEST_ID" ]; then
+            echo "Reconciliation skipped: no harvest."
+            exit 0
+          fi
+          STATUS="$(curl --silent --show-error --get --output /tmp/gerard-buffer-reconcile.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/reconcile" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" --data-urlencode "harvestId=$HARVEST_ID")" || STATUS="000"
+          echo "Buffer reconciliation HTTP $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            jq -c '{status,harvestId,reservations,retryAllowed,requiresManualConfirmation,publishingEnabled}' /tmp/gerard-buffer-reconcile.json
+            # Fresh harvests may autonomously create a Buffer draft, never a live post.
+            # Pending or uncertain reservations remain protected against transport retries.
+            if jq -e '.reservations == [] and .requiresManualConfirmation != true' /tmp/gerard-buffer-reconcile.json >/dev/null; then
+              rm -f /tmp/gerard-buffer-write-blocked
+              echo "Fresh harvest: autonomous Buffer draft permitted."
+            fi
+            if [ "${{ inputs.retry_terra_draft }}" = "true" ] && [ "$HARVEST_ID" = "harvest_local_harvest_terra_1786215725146" ] && jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and (.reservations[0].status == "retry-authorized") and (.reservations[0].post_id == null)' /tmp/gerard-buffer-reconcile.json >/dev/null; then
+              rm -f /tmp/gerard-buffer-write-blocked
+              echo "One authorized TERRA draft attempt unlocked; no automatic publication."
+            fi
+            # Only after an authenticated, complete read-only Buffer check and
+            # a one-time database state transition. Never unblock on absence alone.
+            if [ "$HARVEST_ID" = "neon_iter_iter_gerard-et-gerard_1786288530352" ] &&
+               [ -s /tmp/gerard-known-recovery.json ] &&
+               jq -e '.status == "reconciled-known-invalid-input" and .changed == 1 and .postCreated == false and .retryScope == "draft-only" and .freshProviderCheck == true' /tmp/gerard-known-recovery.json >/dev/null 2>&1 &&
+               jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and .reservations[0].status == "validation-rejected" and .reservations[0].post_id == null' /tmp/gerard-buffer-reconcile.json >/dev/null 2>&1; then
+              rm -f /tmp/gerard-buffer-write-blocked
+              echo "One verified Gérard book draft attempt unlocked; no automatic publication."
+            fi
+          else
+            echo "Reconciliation unavailable; Buffer write remains blocked."
+          fi
+
+      - name: Request Buffer book draft via authenticated Publisher
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Buffer draft write token missing: holding package."
+            exit 0
+          fi
+          if [ -f /tmp/gerard-buffer-write-blocked ]; then
+            echo "Existing Buffer reservation: no write attempted."
+            exit 0
+          fi
+          if ! jq -e '.status == "ready" and .transport.provider == "buffer" and .action == "hold-for-buffer-draft" and .bufferPreflight.status == "ready-for-controlled-test" and .delivery.status == "not-attempted"' garden/next-social-publication.json >/dev/null; then
+            echo "Not an eligible Buffer book draft; skipped."
+            exit 0
+          fi
+          jq -c '{harvestId,seedId,title,text:.copy.text,mediaUrl:.media.url,publish:false}' garden/next-social-publication.json > /tmp/gerard-buffer-request.json
+          HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-buffer-draft-response.json --write-out '%{http_code}' --max-time 25 -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-draft" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data-binary @/tmp/gerard-buffer-request.json)" || HTTP_STATUS="000"
+          if [ "$HTTP_STATUS" = "200" ] && jq -e '.status == "draft-created" and .draftCreated == true and .publishingEnabled == false and (.postId | type == "string")' /tmp/gerard-buffer-draft-response.json >/dev/null 2>&1; then
+            jq --slurpfile response /tmp/gerard-buffer-draft-response.json '.action="buffer-draft-created" | .delivery={status:"confirmed-draft",kind:"buffer-draft",postId:$response[0].postId,publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
+          else
+            echo "Buffer draft not confirmed (HTTP $HTTP_STATUS). No automatic retry."
+            if [ -s /tmp/gerard-buffer-draft-response.json ]; then
+              jq -c '{status,reason,bufferHttpStatus,bufferResultType,graphqlErrorCodes,bufferValidationMessages,reservationStatus,draftCreated,publishingEnabled}' /tmp/gerard-buffer-draft-response.json || echo "Publisher response is not valid JSON."
+            fi
+            jq --arg http "$HTTP_STATUS" --slurpfile response /tmp/gerard-buffer-draft-response.json '
+              .action="hold-for-manual-buffer-review"
+              | .delivery={status:"unknown",httpStatus:$http,publishingEnabled:false}
+              | .learning.bufferDraft={
+                  outcome:"unconfirmed",
+                  httpStatus:$http,
+                  publisherStatus:($response[0].status // "unknown"),
+                  reason:($response[0].reason // "unknown"),
+                  bufferHttpStatus:($response[0].bufferHttpStatus // null),
+                  graphqlErrorCodes:($response[0].graphqlErrorCodes // []),
+                  reservationStatus:($response[0].reservationStatus // "unknown"),
+                  lesson:"An uncertain external write is not evidence of a draft. Inspect reservation and provider response; never retry automatically.",
+                  nextAction:"diagnose-read-only",
+                  autonomousRetryAllowed:false,
+                  requiresHumanApprovalForNewWrite:true
+                }
+            ' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
+          fi
+          mv /tmp/gerard-buffer-result.json garden/next-social-publication.json
+
+      - name: Queue the confirmed existing Gerard Buffer draft once
+        if: ${{ github.event_name == 'push' }}
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
+            echo "Existing Buffer draft scheduling unavailable: authenticated token missing."
+            exit 0
+          fi
+          ENDPOINT="$PUBLISHER_URL/api/social/transports/buffer/book-draft/queue-existing-gerard"
+          HARVEST_ID="neon_iter_iter_gerard-et-gerard_1786288530352"
+          POST_ID="6acfd4de0b61877d1315e86b"
+          REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,dryRun:true}')"
+          READ_STATUS="$(curl --silent --show-error --output /tmp/gerard-existing-buffer-check.json --write-out '%{http_code}' --max-time 35 -X POST "$ENDPOINT" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data "$REQUEST")" || READ_STATUS="000"
+          echo "Existing Gérard Buffer draft check HTTP $READ_STATUS"
+          if [ -s /tmp/gerard-existing-buffer-check.json ]; then
+            jq -c '{status,scheduled,postId,channelId,imageCount,providerStatus,dueAt,reason}' /tmp/gerard-existing-buffer-check.json || true
+          fi
+          if [ "$READ_STATUS" != "200" ]; then
+            echo "Provider did not verify the original draft: no scheduling attempted."
+            exit 0
+          fi
+          if jq -e '.status == "already-queued-or-sent" and .scheduled == true and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
+            cp /tmp/gerard-existing-buffer-check.json /tmp/gerard-existing-buffer-confirmation.json
+          elif jq -e '.status == "ready-to-queue-existing-draft" and .scheduled == false and .imageCount >= 1 and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
+            # Buffer explicitly rejected the first edit because its existing image
+            # was not resent. Permit ONE targeted recovery with the same cover.
+            if jq -e '.recoveryEligible == true' /tmp/gerard-existing-buffer-check.json >/dev/null 2>&1; then
+              QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"retry-once-with-confirmed-official-cover",priorRunId:38646496703}')"
+            else
+              QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"schedule-existing-verified-gerard-draft"}')"
+            fi
+            QUEUE_HTTP="$(curl --silent --show-error --output /tmp/gerard-existing-buffer-confirmation.json --write-out '%{http_code}' --max-time 35 -X POST "$ENDPOINT" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data "$QUEUE_REQUEST")" || QUEUE_HTTP="000"
+            echo "Existing Gérard Buffer draft scheduling HTTP $QUEUE_HTTP"
+            if [ -s /tmp/gerard-existing-buffer-confirmation.json ]; then
+              jq -c '{status,scheduled,postId,channelId,dueAt,providerStatus,providerError,providerResultType}' /tmp/gerard-existing-buffer-confirmation.json || true
+            fi
+            [ "$QUEUE_HTTP" = "200" ] || exit 0
+          else
+            echo "Draft check does not authorize an edit. No post created."
+            exit 0
+          fi
+          if jq -e '.scheduled == true and (.status == "confirmed-queued" or .status == "already-queued-or-sent") and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-confirmation.json >/dev/null; then
+            jq -n --arg at "$(date -u +%FT%TZ)" --slurpfile confirmation /tmp/gerard-existing-buffer-confirmation.json '{
+              recordedAt:$at,source:"Buffer GraphQL provider confirmation",
+              contract:"gerard-existing-buffer-post-v1",
+              harvestId:"neon_iter_iter_gerard-et-gerard_1786288530352",
+              seedId:"gerard-et-gerard",
+              originalPostId:"6acfd4de0b61877d1315e86b",
+              status:$confirmation[0].status,
+              scheduled:$confirmation[0].scheduled,
+              channelId:($confirmation[0].channelId // "6ac8c8226a5c39ccb65fdbf6"),
+              scheduledAt:($confirmation[0].dueAt // null),
+              providerStatus:($confirmation[0].providerStatus // null),
+              duplicateCreated:false,
+              note:"Existing Buffer draft modified in place; no new Buffer post created."
+            }' > garden/buffer-book-publication.json
+            echo "Existing draft is confirmed scheduled by Buffer; provider ID preserved."
+          else
+            echo "Buffer scheduling was not confirmed. No success recorded."
+          fi
+
+      - name: Listen to Publisher analytics capability
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          STATUS="$(curl --silent --show-error --max-time 18 --output /tmp/gerard-publisher-analytics.json --write-out '%{http_code}' "$PUBLISHER_URL/api/observatory/capability-gap?capability=analytics.read&mission=social%20media%20facebook%20instagram%20post%20engagement%20reach")" || STATUS="000"
+          if [ "$STATUS" = "200" ] && jq -e 'type == "object"' /tmp/gerard-publisher-analytics.json >/dev/null 2>&1; then
+            jq --arg observedAt "$(date -u +%FT%TZ)" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",response:.}' /tmp/gerard-publisher-analytics.json > garden/gerard-publisher-advice.json
+          else
+            jq -n --arg observedAt "$(date -u +%FT%TZ)" --arg http "$STATUS" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",status:"unavailable",httpStatus:$http}' > garden/gerard-publisher-advice.json
+          fi
+          jq -c '{source,capability,status:(.status // .response.status // "received")}' garden/gerard-publisher-advice.json
+
+      - name: Verify Metricool feedback memory safeguards
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-social-feedback.test.mjs
+
+      - name: Update Gerard learning from verified outcomes
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
+          jq -n --slurpfile previous garden/gerard-learning.json --slurpfile decision garden/gerard-decision-explanation.json --slurpfile package garden/next-social-publication.json --slurpfile analytics garden/metricool-analytics-snapshot.json --slurpfile publisher garden/gerard-publisher-advice.json '
+            ($decision[0] // {}) as $d
+            | ($package[0] // {}) as $p
+            | ($analytics[0] // {}) as $a
+            | ($previous[0].observations // []) as $old
+            | {updatedAt:(now | todateiso8601),
+               observations:(($old + [{
+                 observedAt:(now | todateiso8601),
+                 seedId:($d.seedId // null),
+                 harvestId:($d.harvestId // null),
+                 copyText:($d.copyText // null),
+                 repeatCount:($d.previousSelectionsOfSameCopy // 0),
+                 chosenExperiment:($d.deliberation.chosen.id // null),
+                 experimentHypothesis:($d.deliberation.chosen.hypothesis // null),
+                 delivery:($p.delivery // {status:"not-attempted"}),
+                 metricsStatus:($a.status // "unavailable"),
+                 outcome:(if (($p.delivery.status // "") | IN("queued","published","sent")) then "transport-accepted" elif (($p.delivery.status // "") | IN("failed","error","rejected")) then "transport-failed" else "not-verified" end),
+                 matchedMetrics:(if $a.status == "available" then [$a.posts[]? | select(.text == $d.copyText)] else [] end),
+                 lesson:(if $a.status != "available" then "Analytics unavailable: do not infer failure or success; continue testing."
+                         elif ([$a.posts[]? | select(.text == $d.copyText)] | length) == 0 then "No matching post analytics yet; retry observation later."
+                         elif ($d.previousSelectionsOfSameCopy // 0) > 0 then "Compare this repeated copy against other angles using verified metrics."
+                         else "Compare verified performance before choosing the next angle." end)
+               }])[-150:]),
+               publisherAdvice:($publisher[0] // {}),
+               guidance:{seedId:($d.seedId // null),
+                 chosenExperiment:($d.deliberation.chosen.id // "new-angle"),
+                 nextExperiment:(if ($d.previousSelectionsOfSameCopy // 0) > 0 then "Try a different creative angle or image next time; repeats remain allowed." else "Explore a new angle and record delivery." end),
+                 performanceRankingEnabled:($a.status == "available" and ([$a.posts[]? | select(.text == $d.copyText)] | length) > 0)}}
+          ' > /tmp/gerard-learning-next.json
+          mv /tmp/gerard-learning-next.json garden/gerard-learning.json
+          node scripts/gerard-social-feedback.mjs
+
+      - name: Validate real harvest result
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const state = JSON.parse(fs.readFileSync('garden/gerard-state.json', 'utf8'));
+          const result = state.lastResult || {};
+          console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, verification: result.verification, payload: result.payload }, null, 2));
+          if (!['dream', 'cultivate', 'play', 'symbiosis', 'rest'].includes(state.lastMode)) throw new Error(`Unexpected Gerard mode: ${state.lastMode}`);
+          if (state.lastMode !== 'cultivate') { console.log(`Non-harvest cycle (${state.lastMode}); harvest validation skipped.`); process.exit(0); }
+          if (result.status !== 'ok') throw new Error(`Harvest endpoint failed: ${result.status}`);
+          if (result.verification && result.verification.processed < 1) throw new Error('No tentacle was processed.');
+          NODE
+
+      - name: Commit updated Gerard state
+        working-directory: poulpe-fiction
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json)" ]; then
+            git config user.name "gerard-runtime[bot]"
+            git config user.email "gerard-runtime@users.noreply.github.com"
+            # Stage only existing optional files, plus tracked deletions.
+            for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json; do
+              if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+                git add -A -- "$file"
+              fi
+            done
+            git commit -m "chore(gerard): update autonomous cycle state"
+            # State snapshots are generated artifacts, not source code. If main
+            # advances, prefer the latest completed cycle snapshot instead of
+            # trying to line-merge independently generated JSON files.
+            # Never force-push or overwrite workflow/source files.
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if git rebase origin/main; then
+                if git push origin HEAD:main; then
+                  echo "Gerard state synchronized (attempt $attempt)."
+                  break
+                fi
+              else
+                echo "Generated state conflicts with upstream; resolving snapshot files only."
+                for file in garden/gerard-state.json garden/harvests.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json; do
+                  if git ls-files -u -- "$file" | grep -q .; then
+                    if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
+                      git show REBASE_HEAD:"$file" > "$file"
+                      git add -- "$file"
+                    else
+                      git rm -f -- "$file"
+                    fi
+                  fi
+                done
+                if git ls-files -u | grep -q .; then
+                  echo "Non-state merge conflicts detected; refusing automatic resolution."
+                  exit 1
+                fi
+                GIT_EDITOR=true git rebase --continue
+                if git push origin HEAD:main; then
+                  echo "Gerard state synchronized after snapshot conflict resolution."
+                  break
+                fi
+              fi
+              if [ "$attempt" = 3 ]; then
+                echo "State sync failed after 3 attempts; preserving upstream without force push."
+                exit 1
+              fi
+            done
+          else
+            echo "Aucun changement d'état à committer."
+          fi
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-runtime-logs
+          path: |
+            octopus.log
+            publisher.log
+          retention-days: 7
+
+  gerard_issue_diagnostic:
+    name: Gerard mission intake (no publication)
+    if: github.event_name == 'issues' && startsWith(github.event.issue.title, '[POULPE]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Respond to diagnostic mission with evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$ISSUE_TITLE" != *"420 Dice"* ]]; then
+            echo "Mission received, but no diagnostic template exists for this subject."
+            exit 0
+          fi
+          cat > /tmp/gerard-diagnostic.md <<'REPORT'
+          🐙 **Gérard — diagnostic technique automatique (lecture du dépôt, sans génération ni publication)**
+
+          Cette réponse est produite par le déclencheur GitHub Actions, **pas par un agent IA ayant exécuté les huit étapes**. Les capacités ci-dessous restent à tester de bout en bout.
+
+          | Étape | État vérifié | Preuve / action suivante |
+          | --- | --- | --- |
+          | Lecture du pack Notion | À vérifier | Pack : https://app.notion.com/p/3f939119725381bdbe8af5b297983cb6 ; aucune lecture API réalisée dans ce job |
+          | Images verticales 9:16 | À vérifier | Générer un fichier image et fournir son URL |
+          | Vidéos de 4–5 secondes | À vérifier | Générer et fournir trois clips réels |
+          | Capture réelle du jeu | Non réalisée | Capturer https://benoitlub.github.io/420-dice-game-reboot/ avec vrais dés et gage |
+          | Montage MP4 de 15 s | Non réalisé | Fournir un MP4 lisible et sa durée |
+          | Livraison d'un média | Non réalisée | Fournir un artefact téléchargeable |
+          | Brouillon Metricool | À vérifier | Fournir un identifiant de brouillon et confirmer le bon compte @pro.hbtd |
+          | Statistiques et apprentissage | À vérifier | Fournir la source, les chiffres et l'itération concernée |
+
+          **Conclusion :** ce dépôt dispose d'un cycle Gérard, mais cette mission n'a pas démontré la production d'un Reel. La publication et la programmation restent interdites sans validation humaine (`externalAction: requires-human-approval`).
+          REPORT
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file /tmp/gerard-diagnostic.md
+
+      - name: Probe Publisher and read Reel pack from Notion
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          PACK_PAGE_ID: 3f939119725381bdbe8af5b297983cb6
+          PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, json, urllib.request, urllib.error
+          def probe(url, headers=None):
+              try:
+                  req=urllib.request.Request(url,headers=headers or {},method="GET")
+                  with urllib.request.urlopen(req,timeout=18) as res:
+                      body=res.read(500000).decode("utf-8","replace")
+                      return res.status,body
+              except urllib.error.HTTPError as e:
+                  return e.code,e.read(2000).decode("utf-8","replace")
+              except Exception as e:
+                  return "network-error",str(e)
+          worker=os.environ["PUBLISHER_URL"]
+          health,health_body=probe(worker+"/api/healthz")
+          key=os.getenv("NOTION_API_KEY","")
+          if key:
+              status,body=probe("https://api.notion.com/v1/blocks/"+os.environ["PACK_PAGE_ID"]+"/children?page_size=100",{"Authorization":"Bearer "+key,"Notion-Version":"2022-06-28"})
+              try:
+                  parsed=json.loads(body)
+                  blocks=parsed.get("results",[])
+                  text=" ".join(t.get("plain_text","") for b in blocks for t in b.get(b.get("type",""),{}).get("rich_text",[]))
+                  pack_ok=status==200 and "420" in text and "Pas de 420" in text
+                  count=len(blocks)
+              except Exception:
+                  pack_ok=False
+                  count=0
+          else:
+              status="secret absent"
+              pack_ok=False
+              count=0
+          report=(
+              "### Gérard — vérification réelle des connexions (GitHub Actions)\n\n"
+              +f"- Publisher Worker `/api/healthz` : HTTP **{health}** (réponse réseau vérifiée, pas preuve de génération).\n"
+              +f"- Notion pack Reel : HTTP **{status}**, **{count}** blocs lus, contenu attendu détecté : **{'oui' if pack_ok else 'non'}**.\n"
+              +"- Images, vidéos, capture du jeu et MP4 : **aucun média créé par cette étape**.\n"
+              +"- Publication et programmation : **aucune**. Validation humaine obligatoire.\n"
+              +"- Prochaine étape : brancher une capacité de production média réellement exécutable, avec artefact vérifiable.\n"
+          )
+          with open("/tmp/gerard-probes.md","w") as f: f.write(report)
+          print(report)
+          PY
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file /tmp/gerard-probes.md
