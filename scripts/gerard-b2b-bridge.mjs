@@ -8,10 +8,12 @@ export function parseBusinessSourceResponse(response) {
   const payload = response?.payload ?? {};
   const output = payload?.output ?? {};
   const valid = response?.status === 'ok' && payload?.status === 'completed' &&
-    output?.capability === 'business.sources.search';
+    output?.capability === 'business.sources.search' && output?.executed === true &&
+    ['sources-found', 'no-sources'].includes(output?.status);
   if (!valid) return {
-    status: 'unavailable', candidates: [],
-    reason: String(payload?.summary ?? response?.message ?? payload?.status ?? 'adapter-unavailable').slice(0, 180),
+    status: output?.status === 'blocked' ? 'blocked' : 'unavailable', candidates: [], executed: false,
+    reason: String(output?.reason ?? payload?.summary ?? response?.message ?? payload?.status ?? 'adapter-unavailable').slice(0, 180),
+    retryAfterSeconds: Number.isFinite(output?.retryAfterSeconds) ? output.retryAfterSeconds : null,
   };
   const candidates = Array.isArray(output.candidates) ? output.candidates : [];
   const seen = new Set();
@@ -27,7 +29,7 @@ export function parseBusinessSourceResponse(response) {
     return [{ title: String(item.title ?? 'Sans titre').slice(0, 200), url: url.href,
       snippet: String(item.snippet ?? '').slice(0, 500), verification: 'search-result-only' }];
   }).slice(0, 10);
-  return { status: accepted.length ? 'sources-found' : 'no-sources', candidates: accepted, reason: null };
+  return { status: accepted.length ? 'sources-found' : 'no-sources', candidates: accepted, executed: true, reason: null };
 }
 
 export async function searchBusinessSources({ publisherUrl, operationId, seed, call }) {
@@ -35,9 +37,9 @@ export async function searchBusinessSources({ publisherUrl, operationId, seed, c
     operationId: `${operationId}-business-sources`,
     title: 'Recherche de distributeurs et partenaires B2B',
     objective: seed.objective,
-    prompt: 'Distributeurs grossistes jeux de cartes accessoires cannabis légal, partenaires événements, coédition jeux, acheteurs B2B Europe ; sources professionnelles officielles et pages contact',
-    requiredCapabilities: ['business.sources.search'], authorizedResources: [],
-    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, source: 'gerard-cycle' } },
+    prompt: seed.businessSearchQuery || seed.objective || 'Sources professionnelles B2B publiques et vérifiables',
+    requiredCapabilities: ['business.sources.search'], authorizedResources: ['tools.read'],
+    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, source: 'gerard-cycle', toolRequest: { dryRun: false } } },
   };
   const response = await call(`${publisherUrl}/api/octopus-adapter/execute`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },

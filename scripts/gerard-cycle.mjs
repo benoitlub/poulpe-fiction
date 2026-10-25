@@ -87,7 +87,7 @@ async function loadState() {
 
 async function loadSeeds() {
   const parsed = JSON.parse(await readFile(SEEDS_PATH, "utf8"));
-  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && seed?.knowledgeSlug) : [];
+  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && (seed?.knowledgeSlug || seed.seedId === "benoit-client-acquisition")) : [];
 }
 
 function selectSeedForRotation(seeds, state) {
@@ -103,7 +103,8 @@ function selectSeedForRotation(seeds, state) {
   for (const entry of recent) {
     if (entry?.seedId) lastBySeed.set(entry.seedId, entry);
   }
-  return rotated.find(seed => lastBySeed.get(seed.seedId)?.outcome !== "failed") ?? rotated[0];
+  const due = rotated.filter(seed => !(Date.parse(state.sourceRetryAtBySeed?.[seed.seedId] ?? "") > Date.now()));
+  return due.find(seed => lastBySeed.get(seed.seedId)?.outcome !== "failed") ?? due[0] ?? null;
 }
 
 async function saveState(state) {
@@ -134,6 +135,10 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   let existing = { harvests: [] };
   try { existing = JSON.parse(await readFile(HARVESTS_PATH, "utf8")); } catch (_) {}
   const harvests = Array.isArray(existing?.harvests) ? existing.harvests : [];
+  if (output.capability === "business.sources.search") {
+    const same = harvests.find(item => item.seedId === selectedSeed.seedId && item.parcelId === selectedSeed.parcelId && item.content === text && !["archived", "composted"].includes(item.state));
+    if (same) return { ...same, reused: true };
+  }
   const item = {
     harvestId: operationId + "-harvest",
     harvestedAt: nowIso(),
@@ -145,7 +150,8 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
     producer: output.producer ?? null,
     route: "octopus->publisher-adapter",
     delivery: selectedSeed.delivery ?? null,
-    state: selectedSeed.delivery?.harvestState ?? "harvested",
+    state: output.capability === "business.sources.search" ? "harvested" : selectedSeed.delivery?.harvestState ?? "harvested",
+    ...(output.capability === "business.sources.search" ? { verification: { qualifiedProspects: 0, contacted: false, orders: 0 } } : {}),
   };
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
   await writeFile(HARVESTS_PATH, JSON.stringify({ harvests: [...harvests.slice(-99), item] }, null, 2) + "\n", "utf8");
@@ -308,7 +314,10 @@ async function main() {
     const seeds = await loadSeeds();
     const selectedSeed = selectSeedForRotation(seeds, state);
     if (!selectedSeed) {
-      result = { status: "failed", operationId, decision: "no-active-seed" };
+      const retries = Object.values(state.sourceRetryAtBySeed ?? {}).filter(value => Date.parse(value) > Date.now()).sort();
+      result = retries.length
+        ? { status: "ok", operationId, decision: "source-quota-deferred", deferred: { retryAt: retries[0] }, executed: false, verifiedProspects: 0, contacted: false, orders: 0 }
+        : { status: "failed", operationId, decision: "no-active-seed" };
     } else {
       const knowledgeMission = {
         operationId: `${operationId}-knowledge`,
@@ -335,11 +344,16 @@ async function main() {
       // The adapter must be deployed and registered before this can return candidates.
       let businessSources = null;
       let businessSourceState = null;
+      let businessSourceReason = null;
       if (selectedSeed.seedId === "benoit-client-acquisition") {
         try {
           const lookup = await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
           businessSources = lookup.candidates;
           businessSourceState = lookup.status;
+          businessSourceReason = lookup.reason;
+          if (lookup.reason === "COMPOSIO_RATE_LIMITED" && Number.isFinite(lookup.retryAfterSeconds) && lookup.retryAfterSeconds > 0) {
+            state.sourceRetryAtBySeed = { ...(state.sourceRetryAtBySeed ?? {}), [selectedSeed.seedId]: new Date(Date.now() + lookup.retryAfterSeconds * 1000).toISOString() };
+          }
           console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
         } catch (error) {
           businessSources = [];
@@ -347,18 +361,23 @@ async function main() {
           console.log(JSON.stringify({ event: "gerard-b2b-sources", status: "unavailable", reason: String(error).slice(0, 180) }));
         }
       }
-      const knowledgeResult = await callOctopus(knowledgeMission);
+      // A public-source inventory must not depend on a Notion knowledge lookup
+      // or spend a model call. The Publisher Worker is the single B2B reader.
+      const knowledgeResult = businessSources !== null
+        ? { status: "not-required", payload: { status: "not-required", output: {} } }
+        : await callOctopus(knowledgeMission);
       const knowledgePayload = knowledgeResult?.payload ?? {};
       const knowledgeOutput = knowledgePayload?.output ?? {};
       const knowledgeReady = knowledgeResult.status === "ok" && knowledgePayload.status === "completed" && knowledgeOutput.verified === true;
+      const inputsReady = businessSources !== null ? businessSources.length > 0 : knowledgeReady;
 
       result = {
-        status: knowledgeReady ? "ok" : "failed",
+        status: inputsReady || businessSources !== null ? "ok" : "failed",
         harvestMode: "garden-prepare-bag",
         operationId,
         seedId: selectedSeed.seedId,
         parcelId: selectedSeed.parcelId,
-        phase: "knowledge",
+        phase: businessSources !== null ? "business-sources" : "knowledge",
         knowledge: {
           status: knowledgePayload.status ?? knowledgeResult.status,
           verified: knowledgeOutput.verified === true,
@@ -366,11 +385,13 @@ async function main() {
           source: knowledgeOutput.source ?? null,
         },
         delivery: selectedSeed.delivery ?? null,
-        decision: knowledgeReady ? "knowledge-ready" : "knowledge-unavailable",
+        decision: businessSources !== null ? (inputsReady ? "b2b-sources-ready" : "b2b-sources-deferred") : knowledgeReady ? "knowledge-ready" : "knowledge-unavailable",
+        ...(businessSources !== null && !inputsReady ? { deferred: { reason: businessSourceReason ?? businessSourceState ?? "b2b-external-sources-unavailable", retryAt: state.sourceRetryAtBySeed?.[selectedSeed.seedId] ?? null } } : {}),
+        ...(businessSources !== null ? { businessSourceLookup: { status: businessSourceState, reason: businessSourceReason, executed: businessSourceState === "sources-found" || businessSourceState === "no-sources", sourceCount: businessSources.length, verifiedProspects: 0, contacted: false, orders: 0 } } : {}),
         octopus: knowledgeResult,
       };
 
-      if (knowledgeReady) {
+      if (inputsReady) {
         // A sourced research inventory is itself a deliverable: do not ask a
         // generative model to invent company names or imply outreach happened.
         const sourcedKnowledge = businessSources !== null ? {
@@ -412,7 +433,7 @@ async function main() {
           if (harvest.status === "ok") { delete state.aiCooldownUntil; state.aiConsecutiveRateLimits = 0; }
           result.status = harvest.status === "ok" ? "ok" : "failed";
           result.decision = harvest.status === "ok"
-            ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
+            ? (businessSources !== null ? "b2b-sources-produced" : selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
             : "harvest-failed";
         }
       }
