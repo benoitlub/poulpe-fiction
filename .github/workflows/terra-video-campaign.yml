@@ -1,4 +1,5 @@
 name: Gerard - TERRA video campaign
+# Controlled retry after provider-confirmed metadata rejection (Publisher PR #153).
 # Second controlled run after Publisher MP4 verification fix (PR #152).
 
 on:
