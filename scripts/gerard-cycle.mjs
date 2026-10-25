@@ -11,6 +11,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
+import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
@@ -333,24 +334,16 @@ async function main() {
       // Read-only B2B sourcing is independent of Publisher's internal Knowledge Package.
       // The adapter must be deployed and registered before this can return candidates.
       let businessSources = null;
+      let businessSourceState = null;
       if (selectedSeed.seedId === "benoit-client-acquisition") {
         try {
-          const lookup = await callOctopus({
-            operationId: `${operationId}-business-sources`,
-            title: "Recherche de distributeurs et partenaires B2B",
-            objective: selectedSeed.objective,
-            prompt: "Distributeurs grossistes jeux de cartes accessoires cannabis légal, partenaires événements, coédition jeux, acheteurs B2B Europe ; sources professionnelles officielles et pages contact",
-            requiredCapabilities: ["business.sources.search"],
-            authorizedResources: [],
-            context: { id: selectedSeed.parcelId, metadata: { seedId: selectedSeed.seedId, source: "gerard-cycle" } },
-          });
-          const output = lookup?.payload?.output ?? {};
-          businessSources = output?.capability === "business.sources.search" && Array.isArray(output.candidates)
-            ? output.candidates.filter(c => typeof c?.url === "string" && /^https?:\/\//.test(c.url)).slice(0, 10)
-            : [];
-          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, status: output?.status ?? lookup?.status ?? "unavailable" }));
+          const lookup = await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
+          businessSources = lookup.candidates;
+          businessSourceState = lookup.status;
+          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
         } catch (error) {
           businessSources = [];
+          businessSourceState = "unavailable";
           console.log(JSON.stringify({ event: "gerard-b2b-sources", status: "unavailable", reason: String(error).slice(0, 180) }));
         }
       }
@@ -391,7 +384,7 @@ async function main() {
         ).join("\n\n");
         const harvest = businessSources !== null
           ? businessSources.length === 0
-            ? { status: "failed", verification: { reason: "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
+            ? { status: "deferred", verification: { reason: businessSourceState === "no-sources" ? "b2b-no-qualified-search-results" : "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
             : { status: "ok", payload: { output: {
                 capability: "business.sources.search", producer: "composio-web-search",
                 text: "# Sources B2B candidates — vérification nécessaire\n\nRésultats de recherche publics, non qualifiés individuellement. Aucun contact ni vente.\n\n" + sourceText,
@@ -409,6 +402,12 @@ async function main() {
           result.status = "ok";
           result.decision = rateLimited ? "ai-rate-limited-deferred" : "mock-rejected-deferred";
           result.deferred = { reason: harvest.payload?.output?.fallbackReason || "provider-unavailable", retryAt: state.aiCooldownUntil };
+        } else if (harvest.status === "deferred") {
+          // Absence of external evidence is a transparent pause, not a fake
+          // prospect and not a failed workflow that skips all later safeguards.
+          result.status = "ok";
+          result.decision = "b2b-sources-deferred";
+          result.deferred = { reason: harvest.verification.reason, source: "publisher-worker" };
         } else {
           if (harvest.status === "ok") { delete state.aiCooldownUntil; state.aiConsecutiveRateLimits = 0; }
           result.status = harvest.status === "ok" ? "ok" : "failed";
