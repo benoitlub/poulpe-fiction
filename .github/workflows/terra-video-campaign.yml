@@ -1,0 +1,53 @@
+name: Gerard - TERRA video campaign
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/terra-video-campaign.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gerard-terra-video-campaign
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+    steps:
+      - name: Verify credentials
+        run: |
+          test -n "$BUFFER_DRAFT_WRITE_TOKEN"
+      - name: Check video and channels, reserve once per channel, queue when safe
+        shell: bash
+        run: |
+          set -euo pipefail
+          for channel in 6ac8cda06a5c39ccb6602479 6ac8c8226a5c39ccb65fdbf6 6ac8d0056a5c39ccb6603992; do
+            body=$(jq -nc --arg channelId "$channel" '{channelId:$channelId,dryRun:true}')
+            status=$(curl -sS --max-time 45 -o /tmp/terra-preflight.json -w '%{http_code}' \
+              -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" \
+              -H 'Content-Type: application/json' -d "$body" \
+              "$PUBLISHER_URL/api/social/transports/buffer/terra-video")
+            result=$(jq -r '.status // "unknown"' /tmp/terra-preflight.json)
+            echo "Preflight $channel: HTTP $status, $result"
+            if [[ "$status" != 200 || "$result" != ready ]]; then
+              echo "No write: provider, duplicate or authorization guard blocked this channel."
+              continue
+            fi
+            body=$(jq -nc --arg channelId "$channel" '{channelId:$channelId,dryRun:false}')
+            status=$(curl -sS --max-time 45 -o /tmp/terra-result.json -w '%{http_code}' \
+              -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" \
+              -H 'Content-Type: application/json' -d "$body" \
+              "$PUBLISHER_URL/api/social/transports/buffer/terra-video")
+            jq '{status,channelId,postId,queued,published,retryAllowed,reason}' /tmp/terra-result.json
+            if [[ "$status" != 200 ]]; then
+              echo "Channel failed safely. Do not retry an uncertain provider result automatically."
+            fi
+          done
