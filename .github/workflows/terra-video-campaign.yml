@@ -1,4 +1,5 @@
 name: Gerard - TERRA video campaign
+# Second controlled run after Publisher MP4 verification fix (PR #152).
 
 on:
   workflow_dispatch:
