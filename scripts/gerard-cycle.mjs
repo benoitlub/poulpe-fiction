@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
 import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
+import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
@@ -336,12 +337,20 @@ async function main() {
       // The adapter must be deployed and registered before this can return candidates.
       let businessSources = null;
       let businessSourceState = null;
+      let businessSourceChanges = null;
       if (selectedSeed.seedId === "benoit-client-acquisition") {
         try {
           const lookup = await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
-          businessSources = lookup.candidates.length ? await qualifyBusinessSources(lookup.candidates) : [];
+          const parcel = selectedSeed.parcelId;
+          const prior = state.businessSourceMemory?.[parcel] || {};
+          const plan = planBusinessResearch(lookup.candidates, prior);
+          const examined = plan.fresh.length ? await qualifyBusinessSources(plan.fresh) : [];
+          const learned = rememberBusinessResearch(prior, examined);
+          state.businessSourceMemory = { ...(state.businessSourceMemory || {}), [parcel]: learned.memory };
+          businessSourceChanges = learned.changed;
+          businessSources = [...examined, ...plan.reused].sort((a, b) => (b.fitScore ?? -1) - (a.fitScore ?? -1));
           businessSourceState = lookup.status;
-          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, examined: businessSources.filter(s => s.verification === 'page-read').length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
+          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
         } catch (error) {
           businessSources = [];
           businessSourceState = "unavailable";
@@ -383,6 +392,8 @@ async function main() {
         const harvest = businessSources !== null
           ? businessSources.length === 0
             ? { status: "deferred", verification: { reason: businessSourceState === "no-sources" ? "b2b-no-qualified-search-results" : "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
+            : businessSourceChanges?.length === 0
+            ? { status: "deferred", verification: { reason: "b2b-no-new-evidence", seedId: selectedSeed.seedId } }
             : { status: "ok", payload: { output: {
                 capability: "business.sources.search", producer: "composio-web-search",
                 text: formatQualifiedSources(businessSources),
