@@ -463,7 +463,7 @@ function App() {
             POULPE FICTION<small>Un écosystème qui prend soin des idées</small>
           </span>
         </a>
-        <span className="prototype">EXPLORATION · PROTOTYPE ISOLÉ</span>
+        <div className="gege-header-actions"><a href="../mobile-v2.html">← Retour au Garden</a><span className="prototype">EXPLORATION · PROTOTYPE ISOLÉ</span></div>
       </header>
       <main id="main">
         <div className="intro">
