@@ -1,21 +1,19 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type {
   GardenMission,
   GardenSnapshot,
   GardenMode,
-  ConnectionState,
 } from "../../src/garden-gege/contracts";
 import {
   roles,
   statuses,
-  parseSnapshot,
   projectMissions,
   visualState,
-  mergeEvents,
 } from "../../src/garden-gege/core.mjs";
 import { demoSnapshot } from "./demo";
 import "./style.css";
+import { useGardenFeed } from "../../src/garden-gege/useGardenFeed";
 import { Gege, roleColors as colors } from "./Gege";
 const stations = {
   cueilleur: [235, 190],
@@ -401,10 +399,8 @@ function Garden({
 }
 function App() {
   const [demoData, setDemoData] = useState(demoSnapshot);
-  const [mode, setMode] = useState<GardenMode>("demo");
-  const [snapshot, setSnapshot] = useState<GardenSnapshot | null>(null);
-  const [connection, setConnection] = useState<ConnectionState>("loading");
-  const [refresh, setRefresh] = useState(0);
+  const [mode, setMode] = useState<GardenMode>("real");
+  const { snapshot, connection, refresh } = useGardenFeed(mode);
   const [project, setProject] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
@@ -412,48 +408,6 @@ function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [animate, setAnimate] = useState(true);
   const inspector = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (mode === "demo") return;
-    let disposed = false;
-    const controller = new AbortController();
-    setConnection("loading");
-    const timer = setTimeout(() => controller.abort(), 8000);
-    fetch("./snapshot.json", {
-      signal: controller.signal,
-      cache: "no-store",
-      credentials: "omit",
-    })
-      .then(async (r) => {
-        if (!r.ok) throw new Error("offline");
-        try {
-          const next = parseSnapshot(await r.json(), "real");
-          if (!disposed) {
-            setSnapshot((old) => ({
-              ...next,
-              ...mergeEvents(old?.events ?? [], next.events, "real"),
-              rejectedCount: next.rejectedCount,
-            }));
-            setConnection("snapshot");
-          }
-        } catch {
-          if (!disposed) setConnection("invalid");
-        }
-      })
-      .catch(() => {
-        if (!disposed) setConnection("offline");
-      })
-      .finally(() => clearTimeout(timer));
-    return () => {
-      disposed = true;
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [mode, refresh]);
-  useEffect(() => {
-    const online = () => setRefresh((n) => n + 1);
-    window.addEventListener("online", online);
-    return () => window.removeEventListener("online", online);
-  }, []);
   const data = mode === "demo" ? demoData : snapshot;
   const missions = useMemo(
     () => projectMissions(data?.events ?? [], mode) as GardenMission[],
@@ -552,18 +506,26 @@ function App() {
               <strong>
                 {connection === "loading"
                   ? "CHARGEMENT"
-                  : connection === "snapshot"
-                    ? "INSTANTANÉ RÉEL"
-                    : connection === "invalid"
-                      ? "RÉPONSE INVALIDE"
-                      : "HORS LIGNE"}
+                  : connection === "connected"
+                    ? "LECTURE CONNECTÉE"
+                    : connection === "partial"
+                      ? "SOURCES PARTIELLES"
+                      : connection === "invalid"
+                        ? "RÉPONSE INVALIDE"
+                        : "HORS LIGNE"}
               </strong>
               <span>
                 {snapshot
-                  ? `Traces enregistrées · actualisation du fichier : ${new Date(snapshot.generatedAt).toLocaleString("fr-FR")}. Historique partiel, sans suivi en direct.`
+                  ? `Sources relues le ${new Date(snapshot.generatedAt).toLocaleString("fr-FR")}. Actualisation chaque minute · historique partiel. Dernière trace : ${snapshot.events.length ? new Date(Math.max(...snapshot.events.map((e) => Date.parse(e.timestamp)))).toLocaleString("fr-FR") : "aucune"}.`
                   : "Aucun instantané disponible. Le jardin attend sa source."}
               </span>
-              <button onClick={() => setRefresh((n) => n + 1)}>Relire</button>
+              <button onClick={refresh}>Relire</button>
+              {snapshot?.sources?.map((source) => (
+                <span key={source.id}>
+                  {source.id} :{" "}
+                  {source.state === "available" ? "lisible" : "indisponible"}
+                </span>
+              ))}
             </>
           )}
         </div>
@@ -661,7 +623,9 @@ function App() {
                 onSelect={choose}
                 projects={data?.projects ?? []}
                 onProject={setProject}
-                animate={animate}
+                animate={
+                  animate && (mode === "demo" || connection === "connected")
+                }
               />
             )}
             {filtered.length === 0 && (
@@ -803,6 +767,16 @@ function App() {
                 <dl>
                   <dt>Source</dt>
                   <dd>{chosen.sourceSystem}</dd>
+                  <dt>Résultat observé</dt>
+                  <dd>
+                    {chosen.resultKind === "harvest"
+                      ? "Récolte enregistrée via Octopus et Publisher"
+                      : chosen.resultKind === "publication"
+                        ? "Publication enregistrée"
+                        : chosen.resultKind === "internal-cycle"
+                          ? "Cycle interne — aucune diffusion déduite"
+                          : "Aucun résultat renseigné"}
+                  </dd>
                   <dt>Dernier événement</dt>
                   <dd>
                     {new Date(chosen.lastEventAt).toLocaleString("fr-FR")}
@@ -869,7 +843,7 @@ function App() {
                   <p>
                     {mode === "demo"
                       ? "Les mouvements illustrent des états fictifs fixes. Aucun minuteur ne fabrique de livraison."
-                      : "Le calme n’est pas une panne. Les priorités et décisions en direct ne sont pas encore raccordées."}
+                      : "Le calme n’est pas une panne. Les sources sont relues périodiquement ; leur absence d’activité ne prouve pas une panne."}
                   </p>
                 </div>
                 <h3>Les sept métiers</h3>

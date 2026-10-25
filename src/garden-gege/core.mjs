@@ -149,8 +149,21 @@ export function projectMissions(events, mode) {
       sourceSystem: e.sourceSystem,
       sourceEventId: e.sourceEventId,
       provenance: e.provenance,
-      ...(e.resultUrl ? { resultUrl: e.resultUrl } : {}),
-      ...(e.resultKind ? { resultKind: e.resultKind } : {}),
+      ...(e.resultUrl
+        ? { resultUrl: e.resultUrl }
+        : e.status === "completed" && old?.resultUrl
+          ? { resultUrl: old.resultUrl }
+          : {}),
+      ...(e.resultKind
+        ? {
+            resultKind:
+              e.status === "completed" &&
+              e.resultKind === "internal-cycle" &&
+              old?.resultKind === "harvest"
+                ? "harvest"
+                : e.resultKind,
+          }
+        : {}),
       ...(e.errorMessage ? { errorMessage: e.errorMessage } : {}),
       history,
     });
@@ -198,6 +211,25 @@ export function parseSnapshot(input, expectedMode = "real") {
     sourceRef: s.sourceRef,
     projects,
     events,
+    ...(Array.isArray(s.sources)
+      ? {
+          sources: s.sources
+            .filter(
+              (x) =>
+                string(x?.id) &&
+                ["available", "unavailable"].includes(x?.state) &&
+                timestamp(x?.observedAt),
+            )
+            .map((x) => ({
+              id: x.id,
+              state: x.state,
+              observedAt: x.observedAt,
+              ...(timestamp(x.lastEventAt)
+                ? { lastEventAt: x.lastEventAt }
+                : {}),
+            })),
+        }
+      : {}),
     rejectedCount:
       merged.rejectedCount +
       merged.events.length -
@@ -252,10 +284,16 @@ export function adaptOctopus(input, projects) {
       !string(e.streamId) ||
       !allowed.has(p.contextId) ||
       !timestamp(e.occurredAt) ||
-      e.provenance === "demo" ||
-      p.mock === true ||
-      p.simulated === true ||
-      p.mode === "demo"
+      e.source === "demo" ||
+      [e, p, record(p.output), record(record(p.output).verification)].some(
+        (value) =>
+          value.provenance === "demo" ||
+          value.mode === "demo" ||
+          value.mock === true ||
+          value.isMock === true ||
+          value.simulated === true ||
+          value.provider === "mock",
+      )
     ) {
       rejectedCount++;
       continue;
@@ -292,7 +330,7 @@ export function adaptGerard(input, projects) {
   let rejectedCount = 0;
   for (const e of input.learningHistory) {
     const projectId = e?.parcelId || "poulpe-fiction";
-    const status = {
+    let status = {
       ok: "completed",
       completed: "completed",
       failed: "failed",
@@ -301,6 +339,12 @@ export function adaptGerard(input, projects) {
       queued: "queued",
       running: "running",
     }[e?.outcome];
+    if (
+      ["ai-rate-limited-deferred", "mock-rejected-deferred"].includes(
+        e?.decision,
+      )
+    )
+      status = "blocked";
     if (
       !status ||
       !string(e.operationId) ||
