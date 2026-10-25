@@ -1,0 +1,48 @@
+name: Gerard - TERRA delivery status
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 8 * * *'
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/terra-video-status.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gerard-terra-video-status
+  cancel-in-progress: false
+
+jobs:
+  read-only-status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+    steps:
+      - name: Read exact TERRA Buffer post statuses without publishing
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$BUFFER_DRAFT_WRITE_TOKEN"
+          http=$(curl -sS --max-time 45 -o /tmp/terra-status.json -w '%{http_code}' \
+            -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" \
+            "$PUBLISHER_URL/api/social/transports/buffer/terra-video/status")
+          if [[ "$http" != 200 ]]; then
+            echo "TERRA status endpoint unavailable: HTTP $http"
+            exit 1
+          fi
+          jq '{status,checkedAt,posts:[.posts[]|{network,postId,reservationStatus,providerStatus,delivery,dueAt,videoVerified,publicUrl}]}' /tmp/terra-status.json
+          {
+            echo '## TERRA — état de diffusion Buffer'
+            echo
+            echo '| Réseau | Buffer | Livraison | Date prévue | Vidéo |'
+            echo '|---|---|---|---|---|'
+            jq -r '.posts[] | "| \(.network) | \(.providerStatus // "inconnu") | \(.delivery) | \(.dueAt // "—") | \(.videoVerified) |"' /tmp/terra-status.json
+            echo
+            echo 'Lecture seule : aucune nouvelle publication ni relance.'
+          } >> "$GITHUB_STEP_SUMMARY"
