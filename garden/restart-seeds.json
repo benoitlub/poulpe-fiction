@@ -33,30 +33,36 @@
         "mode": "propose-before-send",
         "harvestState": "ready-to-offer"
       },
-      "communityRadar": {
-        "enabled": true,
-        "audience": [
-          "joueurs de jeux de société",
-          "organisateurs événements",
-          "distributeurs jeux indépendants"
-        ],
-        "offer": "jeux indépendants Pro.Hibited Feuch Dice Blacklace",
-        "geography": [
-          "France",
-          "Europe"
-        ],
-        "languages": [
-          "fr",
-          "en"
-        ],
-        "channels": [
-          "reddit",
-          "public-forums",
-          "discord-public",
-          "facebook-public",
-          "professional-communities"
-        ]
-      }
+      "templates": [
+        {
+          "id": "community-radar",
+          "enabled": true,
+          "config": {
+            "enabled": true,
+            "audience": [
+              "joueurs de jeux de société",
+              "organisateurs événements",
+              "distributeurs jeux indépendants"
+            ],
+            "offer": "jeux indépendants Pro.Hibited Feuch Dice Blacklace",
+            "geography": [
+              "France",
+              "Europe"
+            ],
+            "languages": [
+              "fr",
+              "en"
+            ],
+            "channels": [
+              "reddit",
+              "public-forums",
+              "discord-public",
+              "facebook-public",
+              "professional-communities"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
