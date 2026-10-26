@@ -1,13 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-10-25T13:13:01.043Z",
-      "mode": "cultivate",
-      "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1792933976346",
-      "result": "ok"
-    },
-    {
       "at": "2026-10-25T13:51:26.631Z",
       "mode": "symbiosis",
       "reason": "delivery-backlog-priority",
@@ -139,391 +132,116 @@
       "reason": "manual-override",
       "operationId": "gerard-cultivate-1793044148288",
       "result": "ok"
+    },
+    {
+      "at": "2026-10-26T20:34:49.377Z",
+      "mode": "symbiosis",
+      "reason": "delivery-backlog-priority",
+      "operationId": "gerard-symbiosis-1793046888567",
+      "result": "ok"
     }
   ],
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-10-26T19:49:41.453Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-10-26T20:34:49.377Z",
   "lastResult": {
+    "at": "2026-10-26T20:34:49.376Z",
+    "mode": "symbiosis",
     "status": "ok",
-    "operationId": "gerard-cultivate-1793044148288",
-    "seedId": "420-dice-short-demo",
-    "parcelId": "420-dice",
-    "decision": "studio-files-ready-for-review",
-    "studio": {
-      "status": "ready-for-review",
-      "parcelId": "420-dice",
-      "seedId": "420-dice-short-demo",
-      "operationId": "studio-7b03daf789d1042a62c65adeca0312fca634fc8063790d4fc3459e418a6843cb",
-      "filename": "short.mp4",
-      "archive": [
-        {
-          "filename": "short.mp4",
-          "bytes": 1549941,
-          "sha256": "0cf208b9b37416264ae7a768709ef0021d3f393052da2052b3715431f1ac533a"
-        },
-        {
-          "filename": "audio.wav",
-          "bytes": 3456078,
-          "sha256": "cbf252fbb1839970e2fed9ffeb01aff4999c63beffd9f4cf99aa10123fa00acb"
-        },
-        {
-          "filename": "voice.wav",
-          "bytes": 3456078,
-          "sha256": "53a8d024124cb21d88a2841fcab2c7d1ffbe269ef2a17169c3e00142c8696361"
-        },
-        {
-          "filename": "music.wav",
-          "bytes": 1728044,
-          "sha256": "6ac9b36daa4e03dc21b290f707f2129e67c6844f5f5f0267071211c524374a91"
-        },
-        {
-          "filename": "effects.wav",
-          "bytes": 1728044,
-          "sha256": "cbd601bd1c634cc7ad97b7cc5668bc089db0cb80eac7dee85fc2fc8d4c16d8a7"
-        },
-        {
-          "filename": "image.png",
-          "bytes": 491313,
-          "sha256": "ff6168fc59da038eadd62c039992629fc0a36242dca68861d622bf42d92509fe"
-        },
-        {
-          "filename": "script.json",
-          "bytes": 1155,
-          "sha256": "3eab3b633a1e28499424ccc59a0a4e4d6565e2c55da159278e05d7428202a40b"
-        },
-        {
-          "filename": "captions.srt",
-          "bytes": 377,
-          "sha256": "6a0448db257697fbcbbce04dc14c7f116b0bd50eed9f88ab3a1c5ea2ac94d451"
-        },
-        {
-          "filename": "poster.jpg",
-          "bytes": 48031,
-          "sha256": "5b71113dd42d14b3c9accf7f4b58ebd4a8d1abaa439de704cbaf06080a1353e1"
-        }
-      ],
-      "report": {
-        "contract": "publisher-studio-v1",
-        "id": "67ebdf86ff2f2140482bea3ceb9083f616cdac4545733230d83661dc5fa57d94",
-        "fingerprint": "408c3d9b1242b628ab296e18c1534d592045a36cdc87e5d3674a3d7f48b7e2e1",
-        "capability": "video.studio",
-        "parcelId": "420-dice",
-        "seedId": "420-dice-short-demo",
-        "operationId": "studio-7b03daf789d1042a62c65adeca0312fca634fc8063790d4fc3459e418a6843cb",
-        "createdAt": "2026-10-26T19:49:08.336Z",
-        "published": false,
-        "publicationEnabled": false,
-        "decisionOwner": "gerard",
-        "files": [
-          {
-            "filename": "audio.wav",
-            "bytes": 3456078,
-            "sha256": "cbf252fbb1839970e2fed9ffeb01aff4999c63beffd9f4cf99aa10123fa00acb"
-          },
-          {
-            "filename": "captions.ass",
-            "bytes": 1014,
-            "sha256": "6aca1aa4ac7fa104e81acd426a9eab509a96f8022faf405b761d98824e6adae0"
-          },
-          {
-            "filename": "captions.srt",
-            "bytes": 377,
-            "sha256": "6a0448db257697fbcbbce04dc14c7f116b0bd50eed9f88ab3a1c5ea2ac94d451"
-          },
-          {
-            "filename": "effects.wav",
-            "bytes": 1728044,
-            "sha256": "cbd601bd1c634cc7ad97b7cc5668bc089db0cb80eac7dee85fc2fc8d4c16d8a7"
-          },
-          {
-            "filename": "image.png",
-            "bytes": 491313,
-            "sha256": "ff6168fc59da038eadd62c039992629fc0a36242dca68861d622bf42d92509fe"
-          },
-          {
-            "filename": "mix.wav",
-            "bytes": 3456078,
-            "sha256": "cd200580387692feea1aae968fe8f6ce109700963ae6236872065c2a78894995"
-          },
-          {
-            "filename": "music.wav",
-            "bytes": 1728044,
-            "sha256": "6ac9b36daa4e03dc21b290f707f2129e67c6844f5f5f0267071211c524374a91"
-          },
-          {
-            "filename": "poster.jpg",
-            "bytes": 48031,
-            "sha256": "5b71113dd42d14b3c9accf7f4b58ebd4a8d1abaa439de704cbaf06080a1353e1"
-          },
-          {
-            "filename": "request.json",
-            "bytes": 1451,
-            "sha256": "dba93dcafc8a199209192eb707dfd4c642443be2fc7e68fbc31eb3b786575f2a"
-          },
-          {
-            "filename": "script.json",
-            "bytes": 1155,
-            "sha256": "3eab3b633a1e28499424ccc59a0a4e4d6565e2c55da159278e05d7428202a40b"
-          },
-          {
-            "filename": "short.mp4",
-            "bytes": 1549941,
-            "sha256": "0cf208b9b37416264ae7a768709ef0021d3f393052da2052b3715431f1ac533a"
-          },
-          {
-            "filename": "source-image",
-            "bytes": 29930,
-            "sha256": "4c6ed4a2f17fbbef4439c59334472171ffe9e1e2db67887937a21c0c6ce8f41a"
-          },
-          {
-            "filename": "title.txt",
-            "bytes": 13,
-            "sha256": "78f0945d913f13ec243933cf9587ba6ab585212b71f4b8d1cda1e2b99a36e95f"
-          },
-          {
-            "filename": "voice-0.txt",
-            "bytes": 25,
-            "sha256": "61c9e027c3c84fcebd433bbc2e9eb4471b714e01006b85e1fbae441e53ed586e"
-          },
-          {
-            "filename": "voice-0.wav",
-            "bytes": 75480,
-            "sha256": "c86bfe8693492ac05ac55d904d8468fa3f12d1e4d75b480965c45675844fd0b5"
-          },
-          {
-            "filename": "voice-1.txt",
-            "bytes": 37,
-            "sha256": "7746e2d374f399f3427e5c9b5b10bbd42311f721f1d1b370fe22c249a6179015"
-          },
-          {
-            "filename": "voice-1.wav",
-            "bytes": 108588,
-            "sha256": "82be34214d0e6cf3c4e2a64f4ead191438b95dd2b170a0f5a212c5870c7d65eb"
-          },
-          {
-            "filename": "voice-2.txt",
-            "bytes": 45,
-            "sha256": "dbdc049a3b1b587b6b8d20af44a47f66ae2aa01a154601fe1ab09b8de5eca776"
-          },
-          {
-            "filename": "voice-2.wav",
-            "bytes": 144428,
-            "sha256": "83467ea884caf7c2289e65231259b48c3dfc6b40ccc6b178978dadb45e5c1003"
-          },
-          {
-            "filename": "voice-3.txt",
-            "bytes": 28,
-            "sha256": "94d26b67a19bbb6f3e03e2bdabc11f2181f95137cb6ec99995af8bab4a7b5212"
-          },
-          {
-            "filename": "voice-3.wav",
-            "bytes": 91692,
-            "sha256": "5a90ac5740c024b0d1c607bb7f1081345f2eaeca5ad9c1d76051acb5c976e394"
-          },
-          {
-            "filename": "voice-4.txt",
-            "bytes": 33,
-            "sha256": "7faa4613fba3dfcba84a6e26ce63b3264426867683d78c0b06d59279c871e50c"
-          },
-          {
-            "filename": "voice-4.wav",
-            "bytes": 82476,
-            "sha256": "755737b30dbe3e96eac4d7637ba0f9ff431e29fbc4a8992f46a1b9eb53b8b3b7"
-          },
-          {
-            "filename": "voice-5.txt",
-            "bytes": 44,
-            "sha256": "eea1b5dd54eb5b766a519851b96faa29e8b6595b1dd25e447f5b9759593189af"
-          },
-          {
-            "filename": "voice-5.wav",
-            "bytes": 94252,
-            "sha256": "c37e7f8a16ef6a22fb2910d9a7ec3840921a9bf1046293622e78c973aded0b2e"
-          },
-          {
-            "filename": "voice.wav",
-            "bytes": 3456078,
-            "sha256": "53a8d024124cb21d88a2841fcab2c7d1ffbe269ef2a17169c3e00142c8696361"
-          }
-        ],
-        "reportUrl": "/api/production/studio/artifacts/67ebdf86ff2f2140482bea3ceb9083f616cdac4545733230d83661dc5fa57d94/report.json",
-        "status": "ready-for-review",
-        "image": {
-          "provider": "registered-media",
-          "assetId": "420-dice-official-game",
-          "sourceSha256": "4c6ed4a2f17fbbef4439c59334472171ffe9e1e2db67887937a21c0c6ce8f41a",
-          "rights": {
-            "license": "LicenseRef-Owner-Authorized-Preview",
-            "scope": "local-preview",
-            "source": "https://github.com/benoitlub/420-dice-game-reboot/blob/bf315300db5c5ab580c6f86bb14ae56d884b6739/public/opengraph.jpg",
-            "attribution": "420 Dice Game — Benoît Lubert / Blacklace Studio. Réutilisation pour la démonstration demandée par le propriétaire ; aucune licence publique ni autorisation de diffusion inférée."
-          },
-          "sourceDimensions": {
-            "width": 1280,
-            "height": 720
-          },
-          "crop": {
-            "x": 380,
-            "y": 0,
-            "width": 520,
-            "height": 720
-          },
-          "verifiedFile": true,
-          "outputSha256": "ff6168fc59da038eadd62c039992629fc0a36242dca68861d622bf42d92509fe",
-          "width": 1080,
-          "height": 1920
-        },
-        "audio": {
-          "segments": [
-            {
-              "text": "Trois dés. Trois essais.",
-              "caption": "Trois dés. Trois essais.",
-              "start": 0.3,
-              "end": 2.010567,
-              "meanVolumeDb": -16.3
-            },
-            {
-              "text": "Gardez vos dés, relancez les autres.",
-              "caption": "Gardez vos dés. Relancez les autres.",
-              "start": 2.1905669999999997,
-              "end": 4.651882,
-              "meanVolumeDb": -15.2
-            },
-            {
-              "text": "Quatre, deux, zéro : décrochez le trophée.",
-              "caption": "4, 2, 0 : décrochez le trophée.",
-              "start": 4.831882,
-              "end": 8.105896000000001,
-              "meanVolumeDb": -16.8
-            },
-            {
-              "text": "Pas de quatre, deux, zéro ?",
-              "caption": "Pas de 4, 2, 0 ?",
-              "start": 8.285896000000001,
-              "end": 10.364082000000002,
-              "meanVolumeDb": -15.2
-            },
-            {
-              "text": "Découvrez le gage de votre pack.",
-              "caption": "Découvrez le gage de votre pack.",
-              "start": 10.544082000000001,
-              "end": 12.413288000000001,
-              "meanVolumeDb": -14.6
-            },
-            {
-              "text": "À vous de jouer à quatre cent vingt Dice !",
-              "caption": "À vous de jouer à 420 Dice !",
-              "start": 12.593288000000001,
-              "end": 14.729524000000001,
-              "meanVolumeDb": -16.3
-            }
-          ],
-          "durationSeconds": 18,
-          "speechEndSeconds": 14.729524000000001,
-          "loudness": {
-            "integratedLufs": -16,
-            "truePeakDbtp": -3.15,
-            "lra": 3.2
-          },
-          "voice": {
-            "provider": "piper-local",
-            "language": "fr_FR",
-            "modelSha256": "641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99",
-            "rights": {
-              "license": "CC-BY-4.0",
-              "attribution": "SIWIS French Speech Synthesis Database, University of Edinburgh; Piper fr_FR-siwis-medium",
-              "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/siwis/medium/MODEL_CARD"
-            }
-          },
-          "music": {
-            "provider": "original-procedural",
-            "license": "CC0-1.0",
-            "attribution": "Publisher original procedural soundtrack; dedicated to the public domain"
-          },
-          "effects": {
-            "provider": "original-procedural",
-            "license": "CC0-1.0"
-          },
-          "scriptProvider": "approved-parcel-script",
-          "externalProviderCost": 0
-        },
-        "video": {
-          "verified": true,
-          "fullDecode": true,
-          "width": 1080,
-          "height": 1920,
-          "fps": 30,
-          "durationSeconds": 18,
-          "videoCodec": "h264",
-          "pixelFormat": "yuv420p",
-          "audioCodec": "aac",
-          "sampleRate": 48000,
-          "channels": 2,
-          "loudness": {
-            "integratedLufs": -16.02,
-            "truePeakDbtp": -3.01,
-            "lra": 3.2
-          },
-          "synchronizedCaptionCount": 6,
-          "subtitleTiming": "per-sentence measured TTS durations; no word-level alignment",
-          "animation": "slow image zoom; no inferred character or gameplay animation",
-          "distinctSampledFrames": 5,
-          "imageMotionOutsideCaptions": [
-            1.57218,
-            1.63426,
-            1.63389,
-            1.76056
-          ]
-        },
-        "artifact": {
-          "filename": "short.mp4",
-          "bytes": 1549941,
-          "sha256": "0cf208b9b37416264ae7a768709ef0021d3f393052da2052b3715431f1ac533a",
-          "mimeType": "video/mp4",
-          "downloadUrl": "/api/production/studio/artifacts/67ebdf86ff2f2140482bea3ceb9083f616cdac4545733230d83661dc5fa57d94/short.mp4"
-        },
-        "cost": {
-          "externalProviderCalls": 0,
-          "externalProviderGenerations": 0,
-          "externalProviderCost": 0,
-          "localComputeCostNotMetered": true
-        },
-        "rights": {
-          "publicationApproved": false,
-          "reviewRequired": true,
-          "scope": "local-preview"
-        },
-        "completedAt": "2026-10-26T19:49:41.270Z"
-      },
-      "published": false,
-      "reused": false
+    "scope": "local-harvest-inventory-only",
+    "publisherReconciliation": "candidate-inventory-only",
+    "publisher": {
+      "status": "observed",
+      "candidateCount": 10,
+      "candidateHarvestIds": [
+        "harvest_local_harvest_420-dice_1786215725387",
+        "harvest_local_harvest_terra_1786215725146",
+        "harvest_local_harvest_gerard-et-gerard_1786215725072",
+        "harvest_local_harvest_420-dice_1786190554657",
+        "harvest_local_harvest_terra_1786190554611",
+        "harvest_local_harvest_gerard-et-gerard_1786190554601",
+        "harvest_local_harvest_gerard-et-gerard_1784579429759",
+        "neon_iter_iter_feulette-tachetee_1786291228831",
+        "neon_iter_iter_terra_1786289427863",
+        "neon_iter_iter_gerard-et-gerard_1786288530352"
+      ]
     },
-    "published": false
+    "totalHarvests": 66,
+    "activeHarvests": 34,
+    "compostedCount": 32,
+    "uniqueContent": 34,
+    "duplicateCount": 0,
+    "duplicateHarvestIds": [],
+    "candidateCount": 34,
+    "candidateSample": [
+      {
+        "harvestId": "gerard-cultivate-1792842549755-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792843545057-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792843921337-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792933976346-harvest",
+        "parcelId": "benoit-business-growth",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792937058893-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792938470589-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792990594664-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793020668324-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793040066821-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793043363990-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      }
+    ],
+    "action": "observe-only",
+    "aiCalls": 0,
+    "externalCalls": 1,
+    "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   },
   "lastDecision": {
-    "at": "2026-10-26T19:49:08.286Z",
-    "mode": "cultivate",
-    "reason": "manual-override"
+    "at": "2026-10-26T20:34:48.565Z",
+    "mode": "symbiosis",
+    "reason": "delivery-backlog-priority",
+    "backlog": 34
   },
   "lastSeedId": "420-dice-short-demo",
   "lastSymbiosis": {
-    "at": "2026-10-26T19:38:40.272Z",
+    "at": "2026-10-26T20:34:49.376Z",
     "duplicateCount": 0,
     "candidateCount": 34
   },
   "learningHistory": [
-    {
-      "at": "2026-10-19T23:04:34.658Z",
-      "operationId": "gerard-cultivate-1792451055250",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
     {
       "at": "2026-10-20T00:25:50.783Z",
       "operationId": "gerard-symbiosis-1792455950323",
@@ -1109,6 +827,18 @@
       "decision": "studio-files-ready-for-review",
       "seedId": "420-dice-short-demo",
       "parcelId": "420-dice",
+      "error": null,
+      "feedback": "observe-downstream-results"
+    },
+    {
+      "at": "2026-10-26T20:34:49.377Z",
+      "operationId": "gerard-symbiosis-1793046888567",
+      "mode": "symbiosis",
+      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
+      "outcome": "ok",
+      "decision": null,
+      "seedId": null,
+      "parcelId": null,
       "error": null,
       "feedback": "observe-downstream-results"
     }

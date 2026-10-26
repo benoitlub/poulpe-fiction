@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-26T19:50:10.350Z",
+  "updatedAt": "2026-10-26T20:35:26.436Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -3408,10 +3408,27 @@
       "outcome": "not-verified",
       "metricsStatus": "available",
       "lesson": "No confirmed delivery: avoid claims of publication or audience response."
+    },
+    {
+      "kind": "gerard-experiment-cycle",
+      "observedAt": "2026-10-26T20:35:26.410Z",
+      "seedId": "gerard-et-gerard",
+      "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
+      "copyText": "🎥 *[Plan serré sur deux mains tenant un livre, voix off énergique]*\n*\"Deux Gérard. Un seul livre. Et si c’était VOUS le troisième ?*\n*Gérard A ou Gérard B ? Faites votre choix… et découvrez lequel vous ressemble !*\n*👉 [Lien en bio] #GérardEtGérard\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
+      "repeatCount": 48,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "outcome": "not-verified",
+      "metricsStatus": "available",
+      "lesson": "No confirmed delivery: avoid claims of publication or audience response."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-26T19:50:10Z",
+    "observedAt": "2026-10-26T20:35:26Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -3434,13 +3451,31 @@
     }
   },
   "guidance": {
-    "seedId": "terra",
+    "seedId": "gerard-et-gerard",
     "chosenExperiment": "explore",
     "nextExperiment": "Test a distinct creative angle; keep earlier posts unchanged.",
     "performanceRankingEnabled": false,
     "metricoolSignalsAvailable": true,
     "metricoolLatestSnapshot": "2026-10-26",
-    "nextPublicExperiment": "Create a new differentiated post, then compare verified outcomes on the same network and format."
+    "nextPublicExperiment": "Create a new differentiated post, then compare verified outcomes on the same network and format.",
+    "ownerCreativeFeedback": [
+      {
+        "feedbackId": "benoit-420-dice-short-2026-10-26",
+        "parcelId": "420-dice",
+        "assetType": "short-video",
+        "creativeGuidance": [
+          "Conserver la voix française Piper qui fonctionne.",
+          "Montrer les dés et le déroulement d'une vraie partie plutôt qu'une image fixe.",
+          "Construire plusieurs plans animés, avec mouvements de caméra et transitions.",
+          "Évaluer l'intérêt visuel du rendu avant de considérer le Short réussi."
+        ],
+        "prohibitedActions": [
+          "Ne pas modifier les publications déjà programmées.",
+          "Ne pas publier automatiquement une nouvelle version.",
+          "Ne pas engager de dépenses ou activer un service payant."
+        ]
+      }
+    ]
   },
   "socialFeedback": {
     "status": "observed",
@@ -3473,7 +3508,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3493,7 +3528,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3513,7 +3548,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3533,7 +3568,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3553,7 +3588,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3573,7 +3608,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3593,7 +3628,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3613,7 +3648,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T19:50:10.350Z",
+        "observedAt": "2026-10-26T20:35:26.436Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3633,9 +3668,38 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-26T19:50:10.350Z",
+    "lastIntegratedAt": "2026-10-26T20:35:26.436Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   },
   "pendingExperiments": [],
-  "completedExperiments": []
+  "completedExperiments": [],
+  "ownerFeedback": [
+    {
+      "id": "benoit-420-dice-short-2026-10-26",
+      "source": "owner-reviewed-github",
+      "ownerGitHub": "benoitlub",
+      "approvedAt": "2026-10-26",
+      "observedAt": "2026-10-26T20:35:26.410Z",
+      "parcelId": "420-dice",
+      "assetType": "short-video",
+      "artifact": "garden/studio/420-dice/studio-7b03daf789d1042a62c65adeca0312fca634fc8063790d4fc3459e418a6843cb/short.mp4",
+      "evaluation": {
+        "voice": "positive",
+        "motion": "needs-improvement",
+        "summary": "Voix française réussie, mais le film montre essentiellement une capture fixe de l’interface au centre."
+      },
+      "creativeGuidance": [
+        "Conserver la voix française Piper qui fonctionne.",
+        "Montrer les dés et le déroulement d'une vraie partie plutôt qu'une image fixe.",
+        "Construire plusieurs plans animés, avec mouvements de caméra et transitions.",
+        "Évaluer l'intérêt visuel du rendu avant de considérer le Short réussi."
+      ],
+      "prohibitedActions": [
+        "Ne pas modifier les publications déjà programmées.",
+        "Ne pas publier automatiquement une nouvelle version.",
+        "Ne pas engager de dépenses ou activer un service payant."
+      ],
+      "status": "accepted-for-learning"
+    }
+  ]
 }
