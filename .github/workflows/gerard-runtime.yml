@@ -128,8 +128,11 @@ jobs:
         if: env.GERARD_AV_STUDIO_ENABLED == 'true' || env.GERARD_IMAGE_STUDIO_ENABLED == 'true'
         working-directory: publisher
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            printf '%s\n' 'https://archive.ubuntu.com/ubuntu' | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+          fi
+          sudo apt-get update -qq -o Acquire::Retries=1 -o Acquire::http::Timeout=30
+          sudo apt-get install -y --no-install-recommends -o Acquire::Retries=1 -o Acquire::http::Timeout=30 ffmpeg fonts-dejavu-core
           if [ "$GERARD_AV_STUDIO_ENABLED" = "true" ]; then
             python3 -m venv .studio-venv
             .studio-venv/bin/pip install 'piper-tts==1.8.0'
