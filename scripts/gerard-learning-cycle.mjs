@@ -2,6 +2,7 @@
 /** Retain a traceable experiment across cycles; provider analytics are reconciled separately. */
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { integrateOwnerFeedback } from './gerard-owner-feedback.mjs';
 
 const accepted = new Set(['queued', 'published', 'sent']);
 const rejected = new Set(['failed', 'error', 'rejected']);
@@ -66,10 +67,11 @@ async function main() {
     try { return JSON.parse(await readFile(new URL(filename, garden), 'utf8')); }
     catch (error) { if (error.code === 'ENOENT') return fallback; throw error; }
   };
-  const result = integrateLearningCycle(
+  const cycleResult = integrateLearningCycle(
     await read('gerard-learning.json'), await read('gerard-decision-explanation.json'),
     await read('next-social-publication.json'), await read('metricool-analytics-snapshot.json'),
     await read('gerard-publisher-advice.json'));
+  const result = integrateOwnerFeedback(cycleResult, await read('gerard-owner-feedback.json', { feedback: [] }));
   await writeFile(new URL('gerard-learning.json', garden), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ status: 'integrated', pendingExperiments: result.pendingExperiments.length,
     nextExperiment: result.guidance.nextExperiment }));
