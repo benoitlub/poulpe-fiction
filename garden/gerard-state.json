@@ -1,13 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-10-24T12:08:56.275Z",
-      "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
-      "operationId": "gerard-symbiosis-1792843735978",
-      "result": "ok"
-    },
-    {
       "at": "2026-10-24T12:12:33.213Z",
       "mode": "cultivate",
       "reason": "deliverable-production-priority",
@@ -139,334 +132,116 @@
       "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793043363990",
       "result": "ok"
+    },
+    {
+      "at": "2026-10-26T19:38:40.372Z",
+      "mode": "symbiosis",
+      "reason": "delivery-backlog-priority",
+      "operationId": "gerard-symbiosis-1793043519931",
+      "result": "ok"
     }
   ],
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-10-26T19:36:33.012Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-10-26T19:38:40.372Z",
   "lastResult": {
+    "at": "2026-10-26T19:38:40.272Z",
+    "mode": "symbiosis",
     "status": "ok",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1793043363990",
-    "seedId": "yael-prospection",
-    "parcelId": "project-yael-prospection",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "yael-prequalification-de-prospects",
-      "source": "notion"
+    "scope": "local-harvest-inventory-only",
+    "publisherReconciliation": "candidate-inventory-only",
+    "publisher": {
+      "status": "observed",
+      "candidateCount": 10,
+      "candidateHarvestIds": [
+        "harvest_local_harvest_420-dice_1786215725387",
+        "harvest_local_harvest_terra_1786215725146",
+        "harvest_local_harvest_gerard-et-gerard_1786215725072",
+        "harvest_local_harvest_420-dice_1786190554657",
+        "harvest_local_harvest_terra_1786190554611",
+        "harvest_local_harvest_gerard-et-gerard_1786190554601",
+        "harvest_local_harvest_gerard-et-gerard_1784579429759",
+        "neon_iter_iter_feulette-tachetee_1786291228831",
+        "neon_iter_iter_terra_1786289427863",
+        "neon_iter_iter_gerard-et-gerard_1786288530352"
+      ]
     },
-    "delivery": {
-      "recipient": "Yaébali",
-      "mode": "propose-before-send",
-      "harvestState": "ready-to-offer"
-    },
-    "decision": "harvest-ready-to-offer",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1793043363990-knowledge",
-        "status": "completed",
-        "summary": "Knowledge Package yael-prequalification-de-prospects préparé par Publisher.",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "yael-prequalification-de-prospects",
-          "source": "notion",
-          "verified": true,
-          "context": "KNOWLEDGE PACKAGE PUBLISHER VÉRIFIÉ — SOURCE DE VÉRITÉ FERMÉE\n\nParcelle / produit : yael-prequalification-de-prospects\n\nPÉRIMÈTRE STRICT : les seules connaissances autorisées sont les sources Notion ci-dessous.\n\nIgnore toute connaissance mémorisée, digérée ou provenant d'une autre parcelle, même si elle appartient au même écosystème Blacklace.\n\nSOURCE NOTION AUTORISÉE 1: Yaelbali — Courtage en financement immobilier\nUnivers: yael-prequalification-de-prospects\nTags: yael-prequalification-de-prospects | yaelbali | notion-workspace\nSecteur d'activité\n\nMontigny-le-Bretonneux, Bois-d'Arcy, Voisins-le-Bretonneux, Guyancourt\n\nPublic visé\n\nVendeurs / agents immobiliers\n\nAcheteurs à la recherche d'un financement\n\nPrimo-accédants\n\nInvestisseurs\n\nAcquéreurs de résidence principale\n\nPropriétaires avec un nouveau projet immobilier\n\nPersonnes ayant déjà acheté leur logement et souhaitant économiser sur leur assurance emprunteur\n\nService proposé\n\nÉtude de faisabilité\n\nAnalyse de la situation, de la capacité d'emprunt, des crédits existants, de l'apport et du projet\n\nConstruction du financement et accompagnement jusqu'à la banque\n\nNégociation bancaire\n\nChangement d'assurance emprunteur\n\nActivité récemment lancée\n\n1 mandat de courtage en crédit immobilier en cours secteur Versailles et Le Chesnay\n\n1 dossier d'assurance emprunteur en cours, secteur Fontenay-le-Fleury\n\nDossier enrichi — 13 octobre 2026 (captures fournies par Benoît)\n\nSource : carte professionnelle Empruntis et captures du profil LinkedIn de Yaébali TOYALEKE. Données déclaratives à vérifier avant toute diffusion.\n\nIdentité et contact professionnel\n\nYaébali TOYALEKE, courtière en crédit, mandataire en opérations de banque et services de paiement (MIOBSP), Empruntis.\n\nAdresse : 5, allée du Bourbonnais, 78310 Maurepas.\n\nTéléphones : 06 32 74 85 03 ; 01 34 61 77 03.\n\nCourriel : yaebali.toyaleke@empruntis.com.\n\nLinkedIn : linkedin.com/in/yaébali-toyaleke (orthographe du lien à vérifier).\n\nORIAS indiqué : 26009286, émission juillet 2026, expiration février 2027 (vérifier sur orias.fr).\n\nQR code de la carte : prise de rendez-vous annoncée ; lien Microsoft Bookings affiché sur LinkedIn, URL complète non disponible dans les captures.\n\nOffres affichées\n\nCrédit immobilier : résidence principale, secondaire, investissement locatif.\n\nFinancement professionnel : création, reprise, développement d'entreprise.\n\nRegroupement de crédits ; crédit à la consommation (auto, travaux, projets personnels).\n\nAssurance emprunteur : comparaison et optimisation.\n\nConseil et accompagnement personnalisé de l'étude au financement.\n\nExpérience et positionnement\n\nPlus de 10 ans d'expérience déclarée dans l'assurance de personnes.\n\nEmpruntis : depuis juillet 2026, MIOBSP.\n\nGenerali France : gestionnaire prévoyance assurance emprunteur, novembre 2023 à septembre 2025.\n\nIPECA MSAE : gestionnaire frais de santé et prestations délégataires, avril 2021 à décembre 2022.\n\nFormations/certifications affichées : capacité professionnelle IOBSP niveau 1, assurance emprunteur DUOFORMA, prise de parole en public, design d'intérieur et aménagement d'espace.\n\nValeurs exprimées : écoute, compréhension des situations, relations humaines, partage des connaissances, réseau professionnel.\n\nPistes éditoriales pour Gérard / Publisher\n\nExpliquer le rôle d'un courtier et les étapes d'un financement immobilier.\n\nVulgariser l'assurance emprunteur, la comparaison des garanties et les économies potentielles sans promesse chiffrée.\n\nAborder les besoins des primo-accédants, investisseurs et entrepreneurs.\n\nPrivilégier un ton pédagogique, humain, local et rassurant, avec appel à prise de rendez-vous seulement si le lien exact est confirmé.\n\nLaisser Gérard choisir les angles, mais ne pas publier automatiquement les données personnelles, coordonnées ou affirmations financières sans validation du contenu et des règles de conformité.\n\nRéférence : 9 captures LinkedIn et 1 carte professionnelle fournies dans la conversation (10 images au total).\n\nUtilise uniquement les faits explicitement présents dans ces sources ou fournis dans la mission.\n\nN'ajoute aucune relation transmedia ou inter-univers qui ne soit pas explicitement écrite dans ces sources.\n\nN'invente aucun produit, prix, disponibilité, lien, personnage, espèce, citation, témoignage, statistique, fonctionnalité ou preuve.\n\nQuand une information manque, omets-la. Ne la complète pas par vraisemblance.",
-          "itemCount": 1,
-          "diagnostics": {
-            "connected": true,
-            "error": null,
-            "totalItems": 34,
-            "matchedItems": 1,
-            "discoveredItems": 33,
-            "digestedItems": 1
-          }
-        },
-        "missionId": "gerard-cultivate-1793043363990-knowledge",
-        "contextId": "project-yael-prospection",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1793043363990-knowledge",
-          "state": "completed",
-          "createdAt": "2026-10-26T19:36:04.022Z",
-          "updatedAt": "2026-10-26T19:36:20.590Z",
-          "transitions": [
-            {
-              "from": null,
-              "to": "received",
-              "at": "2026-10-26T19:36:04.022Z",
-              "metadata": {
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ]
-              }
-            },
-            {
-              "from": "received",
-              "to": "recorded",
-              "at": "2026-10-26T19:36:04.022Z",
-              "reason": "Mission recorded.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-knowledge",
-                "missionId": "gerard-cultivate-1793043363990-knowledge",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ]
-              }
-            },
-            {
-              "from": "recorded",
-              "to": "planned",
-              "at": "2026-10-26T19:36:04.022Z",
-              "reason": "Capabilities resolved.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-knowledge",
-                "missionId": "gerard-cultivate-1793043363990-knowledge",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ]
-              }
-            },
-            {
-              "from": "planned",
-              "to": "waiting-executor",
-              "at": "2026-10-26T19:36:04.022Z",
-              "reason": "Compatible adapter selected.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-knowledge",
-                "missionId": "gerard-cultivate-1793043363990-knowledge",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ],
-                "executorId": "publisher"
-              }
-            },
-            {
-              "from": "waiting-executor",
-              "to": "executing",
-              "at": "2026-10-26T19:36:04.022Z",
-              "reason": "External adapter execution started.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-knowledge",
-                "missionId": "gerard-cultivate-1793043363990-knowledge",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ],
-                "executorId": "publisher"
-              }
-            },
-            {
-              "from": "executing",
-              "to": "completed",
-              "at": "2026-10-26T19:36:20.590Z",
-              "reason": "Knowledge Package yael-prequalification-de-prospects préparé par Publisher.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-knowledge",
-                "missionId": "gerard-cultivate-1793043363990-knowledge",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ],
-                "executorId": "publisher",
-                "output": {
-                  "capability": "knowledge.search",
-                  "slug": "yael-prequalification-de-prospects",
-                  "source": "notion",
-                  "verified": true,
-                  "context": "KNOWLEDGE PACKAGE PUBLISHER VÉRIFIÉ — SOURCE DE VÉRITÉ FERMÉE\n\nParcelle / produit : yael-prequalification-de-prospects\n\nPÉRIMÈTRE STRICT : les seules connaissances autorisées sont les sources Notion ci-dessous.\n\nIgnore toute connaissance mémorisée, digérée ou provenant d'une autre parcelle, même si elle appartient au même écosystème Blacklace.\n\nSOURCE NOTION AUTORISÉE 1: Yaelbali — Courtage en financement immobilier\nUnivers: yael-prequalification-de-prospects\nTags: yael-prequalification-de-prospects | yaelbali | notion-workspace\nSecteur d'activité\n\nMontigny-le-Bretonneux, Bois-d'Arcy, Voisins-le-Bretonneux, Guyancourt\n\nPublic visé\n\nVendeurs / agents immobiliers\n\nAcheteurs à la recherche d'un financement\n\nPrimo-accédants\n\nInvestisseurs\n\nAcquéreurs de résidence principale\n\nPropriétaires avec un nouveau projet immobilier\n\nPersonnes ayant déjà acheté leur logement et souhaitant économiser sur leur assurance emprunteur\n\nService proposé\n\nÉtude de faisabilité\n\nAnalyse de la situation, de la capacité d'emprunt, des crédits existants, de l'apport et du projet\n\nConstruction du financement et accompagnement jusqu'à la banque\n\nNégociation bancaire\n\nChangement d'assurance emprunteur\n\nActivité récemment lancée\n\n1 mandat de courtage en crédit immobilier en cours secteur Versailles et Le Chesnay\n\n1 dossier d'assurance emprunteur en cours, secteur Fontenay-le-Fleury\n\nDossier enrichi — 13 octobre 2026 (captures fournies par Benoît)\n\nSource : carte professionnelle Empruntis et captures du profil LinkedIn de Yaébali TOYALEKE. Données déclaratives à vérifier avant toute diffusion.\n\nIdentité et contact professionnel\n\nYaébali TOYALEKE, courtière en crédit, mandataire en opérations de banque et services de paiement (MIOBSP), Empruntis.\n\nAdresse : 5, allée du Bourbonnais, 78310 Maurepas.\n\nTéléphones : 06 32 74 85 03 ; 01 34 61 77 03.\n\nCourriel : yaebali.toyaleke@empruntis.com.\n\nLinkedIn : linkedin.com/in/yaébali-toyaleke (orthographe du lien à vérifier).\n\nORIAS indiqué : 26009286, émission juillet 2026, expiration février 2027 (vérifier sur orias.fr).\n\nQR code de la carte : prise de rendez-vous annoncée ; lien Microsoft Bookings affiché sur LinkedIn, URL complète non disponible dans les captures.\n\nOffres affichées\n\nCrédit immobilier : résidence principale, secondaire, investissement locatif.\n\nFinancement professionnel : création, reprise, développement d'entreprise.\n\nRegroupement de crédits ; crédit à la consommation (auto, travaux, projets personnels).\n\nAssurance emprunteur : comparaison et optimisation.\n\nConseil et accompagnement personnalisé de l'étude au financement.\n\nExpérience et positionnement\n\nPlus de 10 ans d'expérience déclarée dans l'assurance de personnes.\n\nEmpruntis : depuis juillet 2026, MIOBSP.\n\nGenerali France : gestionnaire prévoyance assurance emprunteur, novembre 2023 à septembre 2025.\n\nIPECA MSAE : gestionnaire frais de santé et prestations délégataires, avril 2021 à décembre 2022.\n\nFormations/certifications affichées : capacité professionnelle IOBSP niveau 1, assurance emprunteur DUOFORMA, prise de parole en public, design d'intérieur et aménagement d'espace.\n\nValeurs exprimées : écoute, compréhension des situations, relations humaines, partage des connaissances, réseau professionnel.\n\nPistes éditoriales pour Gérard / Publisher\n\nExpliquer le rôle d'un courtier et les étapes d'un financement immobilier.\n\nVulgariser l'assurance emprunteur, la comparaison des garanties et les économies potentielles sans promesse chiffrée.\n\nAborder les besoins des primo-accédants, investisseurs et entrepreneurs.\n\nPrivilégier un ton pédagogique, humain, local et rassurant, avec appel à prise de rendez-vous seulement si le lien exact est confirmé.\n\nLaisser Gérard choisir les angles, mais ne pas publier automatiquement les données personnelles, coordonnées ou affirmations financières sans validation du contenu et des règles de conformité.\n\nRéférence : 9 captures LinkedIn et 1 carte professionnelle fournies dans la conversation (10 images au total).\n\nUtilise uniquement les faits explicitement présents dans ces sources ou fournis dans la mission.\n\nN'ajoute aucune relation transmedia ou inter-univers qui ne soit pas explicitement écrite dans ces sources.\n\nN'invente aucun produit, prix, disponibilité, lien, personnage, espèce, citation, témoignage, statistique, fonctionnalité ou preuve.\n\nQuand une information manque, omets-la. Ne la complète pas par vraisemblance.",
-                  "itemCount": 1,
-                  "diagnostics": {
-                    "connected": true,
-                    "error": null,
-                    "totalItems": 34,
-                    "matchedItems": 1,
-                    "discoveredItems": 33,
-                    "digestedItems": 1
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    "harvest": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1793043363990-harvest",
-        "missionId": "gerard-cultivate-1793043363990-harvest",
-        "status": "completed",
-        "contextId": "project-yael-prospection",
-        "tentacleId": "octopus-core",
-        "executorId": "octopus-core",
-        "summary": "Mission completed through Octopus Core (Mistral).",
-        "resourceResult": {
-          "resourceId": "mistral",
-          "status": "success",
-          "output": {
-            "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (à valider via outils CRM/LinkedIn) :\n- **Vendeurs/agents immobiliers** (Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Critères de qualification** :\n- Localisation géographique confirmée (secteur Versailles).\n- Intérêt avéré pour le financement immobilier (ex : publications LinkedIn sur le sujet).\n- Pas de leads \"test\" ou génériques (ex : \"je cherche un prêt\").\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n\n**A. Message (ton : pédagogique, humain, rassurant)**\n**Exemple pour LinkedIn/email** :\n*\"Vous projetez un achat immobilier ou un investissement dans les Yvelines ?*\nUn courtier spécialisé peut vous accompagner de l’étude de faisabilité à la négociation bancaire, **sans frais cachés**. En 10 ans d’expérience, j’ai aidé des primo-accédants et investisseurs à optimiser leurs financements.\n👉 **Besoin d’un audit gratuit de votre projet ?** Répondez à ce message ou cliquez sur le lien [Microsoft Bookings] (à confirmer).\"*\n\n**Variante pour agents immobiliers** :\n*\"Vos clients cherchent un financement sur mesure ? Je propose une analyse gratuite de leur capacité d’emprunt et une comparaison des assurances emprunteurs. **Partenariat possible** pour vos dossiers en cours.\"*\n\n**B. Canaux professionnels**\n- **LinkedIn** : Messages InMail ciblés (via outil de prospection) + posts locaux (ex : \"Financement immobilier à Montigny : comment préparer votre dossier ?\").\n- **Emailing** : Liste segmentée (agents immobiliers + particuliers) via outil comme Hunter.io ou Apollo.io.\n- **Partenariats** : Agences locales (ex : Montigny-le-Bretonneux) pour co-marketing (ex : flyers avec QR code vers Bookings).\n\n**C. Formulaire opt-in (simple et conforme RGPD)**\n**Exemple** :\n*\"Nom : ________\nEmail : ________\nProjet immobilier (✓) : [Primo-accédant / Investisseur / Changement assurance]\nLocalisation : ________\nJe souhaite recevoir une étude gratuite de faisabilité (✓) OUI / ( ) NON\"*\n→ Lien vers formulaire Typeform ou Google Forms (intégration CRM).\n\n**D. Qualification**\n- **1er contact** : Appel téléphonique (via Bookings) pour valider :\n  - Budget/apport.\n  - Type de projet (achat, investissement, etc.).\n  - Besoin spécifique (ex : optimisation assurance).\n- **2e étape** : Envoi d’un **audit personnalisé** (PDF) avec :\n  - Capacité d’emprunt estimée.\n  - Comparatif d’assurances (si pertinent).\n  - Prochaines étapes (ex : rendez-vous en agence).\n\n**E. Suivi**\n- **Automatisé** : Email de relance 3 jours après l’audit (\"Besoin d’aide pour la suite ?\").\n- **Manuel** : Appel sous 48h pour les leads chauds (ex : investisseurs).\n- **CRM** : Suivi dans HubSpot/Notion avec tags (ex : \"Primo-accédant\", \"Montigny\").\n\n**F. Prochaine expérience mesurable**\n- **KPI** :\n  - Taux de conversion (lead → audit) : **15%** (objectif).\n  - Nombre de rendez-vous pris via Bookings : **5/mois**.\n  - Économies réalisées par les clients (ex : % d’assurance réduit).\n- **Outils** :\n  - Google Analytics pour les liens Bookings.\n  - Tableau de bord Notion pour suivre les leads qualifiés.\n\n---\n#### **3. Validation avant diffusion**\n- **À confirmer** :\n  - Lien exact Microsoft Bookings (QR code vérifié).\n  - Orthographe du LinkedIn (yaébali-toyaleke ou yaelbali-toyaleke ?).\n  - ORIAS valide (à recouper sur [orias.fr](https://www.orias.fr)).\n- **Contenu à éviter** :\n  - Promesses financières (\"économisez 30%\") sans preuve.\n  - Diffusion des coordonnées sans consentement explicite.\n\n---\n#### **4. Ressources à créer**\n- **Kit de diffusion** (uniquement après validation) :\n  - Post LinkedIn prêt à publier (avec visuel local).\n  - Email template pour agents immobiliers.\n  - Script téléphone pour qualification.\n\n**Prochaine étape** : Vérification des liens et validation du ton par Yaébali.",
-            "model": "ministral-8b-2512"
-          },
-          "usage": {
-            "model": "ministral-8b-2512",
-            "promptTokens": 1241,
-            "completionTokens": 1131,
-            "totalTokens": 2372,
-            "durationMs": 12397,
-            "estimatedCostEur": 0.001854
-          }
-        },
-        "output": {
-          "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (à valider via outils CRM/LinkedIn) :\n- **Vendeurs/agents immobiliers** (Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Critères de qualification** :\n- Localisation géographique confirmée (secteur Versailles).\n- Intérêt avéré pour le financement immobilier (ex : publications LinkedIn sur le sujet).\n- Pas de leads \"test\" ou génériques (ex : \"je cherche un prêt\").\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n\n**A. Message (ton : pédagogique, humain, rassurant)**\n**Exemple pour LinkedIn/email** :\n*\"Vous projetez un achat immobilier ou un investissement dans les Yvelines ?*\nUn courtier spécialisé peut vous accompagner de l’étude de faisabilité à la négociation bancaire, **sans frais cachés**. En 10 ans d’expérience, j’ai aidé des primo-accédants et investisseurs à optimiser leurs financements.\n👉 **Besoin d’un audit gratuit de votre projet ?** Répondez à ce message ou cliquez sur le lien [Microsoft Bookings] (à confirmer).\"*\n\n**Variante pour agents immobiliers** :\n*\"Vos clients cherchent un financement sur mesure ? Je propose une analyse gratuite de leur capacité d’emprunt et une comparaison des assurances emprunteurs. **Partenariat possible** pour vos dossiers en cours.\"*\n\n**B. Canaux professionnels**\n- **LinkedIn** : Messages InMail ciblés (via outil de prospection) + posts locaux (ex : \"Financement immobilier à Montigny : comment préparer votre dossier ?\").\n- **Emailing** : Liste segmentée (agents immobiliers + particuliers) via outil comme Hunter.io ou Apollo.io.\n- **Partenariats** : Agences locales (ex : Montigny-le-Bretonneux) pour co-marketing (ex : flyers avec QR code vers Bookings).\n\n**C. Formulaire opt-in (simple et conforme RGPD)**\n**Exemple** :\n*\"Nom : ________\nEmail : ________\nProjet immobilier (✓) : [Primo-accédant / Investisseur / Changement assurance]\nLocalisation : ________\nJe souhaite recevoir une étude gratuite de faisabilité (✓) OUI / ( ) NON\"*\n→ Lien vers formulaire Typeform ou Google Forms (intégration CRM).\n\n**D. Qualification**\n- **1er contact** : Appel téléphonique (via Bookings) pour valider :\n  - Budget/apport.\n  - Type de projet (achat, investissement, etc.).\n  - Besoin spécifique (ex : optimisation assurance).\n- **2e étape** : Envoi d’un **audit personnalisé** (PDF) avec :\n  - Capacité d’emprunt estimée.\n  - Comparatif d’assurances (si pertinent).\n  - Prochaines étapes (ex : rendez-vous en agence).\n\n**E. Suivi**\n- **Automatisé** : Email de relance 3 jours après l’audit (\"Besoin d’aide pour la suite ?\").\n- **Manuel** : Appel sous 48h pour les leads chauds (ex : investisseurs).\n- **CRM** : Suivi dans HubSpot/Notion avec tags (ex : \"Primo-accédant\", \"Montigny\").\n\n**F. Prochaine expérience mesurable**\n- **KPI** :\n  - Taux de conversion (lead → audit) : **15%** (objectif).\n  - Nombre de rendez-vous pris via Bookings : **5/mois**.\n  - Économies réalisées par les clients (ex : % d’assurance réduit).\n- **Outils** :\n  - Google Analytics pour les liens Bookings.\n  - Tableau de bord Notion pour suivre les leads qualifiés.\n\n---\n#### **3. Validation avant diffusion**\n- **À confirmer** :\n  - Lien exact Microsoft Bookings (QR code vérifié).\n  - Orthographe du LinkedIn (yaébali-toyaleke ou yaelbali-toyaleke ?).\n  - ORIAS valide (à recouper sur [orias.fr](https://www.orias.fr)).\n- **Contenu à éviter** :\n  - Promesses financières (\"économisez 30%\") sans preuve.\n  - Diffusion des coordonnées sans consentement explicite.\n\n---\n#### **4. Ressources à créer**\n- **Kit de diffusion** (uniquement après validation) :\n  - Post LinkedIn prêt à publier (avec visuel local).\n  - Email template pour agents immobiliers.\n  - Script téléphone pour qualification.\n\n**Prochaine étape** : Vérification des liens et validation du ton par Yaébali.",
-          "model": "ministral-8b-2512"
-        },
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1793043363990-harvest",
-          "state": "completed",
-          "createdAt": "2026-10-26T19:36:20.605Z",
-          "updatedAt": "2026-10-26T19:36:33.004Z",
-          "transitions": [
-            {
-              "from": null,
-              "to": "received",
-              "at": "2026-10-26T19:36:20.605Z",
-              "metadata": {
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "copy.generate"
-                ]
-              }
-            },
-            {
-              "from": "received",
-              "to": "recorded",
-              "at": "2026-10-26T19:36:20.605Z",
-              "reason": "Mission recorded.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-harvest",
-                "missionId": "gerard-cultivate-1793043363990-harvest",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "copy.generate"
-                ]
-              }
-            },
-            {
-              "from": "recorded",
-              "to": "planned",
-              "at": "2026-10-26T19:36:20.605Z",
-              "reason": "Capabilities resolved.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-harvest",
-                "missionId": "gerard-cultivate-1793043363990-harvest",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "copy.generate"
-                ]
-              }
-            },
-            {
-              "from": "planned",
-              "to": "executing",
-              "at": "2026-10-26T19:36:33.004Z",
-              "reason": "Core Mistral resource selected.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-harvest",
-                "missionId": "gerard-cultivate-1793043363990-harvest",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "copy.generate"
-                ],
-                "executorId": "octopus-core"
-              }
-            },
-            {
-              "from": "executing",
-              "to": "completed",
-              "at": "2026-10-26T19:36:33.004Z",
-              "reason": "Mission completed through Octopus Core (Mistral).",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793043363990-harvest",
-                "missionId": "gerard-cultivate-1793043363990-harvest",
-                "contextId": "project-yael-prospection",
-                "requiredCapabilities": [
-                  "copy.generate"
-                ],
-                "executorId": "octopus-core",
-                "output": {
-                  "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (à valider via outils CRM/LinkedIn) :\n- **Vendeurs/agents immobiliers** (Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Critères de qualification** :\n- Localisation géographique confirmée (secteur Versailles).\n- Intérêt avéré pour le financement immobilier (ex : publications LinkedIn sur le sujet).\n- Pas de leads \"test\" ou génériques (ex : \"je cherche un prêt\").\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n\n**A. Message (ton : pédagogique, humain, rassurant)**\n**Exemple pour LinkedIn/email** :\n*\"Vous projetez un achat immobilier ou un investissement dans les Yvelines ?*\nUn courtier spécialisé peut vous accompagner de l’étude de faisabilité à la négociation bancaire, **sans frais cachés**. En 10 ans d’expérience, j’ai aidé des primo-accédants et investisseurs à optimiser leurs financements.\n👉 **Besoin d’un audit gratuit de votre projet ?** Répondez à ce message ou cliquez sur le lien [Microsoft Bookings] (à confirmer).\"*\n\n**Variante pour agents immobiliers** :\n*\"Vos clients cherchent un financement sur mesure ? Je propose une analyse gratuite de leur capacité d’emprunt et une comparaison des assurances emprunteurs. **Partenariat possible** pour vos dossiers en cours.\"*\n\n**B. Canaux professionnels**\n- **LinkedIn** : Messages InMail ciblés (via outil de prospection) + posts locaux (ex : \"Financement immobilier à Montigny : comment préparer votre dossier ?\").\n- **Emailing** : Liste segmentée (agents immobiliers + particuliers) via outil comme Hunter.io ou Apollo.io.\n- **Partenariats** : Agences locales (ex : Montigny-le-Bretonneux) pour co-marketing (ex : flyers avec QR code vers Bookings).\n\n**C. Formulaire opt-in (simple et conforme RGPD)**\n**Exemple** :\n*\"Nom : ________\nEmail : ________\nProjet immobilier (✓) : [Primo-accédant / Investisseur / Changement assurance]\nLocalisation : ________\nJe souhaite recevoir une étude gratuite de faisabilité (✓) OUI / ( ) NON\"*\n→ Lien vers formulaire Typeform ou Google Forms (intégration CRM).\n\n**D. Qualification**\n- **1er contact** : Appel téléphonique (via Bookings) pour valider :\n  - Budget/apport.\n  - Type de projet (achat, investissement, etc.).\n  - Besoin spécifique (ex : optimisation assurance).\n- **2e étape** : Envoi d’un **audit personnalisé** (PDF) avec :\n  - Capacité d’emprunt estimée.\n  - Comparatif d’assurances (si pertinent).\n  - Prochaines étapes (ex : rendez-vous en agence).\n\n**E. Suivi**\n- **Automatisé** : Email de relance 3 jours après l’audit (\"Besoin d’aide pour la suite ?\").\n- **Manuel** : Appel sous 48h pour les leads chauds (ex : investisseurs).\n- **CRM** : Suivi dans HubSpot/Notion avec tags (ex : \"Primo-accédant\", \"Montigny\").\n\n**F. Prochaine expérience mesurable**\n- **KPI** :\n  - Taux de conversion (lead → audit) : **15%** (objectif).\n  - Nombre de rendez-vous pris via Bookings : **5/mois**.\n  - Économies réalisées par les clients (ex : % d’assurance réduit).\n- **Outils** :\n  - Google Analytics pour les liens Bookings.\n  - Tableau de bord Notion pour suivre les leads qualifiés.\n\n---\n#### **3. Validation avant diffusion**\n- **À confirmer** :\n  - Lien exact Microsoft Bookings (QR code vérifié).\n  - Orthographe du LinkedIn (yaébali-toyaleke ou yaelbali-toyaleke ?).\n  - ORIAS valide (à recouper sur [orias.fr](https://www.orias.fr)).\n- **Contenu à éviter** :\n  - Promesses financières (\"économisez 30%\") sans preuve.\n  - Diffusion des coordonnées sans consentement explicite.\n\n---\n#### **4. Ressources à créer**\n- **Kit de diffusion** (uniquement après validation) :\n  - Post LinkedIn prêt à publier (avec visuel local).\n  - Email template pour agents immobiliers.\n  - Script téléphone pour qualification.\n\n**Prochaine étape** : Vérification des liens et validation du ton par Yaébali.",
-                  "model": "ministral-8b-2512"
-                }
-              }
-            }
-          ]
-        }
-      },
-      "verification": {
-        "seedId": "yael-prospection",
+    "totalHarvests": 66,
+    "activeHarvests": 34,
+    "compostedCount": 32,
+    "uniqueContent": 34,
+    "duplicateCount": 0,
+    "duplicateHarvestIds": [],
+    "candidateCount": 34,
+    "candidateSample": [
+      {
+        "harvestId": "gerard-cultivate-1792842549755-harvest",
         "parcelId": "project-yael-prospection",
-        "operationId": "gerard-cultivate-1793043363990-harvest",
-        "capability": "content.generate",
-        "completed": true,
-        "simulated": false,
-        "contentLength": 4086,
-        "producer": null,
-        "route": "octopus->publisher-adapter"
-      }
-    },
-    "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1793043363990-harvest",
-      "harvestedAt": "2026-10-26T19:36:33.009Z",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "title": "Yaébali · Préqualification de prospects",
-      "content": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (à valider via outils CRM/LinkedIn) :\n- **Vendeurs/agents immobiliers** (Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Critères de qualification** :\n- Localisation géographique confirmée (secteur Versailles).\n- Intérêt avéré pour le financement immobilier (ex : publications LinkedIn sur le sujet).\n- Pas de leads \"test\" ou génériques (ex : \"je cherche un prêt\").\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n\n**A. Message (ton : pédagogique, humain, rassurant)**\n**Exemple pour LinkedIn/email** :\n*\"Vous projetez un achat immobilier ou un investissement dans les Yvelines ?*\nUn courtier spécialisé peut vous accompagner de l’étude de faisabilité à la négociation bancaire, **sans frais cachés**. En 10 ans d’expérience, j’ai aidé des primo-accédants et investisseurs à optimiser leurs financements.\n👉 **Besoin d’un audit gratuit de votre projet ?** Répondez à ce message ou cliquez sur le lien [Microsoft Bookings] (à confirmer).\"*\n\n**Variante pour agents immobiliers** :\n*\"Vos clients cherchent un financement sur mesure ? Je propose une analyse gratuite de leur capacité d’emprunt et une comparaison des assurances emprunteurs. **Partenariat possible** pour vos dossiers en cours.\"*\n\n**B. Canaux professionnels**\n- **LinkedIn** : Messages InMail ciblés (via outil de prospection) + posts locaux (ex : \"Financement immobilier à Montigny : comment préparer votre dossier ?\").\n- **Emailing** : Liste segmentée (agents immobiliers + particuliers) via outil comme Hunter.io ou Apollo.io.\n- **Partenariats** : Agences locales (ex : Montigny-le-Bretonneux) pour co-marketing (ex : flyers avec QR code vers Bookings).\n\n**C. Formulaire opt-in (simple et conforme RGPD)**\n**Exemple** :\n*\"Nom : ________\nEmail : ________\nProjet immobilier (✓) : [Primo-accédant / Investisseur / Changement assurance]\nLocalisation : ________\nJe souhaite recevoir une étude gratuite de faisabilité (✓) OUI / ( ) NON\"*\n→ Lien vers formulaire Typeform ou Google Forms (intégration CRM).\n\n**D. Qualification**\n- **1er contact** : Appel téléphonique (via Bookings) pour valider :\n  - Budget/apport.\n  - Type de projet (achat, investissement, etc.).\n  - Besoin spécifique (ex : optimisation assurance).\n- **2e étape** : Envoi d’un **audit personnalisé** (PDF) avec :\n  - Capacité d’emprunt estimée.\n  - Comparatif d’assurances (si pertinent).\n  - Prochaines étapes (ex : rendez-vous en agence).\n\n**E. Suivi**\n- **Automatisé** : Email de relance 3 jours après l’audit (\"Besoin d’aide pour la suite ?\").\n- **Manuel** : Appel sous 48h pour les leads chauds (ex : investisseurs).\n- **CRM** : Suivi dans HubSpot/Notion avec tags (ex : \"Primo-accédant\", \"Montigny\").\n\n**F. Prochaine expérience mesurable**\n- **KPI** :\n  - Taux de conversion (lead → audit) : **15%** (objectif).\n  - Nombre de rendez-vous pris via Bookings : **5/mois**.\n  - Économies réalisées par les clients (ex : % d’assurance réduit).\n- **Outils** :\n  - Google Analytics pour les liens Bookings.\n  - Tableau de bord Notion pour suivre les leads qualifiés.\n\n---\n#### **3. Validation avant diffusion**\n- **À confirmer** :\n  - Lien exact Microsoft Bookings (QR code vérifié).\n  - Orthographe du LinkedIn (yaébali-toyaleke ou yaelbali-toyaleke ?).\n  - ORIAS valide (à recouper sur [orias.fr](https://www.orias.fr)).\n- **Contenu à éviter** :\n  - Promesses financières (\"économisez 30%\") sans preuve.\n  - Diffusion des coordonnées sans consentement explicite.\n\n---\n#### **4. Ressources à créer**\n- **Kit de diffusion** (uniquement après validation) :\n  - Post LinkedIn prêt à publier (avec visuel local).\n  - Email template pour agents immobiliers.\n  - Script téléphone pour qualification.\n\n**Prochaine étape** : Vérification des liens et validation du ton par Yaébali.",
-      "capability": "content.generate",
-      "producer": null,
-      "route": "octopus->publisher-adapter",
-      "delivery": {
-        "recipient": "Yaébali",
-        "mode": "propose-before-send",
-        "harvestState": "ready-to-offer"
+        "state": "ready-to-offer"
       },
-      "state": "ready-to-offer"
-    }
+      {
+        "harvestId": "gerard-cultivate-1792843545057-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792843921337-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792933976346-harvest",
+        "parcelId": "benoit-business-growth",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792937058893-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792938470589-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1792990594664-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793020668324-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793040066821-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793043363990-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      }
+    ],
+    "action": "observe-only",
+    "aiCalls": 0,
+    "externalCalls": 1,
+    "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   },
   "lastDecision": {
-    "at": "2026-10-26T19:36:03.987Z",
-    "mode": "cultivate",
-    "reason": "deliverable-production-priority",
-    "backlog": 33,
-    "seedCount": 3
+    "at": "2026-10-26T19:38:39.929Z",
+    "mode": "symbiosis",
+    "reason": "delivery-backlog-priority",
+    "backlog": 34
   },
   "lastSeedId": "yael-prospection",
   "lastSymbiosis": {
-    "at": "2026-10-26T18:44:53.157Z",
+    "at": "2026-10-26T19:38:40.272Z",
     "duplicateCount": 0,
-    "candidateCount": 33
+    "candidateCount": 34
   },
   "learningHistory": [
-    {
-      "at": "2026-10-19T04:50:56.916Z",
-      "operationId": "gerard-symbiosis-1792385456464",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
     {
       "at": "2026-10-19T13:31:09.247Z",
       "operationId": "gerard-cultivate-1792416640377",
@@ -1052,6 +827,18 @@
       "decision": "harvest-ready-to-offer",
       "seedId": "yael-prospection",
       "parcelId": "project-yael-prospection",
+      "error": null,
+      "feedback": "observe-downstream-results"
+    },
+    {
+      "at": "2026-10-26T19:38:40.372Z",
+      "operationId": "gerard-symbiosis-1793043519931",
+      "mode": "symbiosis",
+      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
+      "outcome": "ok",
+      "decision": null,
+      "seedId": null,
+      "parcelId": null,
       "error": null,
       "feedback": "observe-downstream-results"
     }
