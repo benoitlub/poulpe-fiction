@@ -30,6 +30,11 @@ on:
     types: [opened, reopened, edited]
   workflow_dispatch:
     inputs:
+      preview_420_dice_short:
+        description: "Render one 420 Dice Short for review, never publish"
+        required: false
+        type: boolean
+        default: false
       retry_terra_draft:
         description: "Authorize one TERRA Buffer draft retry (no publication)"
         required: false
@@ -59,9 +64,12 @@ jobs:
       AI_MODEL: ${{ secrets.AI_MODEL }}
       AI_PROVIDER: mistral
       GERARD_IMAGE_STUDIO_ENABLED: ${{ vars.GERARD_IMAGE_STUDIO_ENABLED || 'false' }}
-      GERARD_AV_STUDIO_ENABLED: ${{ vars.GERARD_AV_STUDIO_ENABLED || 'false' }}
+      # Manual preview has its own explicit gate; scheduled runs keep the repository setting.
+      GERARD_AV_STUDIO_ENABLED: ${{ inputs.preview_420_dice_short == true && 'true' || vars.GERARD_AV_STUDIO_ENABLED || 'false' }}
+      GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_420_dice_short == true && '420-dice' || '' }}
+      GERARD_MODE: ${{ inputs.preview_420_dice_short == true && 'cultivate' || '' }}
       # Disabled unless explicitly activated by a human after review/deployment.
-      GERARD_METRICOOL_EXECUTION_ENABLED: ${{ vars.GERARD_METRICOOL_EXECUTION_ENABLED || 'false' }}
+      GERARD_METRICOOL_EXECUTION_ENABLED: ${{ inputs.preview_420_dice_short == true && 'false' || vars.GERARD_METRICOOL_EXECUTION_ENABLED || 'false' }}
       METRICOOL_EXECUTION_TOKEN: ${{ secrets.METRICOOL_EXECUTION_TOKEN }}
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
       NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
