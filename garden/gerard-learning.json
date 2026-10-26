@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-26T13:22:22.036Z",
+  "updatedAt": "2026-10-26T13:23:58.188Z",
   "observations": [
     {
       "observedAt": "2026-10-10T14:50:36Z",
@@ -3257,7 +3257,7 @@
       "lesson": "No matching post analytics yet; retry observation later."
     },
     {
-      "observedAt": "2026-10-26T13:22:22Z",
+      "observedAt": "2026-10-26T13:23:58Z",
       "seedId": "terra",
       "harvestId": "neon_iter_iter_terra_1786289427863",
       "copyText": "**Version \"mystère\"** : Photo floue d’un livre TERRA avec la phrase *\"Devinez ce que vous tenez entre vos mains.\"*\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
@@ -3275,7 +3275,7 @@
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-26T13:22:21Z",
+    "observedAt": "2026-10-26T13:23:58Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -3337,7 +3337,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3357,7 +3357,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3377,7 +3377,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3397,7 +3397,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3417,7 +3417,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3437,7 +3437,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3457,7 +3457,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3477,7 +3477,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-26T13:22:22.036Z",
+        "observedAt": "2026-10-26T13:23:58.188Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3497,7 +3497,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-26T13:22:22.036Z",
+    "lastIntegratedAt": "2026-10-26T13:23:58.188Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   }
 }
