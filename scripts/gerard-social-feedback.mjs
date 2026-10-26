@@ -59,7 +59,7 @@ export function applyMetricoolFeedback(learning, snapshot, { now = new Date().to
   }
   const verified = new Map();
   for (const post of snapshot.posts) {
-    if (post?.verified !== true || !["facebook", "instagram", "youtube"].includes(post.network) ||
+    if (post?.verified !== true || !["facebook", "instagram", "youtube", "tiktok", "x"].includes(post.network) ||
         typeof post.url !== "string" || !/^https:\/\//.test(post.url) ||
         typeof post.text !== "string" || !post.text.trim()) continue;
     const entry = metricObservation(post, now);
@@ -71,7 +71,7 @@ export function applyMetricoolFeedback(learning, snapshot, { now = new Date().to
     (a.publishedDate ?? "").localeCompare(b.publishedDate ?? "") ||
     a.network.localeCompare(b.network) || a.postUrl.localeCompare(b.postUrl));
   const networks = {};
-  for (const network of ["facebook", "instagram", "youtube"]) {
+  for (const network of ["facebook", "instagram", "youtube", "tiktok", "x"]) {
     const promotion = posts.filter(p => p.network === network && p.postPurpose !== "technical-test");
     if (!promotion.length) continue;
     const measuredReach = promotion.map(p => p.metrics.reach).filter(v => v !== undefined);
@@ -91,6 +91,23 @@ export function applyMetricoolFeedback(learning, snapshot, { now = new Date().to
     .map(item => JSON.stringify([item.network, item.postUrl, item.metrics])));
   const fresh = posts.filter(item => !recorded.has(JSON.stringify([item.network, item.postUrl, item.metrics])));
   const updatedObservations = [...previousMetrics, ...fresh].slice(-150);
+  // A matching caption is NOT proof that this is Gérard's post. Only an
+  // explicit transport identifier carried through the analytics snapshot can
+  // close the attribution loop for a pending experiment.
+  const pending = Array.isArray(old.pendingExperiments) ? old.pendingExperiments : [];
+  const attributed = snapshot.posts.filter(post => post?.verified === true &&
+    typeof post.harvestId === "string" && post.harvestId &&
+    typeof post.url === "string" && /^https:\/\//.test(post.url) &&
+    Object.values(post.metrics ?? {}).some(v => nonnegativeMetric(v) !== null));
+  const completed = [];
+  const remaining = pending.filter(experiment => {
+    const matching = attributed.filter(post => post.harvestId === experiment.harvestId);
+    if (!matching.length) return true;
+    completed.push({ ...experiment, assessment: "verified-provider-observation",
+      assessedAt: now, observedPostUrls: matching.map(p => p.url),
+      note: "Attribution verified by harvestId, not a claim of increased sales or causality." });
+    return false;
+  });
   const socialFeedback = {
     status: "observed",
     source: "metricool-connected-analytics",
@@ -109,6 +126,8 @@ export function applyMetricoolFeedback(learning, snapshot, { now = new Date().to
       ...old,
       updatedAt: now,
       observations: updatedObservations,
+      pendingExperiments: remaining,
+      completedExperiments: [...(Array.isArray(old.completedExperiments) ? old.completedExperiments : []), ...completed].slice(-50),
       socialFeedback,
       guidance: {
         ...(old.guidance || {}),
