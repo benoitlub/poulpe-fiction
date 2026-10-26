@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 
 type Message = { id: string; role: "benoit" | "gerard"; text: string; at: string };
 type StateRecord = Record<string, unknown>;
+type Letter = { id: string; title: string; body: string; createdAt: string; delivery: { status: string; sentAt: string | null } };
 
 const STORAGE_KEY = "poulpe-fiction:gerard-conversation:v1";
 const STATE_URL = "https://raw.githubusercontent.com/benoitlub/poulpe-fiction/main/garden/gerard-state.json";
+const LETTERS_URL = "https://raw.githubusercontent.com/benoitlub/poulpe-fiction/main/garden/gerard-personal-letters.json";
+const LETTER_READ_KEY = "poulpe-fiction:gerard-letter-read:v1";
 const PUBLICATION_URL = "https://raw.githubusercontent.com/benoitlub/poulpe-fiction/main/garden/next-social-publication.json";
 const greeting: Message = {
   id: "welcome",
@@ -81,6 +84,40 @@ export function GerardGardenBench() {
   const [messages, setMessages] = useState<Message[]>(loadHistory);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
+  const [letters, setLetters] = useState<Letter[]>([]);
+  const [lettersError, setLettersError] = useState("");
+  const [lastReadLetter, setLastReadLetter] = useState(() => {
+    try { return window.localStorage.getItem(LETTER_READ_KEY) || ""; } catch { return ""; }
+  });
+  const [lettersOpen, setLettersOpen] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    void jsonFrom(LETTERS_URL).then((archive) => {
+      if (!live) return;
+      const raw = Array.isArray(archive.letters) ? archive.letters : [];
+      const safe = raw.filter((entry): entry is Letter => {
+        const item = object(entry);
+        return typeof item.id === "string" && typeof item.title === "string" && typeof item.body === "string"
+          && item.body.length <= 5000 && typeof item.createdAt === "string";
+      }).slice(-10).reverse();
+      setLetters(safe);
+    }).catch((error) => {
+      if (live && !(error instanceof Error && error.message.includes("404"))) setLettersError(error instanceof Error ? error.message : "courrier indisponible");
+    });
+    return () => { live = false; };
+  }, []);
+
+  const latestLetterId = letters[0]?.id || "";
+  const unread = !!latestLetterId && latestLetterId !== lastReadLetter;
+  const openLetters = () => {
+    const next = !lettersOpen;
+    setLettersOpen(next);
+    if (next && latestLetterId) {
+      setLastReadLetter(latestLetterId);
+      try { window.localStorage.setItem(LETTER_READ_KEY, latestLetterId); } catch { /* local-only marker */ }
+    }
+  };
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-24)));
@@ -109,6 +146,22 @@ export function GerardGardenBench() {
         <small>Gérard, le poulpe jardinier · conversation factuelle en lecture seule</small>
       </div></div>
       <p className="pf-meta">Les Gégé sont les assistants hamsters. Les réponses ci-dessous s'appuient sur les traces GitHub ; le dialogue IA libre n'est pas encore connecté.</p>
+      <div style={{ padding: "10px 12px", borderRadius: 12, background: "rgba(20,156,132,.09)", marginTop: 12 }}>
+        <button type="button" className="pf-btn pf-btn-soft" onClick={openLetters} aria-expanded={lettersOpen} aria-controls="gerard-bench-letters">
+          {unread ? "💌 Nouvelle lettre de Gérard" : "✉️ Le courrier de Gérard"} {letters.length ? "(" + letters.length + ")" : ""}
+        </button>
+        {lettersError && <p className="pf-meta">Courrier indisponible : {lettersError}. Aucun envoi Gmail ne peut être déduit d'ici.</p>}
+        <div id="gerard-bench-letters" hidden={!lettersOpen} style={{ marginTop: 10 }}>
+          {letters.length === 0 ? <p className="pf-meta">Aucune lettre pour le moment. Gérard peut garder le silence ; il n'a pas de quota de mots à remplir.</p> :
+            letters.map((letter) => (
+              <article key={letter.id} style={{ padding: "10px 0", borderTop: "1px solid rgba(127,140,155,.25)" }}>
+                <strong>{letter.title}</strong>
+                <small style={{ display: "block" }}>{dateLabel(letter.createdAt)} · {letter.delivery?.sentAt ? "Courrier acheminé" : "Visible sur le Banc · Gmail non envoyé"}</small>
+                <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{letter.body}</p>
+              </article>
+            ))}
+        </div>
+      </div>
       <div role="log" aria-live="polite" aria-label="Conversation avec Gérard" style={{ maxHeight: 320, overflowY: "auto", display: "grid", gap: 10, margin: "14px 0" }}>
         {messages.map((message) => (
           <div key={message.id} style={{
