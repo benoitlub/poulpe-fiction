@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "templateId": "audio-studio",
+  "description": "Reusable soundtrack plan for parcel short videos; no external publication.",
+  "defaults": {
+    "language": "fr",
+    "voiceProvider": "piper",
+    "musicSource": "licensed-library",
+    "durationSeconds": 20,
+    "musicGainDb": -20
+  },
+  "tracks": [
+    "narration",
+    "music",
+    "sound-effects"
+  ],
+  "workflow": [
+    "write-script",
+    "synthesize-voice",
+    "select-cleared-music",
+    "mix-and-duck",
+    "normalize",
+    "verify"
+  ],
+  "safety": {
+    "requireLicensedAudio": true,
+    "automaticPosting": false,
+    "noUnverifiedTtsSuccess": true
+  }
+}
