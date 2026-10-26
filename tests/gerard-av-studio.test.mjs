@@ -53,6 +53,24 @@ test("templates create a neutral mission without any hardcoded product or provid
     studioOperationId({ ...seed, title: "Autre angle" }, "video"),
   );
 });
+test("registered gameplay clip replaces image and Mistral without cross-parcel injection", async () => {
+  const configured = {
+    ...seed,
+    templates: [
+      { id: "image-studio", config: { assetId: "own-media", subject: "Do not call Mistral", allowMistralImage: true } },
+      seed.templates[1],
+      { id: "video-studio", config: { durationSeconds: 12, videoAssetId: "registered-own-gameplay-01" } },
+    ],
+  };
+  const mission = await studioMission(configured, "video", "gameplay-01");
+  const request = mission.context.metadata.studioRequest;
+  assert.equal(request.videoAssetId, "registered-own-gameplay-01");
+  assert.equal(request.assetId, undefined);
+  assert.equal(request.imagePrompt, undefined);
+  assert.deepEqual(mission.authorizedResources, ["video.studio"]);
+  assert.equal(request.automaticPublication, false);
+  assert.notEqual(studioOperationId(seed, "video"), studioOperationId(configured, "video"));
+});
 test("external generation is never inferred from template defaults or connected accounts", async () => {
   const m = await studioMission(
     {

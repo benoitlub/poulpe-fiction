@@ -61,11 +61,12 @@ export async function studioMission(seed, kind = "video", operationId, creativeF
     ...configurations["audio-studio"],
     ...declaration.config,
   };
+  const useVideoSource = kind === "video" && typeof declaration.config?.videoAssetId === "string" && declaration.config.videoAssetId.trim().length > 0;
   const capability = `${kind}.studio`;
   const resources = [capability];
   // These flags are explicit decisions, not inferred from a connected provider.
   if (v.allowMistralText === true) resources.push("mistral.text");
-  if (v.allowMistralImage === true) resources.push("mistral.image");
+  if (!useVideoSource && v.allowMistralImage === true) resources.push("mistral.image");
   if (
     ![seed.seedId, seed.parcelId, operationId].every(
       (v) =>
@@ -91,8 +92,8 @@ export async function studioMission(seed, kind = "video", operationId, creativeF
           title: v.title || seed.title,
           durationSeconds:
             v.durationSeconds ?? template.defaults.durationSeconds ?? 20,
-          ...(v.assetId ? { assetId: v.assetId } : {}),
-          ...(v.subject ? { imagePrompt: v.subject } : {}),
+          ...(useVideoSource ? { videoAssetId: declaration.config.videoAssetId } : v.assetId ? { assetId: v.assetId } : {}),
+          ...(!useVideoSource && v.subject ? { imagePrompt: v.subject } : {}),
           ...(v.segments
             ? { segments: v.segments, scriptRights: v.scriptRights }
             : {}),

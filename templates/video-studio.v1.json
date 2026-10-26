@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "templateId": "video-studio",
-  "description": "Compose an offline vertical short from validated stills and audio, no publication.",
+  "description": "Compose a vertical short with Piper sound and captions from a registered moving gameplay clip or validated still image; no publication.",
   "defaults": {
     "width": 1080,
     "height": 1920,
@@ -16,8 +16,8 @@
     "audio-studio"
   ],
   "workflow": [
-    "select-visuals",
-    "animate-stills",
+    "select-parcel-owned-registered-video-or-image",
+    "verify-provenance-and-visual-motion",
     "mix-audio",
     "render-mp4",
     "burn-synchronized-subtitles",
@@ -36,5 +36,9 @@
     "retainProvenance": true,
     "retainRights": true,
     "publicationEnabled": false
+  },
+  "options": {
+    "videoAssetId": "Optional, only for video-studio seed template; must match a registered media asset with verified rights for the same parcel.",
+    "stillFallback": "Existing image-studio asset or explicit Mistral image authorization."
   }
 }
