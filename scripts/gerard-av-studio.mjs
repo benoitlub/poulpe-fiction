@@ -6,6 +6,49 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 const exec = promisify(execFile);
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
+export function studioImagePrompt(config) {
+  return [
+    config.subject,
+    config.style ? "Style: " + config.style : "",
+    "Aspect ratio: " + (config.aspectRatio ?? "9:16"),
+    "No readable text or logos unless explicitly provided.",
+  ]
+    .filter(Boolean)
+    .join(". ");
+}
+export function verifyStudioProbe(p, kind, expectedDuration) {
+  const streams = Array.isArray(p?.streams) ? p.streams : [];
+  const v = streams.find((s) => s.codec_type === "video"),
+    a = streams.find((s) => s.codec_type === "audio");
+  if (kind === "image") {
+    if (!v || v.codec_name !== "png" || v.width !== 1080 || v.height !== 1920)
+      throw new Error("studio-local-image-invalid");
+    return;
+  }
+  const duration = Number(p?.format?.duration);
+  if (
+    !Number.isFinite(expectedDuration) ||
+    !Number.isFinite(duration) ||
+    Math.abs(duration - expectedDuration) > 0.1 ||
+    !a ||
+    Number(a.sample_rate) !== 48000 ||
+    a.channels !== 2
+  )
+    throw new Error("studio-local-" + kind + "-invalid");
+  if (
+    kind === "video" &&
+    (!v ||
+      v.width !== 1080 ||
+      v.height !== 1920 ||
+      v.codec_name !== "h264" ||
+      v.pix_fmt !== "yuv420p" ||
+      v.r_frame_rate !== "30/1" ||
+      a.codec_name !== "aac")
+  )
+    throw new Error("studio-local-video-invalid");
+  if (kind === "audio" && a.codec_name !== "pcm_s16le")
+    throw new Error("studio-local-audio-invalid");
+}
 export const studioOperationId = (seed, kind, creativeFeedback = []) =>
   "studio-" +
   sha(
@@ -27,18 +70,38 @@ export function studioFeedbackForParcel(learning, parcelId, kind = "video") {
   if (kind !== "video") return [];
   const records = learning?.guidance?.ownerCreativeFeedback;
   if (!Array.isArray(records)) return [];
-  return records.filter((item) =>
-    item?.parcelId === parcelId && item?.assetType === "short-video" &&
-    typeof item.feedbackId === "string" && Array.isArray(item.creativeGuidance)
-  ).slice(-8).map((item) => ({
-    feedbackId: item.feedbackId.slice(0, 120),
-    creativeGuidance: item.creativeGuidance.filter((s) => typeof s === "string" && s.trim()).slice(0, 8).map((s) => s.slice(0, 240)),
-    prohibitedActions: (Array.isArray(item.prohibitedActions) ? item.prohibitedActions : [])
-      .filter((s) => typeof s === "string" && s.trim()).slice(0, 8).map((s) => s.slice(0, 180)),
-  })).filter((item) => item.creativeGuidance.length > 0);
+  return records
+    .filter(
+      (item) =>
+        item?.parcelId === parcelId &&
+        item?.assetType === "short-video" &&
+        typeof item.feedbackId === "string" &&
+        Array.isArray(item.creativeGuidance),
+    )
+    .slice(-8)
+    .map((item) => ({
+      feedbackId: item.feedbackId.slice(0, 120),
+      creativeGuidance: item.creativeGuidance
+        .filter((s) => typeof s === "string" && s.trim())
+        .slice(0, 8)
+        .map((s) => s.slice(0, 240)),
+      prohibitedActions: (Array.isArray(item.prohibitedActions)
+        ? item.prohibitedActions
+        : []
+      )
+        .filter((s) => typeof s === "string" && s.trim())
+        .slice(0, 8)
+        .map((s) => s.slice(0, 180)),
+    }))
+    .filter((item) => item.creativeGuidance.length > 0);
 }
 
-export async function studioMission(seed, kind = "video", operationId, creativeFeedback = []) {
+export async function studioMission(
+  seed,
+  kind = "video",
+  operationId,
+  creativeFeedback = [],
+) {
   if (!["image", "audio", "video"].includes(kind))
     throw new Error("unknown-studio-kind");
   const declaration = seed.templates?.find(
@@ -61,12 +124,39 @@ export async function studioMission(seed, kind = "video", operationId, creativeF
     ...configurations["audio-studio"],
     ...declaration.config,
   };
-  const useVideoSource = kind === "video" && typeof declaration.config?.videoAssetId === "string" && declaration.config.videoAssetId.trim().length > 0;
+  // Do not silently replace a creative choice with the available local engine.
+  if (
+    kind !== "image" &&
+    v.voiceProvider !== undefined &&
+    v.voiceProvider !== "piper"
+  )
+    throw new Error("studio-voice-provider-unavailable");
+  if (
+    kind !== "image" &&
+    v.musicSource !== undefined &&
+    v.musicSource !== "original-procedural-CC0"
+  )
+    throw new Error("studio-music-source-unavailable");
+  if (kind !== "image" && Object.hasOwn(v, "musicGainDb"))
+    throw new Error("studio-mix-settings-unavailable");
+  if (
+    (v.width !== undefined && v.width !== 1080) ||
+    (v.height !== undefined && v.height !== 1920) ||
+    (v.fps !== undefined && v.fps !== 30) ||
+    (v.format !== undefined && v.format !== "mp4") ||
+    (v.aspectRatio !== undefined && v.aspectRatio !== "9:16")
+  )
+    throw new Error("studio-format-unavailable");
+  const useVideoSource =
+    kind === "video" &&
+    typeof declaration.config?.videoAssetId === "string" &&
+    declaration.config.videoAssetId.trim().length > 0;
   const capability = `${kind}.studio`;
   const resources = [capability];
   // These flags are explicit decisions, not inferred from a connected provider.
   if (v.allowMistralText === true) resources.push("mistral.text");
-  if (!useVideoSource && v.allowMistralImage === true) resources.push("mistral.image");
+  if (!useVideoSource && v.allowMistralImage === true)
+    resources.push("mistral.image");
   if (
     ![seed.seedId, seed.parcelId, operationId].every(
       (v) =>
@@ -92,8 +182,14 @@ export async function studioMission(seed, kind = "video", operationId, creativeF
           title: v.title || seed.title,
           durationSeconds:
             v.durationSeconds ?? template.defaults.durationSeconds ?? 20,
-          ...(useVideoSource ? { videoAssetId: declaration.config.videoAssetId } : v.assetId ? { assetId: v.assetId } : {}),
-          ...(!useVideoSource && v.subject ? { imagePrompt: v.subject } : {}),
+          ...(useVideoSource
+            ? { videoAssetId: declaration.config.videoAssetId }
+            : v.assetId
+              ? { assetId: v.assetId }
+              : {}),
+          ...(!useVideoSource && v.subject
+            ? { imagePrompt: studioImagePrompt(v) }
+            : {}),
           ...(v.segments
             ? { segments: v.segments, scriptRights: v.scriptRights }
             : {}),
@@ -132,7 +228,12 @@ export async function runParcelStudio(
     creativeFeedback = [],
   } = {},
 ) {
-  const mission = await studioMission(seed, kind, operationId, creativeFeedback);
+  const mission = await studioMission(
+    seed,
+    kind,
+    operationId,
+    creativeFeedback,
+  );
   if (!mission) return { status: "disabled" };
   if (!outputDir) throw new Error("studio-archive-required");
   const dir =
@@ -180,11 +281,22 @@ export async function runParcelStudio(
   }[kind];
   if (
     r.artifact.filename !== filename ||
-    !new RegExp(
-      `^/api/production/studio/artifacts/[a-f0-9]{64}/${filename.replace(".", "\\.")}$`,
-    ).test(r.artifact.downloadUrl)
+    !/^[a-f0-9]{64}$/.test(r.id) ||
+    r.artifact.downloadUrl !==
+      `/api/production/studio/artifacts/${r.id}/${filename}`
   )
     throw new Error("invalid-studio-artifact-path");
+  const main =
+    Array.isArray(r.files) && r.files.find((f) => f.filename === filename);
+  if (
+    !main ||
+    !/^[a-f0-9]{64}$/.test(main.sha256) ||
+    !Number.isSafeInteger(main.bytes) ||
+    main.bytes <= 0 ||
+    r.artifact.sha256 !== main.sha256 ||
+    r.artifact.bytes !== main.bytes
+  )
+    throw new Error("studio-artifact-descriptor-mismatch");
   await mkdir(dir, { recursive: true });
   async function get(route) {
     if (cached) return readFile(path.join(dir, path.basename(route)));
@@ -251,22 +363,11 @@ export async function runParcelStudio(
         ])
       ).stdout,
     );
-    if (
-      kind === "video" &&
-      (!p.streams.some(
-        (s) => s.width === 1080 && s.height === 1920 && s.codec_name === "h264",
-      ) ||
-        !p.streams.some((s) => s.codec_name === "aac") ||
-        Math.abs(Number(p.format.duration) - r.video?.durationSeconds) > 0.1)
-    )
-      throw new Error("studio-local-video-invalid");
-    if (kind === "audio" && !p.streams.some((s) => s.codec_type === "audio"))
-      throw new Error("studio-local-audio-invalid");
-    if (
-      kind === "image" &&
-      !p.streams.some((s) => s.width === 1080 && s.height === 1920)
-    )
-      throw new Error("studio-local-image-invalid");
+    verifyStudioProbe(
+      p,
+      kind,
+      mission.context.metadata.studioRequest.durationSeconds,
+    );
   }
   await writeFile(
     path.join(dir, "report.json"),

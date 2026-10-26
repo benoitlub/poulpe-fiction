@@ -7,7 +7,6 @@
     "voiceProvider": "piper",
     "musicSource": "original-procedural-CC0",
     "durationSeconds": 20,
-    "musicGainDb": -20,
     "allowMistralText": false
   },
   "tracks": [
