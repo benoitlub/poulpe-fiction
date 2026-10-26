@@ -1,0 +1,60 @@
+{
+  "operationId": "studio-7b03daf789d1042a62c65adeca0312fca634fc8063790d4fc3459e418a6843cb",
+  "title": "420 DICE GAME",
+  "objective": "Présenter les règles officielles du jeu dans un Short vertical sans publication.",
+  "requiredCapabilities": [
+    "video.studio"
+  ],
+  "authorizedResources": [
+    "video.studio"
+  ],
+  "context": {
+    "id": "420-dice",
+    "metadata": {
+      "seedId": "420-dice-short-demo",
+      "studioRequest": {
+        "version": "studio-v1",
+        "operationId": "studio-7b03daf789d1042a62c65adeca0312fca634fc8063790d4fc3459e418a6843cb",
+        "parcelId": "420-dice",
+        "seedId": "420-dice-short-demo",
+        "title": "420 DICE GAME",
+        "durationSeconds": 18,
+        "assetId": "420-dice-official-game",
+        "segments": [
+          {
+            "text": "Trois dés. Trois essais.",
+            "caption": "Trois dés. Trois essais."
+          },
+          {
+            "text": "Gardez vos dés, relancez les autres.",
+            "caption": "Gardez vos dés. Relancez les autres."
+          },
+          {
+            "text": "Quatre, deux, zéro : décrochez le trophée.",
+            "caption": "4, 2, 0 : décrochez le trophée."
+          },
+          {
+            "text": "Pas de quatre, deux, zéro ?",
+            "caption": "Pas de 4, 2, 0 ?"
+          },
+          {
+            "text": "Découvrez le gage de votre pack.",
+            "caption": "Découvrez le gage de votre pack."
+          },
+          {
+            "text": "À vous de jouer à quatre cent vingt Dice !",
+            "caption": "À vous de jouer à 420 Dice !"
+          }
+        ],
+        "scriptRights": {
+          "source": "https://github.com/benoitlub/420-dice-game-reboot/tree/bf315300db5c5ab580c6f86bb14ae56d884b6739 — règles également archivées dans public/knowledge-packs/420-dice.json",
+          "attribution": "Texte de démonstration préparé pour cette mission, d’après les règles du jeu de Benoît Lubert ; aucune génération Mistral revendiquée."
+        },
+        "authorizedResources": [
+          "video.studio"
+        ],
+        "automaticPublication": false
+      }
+    }
+  }
+}
