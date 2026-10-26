@@ -8,6 +8,7 @@ import {
   studioMission,
   runParcelStudio,
   studioOperationId,
+  studioFeedbackForParcel,
 } from "../scripts/gerard-av-studio.mjs";
 const seed = {
   seedId: "s-new",
@@ -147,4 +148,24 @@ test("downloads and hashes actual bytes, rejects tampering, and preserves a veri
   });
   assert.equal(b.reused, true);
   assert.equal(calls, 2);
+});
+
+test("transmits only approved parcel-specific video guidance and changes cache identity", async () => {
+  const learning = { guidance: { ownerCreativeFeedback: [
+    { feedbackId: "review-420", parcelId: "another-project", assetType: "short-video",
+      creativeGuidance: ["Move the camera", "Animate the dice"], prohibitedActions: ["Do not publish"] },
+    { feedbackId: "foreign", parcelId: "other", assetType: "short-video",
+      creativeGuidance: ["Unrelated direction"] },
+    { feedbackId: "audio", parcelId: "another-project", assetType: "audio",
+      creativeGuidance: ["Unrelated direction"] },
+  ] } };
+  const guidance = studioFeedbackForParcel(learning, seed.parcelId);
+  assert.equal(guidance.length, 1);
+  assert.equal(guidance[0].feedbackId, "review-420");
+  assert.deepEqual(studioFeedbackForParcel(learning, seed.parcelId, "audio"), []);
+  const mission = await studioMission(seed, "video", "new-operation", guidance);
+  assert.deepEqual(mission.context.metadata.studioRequest.creativeFeedback, guidance);
+  assert.equal(mission.context.metadata.studioRequest.automaticPublication, false);
+  assert.notEqual(studioOperationId(seed, "video"), studioOperationId(seed, "video", guidance));
+  assert.equal(studioOperationId(seed, "video", guidance), studioOperationId(seed, "video", guidance));
 });
