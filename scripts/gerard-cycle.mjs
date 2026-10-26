@@ -14,6 +14,7 @@ import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarv
 import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
 import { runCommunityRadar } from "./gerard-community-radar.mjs";
 import { runImageStudio } from "./gerard-image-studio.mjs";
+import { runParcelStudio, studioOperationId, submitStudioMission } from "./gerard-av-studio.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
@@ -93,7 +94,7 @@ async function loadState() {
 
 async function loadSeeds() {
   const parsed = JSON.parse(await readFile(SEEDS_PATH, "utf8"));
-  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && seed?.knowledgeSlug) : [];
+  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && (seed?.knowledgeSlug || seed.templates?.some(t => ["audio-studio","video-studio"].includes(t.id) && t.enabled !== false))) : [];
 }
 
 function selectSeedForRotation(seeds, state) {
@@ -329,6 +330,22 @@ async function main() {
     const selectedSeed = selectSeedForRotation(seeds, state);
     if (!selectedSeed) {
       result = { status: "failed", operationId, decision: "no-active-seed" };
+    } else if (selectedSeed.templates?.some(t => ["audio-studio","video-studio"].includes(t.id) && t.enabled !== false)) {
+      const kind = selectedSeed.templates.some(t => t.id === "video-studio" && t.enabled !== false) ? "video" : "audio";
+      if (process.env.GERARD_AV_STUDIO_ENABLED !== "true") {
+        result = { status:"failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId, decision:"studio-awaiting-authorization", published:false };
+      } else {
+        try {
+          const studioId=studioOperationId(selectedSeed,kind);
+          const outputDir = new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`, import.meta.url);
+          const studio = await runParcelStudio(selectedSeed,{kind,operationId:studioId,outputDir});
+          result = { status:studio.status === "ready-for-review" ? "ok" : "failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId,
+            decision:studio.status === "ready-for-review" ? "studio-files-ready-for-review" : "studio-production-blocked", studio, published:false };
+        } catch (error) {
+          result = {status:"failed",operationId,seedId:selectedSeed.seedId,parcelId:selectedSeed.parcelId,decision:"studio-production-failed",error:String(error).slice(0,180),published:false};
+        }
+      }
+      state.lastSeedId = selectedSeed.seedId;
     } else {
       const knowledgeMission = {
         operationId: `${operationId}-knowledge`,
@@ -398,21 +415,13 @@ async function main() {
           state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, status: "awaiting-authorization" };
         } else {
           try {
-            const outputDir = new URL("../garden/image-studio/" + encodeURIComponent(selectedSeed.parcelId) + "/", import.meta.url);
-            const media = await runImageStudio(selectedSeed, {
-              outputDir,
-              request: async prompt => {
-                const response = await callJson(PUBLISHER_URL + "/api/production/mistral-image/test?prompt=" + encodeURIComponent(prompt));
-                if (response.status !== "ok") throw new Error("publisher-image-request-" + response.httpStatus);
-                return response.payload;
-              },
-              download: async fileId => {
-                const url = PUBLISHER_URL + "/api/production/mistral-image/content?fileId=" + encodeURIComponent(fileId);
-                const response = await fetch(url, { signal: AbortSignal.timeout(90000) });
-                if (!response.ok) throw new Error("publisher-image-download-" + response.status);
-                return new Uint8Array(await response.arrayBuffer());
-              }
-            });
+            // The existing image enable flag authorizes the same Mistral image
+            // action as before; registered media never needs that paid fallback.
+            const imageSeed = { ...selectedSeed, templates:selectedSeed.templates.map(t => t.id === "image-studio" ?
+              { ...t, config:{...t.config, allowMistralImage:!t.config?.assetId} } : t) };
+            const studioId=studioOperationId(imageSeed,"image");
+            const outputDir=new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`,import.meta.url);
+            const media=await runImageStudio(imageSeed,{outputDir,operationId:studioId,submit:submitStudioMission});
             state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, ...media };
           } catch (error) {
             state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, status: "failed", reason: String(error).slice(0, 180) };

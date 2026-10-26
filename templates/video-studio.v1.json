@@ -7,7 +7,9 @@
     "height": 1920,
     "fps": 30,
     "durationSeconds": 20,
-    "format": "mp4"
+    "format": "mp4",
+    "allowMistralText": false,
+    "allowMistralImage": false
   },
   "requires": [
     "image-studio",
@@ -18,11 +20,21 @@
     "animate-stills",
     "mix-audio",
     "render-mp4",
+    "burn-synchronized-subtitles",
     "verify",
     "review"
   ],
   "safety": {
     "automaticPosting": false,
     "requireHumanApprovalForPublication": true
+  },
+  "capability": "video.studio",
+  "execution": "existing-octopus-publisher-local-adapter",
+  "artifactPolicy": {
+    "verifyDownloadedHash": true,
+    "verifyActualFile": true,
+    "retainProvenance": true,
+    "retainRights": true,
+    "publicationEnabled": false
   }
 }

@@ -5,9 +5,10 @@
   "defaults": {
     "language": "fr",
     "voiceProvider": "piper",
-    "musicSource": "licensed-library",
+    "musicSource": "original-procedural-CC0",
     "durationSeconds": 20,
-    "musicGainDb": -20
+    "musicGainDb": -20,
+    "allowMistralText": false
   },
   "tracks": [
     "narration",
@@ -26,5 +27,24 @@
     "requireLicensedAudio": true,
     "automaticPosting": false,
     "noUnverifiedTtsSuccess": true
-  }
+  },
+  "capability": "audio.studio",
+  "execution": "existing-octopus-publisher-local-adapter",
+  "artifactPolicy": {
+    "verifyDownloadedHash": true,
+    "verifyActualFile": true,
+    "retainProvenance": true,
+    "retainRights": true,
+    "publicationEnabled": false
+  },
+  "requiredOneOf": [
+    "segments + scriptRights",
+    "knowledge + allowMistralText"
+  ],
+  "normalization": {
+    "integratedLufs": -16,
+    "truePeakDbtp": -1.5,
+    "sampleRate": 48000
+  },
+  "subtitleTiming": "measured-per-sentence-synthesis"
 }
