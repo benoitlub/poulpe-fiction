@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { communityRadarConfig, communityRadarQueries, normalizeCommunityCandidates, mergeCommunityRecords } from '../scripts/gerard-community-radar.mjs';
 
 const template = { channels:['reddit'], discovery:{queryTemplates:['{{offer}} {{audience}} {{geography}}'],maxCandidates:20} };
-const seed = {seedId:'s1',parcelId:'p1',knowledgeSlug:'k1',communityRadar:{enabled:true,audience:['joueurs'],offer:'jeu indépendant',geography:['France']}};
+const seed = {seedId:'s1',parcelId:'p1',knowledgeSlug:'k1',templates:[{id:'community-radar',enabled:true,config:{audience:['joueurs'],offer:'jeu indépendant',geography:['France']}}]};
 
-test('disabled parcel does not run radar', () => assert.equal(communityRadarConfig({ ...seed,communityRadar:{enabled:false} },template),null));
+test('disabled parcel does not run radar', () => assert.equal(communityRadarConfig({ ...seed,templates:[{id:'community-radar',enabled:false}] },template),null));
 test('queries are parcel-specific', () => assert.deepEqual(communityRadarQueries(communityRadarConfig(seed,template)),['jeu indépendant joueurs France']));
 test('deduplicates URLs without claiming verified rules or outreach', () => {
  const config=communityRadarConfig(seed,template);
@@ -22,4 +22,8 @@ test('memory is isolated by parcel and preserves existing interaction status', (
  const rows=mergeCommunityRecords(old,fresh);
  assert.equal(rows.length,2);
  assert.equal(rows.find(x=>x.parcelId==='p1').status,'review-required');
+});
+
+test('unrelated parcel templates never enable community radar', () => {
+ assert.equal(communityRadarConfig({...seed,templates:[{id:'social-post',enabled:true}]},template),null);
 });
