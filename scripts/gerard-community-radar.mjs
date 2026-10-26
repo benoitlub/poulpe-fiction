@@ -4,9 +4,10 @@ const TEMPLATE_URL = new URL('../templates/community-radar.v1.json', import.meta
 const OUTPUT_URL = new URL('../garden/community-radar.json', import.meta.url);
 
 export function communityRadarConfig(seed, template) {
-  if (!seed?.communityRadar?.enabled) return null;
+  const selected = Array.isArray(seed?.templates) ? seed.templates.find(t => t.id === 'community-radar' && t.enabled !== false) : null;
+  if (!selected) return null;
   if (!seed.parcelId || !seed.seedId || !seed.knowledgeSlug) throw new Error('invalid-community-seed');
-  const c = seed.communityRadar;
+  const c = selected.config || {};
   if (!Array.isArray(c.audience) || !c.audience.length || !c.offer) throw new Error('invalid-community-config');
   return { ...template, parcelId: seed.parcelId, knowledgeSlug: seed.knowledgeSlug,
     audience: c.audience, offer: c.offer, geography: c.geography || [], languages: c.languages || ['fr'],
