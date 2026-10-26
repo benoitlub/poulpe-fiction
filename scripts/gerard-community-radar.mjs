@@ -60,8 +60,8 @@ export async function runCommunityRadar(seed, { search, templateUrl = TEMPLATE_U
   }
   const found = [];
   const statuses = [];
-  for (const query of communityRadarQueries(config)) {
-    const result = await search(query);
+  for (const [index, query] of communityRadarQueries(config).entries()) {
+    const result = await search(query, index);
     statuses.push(result.status);
     if (result.executed && result.status === 'sources-found') found.push(...result.candidates);
   }
