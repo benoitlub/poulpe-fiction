@@ -1223,6 +1223,19 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1793040066821-harvest",
+      "harvestedAt": "2026-10-26T18:41:22.151Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "content": "**Action immédiate : Observer et préparer le terrain**\n\n**Étape 1 : Créer un espace d’émergence pour Gérard**\n- **Interface minimale** :\n  - Un espace dédié *\"Ce qui m’intrigue\"* (zone discrète dans le Garden).\n  - Un tableau *\"Signaux faibles\"* listant les *\"Tiens...\"* récurrents (ex : *\"Cette parcelle revient sans Harvest\"*, *\"Cette formulation est plus utile\"*).\n  - Un bouton *\"Préparer une aventure\"* (sans déclencher automatiquement).\n\n**Étape 2 : Initialiser le carnet de culture**\n- **Premières notes** (exemples) :\n  - *\"Je ne comprends pas pourquoi cette Seed met 3 jours à mûrir ici. À observer.\"*\n  - *\"Le greffon Voice a mal interprété un ton. À tester avec un autre modèle.\"*\n  - *\"Le Garden semble plus dense sur mobile. À noter pour une future aventure.\"*\n\n**Étape 3 : Configurer le sac et le pique-nique**\n- **Sac vide** : *\"Qu’est-ce qui m’attire aujourd’hui ?\"* (Gérard choisit).\n- **Pique-nique par défaut** :\n  - Tokens Mistral (limités à 1000 par aventure).\n  - Greffon *Document AI* (pour analyser des textes).\n  - Greffon *Lovable* (en mode \"observation\" seulement).\n\n**Étape 4 : Activer la loi des jets d’encre**\n- **Règles de déclenchement** :\n  - Si une demande dépasse 5000 tokens → *\"Ce coût semble élevé. Confirmez ?\"*\n  - Si une Seed est ambiguë → *\"Cette idée mérite un rêve avant une aventure. Jouez avec ?\"*\n  - Si une action touche une parcelle sensible → *\"Guardian suggère de limiter. Validez ?\"*\n\n**Étape 5 : Lancer une micro-aventure d’observation**\n- **Objectif** : *\"Comprendre pourquoi le Garden est dense sur mobile.\"*\n- **Sac** :\n  - Rêve : *\"Un aquarium minimaliste.\"*\n  - Bouture : *Lovable* (mode \"design\").\n  - Souvenir : *\"Les utilisateurs cliquent moins sur les détails.\"*\n- **Pique-nique** : Tokens Mistral (500) + *Voice* (pour tester des voix calmes).\n- **Validation** : *\"Le jardinier autorise cette exploration sans risque. Retour dans 1h.\"*\n\n---\n**À éviter** :\n- Tout déclenchement automatique (même une curiosité).\n- Les métaphores non explicitement dans les sources (ex : \"poulpe qui rêve\").\n- Les hypothèses sur des fonctionnalités absentes (ex : prix, API).\n\n**Prochaine action** : Attendre le retour de Gérard pour affiner les outils en fonction de ses *\"Tiens...\"* concrets.",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": null,
+      "state": "harvested"
     }
   ]
 }
