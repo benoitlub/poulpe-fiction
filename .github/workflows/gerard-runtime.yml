@@ -10,6 +10,9 @@ on:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
       - "scripts/gerard-community-radar.mjs"
+      - "scripts/gerard-image-studio.mjs"
+      - "templates/image-studio.v1.json"
+      - "tests/gerard-image-studio.test.mjs"
       - "templates/community-radar.v1.json"
       - "tests/gerard-community-radar.test.mjs"
       - "scripts/gerard-b2b-qualification.mjs"
@@ -55,6 +58,7 @@ jobs:
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
       AI_MODEL: ${{ secrets.AI_MODEL }}
       AI_PROVIDER: mistral
+      GERARD_IMAGE_STUDIO_ENABLED: ${{ vars.GERARD_IMAGE_STUDIO_ENABLED || 'false' }}
       # Disabled unless explicitly activated by a human after review/deployment.
       GERARD_METRICOOL_EXECUTION_ENABLED: ${{ vars.GERARD_METRICOOL_EXECUTION_ENABLED || 'false' }}
       METRICOOL_EXECUTION_TOKEN: ${{ secrets.METRICOOL_EXECUTION_TOKEN }}
@@ -200,6 +204,9 @@ jobs:
       - name: Test community radar parcel isolation
         working-directory: poulpe-fiction
         run: node --test tests/gerard-community-radar.test.mjs
+
+      - name: Test image studio parcel templates
+        run: node --test tests/gerard-image-studio.test.mjs
 
       - name: Test Gerard email outbox safety
         working-directory: poulpe-fiction
