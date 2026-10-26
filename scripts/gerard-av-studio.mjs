@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 const exec = promisify(execFile);
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
-export const studioOperationId = (seed, kind) =>
+export const studioOperationId = (seed, kind, creativeFeedback = []) =>
   "studio-" +
   sha(
     JSON.stringify({
@@ -16,9 +16,29 @@ export const studioOperationId = (seed, kind) =>
       objective: seed.objective,
       templates: seed.templates,
       kind,
+      creativeFeedback,
     }),
   );
-export async function studioMission(seed, kind = "video", operationId) {
+/**
+ * Return only the owner's reviewed creative notes for this exact parcel and
+ * medium. This is contextual guidance, never authorization to publish.
+ */
+export function studioFeedbackForParcel(learning, parcelId, kind = "video") {
+  if (kind !== "video") return [];
+  const records = learning?.guidance?.ownerCreativeFeedback;
+  if (!Array.isArray(records)) return [];
+  return records.filter((item) =>
+    item?.parcelId === parcelId && item?.assetType === "short-video" &&
+    typeof item.feedbackId === "string" && Array.isArray(item.creativeGuidance)
+  ).slice(-8).map((item) => ({
+    feedbackId: item.feedbackId.slice(0, 120),
+    creativeGuidance: item.creativeGuidance.filter((s) => typeof s === "string" && s.trim()).slice(0, 8).map((s) => s.slice(0, 240)),
+    prohibitedActions: (Array.isArray(item.prohibitedActions) ? item.prohibitedActions : [])
+      .filter((s) => typeof s === "string" && s.trim()).slice(0, 8).map((s) => s.slice(0, 180)),
+  })).filter((item) => item.creativeGuidance.length > 0);
+}
+
+export async function studioMission(seed, kind = "video", operationId, creativeFeedback = []) {
   if (!["image", "audio", "video"].includes(kind))
     throw new Error("unknown-studio-kind");
   const declaration = seed.templates?.find(
@@ -78,6 +98,7 @@ export async function studioMission(seed, kind = "video", operationId) {
             : {}),
           ...(v.knowledge ? { knowledge: v.knowledge } : {}),
           authorizedResources: resources,
+          ...(creativeFeedback.length ? { creativeFeedback } : {}),
           automaticPublication: false,
         },
       },
@@ -107,9 +128,10 @@ export async function runParcelStudio(
     publisherUrl = process.env.LOCAL_PUBLISHER_URL || "http://127.0.0.1:3100",
     download,
     verifyFile,
+    creativeFeedback = [],
   } = {},
 ) {
-  const mission = await studioMission(seed, kind, operationId);
+  const mission = await studioMission(seed, kind, operationId, creativeFeedback);
   if (!mission) return { status: "disabled" };
   if (!outputDir) throw new Error("studio-archive-required");
   const dir =
