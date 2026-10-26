@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import {
   imageStudioConfig,
   imageStudioPrompt,
+  runImageStudio,
 } from "../scripts/gerard-image-studio.mjs";
+
 import {
   mkdtemp,
   mkdir,
@@ -138,4 +140,50 @@ test("the real cycle never turns an explicit image spending refusal into permiss
   assert.ok(
     !missions.some((m) => m.requiredCapabilities?.includes("social.publish")),
   );
+});
+
+test("the historical callback path also honors the template spending refusal", async () => {
+  let called = false;
+  const r = await runImageStudio(
+    {
+      ...seed,
+      templates: [
+        {
+          id: "image-studio",
+          config: { subject: "Own project", allowMistralImage: false },
+        },
+      ],
+    },
+    {
+      request: async () => {
+        called = true;
+        throw new Error("must not execute provider");
+      },
+      download: async () => Buffer.alloc(0),
+      outputDir: "/unused",
+    },
+  );
+  assert.equal(r.status, "blocked");
+  assert.equal(called, false);
+  const allowed = await runImageStudio(
+    {
+      ...seed,
+      templates: [
+        {
+          id: "image-studio",
+          config: { subject: "Own project", allowMistralImage: true },
+        },
+      ],
+    },
+    {
+      request: async () => {
+        called = true;
+        return { status: "failed" };
+      },
+      download: async () => Buffer.alloc(0),
+      outputDir: "/unused",
+    },
+  );
+  assert.equal(called, true);
+  assert.equal(allowed.status, "failed");
 });

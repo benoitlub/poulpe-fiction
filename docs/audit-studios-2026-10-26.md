@@ -6,7 +6,7 @@ Base examinée : `70bae54` (inclut le handoff vidéo #142 et les retours créati
 
 | Priorité | Avant : preuve reproductible | Après |
 | --- | --- | --- |
-| Élevée — autorisation | Le vrai `gerard-cycle.mjs`, avec `GERARD_IMAGE_STUDIO_ENABLED=true` et `allowMistralImage:false`, soumettait quand même `mistral.image` | L'interrupteur active le studio, jamais la dépense. Permission du template conservée telle quelle, absence = refus. Test dans un jardin temporaire, serveur bloquant toute exécution réelle |
+| Élevée — autorisation | Le vrai `gerard-cycle.mjs`, avec `GERARD_IMAGE_STUDIO_ENABLED=true` et `allowMistralImage:false`, soumettait quand même `mistral.image` | L'interrupteur active le studio, jamais la dépense. Permission du template conservée telle quelle, absence = refus, y compris dans l'ancien adaptateur à callbacks. Test dans un jardin temporaire, serveur bloquant toute exécution réelle |
 | Moyenne — choix créatifs | `voiceProvider:elevenlabs`, musique de bibliothèque et gain personnalisé étaient acceptés puis ignorés | Réponses explicites d'indisponibilité avant toute mission ; aucun remplacement silencieux par Piper ou une autre musique. Le faux réglage par défaut `musicGainDb` est retiré |
 | Moyenne — prompt | Le sujet était transmis seul, sans style ni ratio choisis | Prompt commun au chemin historique et au nouveau studio, style et ratio transmis |
 | Élevée — preuve du fichier | Le descripteur principal pouvait contredire le manifeste, et une durée manquante dans le rapport pouvait neutraliser la comparaison (`NaN`) | Hash/taille du descripteur comparés au manifeste ; durée comparée à la demande de Gérard, pas au rapport. Codecs, dimensions, fréquence, pixels et canaux vérifiés sur le vrai fichier |
@@ -15,7 +15,7 @@ Les tests ont d'abord reproduit le refus de dépense écrasé et l'absence de re
 
 ## Vérification exécutée
 
-- **156 tests Poulpe réussis**, build réussi. Le test du refus utilise le vrai cycle, sans aucun appel fournisseur.
+- **157 tests Poulpe réussis**, build réussi. Le test du refus utilise le vrai cycle, sans aucun appel fournisseur.
 - **88 tests API Publisher réussis**, types/build réussis.
 - E2E réel local : cycle `cultivate` dans un jardin temporaire, Octopus, routes Express, Piper français et FFmpeg ; archive vérifiée par le client, puis réutilisation vérifiée par le serveur. Aucune génération externe, publication ou dépense fournisseur. La preuve JSON est dans la PR Publisher compagnon.
 - Les retours créatifs et `videoAssetId` ajoutés récemment sont conservés ; leurs tests de transmission passent.

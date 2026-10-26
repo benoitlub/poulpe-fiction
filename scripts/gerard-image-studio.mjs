@@ -22,6 +22,7 @@ export async function runImageStudio(seed,{ request, download, outputDir, templa
  const template=JSON.parse(await readFile(templateUrl,'utf8'));
  const config=imageStudioConfig(seed,template);
  if (!config) return {status:'disabled'};
+ if (config.allowMistralImage !== true) return {status:'blocked',reason:'mistral-image-authorization-required',published:false};
  if (!request || !download || !outputDir) throw new Error('image-studio-adapters-required');
  const prompt=imageStudioPrompt(config);
  const response=await request(prompt);
