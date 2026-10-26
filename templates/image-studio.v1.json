@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "templateId": "image-studio",
+  "description": "Reusable per-parcel image generation through existing Publisher Mistral endpoints. Produces files only; no publication.",
+  "provider": "mistral",
+  "generateEndpoint": "/api/production/mistral-image/test",
+  "downloadEndpoint": "/api/production/mistral-image/content",
+  "defaults": {
+    "aspectRatio": "9:16",
+    "style": "promotional",
+    "outputFormat": "png"
+  },
+  "requiredConfig": [
+    "subject"
+  ],
+  "workflow": [
+    "compose-prompt",
+    "generate",
+    "download",
+    "validate",
+    "archive",
+    "review"
+  ],
+  "safety": {
+    "automaticPosting": false,
+    "requireHumanApprovalForPublication": true,
+    "noInventedGenerationSuccess": true
+  },
+  "outputs": [
+    "image",
+    "generation-metadata",
+    "parcel-id",
+    "prompt"
+  ]
+}
