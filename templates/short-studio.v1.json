@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "templateId": "short-studio",
+  "description": "Reusable 9:16 short assembly from verified local image and audio assets; no automatic posting or paid generation.",
+  "defaults": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "secondsPerScene": 3,
+    "maxScenes": 8,
+    "maxDurationSeconds": 60,
+    "voiceVolume": 1,
+    "musicVolume": 0.12
+  },
+  "requiredConfig": ["title", "scenes", "narrationAudio"],
+  "workflow": ["select-assets", "verify-provenance", "assemble-mp4", "probe-output", "archive", "review", "handoff-only-after-approval"],
+  "safety": {
+    "automaticPosting": false,
+    "requireVerifiedLocalAssets": true,
+    "requireLicensedMusic": true,
+    "requireHumanApprovalForPublication": true,
+    "allowPaidGeneration": false,
+    "publishIfRenderFailed": false
+  },
+  "outputs": ["short.mp4", "short-studio.json"]
+}
