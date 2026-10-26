@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
 import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
 import { runCommunityRadar } from "./gerard-community-radar.mjs";
+import { runImageStudio } from "./gerard-image-studio.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
@@ -390,6 +391,34 @@ async function main() {
             reason: String(error).slice(0, 180) };
           console.log(JSON.stringify({ event: "gerard-community-radar", ...state.lastCommunityRadar }));
         }
+      }
+      // Image Studio is opt-in to prevent unexpected paid generations or social publication.
+      if (selectedSeed.templates?.some(t => t.id === "image-studio" && t.enabled !== false)) {
+        if (process.env.GERARD_IMAGE_STUDIO_ENABLED !== "true") {
+          state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, status: "awaiting-authorization" };
+        } else {
+          try {
+            const outputDir = new URL("../garden/image-studio/" + encodeURIComponent(selectedSeed.parcelId) + "/", import.meta.url);
+            const media = await runImageStudio(selectedSeed, {
+              outputDir,
+              request: async prompt => {
+                const response = await callJson(PUBLISHER_URL + "/api/production/mistral-image/test?prompt=" + encodeURIComponent(prompt));
+                if (response.status !== "ok") throw new Error("publisher-image-request-" + response.httpStatus);
+                return response.payload;
+              },
+              download: async fileId => {
+                const url = PUBLISHER_URL + "/api/production/mistral-image/content?fileId=" + encodeURIComponent(fileId);
+                const response = await fetch(url, { signal: AbortSignal.timeout(90000) });
+                if (!response.ok) throw new Error("publisher-image-download-" + response.status);
+                return new Uint8Array(await response.arrayBuffer());
+              }
+            });
+            state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, ...media };
+          } catch (error) {
+            state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, status: "failed", reason: String(error).slice(0, 180) };
+          }
+        }
+        console.log(JSON.stringify({ event: "gerard-image-studio", ...state.lastImageStudio }));
       }
       const knowledgeResult = await callOctopus(knowledgeMission);
       const knowledgePayload = knowledgeResult?.payload ?? {};
