@@ -206,6 +206,7 @@ jobs:
         run: node --test tests/gerard-community-radar.test.mjs
 
       - name: Test image studio parcel templates
+        working-directory: poulpe-fiction
         run: node --test tests/gerard-image-studio.test.mjs
 
       - name: Test Gerard email outbox safety
