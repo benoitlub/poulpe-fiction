@@ -12,6 +12,7 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
 import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
+import { runCommunityRadar } from "./gerard-community-radar.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
@@ -372,6 +373,22 @@ async function main() {
           businessSources = [];
           businessSourceState = "unavailable";
           console.log(JSON.stringify({ event: "gerard-b2b-sources", status: "unavailable", reason: String(error).slice(0, 180) }));
+        }
+      }
+      // Optional read-only community discovery reuses Publisher's existing B2B source adapter.
+      // Failure never blocks the normal harvest, and no external message is sent.
+      if (selectedSeed.communityRadar?.enabled) {
+        try {
+          const radar = await runCommunityRadar(selectedSeed, { search: query =>
+            searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: {
+              ...selectedSeed, businessSearchQuery: query
+            }, call: callJson }) });
+          state.lastCommunityRadar = { at: nowIso(), seedId: selectedSeed.seedId, ...radar };
+          console.log(JSON.stringify({ event: "gerard-community-radar", ...state.lastCommunityRadar }));
+        } catch (error) {
+          state.lastCommunityRadar = { at: nowIso(), seedId: selectedSeed.seedId, status: "unavailable",
+            reason: String(error).slice(0, 180) };
+          console.log(JSON.stringify({ event: "gerard-community-radar", ...state.lastCommunityRadar }));
         }
       }
       const knowledgeResult = await callOctopus(knowledgeMission);
