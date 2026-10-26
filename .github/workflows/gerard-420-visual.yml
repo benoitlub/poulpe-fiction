@@ -156,13 +156,21 @@ jobs:
           node-version: 20
       - name: Test capture evidence safeguards
         run: node --test tests/gerard-gameplay-capture.test.mjs
-      - name: Install browser and codecs
+      - name: Install browser and codecs in isolated runner directory
+        env:
+          GERARD_PLAYWRIGHT_DIR: ${{ runner.temp }}/gerard-playwright
         run: |
-          npm install --no-save --ignore-scripts playwright
-          npx playwright install --with-deps chromium
+          set -euo pipefail
+          mkdir -p "$GERARD_PLAYWRIGHT_DIR"
+          npm install --prefix "$GERARD_PLAYWRIGHT_DIR" --no-save --ignore-scripts --package-lock=false --no-audit --no-fund playwright
+          "$GERARD_PLAYWRIGHT_DIR/node_modules/.bin/playwright" install --with-deps chromium
           sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Record authentic dice rolls (no external POST)
-        run: node scripts/gerard-gameplay-capture.mjs output/gameplay
+        env:
+          GERARD_PLAYWRIGHT_MODULE: ${{ runner.temp }}/gerard-playwright/node_modules/playwright/index.mjs
+        run: |
+          node --input-type=module -e 'await import(process.env.GERARD_PLAYWRIGHT_MODULE)'
+          node scripts/gerard-gameplay-capture.mjs output/gameplay
       - name: Upload review-only source footage and proof
         if: always()
         uses: actions/upload-artifact@v4
