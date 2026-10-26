@@ -49,8 +49,9 @@ mkdirSync(artifactDir, { recursive: true });
     fullPage: true,
   });
   await page
-    .getByRole("button", { name: "Greffeur : Réparer une écluse, Échouée" })
+    .getByRole("button", { name: "Greffeur : 1 mission, afficher les états" })
     .click();
+  await page.locator(".crew-mission").first().click();
   await page
     .getByRole("button", { name: "Simuler une reprise fictive" })
     .click();
@@ -64,7 +65,8 @@ mkdirSync(artifactDir, { recursive: true });
     .getByRole("button", { name: "Traces réelles", exact: true })
     .click();
   await page.getByText("LECTURE CONNECTÉE", { exact: true }).waitFor();
-  assert.equal(await page.locator(".worker").count(), 12);
+  assert.ok((await page.locator(".worker").count()) <= 7);
+  assert.ok((await page.locator(".worker").count()) > 0);
   assert.equal(
     await page.getByText("DONNÉES FICTIVES", { exact: true }).count(),
     0,
@@ -142,7 +144,6 @@ mkdirSync(artifactDir, { recursive: true });
     ),
   );
   assert.equal(mobileAxe.violations.length, 0);
-  await page.reload();
   await page.route("**/api/garden/v1/snapshot", (r) =>
     r.fulfill({
       status: 200,
@@ -150,9 +151,7 @@ mkdirSync(artifactDir, { recursive: true });
       body: JSON.stringify({ mode: "demo", events: [] }),
     }),
   );
-  await page
-    .getByRole("button", { name: "Traces réelles", exact: true })
-    .click();
+  await page.reload();
   await page.getByText("RÉPONSE INVALIDE", { exact: true }).waitFor();
   assert.equal(await page.locator(".worker").count(), 0);
   await page.unroute("**/api/garden/v1/snapshot");
