@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "feedback": [
+    {
+      "id": "benoit-420-dice-short-2026-10-26",
+      "source": "owner-reviewed-github",
+      "ownerGitHub": "benoitlub",
+      "approvedAt": "2026-10-26",
+      "parcelId": "420-dice",
+      "assetType": "short-video",
+      "artifact": "garden/studio/420-dice/studio-7b03daf789d1042a62c65adeca0312fca634fc8063790d4fc3459e418a6843cb/short.mp4",
+      "evaluation": {
+        "voice": "positive",
+        "motion": "needs-improvement",
+        "summary": "Voix française réussie, mais le film montre essentiellement une capture fixe de l’interface au centre."
+      },
+      "creativeGuidance": [
+        "Conserver la voix française Piper qui fonctionne.",
+        "Montrer les dés et le déroulement d'une vraie partie plutôt qu'une image fixe.",
+        "Construire plusieurs plans animés, avec mouvements de caméra et transitions.",
+        "Évaluer l'intérêt visuel du rendu avant de considérer le Short réussi."
+      ],
+      "prohibitedActions": [
+        "Ne pas modifier les publications déjà programmées.",
+        "Ne pas publier automatiquement une nouvelle version.",
+        "Ne pas engager de dépenses ou activer un service payant."
+      ],
+      "status": "accepted-for-learning"
+    }
+  ]
+}
