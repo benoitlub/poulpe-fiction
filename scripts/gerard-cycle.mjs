@@ -14,7 +14,7 @@ import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarv
 import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
 import { runCommunityRadar } from "./gerard-community-radar.mjs";
 import { runImageStudio } from "./gerard-image-studio.mjs";
-import { runParcelStudio, studioOperationId, submitStudioMission } from "./gerard-av-studio.mjs";
+import { runParcelStudio, studioOperationId, studioFeedbackForParcel, submitStudioMission } from "./gerard-av-studio.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
@@ -343,9 +343,15 @@ async function main() {
         result = { status:"failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId, decision:"studio-awaiting-authorization", published:false };
       } else {
         try {
-          const studioId=studioOperationId(selectedSeed,kind);
+          // Owner-approved feedback is loaded from Gérard's durable learning
+          // before submission to Publisher. A revised review gets a distinct
+          // operation ID so an old static preview cannot be silently reused.
+          const learning = await readFile(new URL("../garden/gerard-learning.json", import.meta.url), "utf8")
+            .then(JSON.parse).catch(() => ({}));
+          const creativeFeedback = studioFeedbackForParcel(learning, selectedSeed.parcelId, kind);
+          const studioId=studioOperationId(selectedSeed,kind,creativeFeedback);
           const outputDir = new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`, import.meta.url);
-          const studio = await runParcelStudio(selectedSeed,{kind,operationId:studioId,outputDir});
+          const studio = await runParcelStudio(selectedSeed,{kind,operationId:studioId,outputDir,creativeFeedback});
           result = { status:studio.status === "ready-for-review" ? "ok" : "failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId,
             decision:studio.status === "ready-for-review" ? "studio-files-ready-for-review" : "studio-production-blocked", studio, published:false };
         } catch (error) {
