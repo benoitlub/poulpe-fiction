@@ -428,10 +428,9 @@ async function main() {
           state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, status: "awaiting-authorization" };
         } else {
           try {
-            // The existing image enable flag authorizes the same Mistral image
-            // action as before; registered media never needs that paid fallback.
-            const imageSeed = { ...selectedSeed, templates:selectedSeed.templates.map(t => t.id === "image-studio" ?
-              { ...t, config:{...t.config, allowMistralImage:!t.config?.assetId} } : t) };
+            // Enabling the studio is not consent to spend provider credits.
+            // Keep the exact per-template permission, including an explicit no.
+            const imageSeed = selectedSeed;
             const studioId=studioOperationId(imageSeed,"image");
             const outputDir=new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`,import.meta.url);
             const media=await runImageStudio(imageSeed,{outputDir,operationId:studioId,submit:submitStudioMission});
