@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1.0",
+  "templateId": "community-radar",
+  "description": "Reusable community discovery and qualification template for Gerard/Publisher. No automatic outreach.",
+  "parcelId": "{{parcelId}}",
+  "knowledgeSlug": "{{knowledgeSlug}}",
+  "audience": [
+    "{{audience}}"
+  ],
+  "offer": "{{offer}}",
+  "geography": [
+    "{{geography}}"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "channels": [
+    "reddit",
+    "public-forums",
+    "discord-public",
+    "facebook-public",
+    "professional-communities"
+  ],
+  "discovery": {
+    "capability": "business.sources.search",
+    "queryTemplates": [
+      "{{offer}} {{audience}} communauté",
+      "{{audience}} forum discussion {{geography}}"
+    ],
+    "readOnly": true,
+    "maxCandidates": 20
+  },
+  "qualification": {
+    "minScore": 60,
+    "criteria": {
+      "relevance": 35,
+      "activity": 20,
+      "participationRules": 20,
+      "commercialIntent": 15,
+      "sourceQuality": 10
+    },
+    "requireSourceUrl": true,
+    "requireVerifiedRules": true
+  },
+  "workflow": [
+    "discover",
+    "deduplicate",
+    "qualify",
+    "prepare-relevant-reply",
+    "human-review",
+    "observe-outcomes",
+    "learn"
+  ],
+  "records": {
+    "fields": [
+      "parcelId",
+      "communityName",
+      "url",
+      "platform",
+      "audience",
+      "rulesUrl",
+      "rulesVerified",
+      "score",
+      "sourceCheckedAt",
+      "status",
+      "lastInteractionAt",
+      "response",
+      "conversionEvidence"
+    ],
+    "statuses": [
+      "discovered",
+      "qualified",
+      "review-required",
+      "approved",
+      "contacted",
+      "responded",
+      "converted",
+      "rejected"
+    ]
+  },
+  "safety": {
+    "automaticPosting": false,
+    "unsolicitedDMs": false,
+    "requireChannelAuthorization": true,
+    "requireHumanApprovalForExternalContact": true,
+    "doNotInferConversions": true,
+    "keepParcelsIsolated": true
+  },
+  "metrics": [
+    "verifiedCommunities",
+    "qualifiedCommunities",
+    "approvedInteractions",
+    "actualResponses",
+    "verifiedLeads",
+    "verifiedRevenue"
+  ]
+}
