@@ -957,7 +957,7 @@ jobs:
 
       - name: Verify Metricool feedback memory safeguards
         working-directory: poulpe-fiction
-        run: node --test tests/gerard-social-feedback.test.mjs
+        run: node --test tests/gerard-social-feedback.test.mjs tests/gerard-learning-cycle.test.mjs
 
       - name: Update Gerard learning from verified outcomes
         working-directory: poulpe-fiction
@@ -966,36 +966,7 @@ jobs:
           set -euo pipefail
           mkdir -p garden
           test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
-          jq -n --slurpfile previous garden/gerard-learning.json --slurpfile decision garden/gerard-decision-explanation.json --slurpfile package garden/next-social-publication.json --slurpfile analytics garden/metricool-analytics-snapshot.json --slurpfile publisher garden/gerard-publisher-advice.json '
-            ($decision[0] // {}) as $d
-            | ($package[0] // {}) as $p
-            | ($analytics[0] // {}) as $a
-            | ($previous[0].observations // []) as $old
-            | {updatedAt:(now | todateiso8601),
-               observations:(($old + [{
-                 observedAt:(now | todateiso8601),
-                 seedId:($d.seedId // null),
-                 harvestId:($d.harvestId // null),
-                 copyText:($d.copyText // null),
-                 repeatCount:($d.previousSelectionsOfSameCopy // 0),
-                 chosenExperiment:($d.deliberation.chosen.id // null),
-                 experimentHypothesis:($d.deliberation.chosen.hypothesis // null),
-                 delivery:($p.delivery // {status:"not-attempted"}),
-                 metricsStatus:($a.status // "unavailable"),
-                 outcome:(if (($p.delivery.status // "") | IN("queued","published","sent")) then "transport-accepted" elif (($p.delivery.status // "") | IN("failed","error","rejected")) then "transport-failed" else "not-verified" end),
-                 matchedMetrics:(if $a.status == "available" then [$a.posts[]? | select(.text == $d.copyText)] else [] end),
-                 lesson:(if $a.status != "available" then "Analytics unavailable: do not infer failure or success; continue testing."
-                         elif ([$a.posts[]? | select(.text == $d.copyText)] | length) == 0 then "No matching post analytics yet; retry observation later."
-                         elif ($d.previousSelectionsOfSameCopy // 0) > 0 then "Compare this repeated copy against other angles using verified metrics."
-                         else "Compare verified performance before choosing the next angle." end)
-               }])[-150:]),
-               publisherAdvice:($publisher[0] // {}),
-               guidance:{seedId:($d.seedId // null),
-                 chosenExperiment:($d.deliberation.chosen.id // "new-angle"),
-                 nextExperiment:(if ($d.previousSelectionsOfSameCopy // 0) > 0 then "Try a different creative angle or image next time; repeats remain allowed." else "Explore a new angle and record delivery." end),
-                 performanceRankingEnabled:($a.status == "available" and ([$a.posts[]? | select(.text == $d.copyText)] | length) > 0)}}
-          ' > /tmp/gerard-learning-next.json
-          mv /tmp/gerard-learning-next.json garden/gerard-learning.json
+          node scripts/gerard-learning-cycle.mjs
           node scripts/gerard-social-feedback.mjs
 
       - name: Validate real harvest result
