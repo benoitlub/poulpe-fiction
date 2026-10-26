@@ -66,7 +66,7 @@ export async function studioMission(seed, kind = "video", operationId, creativeF
   const resources = [capability];
   // These flags are explicit decisions, not inferred from a connected provider.
   if (v.allowMistralText === true) resources.push("mistral.text");
-  if (v.allowMistralImage === true) resources.push("mistral.image");
+  if (!useVideoSource && v.allowMistralImage === true) resources.push("mistral.image");
   if (
     ![seed.seedId, seed.parcelId, operationId].every(
       (v) =>
