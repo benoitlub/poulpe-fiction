@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { QuestionStep } from "../components/QuestionStep";
 import { GerardMailDesk } from "../components/GerardMailDesk";
+import { GerardGardenBench } from "../components/GerardGardenBench";
 import type { PoulpeRuntimeAdapter } from "../runtime/PoulpeRuntimeAdapter";
 import { poulpeStore, usePoulpeStore } from "../store";
 import type { Parcel } from "../types";
@@ -372,6 +373,8 @@ export function GerardScreen({ runtime, onSubmit }: { runtime: PoulpeRuntimeAdap
         </div>
         {clientContext ? <div className="pf-client-card"><strong>{clientContext.displayName}</strong><span>{clientContext.activity}</span></div> : null}
       </section>
+
+      <GerardGardenBench />
 
       <GerardMailDesk />
 
