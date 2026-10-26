@@ -377,10 +377,10 @@ async function main() {
       }
       // Optional read-only community discovery reuses Publisher's existing B2B source adapter.
       // Failure never blocks the normal harvest, and no external message is sent.
-      if (selectedSeed.communityRadar?.enabled) {
+      if (selectedSeed.templates?.some(t => t.id === 'community-radar' && t.enabled !== false)) {
         try {
-          const radar = await runCommunityRadar(selectedSeed, { search: query =>
-            searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: {
+          const radar = await runCommunityRadar(selectedSeed, { search: (query, index) =>
+            searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId: `${operationId}-community-${index}`, seed: {
               ...selectedSeed, businessSearchQuery: query
             }, call: callJson }) });
           state.lastCommunityRadar = { at: nowIso(), seedId: selectedSeed.seedId, ...radar };
