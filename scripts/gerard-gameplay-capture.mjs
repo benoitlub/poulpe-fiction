@@ -34,7 +34,7 @@ export function qualityDecision({ video, observations, distinctFrames }) {
 }
 async function launch() {
   const outputDir = path.resolve(process.argv[2] || "./output/gerard-420-gameplay");
-  const playwrightModule = await import("playwright");
+  const playwrightModule = await import(process.env.GERARD_PLAYWRIGHT_MODULE || "playwright");
   const browser = await playwrightModule.chromium.launch({ headless: true, args: ["--no-sandbox"] });
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
