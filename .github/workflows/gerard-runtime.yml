@@ -220,6 +220,15 @@ jobs:
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
 
+      - name: Archive generated Image Studio assets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-image-studio-${{ github.run_id }}
+          path: garden/image-studio/
+          retention-days: 14
+          if-no-files-found: ignore
+
       - name: Compost freshly produced local harvests
         working-directory: poulpe-fiction
         run: node scripts/gerard-compost.mjs
