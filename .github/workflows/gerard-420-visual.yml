@@ -93,8 +93,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gerard-420-dice-mistral-attempt
-          path: output/ai-*
+          path: |
+            output/ai-result.json
+            output/420-dice-ai-image.png
           retention-days: 14
+          if-no-files-found: error
       - name: Reuse Gerard existing harvest media producer
         if: ${{ inputs.harvest_id != '' }}
         env:
