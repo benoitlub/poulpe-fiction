@@ -59,6 +59,7 @@ jobs:
       AI_MODEL: ${{ secrets.AI_MODEL }}
       AI_PROVIDER: mistral
       GERARD_IMAGE_STUDIO_ENABLED: ${{ vars.GERARD_IMAGE_STUDIO_ENABLED || 'false' }}
+      GERARD_AV_STUDIO_ENABLED: ${{ vars.GERARD_AV_STUDIO_ENABLED || 'false' }}
       # Disabled unless explicitly activated by a human after review/deployment.
       GERARD_METRICOOL_EXECUTION_ENABLED: ${{ vars.GERARD_METRICOOL_EXECUTION_ENABLED || 'false' }}
       METRICOOL_EXECUTION_TOKEN: ${{ secrets.METRICOOL_EXECUTION_TOKEN }}
@@ -123,6 +124,21 @@ jobs:
         working-directory: publisher
         run: pnpm --filter @workspace/api-server run build
 
+      - name: Prepare local audiovisual tools only when explicitly enabled
+        if: env.GERARD_AV_STUDIO_ENABLED == 'true' || env.GERARD_IMAGE_STUDIO_ENABLED == 'true'
+        working-directory: publisher
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          if [ "$GERARD_AV_STUDIO_ENABLED" = "true" ]; then
+            python3 -m venv .studio-venv
+            .studio-venv/bin/pip install 'piper-tts==1.8.0'
+            python3 scripts/setup-studio-voice.py
+            echo "PIPER_BIN=$PWD/.studio-venv/bin/piper" >> "$GITHUB_ENV"
+            echo "PIPER_MODEL=$PWD/data/studio-models/fr_FR-siwis-medium.onnx" >> "$GITHUB_ENV"
+            echo "PIPER_MODEL_SHA256=641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99" >> "$GITHUB_ENV"
+          fi
+
       - name: Start Octopus Engine locally
         working-directory: octopus
         run: |
@@ -160,7 +176,7 @@ jobs:
           curl --fail --silent --show-error \
             -X POST "$OCTOPUS_URL/adapters/register" \
             -H "Content-Type: application/json" \
-            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate"],executeUrl:$executeUrl}')"
+            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate","image.studio","audio.studio","video.studio"],executeUrl:$executeUrl}')"
 
       - name: Sync restart Seeds to Publisher
         working-directory: poulpe-fiction
@@ -1019,11 +1035,13 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          if [ -n "$(git status --porcelain garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json)" ]; then
+          STUDIO_FILES=()
+          if [ -d garden/studio ]; then mapfile -d '' STUDIO_FILES < <(find garden/studio -type f -print0); fi
+          if [ -n "$(git status --porcelain garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json garden/studio)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json; do
+            for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
@@ -1042,7 +1060,7 @@ jobs:
                 fi
               else
                 echo "Generated state conflicts with upstream; resolving snapshot files only."
-                for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json; do
+                for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
                   if git ls-files -u -- "$file" | grep -q .; then
                     if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
                       git show REBASE_HEAD:"$file" > "$file"
@@ -1079,6 +1097,8 @@ jobs:
           path: |
             octopus.log
             publisher.log
+            poulpe-fiction/garden/studio/**
+            publisher/data/studio/jobs/**
           retention-days: 7
 
   gerard_issue_diagnostic:

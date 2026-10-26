@@ -1,4 +1,10 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { runParcelStudio } from './gerard-av-studio.mjs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 const TEMPLATE = new URL('../templates/image-studio.v1.json', import.meta.url);
 export function imageStudioConfig(seed, template) {
  const declaration = seed?.templates?.find(t => t.id === 'image-studio' && t.enabled !== false);
@@ -11,7 +17,8 @@ export function imageStudioConfig(seed, template) {
 export function imageStudioPrompt(config) {
  return [config.subject, config.style ? 'Style: '+config.style : '', 'Aspect ratio: '+config.aspectRatio, 'No readable text or logos unless explicitly provided.'].filter(Boolean).join('. ');
 }
-export async function runImageStudio(seed,{ request, download, outputDir, templateUrl=TEMPLATE }={}) {
+export async function runImageStudio(seed,{ request, download, outputDir, templateUrl=TEMPLATE, submit, operationId, publisherUrl, verifyFile }={}) {
+ if(submit)return runParcelStudio(seed,{kind:'image',submit,operationId,outputDir,publisherUrl,download,verifyFile});
  const template=JSON.parse(await readFile(templateUrl,'utf8'));
  const config=imageStudioConfig(seed,template);
  if (!config) return {status:'disabled'};
@@ -30,8 +37,19 @@ export async function runImageStudio(seed,{ request, download, outputDir, templa
  const ext=png?'png':jpg?'jpg':'webp';
  await mkdir(outputDir,{recursive:true});
  const filename='image-studio.'+ext;
- await writeFile(new URL(filename,outputDir),buffer);
- const metadata={status:'generated',parcelId:config.parcelId,seedId:config.seedId,provider:'mistral',fileId,prompt,filename,bytes:buffer.length,createdAt:new Date().toISOString(),published:false};
- await writeFile(new URL('image-studio.json',outputDir),JSON.stringify(metadata,null,2)+'\n');
+ const dir=outputDir instanceof URL?fileURLToPath(outputDir):path.resolve(outputDir);
+ const target=path.join(dir,filename);
+ await writeFile(target,buffer);
+ // Signatures alone accept truncated or fabricated files. Decode before success.
+ const exec=promisify(execFile);
+ let probe;
+ try {
+  probe=JSON.parse((await exec('ffprobe',['-v','error','-show_streams','-of','json',target],{timeout:30000})).stdout);
+  await exec('ffmpeg',['-v','error','-xerror','-i',target,'-f','null','-'],{timeout:30000});
+ } catch {return {status:'failed',reason:'image-file-not-decodable',filename};}
+ const stream=probe.streams?.find(s=>s.codec_type==='video');
+ if(!stream?.width||!stream?.height)return {status:'failed',reason:'image-dimensions-missing'};
+ const metadata={status:'generated',parcelId:config.parcelId,seedId:config.seedId,provider:'mistral',fileId,prompt,filename,bytes:buffer.length,sha256:createHash('sha256').update(buffer).digest('hex'),width:stream.width,height:stream.height,verifiedFile:true,rights:{scope:'local-preview',reviewRequired:true,source:'https://legal.mistral.ai/terms'},createdAt:new Date().toISOString(),published:false};
+ await writeFile(path.join(dir,'image-studio.json'),JSON.stringify(metadata,null,2)+'\n');
  return metadata;
 }
