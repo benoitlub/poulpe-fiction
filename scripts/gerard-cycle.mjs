@@ -16,7 +16,7 @@ import { runCommunityRadar } from "./gerard-community-radar.mjs";
 import { runImageStudio } from "./gerard-image-studio.mjs";
 import { runParcelStudio, studioOperationId, studioFeedbackForParcel, submitStudioMission } from "./gerard-av-studio.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
-import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview } from "./gerard-client-acquisition.mjs";
+import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from "./gerard-client-acquisition.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
 
@@ -404,6 +404,13 @@ async function main() {
           // Old Pro.Hibited mail drafts are not reusable for other clients.
           // The template only creates a reviewable research package.
           const newDrafts = acquisition ? 0 : await saveMailDrafts(businessSources, parcel);
+          if (acquisition) {
+            const notion = await handoffAcquisitionReviews(businessSources, acquisition, {
+              publisherUrl: PUBLISHER_URL,
+              token: process.env.PUBLISHER_NOTION_WRITE_TOKEN,
+            });
+            console.log(JSON.stringify({ event: 'gerard-client-acquisition-notion', clientId: acquisition.clientId, ...notion }));
+          }
           businessSourceState = lookup.status;
           console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, newMailDrafts: newDrafts, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
         } catch (error) {
