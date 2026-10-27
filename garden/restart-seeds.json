@@ -35,6 +35,20 @@
       },
       "templates": [
         {
+          "id": "client-acquisition",
+          "enabled": true,
+          "config": {
+            "clientId": "benoit-lubert",
+            "offer": "Distribution, coédition ou partenariat rémunéré pour Pro.Hibited, Jointed, 420 Dice et autres créations",
+            "targetSectors": ["cannabis", "jeux", "distribution", "salon", "événement"],
+            "keywords": ["grossiste", "revendeur", "partenariat", "éditeur"],
+            "geographies": ["France", "Espagne", "Europe"],
+            "languages": ["fr", "en", "es"],
+            "budgetRange": { "min": 200, "max": 1000, "currency": "EUR" },
+            "automaticOutreach": false
+          }
+        },
+        {
           "id": "community-radar",
           "enabled": true,
           "config": {
