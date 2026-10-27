@@ -31,3 +31,26 @@ export function formatAcquisitionReview(sources, config) {
       `   Éléments : ${source.evidence || source.snippet || 'aucun'}\n` +
       `   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n`).join('\n');
 }
+
+export async function handoffAcquisitionReviews(sources, config, { publisherUrl, token, fetcher = fetch } = {}) {
+  if (!token || !publisherUrl) return { status: 'disabled', attempted: 0, created: 0 };
+  const eligible = sources.filter(source => source.verification === 'page-read' &&
+    source.leadStage === 'investigate-contact' && source.url && source.evidence).slice(0, 5);
+  let created = 0;
+  let failed = 0;
+  for (const source of eligible) {
+    try {
+      const response = await fetcher(`${publisherUrl.replace(/\/$/, '')}/api/client-acquisition/notion/review`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: config.clientId, organization: source.title,
+          sourceUrl: source.url, evidence: source.evidence, observedAt: new Date().toISOString().slice(0, 10) }),
+        signal: AbortSignal.timeout(12_000),
+      });
+      const payload = await response.json();
+      if (response.ok && payload.status === 'created-for-review') created++;
+      else if (!response.ok) failed++;
+    } catch { failed++; }
+  }
+  return { status: failed ? 'partial' : 'completed', attempted: eligible.length, created, failed };
+}
