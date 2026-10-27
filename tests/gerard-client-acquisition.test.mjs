@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview } from '../scripts/gerard-client-acquisition.mjs';
+import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from '../scripts/gerard-client-acquisition.mjs';
 import { searchBusinessSources } from '../scripts/gerard-b2b-bridge.mjs';
 
 const instance = id => ({ parcelId: `parcel-${id}`, knowledgeSlug: `knowledge-${id}`, templates: [{ id: 'client-acquisition', config: { clientId: id, offer: 'Atelier IA', targetSectors: ['formation'] } }] });
@@ -38,4 +38,22 @@ test('the existing Publisher search route receives client-specific sector and is
       return { status: 'ok', payload: { status: 'completed', output: { capability: 'business.sources.search', executed: true, status: 'no-sources', candidates: [] } } };
     } });
   assert.equal(response.status, 'no-sources');
+});
+
+test('Notion handoff is disabled without its secret and sends only evidenced review candidates', async () => {
+  const config = getAcquisitionConfig(instance('client-b'));
+  const valid = assessAcquisitionCandidate({ title: 'Centre de formation', url: 'https://example.org', verification: 'page-read', evidence: 'Formation continue' }, config);
+  const invalid = assessAcquisitionCandidate({ title: 'Article formation', url: 'https://news.example.org', verification: 'search-result-only' }, config);
+  assert.equal((await handoffAcquisitionReviews([valid], config, { publisherUrl: 'https://publisher.example' })).status, 'disabled');
+  let calls = 0;
+  const result = await handoffAcquisitionReviews([valid, invalid], config, { publisherUrl: 'https://publisher.example', token: 'test',
+    fetcher: async (_, init) => {
+      calls++;
+      const body = JSON.parse(init.body);
+      assert.equal(body.clientId, 'client-b');
+      assert.equal(body.sourceUrl, valid.url);
+      return { ok: true, json: async () => ({ status: 'created-for-review' }) };
+    } });
+  assert.equal(calls, 1);
+  assert.equal(result.created, 1);
 });
