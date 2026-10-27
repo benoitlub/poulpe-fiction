@@ -33,13 +33,18 @@ export function parseBusinessSourceResponse(response) {
 }
 
 export async function searchBusinessSources({ publisherUrl, operationId, seed, call }) {
+  const acquisition = seed?.templates?.find(t => t.id === 'client-acquisition' && t.enabled !== false)?.config;
+  const query = acquisition ? [
+    ...(acquisition.targetSectors || []), ...(acquisition.keywords || []),
+    ...(acquisition.geographies || []), 'partenaires professionnels contact B2B',
+  ].filter(Boolean).join(' ') : null;
   const mission = {
     operationId: `${operationId}-business-sources`,
-    title: 'Recherche de distributeurs et partenaires B2B',
+    title: acquisition ? `Recherche B2B · ${acquisition.clientId}` : 'Recherche de distributeurs et partenaires B2B',
     objective: seed.objective,
-    prompt: seed.businessSearchQuery || seed.objective || 'Sources professionnelles B2B publiques et vérifiables',
+    prompt: seed.businessSearchQuery || query || seed.objective || 'Sources professionnelles B2B publiques et vérifiables',
     requiredCapabilities: ['business.sources.search'], authorizedResources: ['tools.read'],
-    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, source: 'gerard-cycle', toolRequest: { dryRun: false } } },
+    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, clientId: acquisition?.clientId ?? null, source: 'gerard-cycle', toolRequest: { dryRun: false } } },
   };
   const response = await call(`${publisherUrl}/api/octopus-adapter/execute`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
