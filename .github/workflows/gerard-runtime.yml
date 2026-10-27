@@ -59,6 +59,7 @@ jobs:
       # Harvests must target the deployed Cloudflare Publisher Worker: the
       # local Express API-server does not expose /api/tentacles/*.
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      PUBLISHER_NOTION_WRITE_TOKEN: ${{ secrets.PUBLISHER_NOTION_WRITE_TOKEN }}
       LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
