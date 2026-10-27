@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "templateId": "client-acquisition",
+  "description": "Qualification commerciale multi-client, fondée sur des preuves publiques; aucun contact automatique.",
+  "clientId": "{{clientId}}",
+  "parcelId": "{{parcelId}}",
+  "knowledgeSlug": "{{knowledgeSlug}}",
+  "offer": "{{offer}}",
+  "targetSectors": ["{{sector}}"],
+  "geographies": ["{{geography}}"],
+  "languages": ["fr"],
+  "budgetRange": { "min": 200, "max": 1000, "currency": "EUR" },
+  "discovery": { "capability": "business.sources.search", "readOnly": true, "maxCandidates": 10 },
+  "qualification": {
+    "minimumReviewScore": 70,
+    "weights": { "need": 30, "offerFit": 25, "budgetEvidence": 20, "contactEvidence": 15, "timing": 10 },
+    "requirements": ["real-organization", "public-source-url", "offer-fit-evidence", "verified-contact-before-outreach"]
+  },
+  "workflow": ["discover", "deduplicate", "verify", "qualify", "draft", "human-review", "observe", "learn"],
+  "safety": { "automaticOutreach": false, "requireHumanApproval": true, "isolateByClientAndParcel": true, "neverInferRevenue": true }
+}
