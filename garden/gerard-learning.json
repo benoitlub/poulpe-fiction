@@ -1,20 +1,6 @@
 {
-  "updatedAt": "2026-10-27T09:08:35.940Z",
+  "updatedAt": "2026-10-27T10:12:25.192Z",
   "observations": [
-    {
-      "observedAt": "2026-10-10T14:56:28Z",
-      "seedId": "420-dice",
-      "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
-      "repeatCount": 10,
-      "delivery": {
-        "status": "not-attempted",
-        "publishingEnabled": false
-      },
-      "metricsStatus": "unavailable",
-      "matchedMetrics": [],
-      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
-    },
     {
       "observedAt": "2026-10-10T15:00:14Z",
       "seedId": "420-dice",
@@ -3502,10 +3488,27 @@
       },
       "outcome": "measured-not-ranked",
       "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
+    },
+    {
+      "kind": "gerard-experiment-cycle",
+      "observedAt": "2026-10-27T10:12:25.155Z",
+      "seedId": "gerard-et-gerard",
+      "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
+      "copyText": "🎥 *[Plan serré sur deux mains tenant un livre, voix off énergique]*\n*\"Deux Gérard. Un seul livre. Et si c’était VOUS le troisième ?*\n*Gérard A ou Gérard B ? Faites votre choix… et découvrez lequel vous ressemble !*\n*👉 [Lien en bio] #GérardEtGérard\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
+      "repeatCount": 51,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "outcome": "not-verified",
+      "metricsStatus": "available",
+      "lesson": "No confirmed delivery: avoid claims of publication or audience response."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-27T09:08:35Z",
+    "observedAt": "2026-10-27T10:12:24Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -3528,7 +3531,7 @@
     }
   },
   "guidance": {
-    "seedId": "terra",
+    "seedId": "gerard-et-gerard",
     "chosenExperiment": "explore",
     "nextExperiment": "Test a distinct creative angle; keep earlier posts unchanged.",
     "performanceRankingEnabled": false,
@@ -3597,7 +3600,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3617,7 +3620,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3637,7 +3640,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3657,7 +3660,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3677,7 +3680,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3697,7 +3700,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3717,7 +3720,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3737,7 +3740,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-27T09:08:35.940Z",
+        "observedAt": "2026-10-27T10:12:25.192Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3757,7 +3760,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-27T09:08:35.940Z",
+    "lastIntegratedAt": "2026-10-27T10:12:25.192Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   },
   "pendingExperiments": [],
