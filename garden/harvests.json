@@ -1296,6 +1296,23 @@
       "route": "octopus->publisher-adapter",
       "delivery": null,
       "state": "harvested"
+    },
+    {
+      "harvestId": "gerard-cultivate-1793139712660-harvest",
+      "harvestedAt": "2026-10-27T22:22:13.110Z",
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection",
+      "title": "Yaébali · Préqualification de prospects",
+      "content": "### **Audit des leads réels & Campagne de captation (version validable)**\n\n#### **1. Audit des leads cibles (hors TEST)**\n**Cible prioritaire** :\n- **Vendeurs/agents immobiliers** (Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) → **Lead qualifiant** :\n  *Message* :\n  *\"Bonjour [Prénom],\n  Je suis Yaébali Toyaleke, courtière en crédit immobilier (Empruntis, ORIAS 26009286). Vous accompagnez des acquéreurs dans la région ? Je peux vous proposer une **étude gratuite** pour optimiser leurs financements (assurance emprunteur, regroupement de crédits, etc.). Disponible pour un échange ? [Lien Microsoft Bookings à confirmer].\"*\n\n- **Acheteurs/primo-accédants/investisseurs** (mêmes zones) → **Lead qualifiant** :\n  *Message* :\n  *\"[Prénom], vous cherchez à financer [résidence principale/investissement] ? Je réalise des **analyses gratuites** de votre capacité d’emprunt et compare les offres bancaires. 10 min pour en savoir plus : [Lien Bookings].\"*\n\n**Canaux** :\n- **LinkedIn** (messages InMail ciblés via filtres : \"Agent immobilier\" + \"Montigny-le-Bretonneux\", \"Primo-accédant\" + \"Guyancourt\").\n- **Emailing** (si liste propre : objet *\"Optimisez le financement de vos clients – Étude gratuite\"*).\n- **Partenariats locaux** : Agences immobilières (ex : \"Bonjour [Nom agence], je propose un service clé en main pour vos acquéreurs : analyse + négociation bancaire. Intéressé(e) ?\").\n\n**Formulaire opt-in** (exemple) :\n*\"Je souhaite une analyse gratuite de mon projet immobilier (résidence/investissement).\"*\n→ **Champs** :\n- Nom/Prénom\n- Email\n- Type de projet (⬜ Résidence ⬜ Investissement ⬜ Regroupement de crédits)\n- **Question de qualification** : *\"Quel est votre budget mensuel après charges ?\"* (réponse ouverte ou scale 1-5).\n\n---\n\n#### **2. Campagne prête à valider**\n**A. Message type (adaptable)** :\n*\"Bonjour [Prénom],\nJe suis Yaébali Toyaleke, courtière en crédit immobilier (Empruntis, ORIAS 26009286). Mon rôle ? Vous accompagner **de l’étude à la signature** :\n✅ Analyse de votre capacité d’emprunt (apport, durée, taux).\n✅ Comparaison des offres bancaires (jusqu’à 10 banques).\n✅ Négociation de l’assurance emprunteur (économies potentielles).\n\n**Pourquoi me contacter ?**\n- **Local** : Je couvre Versailles/Le Chesnay et ses alentours.\n- **Transparence** : Pas de frais cachés, devis clair.\n- **Gain de temps** : Je m’occupe des démarches administratives.\n\n**Prochaine étape** :\n[Lien Microsoft Bookings] ou répondez à ce message avec vos questions. Je vous propose un **audit gratuit** de votre dossier (15 min).\n\nCordialement,\nYaébali Toyaleke\n📞 06 32 74 85 03 | 🌐 [Lien LinkedIn à vérifier] | 📍 5 allée du Bourbonnais, Maurepas\"*\n\n**B. Canaux professionnels** :\n1. **LinkedIn** :\n   - **Post organique** (1x/semaine) :\n     *\"Saviez-vous qu’un changement d’assurance emprunteur peut réduire votre mensualité de 20 à 40% ? Je réalise des audits gratuits pour les acquéreurs de la région. DM ouverts pour en discuter. 👇\"*\n     → **CTA** : *\"Commentairez ‘AUDIT’ pour une analyse gratuite\"*.\n   - **InMail** : 50 leads/mois (ciblage précis via filtres).\n\n2. **Emailing** (si liste) :\n   - **Objet** : *\"Votre client a-t-il droit à une meilleure assurance emprunteur ?\"*\n   - **Corps** : *\"Envoyez-moi son dossier (ou ses coordonnées), je vous fais un retour sous 24h.\"*\n\n3. **Partenariats** :\n   - **Agences immobilières** : Offrir une **formation gratuite** (ex : \"Les pièges à éviter en assurance emprunteur\") en échange de leads qualifiés.\n\n**C. Qualification** :\n- **Score de qualification** (1-5) :\n  | Critère               | 1 (Faible) | 3 (Moyen) | 5 (Fort) |\n  |-----------------------|-----------|-----------|----------|\n  | Budget clair          | <50k      | 50-150k   | >150k    |\n  | Projet défini         | Non       | Partiel   | Oui      |\n  | Urgence               | >3 mois   | 1-3 mois  | <1 mois  |\n\n- **Action** :\n  - **",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "recipient": "Yaébali",
+        "mode": "propose-before-send",
+        "harvestState": "ready-to-offer"
+      },
+      "state": "ready-to-offer"
     }
   ]
 }
