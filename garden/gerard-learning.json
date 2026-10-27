@@ -3552,7 +3552,19 @@
           "Ne pas engager de dépenses ou activer un service payant."
         ]
       }
-    ]
+    ],
+    "ownerPlatformSignals": {
+      "latestObservationId": "benoit-mobile-dashboard-2026-10-27",
+      "status": "manual-unattributed",
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "youtube",
+        "amazon-ads"
+      ],
+      "nextAction": "Obtain provider post-level identifiers and time-aligned metrics; do not claim creative performance or publication attribution.",
+      "performanceRankingEnabled": false
+    }
   },
   "socialFeedback": {
     "status": "observed",
@@ -3777,6 +3789,97 @@
         "Ne pas engager de dépenses ou activer un service payant."
       ],
       "status": "accepted-for-learning"
+    }
+  ],
+  "ownerPlatformObservations": [
+    {
+      "id": "benoit-mobile-dashboard-2026-10-27",
+      "observedAt": "2026-10-27",
+      "source": "owner-supplied-platform-screenshots",
+      "verification": "manually-observed-ui",
+      "attribution": "platform-or-visible-tile-only; no verified post URL, harvestId, or creator provenance",
+      "networkAccounts": {
+        "tiktok": {
+          "handle": "@beniblacklace",
+          "followers": 208,
+          "followersBadgeIncrease": 17,
+          "totalLikes": 354,
+          "visibleTiles": [
+            {
+              "subject": "TERRA cover",
+              "views": 751
+            },
+            {
+              "subject": "Les Vacances Interdites book in hand",
+              "views": 271
+            },
+            {
+              "subject": "fantasy woodland illustration",
+              "views": 798
+            },
+            {
+              "subject": "Feuch Dice interface",
+              "views": 258
+            },
+            {
+              "subject": "Les Vacances Interdites illustration",
+              "views": 292
+            },
+            {
+              "subject": "creator introduction",
+              "views": 284
+            }
+          ],
+          "caveat": "Counts are visible video views, not unique reach, clicks, or sales; tile identity is visual only."
+        },
+        "instagram": {
+          "handle": "@benoitlubert",
+          "followers": 467,
+          "accountViewsLast30Days": 125,
+          "posts": 310,
+          "caveat": "Account dashboard, not per-post metrics; period is displayed as last 30 days."
+        },
+        "youtube": {
+          "handle": "@prohibitedNetwork",
+          "subscribers": 14,
+          "visibleShortTiles": [
+            {
+              "subject": "TERRA cover",
+              "views": 5
+            },
+            {
+              "subject": "Les Vacances Interdites fantasy illustration",
+              "views": 2
+            }
+          ],
+          "caveat": "Views of visible Shorts only; post URLs and publication dates not provided."
+        }
+      },
+      "amazonAds": {
+        "marketplace": "France",
+        "visibleDateRange": {
+          "from": "2026-10-01",
+          "to": "2026-10-27"
+        },
+        "impressions": 0,
+        "clicks": 0,
+        "reportedSales": 0,
+        "activeCampaignLabel": "LVI-Test-France-Oct2026",
+        "campaignStatusShown": "en cours de diffusion (truncated in UI)",
+        "alertsShown": 2,
+        "caveat": "Screenshot dashboard filtered by dates/status; do not infer billing, organic book sales, or root cause of no delivery."
+      },
+      "safeConclusions": [
+        "TikTok tiles show nonzero views, with some visible examples higher than the displayed YouTube Shorts, but platforms and time windows are not comparable.",
+        "Instagram account-level 125 views/30 days is not a per-post reach measurement.",
+        "Amazon Ads had zero recorded impressions/clicks/sales in the displayed interval; check campaign eligibility and delivery status before bid changes.",
+        "These measurements are not evidence Gérard authored or published the content and must not close a harvest experiment."
+      ],
+      "suggestedExperiments": [
+        "Capture verified per-post URLs, timestamps, formats, campaign and harvest IDs when available.",
+        "Compare matched TikTok posts within platform after accumulating enough observations.",
+        "Check Amazon Ads delivery alerts and eligibility; do not increase spend based on absence of impressions alone."
+      ]
     }
   ]
 }
