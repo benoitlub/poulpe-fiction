@@ -7,7 +7,7 @@ export const SENDER = 'gerardpoulpefiction@gmail.com';
 export function diagnoseMail(env = process.env) {
   const missing = ['GERARD_GMAIL_CLIENT_ID','GERARD_GMAIL_CLIENT_SECRET','GERARD_GMAIL_REFRESH_TOKEN'].filter(k => !env[k]);
   return { capability: 'gmail.owner-test.send', ready: missing.length === 0, missing, sender: SENDER,
-    nextAction: missing.length ? 'Connecter le compte Gmail de Gérard avec OAuth et renseigner les secrets GitHub Actions.' : 'Lancer le test propriétaire explicitement autorisé.' };
+    nextAction: missing.length ? 'Le chemin OAuth historique est indisponible. Utiliser la connexion Gmail Composio existante via Publisher ; vérifier séparément l’identité et les droits du runtime avant tout envoi.' : 'Lancer le test propriétaire explicitement autorisé.' };
 }
 const b64url = s => Buffer.from(s, 'utf8').toString('base64url');
 export async function sendOwnerTest({ env = process.env, fetcher = fetch, recipient = OWNER, operationId }) {
@@ -39,7 +39,7 @@ async function main() {
   let ledger;try{ledger=JSON.parse(await readFile(ledgerPath,'utf8'))}catch(e){if(e.code!=='ENOENT')throw e;ledger={operationId:'gerard-owner-mail-test-147',status:'pending'}}
   if (ledger.status==='sent' || ledger.status==='sending') {console.log(JSON.stringify({status:'skipped',reason:'already-sent-or-in-flight',messageId:ledger.messageId??null}));return;}
   const diag=diagnoseMail();
-  if(process.env.GERARD_GMAIL_OWNER_TEST_ENABLED!=='true'||!diag.ready){console.log(JSON.stringify({status:'blocked',reason:'test-disabled-or-credentials-missing',diagnostic:diag}));return;}
+  if(process.env.GERARD_GMAIL_OWNER_TEST_ENABLED!=='true'||!diag.ready){console.log(JSON.stringify({status:'blocked',reason:'legacy-oauth-disabled-or-missing',deliveryReady:false,composioRuntimeVerified:false,diagnostic:diag}));return;}
   // Persist a reservation BEFORE calling Gmail. Never retry automatically after an uncertain response.
   ledger={...ledger,status:'sending',startedAt:new Date().toISOString()};
   await writeFile(ledgerPath,JSON.stringify(ledger,null,2)+'\n');
