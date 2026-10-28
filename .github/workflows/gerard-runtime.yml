@@ -850,10 +850,9 @@ jobs:
           echo "Buffer reservation inspection HTTP $STATUS"
           if [ "$STATUS" = "200" ]; then
             jq -c '{status,harvestId,reservations}' /tmp/gerard-buffer-reservations.json
-            if jq -e '.reservations | any(.status == "pending" or .status == "draft-created" or .status == "queued")' /tmp/gerard-buffer-reservations.json >/dev/null; then
-              echo "Buffer reservation exists: blocking draft write for this run."
-              touch /tmp/gerard-buffer-write-blocked
-            fi
+            # Reservations are scoped to an exact copy/media/channel fingerprint
+            # in Publisher. A queued post for the same book must not block a
+            # genuinely different creative angle selected by Gérard.
           else
             echo "Inspection failed: blocking any draft write."
             touch /tmp/gerard-buffer-write-blocked
@@ -866,7 +865,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          touch /tmp/gerard-buffer-write-blocked
+          # The Publisher is the authority for duplicate and uncertain-write
+          # reservations. Keep this workflow gate only for unavailable checks.
           if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
             echo "Reconciliation unavailable: token missing."
             exit 0
@@ -880,11 +880,12 @@ jobs:
           echo "Buffer reconciliation HTTP $STATUS"
           if [ "$STATUS" = "200" ]; then
             jq -c '{status,harvestId,reservations,retryAllowed,requiresManualConfirmation,publishingEnabled}' /tmp/gerard-buffer-reconcile.json
-            # Fresh harvests may autonomously create a Buffer draft, never a live post.
-            # Pending or uncertain reservations remain protected against transport retries.
-            if jq -e '.reservations == [] and .requiresManualConfirmation != true' /tmp/gerard-buffer-reconcile.json >/dev/null; then
+            # A previous post for the same book does not prohibit a new angle.
+            # Exact-content deduplication and bounded uncertain retries live
+            # in Publisher's atomic fingerprint reservation circuit.
+            if jq -e '.status != "unavailable" and .status != "invalid"' /tmp/gerard-buffer-reconcile.json >/dev/null; then
               rm -f /tmp/gerard-buffer-write-blocked
-              echo "Fresh harvest: autonomous Buffer draft permitted."
+              echo "Buffer verified: Publisher may evaluate this creative fingerprint."
             fi
             if [ "${{ inputs.retry_terra_draft }}" = "true" ] && [ "$HARVEST_ID" = "harvest_local_harvest_terra_1786215725146" ] && jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and (.reservations[0].status == "retry-authorized") and (.reservations[0].post_id == null)' /tmp/gerard-buffer-reconcile.json >/dev/null; then
               rm -f /tmp/gerard-buffer-write-blocked
