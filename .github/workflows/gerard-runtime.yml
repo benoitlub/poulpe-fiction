@@ -1041,11 +1041,11 @@ jobs:
           set -euo pipefail
           STUDIO_FILES=()
           if [ -d garden/studio ]; then mapfile -d '' STUDIO_FILES < <(find garden/studio -type f -print0); fi
-          if [ -n "$(git status --porcelain garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json garden/studio)" ]; then
+          if [ -n "$(git status --porcelain garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json garden/studio)" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
+            for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
@@ -1064,7 +1064,7 @@ jobs:
                 fi
               else
                 echo "Generated state conflicts with upstream; resolving snapshot files only."
-                for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
+                for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
                   if git ls-files -u -- "$file" | grep -q .; then
                     if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
                       git show REBASE_HEAD:"$file" > "$file"
