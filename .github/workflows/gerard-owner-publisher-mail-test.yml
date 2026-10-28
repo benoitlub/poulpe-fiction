@@ -1,0 +1,32 @@
+name: Gerard owner-only Publisher Gmail test
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gerard-owner-publisher-mail-test.yml"
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  one-time-owner-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify GitHub identity and send one authorized owner-only test
+        shell: bash
+        run: |
+          set -euo pipefail
+          response_file="$(mktemp)"
+          oidc_token="$(curl --fail --silent --show-error --max-time 15 \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=blacklace-publisher-gerard-owner-test" \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>process.stdout.write(JSON.parse(s).value))')"
+          test -n "$oidc_token"
+          http_code="$(curl --silent --show-error --max-time 35 --output "$response_file" --write-out '%{http_code}' \
+            -X POST 'https://blacklace-publisher-worker.benoitlubert.workers.dev/api/gerard/gmail/owner-test' \
+            -H "Authorization: Bearer $oidc_token" \
+            -H 'Content-Type: application/json' \
+            --data '{"operationId":"gerard-owner-20261028-oidc-001"}')"
+          echo "publisher.http=$http_code"
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("publisher.status="+String(x.status||"unknown"));console.log("publisher.reason="+String(x.reason||"none"))' "$response_file"
+          test "$http_code" = 200
