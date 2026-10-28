@@ -81,5 +81,14 @@ test("TERRA can test a fresh mystery angle despite a technical iteration title",
   assert.equal(accepted.status, "ready");
   assert.equal(accepted.editorialQuality.status, "complete");
   const unrelated = evaluate({ ...candidate, copy: { text: "Un autre roman : https://www.amazon.fr/dp/B0H4CN5MSH" } });
-  assert.equal(unrelated.status, "blocked", "the copy must still identify TERRA");
+  assert.equal(unrelated.status, "ready", "the verified book URL can identify TERRA without naming it");
+});
+
+test("Gerard & Gerard may use a curiosity hook with its verified book link", () => {
+  const value = { ...base, seedId: "gerard-et-gerard",
+    title: "Apprentissages et angles · Gérard & Gérard — Brèves histoires d'une simulation oubliée",
+    copy: { text: "Et si deux extraterrestres essayaient de comprendre pourquoi les humains courent sur des tapis qui ne vont nulle part ? Découvrir le livre : https://www.amazon.fr/dp/B0H68811RL" } };
+  const result = evaluate(value);
+  assert.equal(result.status, "ready");
+  assert.equal(result.editorialQuality.status, "complete");
 });

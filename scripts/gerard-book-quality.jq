@@ -4,7 +4,9 @@
 | (if $seed == "gerard-et-gerard" then "https://www.amazon.fr/dp/B0H68811RL" elif $seed == "terra" then "https://www.amazon.fr/dp/B0H4CN5MSH" else null end) as $canonicalDestination
 | ((($title | length) > 3 and ($text | contains($title)))
    or ($seed == "gerard-et-gerard" and ($text | contains("gérard")))
-   or ($seed == "terra" and ($text | contains("terra")))) as $matchingBook
+   or ($seed == "terra" and ($text | contains("terra")))
+   # The verified, seed-specific book link identifies the work even with a creative hook.
+   or ($canonicalDestination != null and ((.copy.text // "") | contains($canonicalDestination)))) as $matchingBook
 | .editorialQuality = {
     kind: "book",
     officialCover: (if .media.official == true then .media.url else null end),
