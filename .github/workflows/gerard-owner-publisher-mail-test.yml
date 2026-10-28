@@ -28,5 +28,5 @@ jobs:
             -H 'Content-Type: application/json' \
             --data '{"operationId":"gerard-owner-20261028-oidc-001"}')"
           echo "publisher.http=$http_code"
-          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("publisher.status="+String(x.status||"unknown"));console.log("publisher.reason="+String(x.reason||"none"))' "$response_file"
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("publisher.status="+String(x.status||"unknown"));console.log("publisher.reason="+String(x.reason||"none"));console.log("publisher.gmail_count="+String(x.count??"unknown"))' "$response_file"
           test "$http_code" = 200
