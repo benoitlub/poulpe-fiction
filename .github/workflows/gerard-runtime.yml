@@ -63,6 +63,9 @@ jobs:
       # local Express API-server does not expose /api/tentacles/*.
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
       GERARD_MAIL_AUTONOMY_ENABLED: "true"
+      # Gérard may queue verified book posts automatically. The Publisher Worker
+      # independently enforces BUFFER_PUBLISHING_ENABLED and its reservation lock.
+      GERARD_BUFFER_AUTO_PUBLISH_ENABLED: "true"
       PUBLISHER_NOTION_WRITE_TOKEN: ${{ secrets.PUBLISHER_NOTION_WRITE_TOKEN }}
       LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
@@ -900,7 +903,7 @@ jobs:
             echo "Reconciliation unavailable; Buffer write remains blocked."
           fi
 
-      - name: Request Buffer book draft via authenticated Publisher
+      - name: Publish verified Buffer book package via authenticated Publisher
         working-directory: poulpe-fiction
         env:
           BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
@@ -919,9 +922,16 @@ jobs:
             echo "Not an eligible Buffer book draft; skipped."
             exit 0
           fi
-          jq -c '{harvestId,seedId,title,text:.copy.text,mediaUrl:.media.url,publish:false}' garden/next-social-publication.json > /tmp/gerard-buffer-request.json
+          # Never autopublish an expressly withheld creative revision.
+          AUTO_PUBLISH=false
+          if [ "$GERARD_BUFFER_AUTO_PUBLISH_ENABLED" = "true" ] && [ "$(jq -r '.seedId' garden/next-social-publication.json)" != "420-dice" ]; then
+            AUTO_PUBLISH=true
+          fi
+          jq -c --argjson publish "$AUTO_PUBLISH" '{harvestId,seedId,title,text:.copy.text,mediaUrl:.media.url,publish:$publish}' garden/next-social-publication.json > /tmp/gerard-buffer-request.json
           HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-buffer-draft-response.json --write-out '%{http_code}' --max-time 25 -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-draft" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data-binary @/tmp/gerard-buffer-request.json)" || HTTP_STATUS="000"
-          if [ "$HTTP_STATUS" = "200" ] && jq -e '.status == "draft-created" and .draftCreated == true and .publishingEnabled == false and (.postId | type == "string")' /tmp/gerard-buffer-draft-response.json >/dev/null 2>&1; then
+          if [ "$HTTP_STATUS" = "200" ] && [ "$AUTO_PUBLISH" = "true" ] && jq -e '((.status == "confirmed-scheduled" and .scheduled == true) or (.status == "confirmed-published" and .published == true)) and .publishingEnabled == true and (.postId | type == "string")' /tmp/gerard-buffer-draft-response.json >/dev/null 2>&1; then
+            jq --slurpfile response /tmp/gerard-buffer-draft-response.json '.action="buffer-publication-confirmed" | .delivery={status:$response[0].status,kind:"buffer-publication",postId:$response[0].postId,providerStatus:$response[0].providerStatus,publicationDate:($response[0].publicationDate // null),publishingEnabled:true}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
+          elif [ "$HTTP_STATUS" = "200" ] && [ "$AUTO_PUBLISH" = "false" ] && jq -e '.status == "draft-created" and .draftCreated == true and .publishingEnabled == false and (.postId | type == "string")' /tmp/gerard-buffer-draft-response.json >/dev/null 2>&1; then
             jq --slurpfile response /tmp/gerard-buffer-draft-response.json '.action="buffer-draft-created" | .delivery={status:"confirmed-draft",kind:"buffer-draft",postId:$response[0].postId,publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-buffer-result.json
           else
             echo "Buffer draft not confirmed (HTTP $HTTP_STATUS). No automatic retry."
