@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-28",
+  "purpose": "Seed leads for Gerard B2B qualification; NOT verified contacts or outreach",
+  "status": "research-needed",
+  "outreachAuthorized": false,
+  "leads": [
+    {
+      "name": "ABI Games",
+      "site": "https://www.abigames.fr/",
+      "contactPage": "https://www.abigames.fr/contactez-nous",
+      "segment": "physical-game-distribution",
+      "angle": "distribution Pro.Hibited physical games",
+      "status": "uncontacted-needs-qualification",
+      "checks": [
+        "publisher submission criteria",
+        "SIRET requirements",
+        "adult themes acceptance"
+      ]
+    },
+    {
+      "name": "Forgenext",
+      "site": "https://www.forgenext.com/accueil/",
+      "publicEmail": "contact@forgenext.com",
+      "segment": "game-coedition",
+      "angle": "evaluate coedition or licensing opportunities",
+      "status": "uncontacted-needs-qualification",
+      "checks": [
+        "fees",
+        "editorial fit",
+        "contract terms"
+      ]
+    },
+    {
+      "name": "Letheia Games",
+      "site": "https://www.letheia-games.com/contact",
+      "publicEmail": "contact@letheia-games.com",
+      "segment": "game-publisher",
+      "angle": "pitch original playable prototype",
+      "status": "uncontacted-needs-qualification",
+      "checks": [
+        "submissions currently open",
+        "adult content acceptance"
+      ]
+    },
+    {
+      "name": "Sodisliv",
+      "site": "https://www.sodisliv.fr/",
+      "publicEmail": "editeurs@sodisliv.fr",
+      "segment": "book-distribution",
+      "angle": "independent books distribution",
+      "status": "uncontacted-needs-qualification",
+      "checks": [
+        "KDP eligibility",
+        "minimum print stock",
+        "contractual fees"
+      ]
+    }
+  ],
+  "acceptanceCriteria": {
+    "individualOrganizations": 10,
+    "publicBusinessContacts": 3,
+    "sourceEvidencePerLead": true,
+    "verifiedAtRequired": true,
+    "doNotCountDirectories": true,
+    "doNotSendEmail": true,
+    "doNotSpend": true,
+    "doNotFabricate": true
+  }
+}
