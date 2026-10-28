@@ -1,17 +1,17 @@
 {
-  "preparedAt": "2026-10-28T19:03:31Z",
+  "preparedAt": "2026-10-28T19:07:42Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
-  "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
-  "seedId": "gerard-et-gerard",
-  "title": "☁️ Récolte serveur · Gérard & Gérard (itération 3)",
+  "harvestId": "neon_iter_iter_terra_1786289427863",
+  "seedId": "terra",
+  "title": "☁️ Récolte serveur · TERRA (itération 3)",
   "score": 70,
   "copy": {
-    "text": "🎥 *[Plan serré sur deux mains tenant un livre, voix off énergique]*\n*\"Deux Gérard. Un seul livre. Et si c’était VOUS le troisième ?*\n*Gérard A ou Gérard B ? Faites votre choix… et découvrez lequel vous ressemble !*\n*👉 [Lien en bio] #GérardEtGérard\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
-    "strategy": "explicit-social-content"
+    "text": "**Version \"mystère\"** : Photo floue d’un livre TERRA avec la phrase *\"Devinez ce que vous tenez entre vos mains.\"*\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+    "strategy": "first-explicit-angle"
   },
   "media": {
-    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
+    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
     "direct": true,
     "official": true
   },
@@ -43,24 +43,20 @@
   },
   "provenance": {
     "source": "garden-autoselection",
-    "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
-    "seedId": "gerard-et-gerard"
+    "harvestId": "neon_iter_iter_terra_1786289427863",
+    "seedId": "terra"
   },
   "editorialLearning": {
     "repeatedExactCopy": false,
     "lesson": "Compare repeated posts against reach and engagement; try another angle next time."
   },
   "externalPublicationEvidence": {
-    "previouslyPublished": true,
-    "confirmedNetworks": [
-      "instagram"
-    ],
-    "accountNames": [
-      "benoitlubert"
-    ],
+    "previouslyPublished": false,
+    "confirmedNetworks": [],
+    "accountNames": [],
     "publisherAttribution": "unknown",
     "source": "human-verified-external-publications",
-    "editorialAdvice": "Previously promoted: use a fresh creative angle; verify against the existing post before scheduling."
+    "editorialAdvice": "No verified external post for this seed."
   },
   "editorialRoute": {
     "contract": "publisher-editorial-routing-v1",
@@ -76,10 +72,11 @@
     "publishingEnabled": false
   },
   "delivery": {
-    "status": "not-attempted",
+    "status": "unknown",
+    "httpStatus": "403",
     "publishingEnabled": false
   },
-  "action": "hold-for-buffer-draft",
+  "action": "hold-for-manual-buffer-review",
   "transport": {
     "provider": "buffer",
     "account": "benoitlubert",
@@ -87,8 +84,8 @@
   },
   "editorialQuality": {
     "kind": "book",
-    "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
-    "verifiedDestination": "https://www.amazon.fr/dp/B0H68811RL",
+    "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
+    "verifiedDestination": "https://www.amazon.fr/dp/B0H4CN5MSH",
     "status": "complete"
   },
   "bufferPreflight": {
@@ -107,5 +104,20 @@
     "textPresent": true,
     "reason": null,
     "publishingEnabled": false
+  },
+  "learning": {
+    "bufferDraft": {
+      "outcome": "unconfirmed",
+      "httpStatus": "403",
+      "publisherStatus": "blocked",
+      "reason": "BUFFER_EXECUTION_DISABLED",
+      "bufferHttpStatus": null,
+      "graphqlErrorCodes": [],
+      "reservationStatus": "unknown",
+      "lesson": "An uncertain external write is not evidence of a draft. Inspect reservation and provider response; never retry automatically.",
+      "nextAction": "diagnose-read-only",
+      "autonomousRetryAllowed": false,
+      "requiresHumanApprovalForNewWrite": true
+    }
   }
 }
