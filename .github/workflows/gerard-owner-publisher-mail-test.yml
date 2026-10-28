@@ -1,4 +1,5 @@
 name: Gerard owner-only Publisher Gmail test
+# Re-run after scoped Composio user lookup deployment; operation ID stays fixed.
 on:
   push:
     branches: [main]
