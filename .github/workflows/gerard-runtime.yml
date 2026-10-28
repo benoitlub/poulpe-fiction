@@ -18,6 +18,7 @@ on:
       - "scripts/gerard-b2b-qualification.mjs"
       - "scripts/gerard-b2b-memory.mjs"
       - "scripts/gerard-mail-outbox.mjs"
+      - "scripts/gerard-autonomous-mail.mjs"
       - "scripts/gerard-gmail-owner-test.mjs"
       - "scripts/gerard-personal-letters.mjs"
       - "tests/gerard-mail-outbox.test.mjs"
@@ -55,11 +56,13 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
+      id-token: write
     env:
       OCTOPUS_URL: http://127.0.0.1:3000
       # Harvests must target the deployed Cloudflare Publisher Worker: the
       # local Express API-server does not expose /api/tentacles/*.
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      GERARD_MAIL_AUTONOMY_ENABLED: "true"
       PUBLISHER_NOTION_WRITE_TOKEN: ${{ secrets.PUBLISHER_NOTION_WRITE_TOKEN }}
       LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
@@ -255,6 +258,10 @@ jobs:
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
+
+      - name: Send at most three Gérard outreach messages with Benoît in CC
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-autonomous-mail.mjs
 
       - name: Probe Publisher Gmail visibility before autonomous delivery
         working-directory: poulpe-fiction
