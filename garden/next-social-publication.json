@@ -1,5 +1,5 @@
 {
-  "preparedAt": "2026-10-28T19:30:26Z",
+  "preparedAt": "2026-10-28T19:38:14Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
   "harvestId": "neon_iter_iter_terra_1786289427863",
@@ -73,7 +73,7 @@
   },
   "delivery": {
     "status": "unknown",
-    "httpStatus": "403",
+    "httpStatus": "409",
     "publishingEnabled": false
   },
   "action": "hold-for-manual-buffer-review",
@@ -108,9 +108,9 @@
   "learning": {
     "bufferDraft": {
       "outcome": "unconfirmed",
-      "httpStatus": "403",
-      "publisherStatus": "blocked",
-      "reason": "BUFFER_EXECUTION_DISABLED",
+      "httpStatus": "409",
+      "publisherStatus": "confirmation-required",
+      "reason": "BUFFER_RESPONSE_UNCONFIRMED",
       "bufferHttpStatus": null,
       "graphqlErrorCodes": [],
       "reservationStatus": "unknown",

@@ -134,19 +134,19 @@
       "result": "ok"
     },
     {
-      "at": "2026-10-28T19:29:43.942Z",
+      "at": "2026-10-28T19:37:36.123Z",
       "mode": "cultivate",
       "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1793215736438",
+      "operationId": "gerard-cultivate-1793216217008",
       "result": "ok"
     }
   ],
   "lastMode": "cultivate",
-  "lastRunAt": "2026-10-28T19:29:43.942Z",
+  "lastRunAt": "2026-10-28T19:37:36.123Z",
   "lastResult": {
     "status": "ok",
     "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1793215736438",
+    "operationId": "gerard-cultivate-1793216217008",
     "seedId": "yael-prospection",
     "parcelId": "project-yael-prospection",
     "phase": "knowledge",
@@ -166,7 +166,7 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1793215736438-knowledge",
+        "operationId": "gerard-cultivate-1793216217008-knowledge",
         "status": "completed",
         "summary": "Knowledge Package yael-prequalification-de-prospects préparé par Publisher.",
         "output": {
@@ -185,19 +185,19 @@
             "digestedItems": 1
           }
         },
-        "missionId": "gerard-cultivate-1793215736438-knowledge",
+        "missionId": "gerard-cultivate-1793216217008-knowledge",
         "contextId": "project-yael-prospection",
         "adapterId": "publisher",
         "lifecycle": {
-          "missionId": "gerard-cultivate-1793215736438-knowledge",
+          "missionId": "gerard-cultivate-1793216217008-knowledge",
           "state": "completed",
-          "createdAt": "2026-10-28T19:28:56.468Z",
-          "updatedAt": "2026-10-28T19:29:07.460Z",
+          "createdAt": "2026-10-28T19:36:57.041Z",
+          "updatedAt": "2026-10-28T19:37:06.763Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-28T19:28:56.468Z",
+              "at": "2026-10-28T19:36:57.041Z",
               "metadata": {
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
@@ -208,11 +208,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-28T19:28:56.468Z",
+              "at": "2026-10-28T19:36:57.041Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-knowledge",
-                "missionId": "gerard-cultivate-1793215736438-knowledge",
+                "operationId": "gerard-cultivate-1793216217008-knowledge",
+                "missionId": "gerard-cultivate-1793216217008-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -222,11 +222,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-28T19:28:56.468Z",
+              "at": "2026-10-28T19:36:57.041Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-knowledge",
-                "missionId": "gerard-cultivate-1793215736438-knowledge",
+                "operationId": "gerard-cultivate-1793216217008-knowledge",
+                "missionId": "gerard-cultivate-1793216217008-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -236,11 +236,11 @@
             {
               "from": "planned",
               "to": "waiting-executor",
-              "at": "2026-10-28T19:28:56.468Z",
+              "at": "2026-10-28T19:36:57.041Z",
               "reason": "Compatible adapter selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-knowledge",
-                "missionId": "gerard-cultivate-1793215736438-knowledge",
+                "operationId": "gerard-cultivate-1793216217008-knowledge",
+                "missionId": "gerard-cultivate-1793216217008-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -251,11 +251,11 @@
             {
               "from": "waiting-executor",
               "to": "executing",
-              "at": "2026-10-28T19:28:56.468Z",
+              "at": "2026-10-28T19:36:57.041Z",
               "reason": "External adapter execution started.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-knowledge",
-                "missionId": "gerard-cultivate-1793215736438-knowledge",
+                "operationId": "gerard-cultivate-1793216217008-knowledge",
+                "missionId": "gerard-cultivate-1793216217008-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -266,11 +266,11 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-28T19:29:07.460Z",
+              "at": "2026-10-28T19:37:06.763Z",
               "reason": "Knowledge Package yael-prequalification-de-prospects préparé par Publisher.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-knowledge",
-                "missionId": "gerard-cultivate-1793215736438-knowledge",
+                "operationId": "gerard-cultivate-1793216217008-knowledge",
+                "missionId": "gerard-cultivate-1793216217008-knowledge",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -302,8 +302,8 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1793215736438-harvest",
-        "missionId": "gerard-cultivate-1793215736438-harvest",
+        "operationId": "gerard-cultivate-1793216217008-harvest",
+        "missionId": "gerard-cultivate-1793216217008-harvest",
         "status": "completed",
         "contextId": "project-yael-prospection",
         "tentacleId": "octopus-core",
@@ -313,7 +313,7 @@
           "resourceId": "mistral",
           "status": "success",
           "output": {
-            "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** (réseaux locaux : Orpi, Century 21, Laforêt, etc.).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** : ceux ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Sources de leads vérifiées** :\n- **LinkedIn** : Filtrer les profils avec mots-clés (*\"agent immobilier\"*, *\"primo-accédant\"*, *\"investissement locatif\"*, *\"assurance emprunteur\"*).\n- **Partenariats locaux** : Contacter les agences immobilières du secteur pour des recommandations ciblées.\n- **Réseaux professionnels** : Groupes Facebook/LinkedIn dédiés à l’immobilier dans les Yvelines.\n\n**Critères de qualification** :\n✅ **Vendeurs/agents** : Activité récente dans le secteur (derniers 6 mois).\n✅ **Acheteurs** : Projet immobilier concret (achat, investissement, changement d’assurance).\n✅ **Exclusion** : Leads en phase purement exploratoire (ex : \"je regarde les prix\").\n\n---\n\n#### **2. Campagne de captation (prête à valider)**\n**A. Message (ton : pédagogique, humain, local)**\n**Exemple pour LinkedIn/email** :\n---\n*\"Bonjour [Prénom],*\n\nVous êtes [vendeur/acheteur/investisseur] dans les Yvelines et vous cherchez à optimiser votre financement immobilier ou votre assurance emprunteur ?\n\nEn tant que courtière **Empruntis** (MIOBSP n°26009286), je vous accompagne gratuitement pour :\n✔ **Analyser votre situation** (capacité d’emprunt, crédits existants, économies possibles).\n✔ **Négocier avec les banques** pour un taux adapté à votre projet.\n✔ **Comparer les assurances emprunteurs** sans engagement.\n\n*Exemple concret* : Un client a économisé **15 000€** sur 20 ans en changeant d’assurance (cas réel, secteur Fontenay-le-Fleury).\n\n👉 **Un audit personnalisé en 15 min** ? Répondez à ce message ou cliquez sur le lien [Microsoft Bookings]*(lien à confirmer)*.\n\n*Source : Expérience de 10 ans en assurance + accompagnement 100% local.*\n\n— Yaébali TOYALEKE\nCourtière en crédit immobilier | Empruntis\n📞 06 32 74 85 03 | 📧 yaebali.toyaleke@empruntis.com\n[LinkedIn]*(lien vérifié)*\n\"Écoute active et solutions sur mesure pour votre projet.\"*\n---\n**Variantes** :\n- Pour **agents immobiliers** : *\"Vos clients primo-accédants gagnent du temps et de l’argent avec un accompagnement clé en main. Je vous propose un partenariat pour leur offrir ce service.\"*\n- Pour **investisseurs** : *\"Optimisez vos marges avec un financement sur mesure et une assurance adaptée à votre portefeuille.\"*\n\n---\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Messages InMail ciblés (via outil comme **Phantombuster** ou manuellement).\n   - Posts organiques sur les groupes locaux (*ex : \"Groupement des Agents Immobiliers Yvelines\"*).\n   - Partage de témoignages anonymisés (ex : *\"Comment [Client] a réduit son assurance de 30%\"*).\n\n2. **Emailing** :\n   - Base de données locale (achat ou partenariat avec une agence immobilière).\n   - Objet : *\"[Prénom], votre financement immobilier peut être 10% moins cher – Audit gratuit\"*.\n\n3. **Partenariats** :\n   - Offrir une **formation gratuite** aux agents immobiliers sur *\"Comment conseiller vos clients sur le financement\"* (en échange de leads).\n   - Collaborer avec des **notaires** ou **promoteurs** locaux pour des webinaires.\n\n4. **Réseaux locaux** :\n   - Présence aux **salons immobiliers** (ex : Salon de l’Immobilier Versailles).\n   - Annonce ciblée sur **Facebook Ads** (ciblage : 25-55 ans, centres d’intérêt *\"immobilier\"*, *\"investissement locatif\"*).\n\n---\n\n**C. Formulaire Opt-in (exemple pour LinkedIn/landing page)**\n**Titre** : *\"Prêt à optimiser votre financement ?\"*\n**Champs** :\n- Nom/Prénom*\n- Email*\n- Type de projet (⬜ Acheteur ⬜ Vendeur ⬜ Investisseur ⬜ Autre : _____)\n- Secteur d’activité (si professionnel) : _____\n- Budget/projet estimé (optionnel) : _____\n- **Case à cocher** : *\"J’accepte de recevoir des conseils personnalisés par Yaébali TOYA",
+            "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads réels (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** : Partenariats avec agences locales (ex : **Laforêt, Century 21, Orpi**) pour cibler leurs clients acheteurs.\n- **Acheteurs/primo-accédants** : Annonces immobilières (Leboncoin, SeLoger, Bien’ici) avec filtres \"financement\" ou \"primo-accédant\".\n- **Investisseurs** : Groupes Facebook/LinkedIn (ex : *\"Investisseurs Yvelines\"*, *\"Pinel Yvelines\"*).\n- **Propriétaires avec projet** : Réseaux locaux (mairies, syndicats de copropriété) ou ciblage via **Google Ads** (mots-clés : *\"changer assurance emprunteur Yvelines\"*, *\"simulateur crédit immobilier Versailles\"*).\n\n**Sources vérifiées pour qualification** :\n- **LinkedIn** (filtre : mots-clés *\"immobilier\"*, *\"financement\"*, *\"investisseur\"* + localisation).\n- **Notion Yaelbali** : Liste des contacts existants (si disponible) ou leads chauds (ex : clients actuels de l’assurance emprunteur à Fontenay-le-Fleury).\n\n**Outils** :\n- **LinkedIn Sales Navigator** (pour les pros) + **Mailchimp** (pour les leads B2C).\n- **CRM** (HubSpot ou Notion) pour suivre les interactions.\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n**A. Message (ton : pédagogique, local, rassurant)**\n**Exemple pour les acheteurs/primo-accédants** (LinkedIn/email) :\n---\n*\"Vous rêvez d’acheter votre résidence principale ou d’investir dans les Yvelines, mais le financement vous semble complexe ?\nJe vous accompagne gratuitement pour :\n✅ Analyser votre capacité d’emprunt **sans engagement**.\n✅ Comparer les offres bancaires locales (La Banque Postale, Crédit Foncier, etc.).\n✅ Optimiser votre assurance emprunteur (j’ai déjà réduit de **X%** pour des clients comme vous).\n\n📅 **Prêt à en parler ?** Répondez à ce message ou cliquez sur le lien ci-dessous pour un **audit personnalisé** (15 min).*\n[Lien vers Microsoft Bookings – à confirmer avec Yaébali]*\n---\n**Variantes** :\n- Pour les **agents immobiliers** : *\"Vos clients acheteurs gagnent du temps et de l’argent avec mon accompagnement. Je vous offre une **analyse gratuite** de leurs dossiers pour les fidéliser.\"*\n- Pour les **investisseurs** : *\"Financement locatif optimisé : je négocie des taux préférentiels pour les projets Yvelines. Exemple : [cas concret si disponible].\"*\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Posts ciblés (ex : *\"3 erreurs à éviter quand on achète en Yvelines\"* + CTA vers le formulaire).\n   - Messages InMail aux leads qualifiés (ex : agents immobiliers).\n2. **Emailing** :\n   - Base de données locale (ex : anciens clients de la mairie, groupes Facebook).\n   - Objet : *\"[Votre prénom], votre projet immobilier en Yvelines mérite une analyse gratuite\"* (personnalisable).\n3. **Partenariats** :\n   - Agences immobilières (offre de commission reversée pour les leads qualifiés).\n   - Notaires locaux (réseautage via **Chambre des Notaires de Versailles**).\n\n**C. Formulaire opt-in (simple & conforme RGPD)**\n**Exemple** (via **Typeform** ou **Google Forms**) :\n---\n**Titre** : *\"Prêt à optimiser votre financement immobilier ?\"*\n1. **Nom** (obligatoire)\n2. **Email** (obligatoire)\n3. **Type de projet** (⬜ Résidence principale ⬜ Investissement ⬜ Changement assurance ⬜ Autre)\n4. **Budget estimé** (⬛ Moins de 200k € ⬛ 200k–400k € ⬛ +400k €)\n5. **Provenance** (⬛ LinkedIn ⬛ Agence immobilière ⬛ Autre : _____)\n6. **Message** (optionnel : *\"Dites-moi en 2 mots ce qui vous bloque\"*).\n---\n**CTA** : *\"Je valide votre éligibilité en 24h – pas de spam, juste des conseils utiles.\"*\n\n**D. Qualification**\n**Critères de tri** :\n- **Qualifiés chauds** : Budget clair, projet défini (ex : *\"Acheteur de 300k€ à Montigny\"*).\n- **Froids** : Primo-accédants sans budget (relancer avec un guide gratuit : *\"Le guide du primo-accédant en Yvelines\"*).\n**Outils** :\n- **Score de qualification** (ex : 1 point pour budget défini, 1 pour projet locatif, etc.).\n- **",
             "model": "ministral-8b-2512"
           },
           "usage": {
@@ -321,24 +321,24 @@
             "promptTokens": 1241,
             "completionTokens": 1200,
             "totalTokens": 2441,
-            "durationMs": 36459,
+            "durationMs": 29336,
             "estimatedCostEur": 0.001936
           }
         },
         "output": {
-          "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** (réseaux locaux : Orpi, Century 21, Laforêt, etc.).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** : ceux ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Sources de leads vérifiées** :\n- **LinkedIn** : Filtrer les profils avec mots-clés (*\"agent immobilier\"*, *\"primo-accédant\"*, *\"investissement locatif\"*, *\"assurance emprunteur\"*).\n- **Partenariats locaux** : Contacter les agences immobilières du secteur pour des recommandations ciblées.\n- **Réseaux professionnels** : Groupes Facebook/LinkedIn dédiés à l’immobilier dans les Yvelines.\n\n**Critères de qualification** :\n✅ **Vendeurs/agents** : Activité récente dans le secteur (derniers 6 mois).\n✅ **Acheteurs** : Projet immobilier concret (achat, investissement, changement d’assurance).\n✅ **Exclusion** : Leads en phase purement exploratoire (ex : \"je regarde les prix\").\n\n---\n\n#### **2. Campagne de captation (prête à valider)**\n**A. Message (ton : pédagogique, humain, local)**\n**Exemple pour LinkedIn/email** :\n---\n*\"Bonjour [Prénom],*\n\nVous êtes [vendeur/acheteur/investisseur] dans les Yvelines et vous cherchez à optimiser votre financement immobilier ou votre assurance emprunteur ?\n\nEn tant que courtière **Empruntis** (MIOBSP n°26009286), je vous accompagne gratuitement pour :\n✔ **Analyser votre situation** (capacité d’emprunt, crédits existants, économies possibles).\n✔ **Négocier avec les banques** pour un taux adapté à votre projet.\n✔ **Comparer les assurances emprunteurs** sans engagement.\n\n*Exemple concret* : Un client a économisé **15 000€** sur 20 ans en changeant d’assurance (cas réel, secteur Fontenay-le-Fleury).\n\n👉 **Un audit personnalisé en 15 min** ? Répondez à ce message ou cliquez sur le lien [Microsoft Bookings]*(lien à confirmer)*.\n\n*Source : Expérience de 10 ans en assurance + accompagnement 100% local.*\n\n— Yaébali TOYALEKE\nCourtière en crédit immobilier | Empruntis\n📞 06 32 74 85 03 | 📧 yaebali.toyaleke@empruntis.com\n[LinkedIn]*(lien vérifié)*\n\"Écoute active et solutions sur mesure pour votre projet.\"*\n---\n**Variantes** :\n- Pour **agents immobiliers** : *\"Vos clients primo-accédants gagnent du temps et de l’argent avec un accompagnement clé en main. Je vous propose un partenariat pour leur offrir ce service.\"*\n- Pour **investisseurs** : *\"Optimisez vos marges avec un financement sur mesure et une assurance adaptée à votre portefeuille.\"*\n\n---\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Messages InMail ciblés (via outil comme **Phantombuster** ou manuellement).\n   - Posts organiques sur les groupes locaux (*ex : \"Groupement des Agents Immobiliers Yvelines\"*).\n   - Partage de témoignages anonymisés (ex : *\"Comment [Client] a réduit son assurance de 30%\"*).\n\n2. **Emailing** :\n   - Base de données locale (achat ou partenariat avec une agence immobilière).\n   - Objet : *\"[Prénom], votre financement immobilier peut être 10% moins cher – Audit gratuit\"*.\n\n3. **Partenariats** :\n   - Offrir une **formation gratuite** aux agents immobiliers sur *\"Comment conseiller vos clients sur le financement\"* (en échange de leads).\n   - Collaborer avec des **notaires** ou **promoteurs** locaux pour des webinaires.\n\n4. **Réseaux locaux** :\n   - Présence aux **salons immobiliers** (ex : Salon de l’Immobilier Versailles).\n   - Annonce ciblée sur **Facebook Ads** (ciblage : 25-55 ans, centres d’intérêt *\"immobilier\"*, *\"investissement locatif\"*).\n\n---\n\n**C. Formulaire Opt-in (exemple pour LinkedIn/landing page)**\n**Titre** : *\"Prêt à optimiser votre financement ?\"*\n**Champs** :\n- Nom/Prénom*\n- Email*\n- Type de projet (⬜ Acheteur ⬜ Vendeur ⬜ Investisseur ⬜ Autre : _____)\n- Secteur d’activité (si professionnel) : _____\n- Budget/projet estimé (optionnel) : _____\n- **Case à cocher** : *\"J’accepte de recevoir des conseils personnalisés par Yaébali TOYA",
+          "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads réels (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** : Partenariats avec agences locales (ex : **Laforêt, Century 21, Orpi**) pour cibler leurs clients acheteurs.\n- **Acheteurs/primo-accédants** : Annonces immobilières (Leboncoin, SeLoger, Bien’ici) avec filtres \"financement\" ou \"primo-accédant\".\n- **Investisseurs** : Groupes Facebook/LinkedIn (ex : *\"Investisseurs Yvelines\"*, *\"Pinel Yvelines\"*).\n- **Propriétaires avec projet** : Réseaux locaux (mairies, syndicats de copropriété) ou ciblage via **Google Ads** (mots-clés : *\"changer assurance emprunteur Yvelines\"*, *\"simulateur crédit immobilier Versailles\"*).\n\n**Sources vérifiées pour qualification** :\n- **LinkedIn** (filtre : mots-clés *\"immobilier\"*, *\"financement\"*, *\"investisseur\"* + localisation).\n- **Notion Yaelbali** : Liste des contacts existants (si disponible) ou leads chauds (ex : clients actuels de l’assurance emprunteur à Fontenay-le-Fleury).\n\n**Outils** :\n- **LinkedIn Sales Navigator** (pour les pros) + **Mailchimp** (pour les leads B2C).\n- **CRM** (HubSpot ou Notion) pour suivre les interactions.\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n**A. Message (ton : pédagogique, local, rassurant)**\n**Exemple pour les acheteurs/primo-accédants** (LinkedIn/email) :\n---\n*\"Vous rêvez d’acheter votre résidence principale ou d’investir dans les Yvelines, mais le financement vous semble complexe ?\nJe vous accompagne gratuitement pour :\n✅ Analyser votre capacité d’emprunt **sans engagement**.\n✅ Comparer les offres bancaires locales (La Banque Postale, Crédit Foncier, etc.).\n✅ Optimiser votre assurance emprunteur (j’ai déjà réduit de **X%** pour des clients comme vous).\n\n📅 **Prêt à en parler ?** Répondez à ce message ou cliquez sur le lien ci-dessous pour un **audit personnalisé** (15 min).*\n[Lien vers Microsoft Bookings – à confirmer avec Yaébali]*\n---\n**Variantes** :\n- Pour les **agents immobiliers** : *\"Vos clients acheteurs gagnent du temps et de l’argent avec mon accompagnement. Je vous offre une **analyse gratuite** de leurs dossiers pour les fidéliser.\"*\n- Pour les **investisseurs** : *\"Financement locatif optimisé : je négocie des taux préférentiels pour les projets Yvelines. Exemple : [cas concret si disponible].\"*\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Posts ciblés (ex : *\"3 erreurs à éviter quand on achète en Yvelines\"* + CTA vers le formulaire).\n   - Messages InMail aux leads qualifiés (ex : agents immobiliers).\n2. **Emailing** :\n   - Base de données locale (ex : anciens clients de la mairie, groupes Facebook).\n   - Objet : *\"[Votre prénom], votre projet immobilier en Yvelines mérite une analyse gratuite\"* (personnalisable).\n3. **Partenariats** :\n   - Agences immobilières (offre de commission reversée pour les leads qualifiés).\n   - Notaires locaux (réseautage via **Chambre des Notaires de Versailles**).\n\n**C. Formulaire opt-in (simple & conforme RGPD)**\n**Exemple** (via **Typeform** ou **Google Forms**) :\n---\n**Titre** : *\"Prêt à optimiser votre financement immobilier ?\"*\n1. **Nom** (obligatoire)\n2. **Email** (obligatoire)\n3. **Type de projet** (⬜ Résidence principale ⬜ Investissement ⬜ Changement assurance ⬜ Autre)\n4. **Budget estimé** (⬛ Moins de 200k € ⬛ 200k–400k € ⬛ +400k €)\n5. **Provenance** (⬛ LinkedIn ⬛ Agence immobilière ⬛ Autre : _____)\n6. **Message** (optionnel : *\"Dites-moi en 2 mots ce qui vous bloque\"*).\n---\n**CTA** : *\"Je valide votre éligibilité en 24h – pas de spam, juste des conseils utiles.\"*\n\n**D. Qualification**\n**Critères de tri** :\n- **Qualifiés chauds** : Budget clair, projet défini (ex : *\"Acheteur de 300k€ à Montigny\"*).\n- **Froids** : Primo-accédants sans budget (relancer avec un guide gratuit : *\"Le guide du primo-accédant en Yvelines\"*).\n**Outils** :\n- **Score de qualification** (ex : 1 point pour budget défini, 1 pour projet locatif, etc.).\n- **",
           "model": "ministral-8b-2512"
         },
         "lifecycle": {
-          "missionId": "gerard-cultivate-1793215736438-harvest",
+          "missionId": "gerard-cultivate-1793216217008-harvest",
           "state": "completed",
-          "createdAt": "2026-10-28T19:29:07.471Z",
-          "updatedAt": "2026-10-28T19:29:43.933Z",
+          "createdAt": "2026-10-28T19:37:06.775Z",
+          "updatedAt": "2026-10-28T19:37:36.114Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-28T19:29:07.471Z",
+              "at": "2026-10-28T19:37:06.775Z",
               "metadata": {
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
@@ -349,11 +349,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-28T19:29:07.471Z",
+              "at": "2026-10-28T19:37:06.775Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-harvest",
-                "missionId": "gerard-cultivate-1793215736438-harvest",
+                "operationId": "gerard-cultivate-1793216217008-harvest",
+                "missionId": "gerard-cultivate-1793216217008-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "copy.generate"
@@ -363,11 +363,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-28T19:29:07.471Z",
+              "at": "2026-10-28T19:37:06.775Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-harvest",
-                "missionId": "gerard-cultivate-1793215736438-harvest",
+                "operationId": "gerard-cultivate-1793216217008-harvest",
+                "missionId": "gerard-cultivate-1793216217008-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "copy.generate"
@@ -377,11 +377,11 @@
             {
               "from": "planned",
               "to": "executing",
-              "at": "2026-10-28T19:29:43.933Z",
+              "at": "2026-10-28T19:37:36.114Z",
               "reason": "Core Mistral resource selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-harvest",
-                "missionId": "gerard-cultivate-1793215736438-harvest",
+                "operationId": "gerard-cultivate-1793216217008-harvest",
+                "missionId": "gerard-cultivate-1793216217008-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "copy.generate"
@@ -392,18 +392,18 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-28T19:29:43.933Z",
+              "at": "2026-10-28T19:37:36.114Z",
               "reason": "Mission completed through Octopus Core (Mistral).",
               "metadata": {
-                "operationId": "gerard-cultivate-1793215736438-harvest",
-                "missionId": "gerard-cultivate-1793215736438-harvest",
+                "operationId": "gerard-cultivate-1793216217008-harvest",
+                "missionId": "gerard-cultivate-1793216217008-harvest",
                 "contextId": "project-yael-prospection",
                 "requiredCapabilities": [
                   "copy.generate"
                 ],
                 "executorId": "octopus-core",
                 "output": {
-                  "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** (réseaux locaux : Orpi, Century 21, Laforêt, etc.).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** : ceux ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Sources de leads vérifiées** :\n- **LinkedIn** : Filtrer les profils avec mots-clés (*\"agent immobilier\"*, *\"primo-accédant\"*, *\"investissement locatif\"*, *\"assurance emprunteur\"*).\n- **Partenariats locaux** : Contacter les agences immobilières du secteur pour des recommandations ciblées.\n- **Réseaux professionnels** : Groupes Facebook/LinkedIn dédiés à l’immobilier dans les Yvelines.\n\n**Critères de qualification** :\n✅ **Vendeurs/agents** : Activité récente dans le secteur (derniers 6 mois).\n✅ **Acheteurs** : Projet immobilier concret (achat, investissement, changement d’assurance).\n✅ **Exclusion** : Leads en phase purement exploratoire (ex : \"je regarde les prix\").\n\n---\n\n#### **2. Campagne de captation (prête à valider)**\n**A. Message (ton : pédagogique, humain, local)**\n**Exemple pour LinkedIn/email** :\n---\n*\"Bonjour [Prénom],*\n\nVous êtes [vendeur/acheteur/investisseur] dans les Yvelines et vous cherchez à optimiser votre financement immobilier ou votre assurance emprunteur ?\n\nEn tant que courtière **Empruntis** (MIOBSP n°26009286), je vous accompagne gratuitement pour :\n✔ **Analyser votre situation** (capacité d’emprunt, crédits existants, économies possibles).\n✔ **Négocier avec les banques** pour un taux adapté à votre projet.\n✔ **Comparer les assurances emprunteurs** sans engagement.\n\n*Exemple concret* : Un client a économisé **15 000€** sur 20 ans en changeant d’assurance (cas réel, secteur Fontenay-le-Fleury).\n\n👉 **Un audit personnalisé en 15 min** ? Répondez à ce message ou cliquez sur le lien [Microsoft Bookings]*(lien à confirmer)*.\n\n*Source : Expérience de 10 ans en assurance + accompagnement 100% local.*\n\n— Yaébali TOYALEKE\nCourtière en crédit immobilier | Empruntis\n📞 06 32 74 85 03 | 📧 yaebali.toyaleke@empruntis.com\n[LinkedIn]*(lien vérifié)*\n\"Écoute active et solutions sur mesure pour votre projet.\"*\n---\n**Variantes** :\n- Pour **agents immobiliers** : *\"Vos clients primo-accédants gagnent du temps et de l’argent avec un accompagnement clé en main. Je vous propose un partenariat pour leur offrir ce service.\"*\n- Pour **investisseurs** : *\"Optimisez vos marges avec un financement sur mesure et une assurance adaptée à votre portefeuille.\"*\n\n---\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Messages InMail ciblés (via outil comme **Phantombuster** ou manuellement).\n   - Posts organiques sur les groupes locaux (*ex : \"Groupement des Agents Immobiliers Yvelines\"*).\n   - Partage de témoignages anonymisés (ex : *\"Comment [Client] a réduit son assurance de 30%\"*).\n\n2. **Emailing** :\n   - Base de données locale (achat ou partenariat avec une agence immobilière).\n   - Objet : *\"[Prénom], votre financement immobilier peut être 10% moins cher – Audit gratuit\"*.\n\n3. **Partenariats** :\n   - Offrir une **formation gratuite** aux agents immobiliers sur *\"Comment conseiller vos clients sur le financement\"* (en échange de leads).\n   - Collaborer avec des **notaires** ou **promoteurs** locaux pour des webinaires.\n\n4. **Réseaux locaux** :\n   - Présence aux **salons immobiliers** (ex : Salon de l’Immobilier Versailles).\n   - Annonce ciblée sur **Facebook Ads** (ciblage : 25-55 ans, centres d’intérêt *\"immobilier\"*, *\"investissement locatif\"*).\n\n---\n\n**C. Formulaire Opt-in (exemple pour LinkedIn/landing page)**\n**Titre** : *\"Prêt à optimiser votre financement ?\"*\n**Champs** :\n- Nom/Prénom*\n- Email*\n- Type de projet (⬜ Acheteur ⬜ Vendeur ⬜ Investisseur ⬜ Autre : _____)\n- Secteur d’activité (si professionnel) : _____\n- Budget/projet estimé (optionnel) : _____\n- **Case à cocher** : *\"J’accepte de recevoir des conseils personnalisés par Yaébali TOYA",
+                  "text": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads réels (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** : Partenariats avec agences locales (ex : **Laforêt, Century 21, Orpi**) pour cibler leurs clients acheteurs.\n- **Acheteurs/primo-accédants** : Annonces immobilières (Leboncoin, SeLoger, Bien’ici) avec filtres \"financement\" ou \"primo-accédant\".\n- **Investisseurs** : Groupes Facebook/LinkedIn (ex : *\"Investisseurs Yvelines\"*, *\"Pinel Yvelines\"*).\n- **Propriétaires avec projet** : Réseaux locaux (mairies, syndicats de copropriété) ou ciblage via **Google Ads** (mots-clés : *\"changer assurance emprunteur Yvelines\"*, *\"simulateur crédit immobilier Versailles\"*).\n\n**Sources vérifiées pour qualification** :\n- **LinkedIn** (filtre : mots-clés *\"immobilier\"*, *\"financement\"*, *\"investisseur\"* + localisation).\n- **Notion Yaelbali** : Liste des contacts existants (si disponible) ou leads chauds (ex : clients actuels de l’assurance emprunteur à Fontenay-le-Fleury).\n\n**Outils** :\n- **LinkedIn Sales Navigator** (pour les pros) + **Mailchimp** (pour les leads B2C).\n- **CRM** (HubSpot ou Notion) pour suivre les interactions.\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n**A. Message (ton : pédagogique, local, rassurant)**\n**Exemple pour les acheteurs/primo-accédants** (LinkedIn/email) :\n---\n*\"Vous rêvez d’acheter votre résidence principale ou d’investir dans les Yvelines, mais le financement vous semble complexe ?\nJe vous accompagne gratuitement pour :\n✅ Analyser votre capacité d’emprunt **sans engagement**.\n✅ Comparer les offres bancaires locales (La Banque Postale, Crédit Foncier, etc.).\n✅ Optimiser votre assurance emprunteur (j’ai déjà réduit de **X%** pour des clients comme vous).\n\n📅 **Prêt à en parler ?** Répondez à ce message ou cliquez sur le lien ci-dessous pour un **audit personnalisé** (15 min).*\n[Lien vers Microsoft Bookings – à confirmer avec Yaébali]*\n---\n**Variantes** :\n- Pour les **agents immobiliers** : *\"Vos clients acheteurs gagnent du temps et de l’argent avec mon accompagnement. Je vous offre une **analyse gratuite** de leurs dossiers pour les fidéliser.\"*\n- Pour les **investisseurs** : *\"Financement locatif optimisé : je négocie des taux préférentiels pour les projets Yvelines. Exemple : [cas concret si disponible].\"*\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Posts ciblés (ex : *\"3 erreurs à éviter quand on achète en Yvelines\"* + CTA vers le formulaire).\n   - Messages InMail aux leads qualifiés (ex : agents immobiliers).\n2. **Emailing** :\n   - Base de données locale (ex : anciens clients de la mairie, groupes Facebook).\n   - Objet : *\"[Votre prénom], votre projet immobilier en Yvelines mérite une analyse gratuite\"* (personnalisable).\n3. **Partenariats** :\n   - Agences immobilières (offre de commission reversée pour les leads qualifiés).\n   - Notaires locaux (réseautage via **Chambre des Notaires de Versailles**).\n\n**C. Formulaire opt-in (simple & conforme RGPD)**\n**Exemple** (via **Typeform** ou **Google Forms**) :\n---\n**Titre** : *\"Prêt à optimiser votre financement immobilier ?\"*\n1. **Nom** (obligatoire)\n2. **Email** (obligatoire)\n3. **Type de projet** (⬜ Résidence principale ⬜ Investissement ⬜ Changement assurance ⬜ Autre)\n4. **Budget estimé** (⬛ Moins de 200k € ⬛ 200k–400k € ⬛ +400k €)\n5. **Provenance** (⬛ LinkedIn ⬛ Agence immobilière ⬛ Autre : _____)\n6. **Message** (optionnel : *\"Dites-moi en 2 mots ce qui vous bloque\"*).\n---\n**CTA** : *\"Je valide votre éligibilité en 24h – pas de spam, juste des conseils utiles.\"*\n\n**D. Qualification**\n**Critères de tri** :\n- **Qualifiés chauds** : Budget clair, projet défini (ex : *\"Acheteur de 300k€ à Montigny\"*).\n- **Froids** : Primo-accédants sans budget (relancer avec un guide gratuit : *\"Le guide du primo-accédant en Yvelines\"*).\n**Outils** :\n- **Score de qualification** (ex : 1 point pour budget défini, 1 pour projet locatif, etc.).\n- **",
                   "model": "ministral-8b-2512"
                 }
               }
@@ -414,22 +414,22 @@
       "verification": {
         "seedId": "yael-prospection",
         "parcelId": "project-yael-prospection",
-        "operationId": "gerard-cultivate-1793215736438-harvest",
+        "operationId": "gerard-cultivate-1793216217008-harvest",
         "capability": "content.generate",
         "completed": true,
         "simulated": false,
-        "contentLength": 4140,
+        "contentLength": 4041,
         "producer": null,
         "route": "octopus->publisher-adapter"
       }
     },
     "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1793215736438-harvest",
-      "harvestedAt": "2026-10-28T19:29:43.938Z",
+      "harvestId": "gerard-cultivate-1793216217008-harvest",
+      "harvestedAt": "2026-10-28T19:37:36.119Z",
       "seedId": "yael-prospection",
       "parcelId": "project-yael-prospection",
       "title": "Yaébali · Préqualification de prospects",
-      "content": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** (réseaux locaux : Orpi, Century 21, Laforêt, etc.).\n- **Acheteurs** : primo-accédants, investisseurs, acquéreurs de résidence principale, propriétaires avec projet immobilier.\n- **Propriétaires** : ceux ayant déjà acheté et cherchant à optimiser leur assurance emprunteur.\n\n**Sources de leads vérifiées** :\n- **LinkedIn** : Filtrer les profils avec mots-clés (*\"agent immobilier\"*, *\"primo-accédant\"*, *\"investissement locatif\"*, *\"assurance emprunteur\"*).\n- **Partenariats locaux** : Contacter les agences immobilières du secteur pour des recommandations ciblées.\n- **Réseaux professionnels** : Groupes Facebook/LinkedIn dédiés à l’immobilier dans les Yvelines.\n\n**Critères de qualification** :\n✅ **Vendeurs/agents** : Activité récente dans le secteur (derniers 6 mois).\n✅ **Acheteurs** : Projet immobilier concret (achat, investissement, changement d’assurance).\n✅ **Exclusion** : Leads en phase purement exploratoire (ex : \"je regarde les prix\").\n\n---\n\n#### **2. Campagne de captation (prête à valider)**\n**A. Message (ton : pédagogique, humain, local)**\n**Exemple pour LinkedIn/email** :\n---\n*\"Bonjour [Prénom],*\n\nVous êtes [vendeur/acheteur/investisseur] dans les Yvelines et vous cherchez à optimiser votre financement immobilier ou votre assurance emprunteur ?\n\nEn tant que courtière **Empruntis** (MIOBSP n°26009286), je vous accompagne gratuitement pour :\n✔ **Analyser votre situation** (capacité d’emprunt, crédits existants, économies possibles).\n✔ **Négocier avec les banques** pour un taux adapté à votre projet.\n✔ **Comparer les assurances emprunteurs** sans engagement.\n\n*Exemple concret* : Un client a économisé **15 000€** sur 20 ans en changeant d’assurance (cas réel, secteur Fontenay-le-Fleury).\n\n👉 **Un audit personnalisé en 15 min** ? Répondez à ce message ou cliquez sur le lien [Microsoft Bookings]*(lien à confirmer)*.\n\n*Source : Expérience de 10 ans en assurance + accompagnement 100% local.*\n\n— Yaébali TOYALEKE\nCourtière en crédit immobilier | Empruntis\n📞 06 32 74 85 03 | 📧 yaebali.toyaleke@empruntis.com\n[LinkedIn]*(lien vérifié)*\n\"Écoute active et solutions sur mesure pour votre projet.\"*\n---\n**Variantes** :\n- Pour **agents immobiliers** : *\"Vos clients primo-accédants gagnent du temps et de l’argent avec un accompagnement clé en main. Je vous propose un partenariat pour leur offrir ce service.\"*\n- Pour **investisseurs** : *\"Optimisez vos marges avec un financement sur mesure et une assurance adaptée à votre portefeuille.\"*\n\n---\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Messages InMail ciblés (via outil comme **Phantombuster** ou manuellement).\n   - Posts organiques sur les groupes locaux (*ex : \"Groupement des Agents Immobiliers Yvelines\"*).\n   - Partage de témoignages anonymisés (ex : *\"Comment [Client] a réduit son assurance de 30%\"*).\n\n2. **Emailing** :\n   - Base de données locale (achat ou partenariat avec une agence immobilière).\n   - Objet : *\"[Prénom], votre financement immobilier peut être 10% moins cher – Audit gratuit\"*.\n\n3. **Partenariats** :\n   - Offrir une **formation gratuite** aux agents immobiliers sur *\"Comment conseiller vos clients sur le financement\"* (en échange de leads).\n   - Collaborer avec des **notaires** ou **promoteurs** locaux pour des webinaires.\n\n4. **Réseaux locaux** :\n   - Présence aux **salons immobiliers** (ex : Salon de l’Immobilier Versailles).\n   - Annonce ciblée sur **Facebook Ads** (ciblage : 25-55 ans, centres d’intérêt *\"immobilier\"*, *\"investissement locatif\"*).\n\n---\n\n**C. Formulaire Opt-in (exemple pour LinkedIn/landing page)**\n**Titre** : *\"Prêt à optimiser votre financement ?\"*\n**Champs** :\n- Nom/Prénom*\n- Email*\n- Type de projet (⬜ Acheteur ⬜ Vendeur ⬜ Investisseur ⬜ Autre : _____)\n- Secteur d’activité (si professionnel) : _____\n- Budget/projet estimé (optionnel) : _____\n- **Case à cocher** : *\"J’accepte de recevoir des conseils personnalisés par Yaébali TOYA",
+      "content": "### **Audit des leads réels & Campagne de captation – Plan d’action**\n\n#### **1. Audit des leads réels (hors TEST)**\n**Cibles prioritaires** (secteur : Montigny-le-Bretonneux, Bois-d’Arcy, Voisins-le-Bretonneux, Guyancourt) :\n- **Vendeurs/agents immobiliers** : Partenariats avec agences locales (ex : **Laforêt, Century 21, Orpi**) pour cibler leurs clients acheteurs.\n- **Acheteurs/primo-accédants** : Annonces immobilières (Leboncoin, SeLoger, Bien’ici) avec filtres \"financement\" ou \"primo-accédant\".\n- **Investisseurs** : Groupes Facebook/LinkedIn (ex : *\"Investisseurs Yvelines\"*, *\"Pinel Yvelines\"*).\n- **Propriétaires avec projet** : Réseaux locaux (mairies, syndicats de copropriété) ou ciblage via **Google Ads** (mots-clés : *\"changer assurance emprunteur Yvelines\"*, *\"simulateur crédit immobilier Versailles\"*).\n\n**Sources vérifiées pour qualification** :\n- **LinkedIn** (filtre : mots-clés *\"immobilier\"*, *\"financement\"*, *\"investisseur\"* + localisation).\n- **Notion Yaelbali** : Liste des contacts existants (si disponible) ou leads chauds (ex : clients actuels de l’assurance emprunteur à Fontenay-le-Fleury).\n\n**Outils** :\n- **LinkedIn Sales Navigator** (pour les pros) + **Mailchimp** (pour les leads B2C).\n- **CRM** (HubSpot ou Notion) pour suivre les interactions.\n\n---\n\n#### **2. Campagne de captation – Éléments clés**\n**A. Message (ton : pédagogique, local, rassurant)**\n**Exemple pour les acheteurs/primo-accédants** (LinkedIn/email) :\n---\n*\"Vous rêvez d’acheter votre résidence principale ou d’investir dans les Yvelines, mais le financement vous semble complexe ?\nJe vous accompagne gratuitement pour :\n✅ Analyser votre capacité d’emprunt **sans engagement**.\n✅ Comparer les offres bancaires locales (La Banque Postale, Crédit Foncier, etc.).\n✅ Optimiser votre assurance emprunteur (j’ai déjà réduit de **X%** pour des clients comme vous).\n\n📅 **Prêt à en parler ?** Répondez à ce message ou cliquez sur le lien ci-dessous pour un **audit personnalisé** (15 min).*\n[Lien vers Microsoft Bookings – à confirmer avec Yaébali]*\n---\n**Variantes** :\n- Pour les **agents immobiliers** : *\"Vos clients acheteurs gagnent du temps et de l’argent avec mon accompagnement. Je vous offre une **analyse gratuite** de leurs dossiers pour les fidéliser.\"*\n- Pour les **investisseurs** : *\"Financement locatif optimisé : je négocie des taux préférentiels pour les projets Yvelines. Exemple : [cas concret si disponible].\"*\n\n**B. Canaux professionnels**\n1. **LinkedIn** :\n   - Posts ciblés (ex : *\"3 erreurs à éviter quand on achète en Yvelines\"* + CTA vers le formulaire).\n   - Messages InMail aux leads qualifiés (ex : agents immobiliers).\n2. **Emailing** :\n   - Base de données locale (ex : anciens clients de la mairie, groupes Facebook).\n   - Objet : *\"[Votre prénom], votre projet immobilier en Yvelines mérite une analyse gratuite\"* (personnalisable).\n3. **Partenariats** :\n   - Agences immobilières (offre de commission reversée pour les leads qualifiés).\n   - Notaires locaux (réseautage via **Chambre des Notaires de Versailles**).\n\n**C. Formulaire opt-in (simple & conforme RGPD)**\n**Exemple** (via **Typeform** ou **Google Forms**) :\n---\n**Titre** : *\"Prêt à optimiser votre financement immobilier ?\"*\n1. **Nom** (obligatoire)\n2. **Email** (obligatoire)\n3. **Type de projet** (⬜ Résidence principale ⬜ Investissement ⬜ Changement assurance ⬜ Autre)\n4. **Budget estimé** (⬛ Moins de 200k € ⬛ 200k–400k € ⬛ +400k €)\n5. **Provenance** (⬛ LinkedIn ⬛ Agence immobilière ⬛ Autre : _____)\n6. **Message** (optionnel : *\"Dites-moi en 2 mots ce qui vous bloque\"*).\n---\n**CTA** : *\"Je valide votre éligibilité en 24h – pas de spam, juste des conseils utiles.\"*\n\n**D. Qualification**\n**Critères de tri** :\n- **Qualifiés chauds** : Budget clair, projet défini (ex : *\"Acheteur de 300k€ à Montigny\"*).\n- **Froids** : Primo-accédants sans budget (relancer avec un guide gratuit : *\"Le guide du primo-accédant en Yvelines\"*).\n**Outils** :\n- **Score de qualification** (ex : 1 point pour budget défini, 1 pour projet locatif, etc.).\n- **",
       "capability": "content.generate",
       "producer": null,
       "route": "octopus->publisher-adapter",
@@ -442,7 +442,7 @@
     }
   },
   "lastDecision": {
-    "at": "2026-10-28T19:28:56.436Z",
+    "at": "2026-10-28T19:36:57.005Z",
     "mode": "cultivate",
     "reason": "deliverable-production-priority",
     "backlog": 44,
@@ -1044,8 +1044,8 @@
       "feedback": "observe-downstream-results"
     },
     {
-      "at": "2026-10-28T19:29:43.942Z",
-      "operationId": "gerard-cultivate-1793215736438",
+      "at": "2026-10-28T19:37:36.123Z",
+      "operationId": "gerard-cultivate-1793216217008",
       "mode": "cultivate",
       "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
       "outcome": "ok",
