@@ -1,0 +1,33 @@
+name: Gerard Composio Gmail authorization link
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gerard-composio-gmail-connect.yml"
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  owner-gmail-connect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Generate ten-minute Composio Connect Link for benoit-lubert
+        shell: bash
+        run: |
+          set -euo pipefail
+          oidc_token="$(curl --fail --silent --show-error --max-time 15 \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=blacklace-publisher-gerard-owner-test" \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>process.stdout.write(JSON.parse(s).value))')"
+          test -n "$oidc_token"
+          response_file="$(mktemp)"
+          http_code="$(curl --silent --show-error --max-time 30 --output "$response_file" --write-out '%{http_code}' \
+            -X POST 'https://blacklace-publisher-worker.benoitlubert.workers.dev/api/gerard/gmail/connect-link' \
+            -H "Authorization: Bearer $oidc_token" \
+            -H 'Content-Type: application/json' \
+            --data '{}')"
+          echo "publisher.http=$http_code"
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("publisher.status="+String(x.status||"unknown"));if(x.status==="link-ready"){console.log("composio.authorize="+x.redirectUrl);console.log("composio.expires_at="+x.expiresAt)}else{console.log("publisher.reason="+String(x.reason||"unknown"))}' "$response_file"
+          test "$http_code" = 200
