@@ -256,6 +256,22 @@ jobs:
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
 
+      - name: Probe Publisher Gmail visibility before autonomous delivery
+        working-directory: poulpe-fiction
+        run: |
+          set -euo pipefail
+          STATUS="$(curl --silent --show-error --max-time 20 --output /tmp/gerard-publisher-gmail.json --write-out '%{http_code}' "$PUBLISHER_URL/api/production/status" || true)"
+          if [ "$STATUS" != "200" ]; then
+            echo "Publisher Gmail probe unavailable (HTTP $STATUS); delivery remains disabled."
+            exit 0
+          fi
+          node -e '
+            const fs=require("node:fs");
+            const payload=JSON.parse(fs.readFileSync("/tmp/gerard-publisher-gmail.json","utf8"));
+            const gmail=payload.gerardGmail;
+            console.log(JSON.stringify({event:"gerard.gmail.publisher-readiness",status:gmail?.status??"diagnostic-not-deployed",runtimeDeliveryVerified:gmail?.runtimeDeliveryVerified===true,sendEnabled:gmail?.sendEnabled===true}));
+          '
+
       - name: Diagnose Gmail capability and run authorized owner-only test
         working-directory: poulpe-fiction
         env:
