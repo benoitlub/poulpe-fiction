@@ -1,0 +1,31 @@
+name: Gerard owner-only Publisher Gmail test
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gerard-owner-publisher-mail-test.yml"
+permissions:
+  contents: read
+jobs:
+  one-time-owner-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      PUBLISHER_WRITE_TOKEN: ${{ secrets.PUBLISHER_NOTION_WRITE_TOKEN }}
+    steps:
+      - name: Require existing Publisher bearer secret
+        shell: bash
+        run: test -n "$PUBLISHER_WRITE_TOKEN"
+      - name: Send one authorized owner-only test through deployed Publisher
+        shell: bash
+        run: |
+          set -euo pipefail
+          response_file="$(mktemp)"
+          http_code="$(curl --silent --show-error --max-time 35 --output "$response_file" --write-out '%{http_code}' \
+            -X POST 'https://blacklace-publisher-worker.benoitlubert.workers.dev/api/gerard/gmail/owner-test' \
+            -H "Authorization: Bearer $PUBLISHER_WRITE_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data '{"operationId":"gerard-owner-20261028-once-001"}')"
+          echo "publisher.http=$http_code"
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("publisher.status="+String(x.status||"unknown"));console.log("publisher.reason="+String(x.reason||"none"))' "$response_file"
+          test "$http_code" = 200
