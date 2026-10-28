@@ -33,3 +33,17 @@ test('existing unsent drafts gain the real sender without changing their reviewe
   const sent = { ...previous, sentAt: '2026-10-01T00:00:00Z', contacted: true };
   assert.deepEqual(mergeMailDrafts([sent], [draft]), [sent]);
 });
+
+test('published contact becomes an autonomous draft without human approval', () => {
+  const [draft] = createMailDrafts([{ ...source, contactEmail: 'contact@example.org' }]);
+  assert.equal(draft.recipientEmail, 'contact@example.org');
+  assert.equal(draft.status, 'ready-for-autonomous-send');
+  assert.equal(draft.contacted, false);
+});
+
+test('rediscovery adds a published contact but never requeues contacted mail', () => {
+  const [original] = createMailDrafts([source]);
+  const [ready] = createMailDrafts([{ ...source, contactEmail: 'contact@example.org' }]);
+  assert.equal(mergeMailDrafts([original], [ready])[0].recipientEmail, 'contact@example.org');
+  assert.equal(mergeMailDrafts([{ ...original, sentAt: '2026-10-28T00:00:00Z', contacted: true }], [ready])[0].recipientEmail, null);
+});
