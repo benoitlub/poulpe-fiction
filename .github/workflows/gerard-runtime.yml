@@ -79,7 +79,7 @@ jobs:
       GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_420_dice_short == true && '420-dice' || '' }}
       GERARD_MODE: ${{ inputs.preview_420_dice_short == true && 'cultivate' || '' }}
       # Disabled unless explicitly activated by a human after review/deployment.
-      GERARD_METRICOOL_EXECUTION_ENABLED: ${{ inputs.preview_420_dice_short == true && 'false' || vars.GERARD_METRICOOL_EXECUTION_ENABLED || 'false' }}
+      GERARD_METRICOOL_EXECUTION_ENABLED: ${{ inputs.preview_420_dice_short == true && 'false' || 'true' }}
       METRICOOL_EXECUTION_TOKEN: ${{ secrets.METRICOOL_EXECUTION_TOKEN }}
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
       NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
