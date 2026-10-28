@@ -1,23 +1,6 @@
 {
-  "updatedAt": "2026-10-28T20:52:55.188Z",
+  "updatedAt": "2026-10-28T21:03:40.736Z",
   "observations": [
-    {
-      "observedAt": "2026-10-11T10:15:33Z",
-      "seedId": "terra",
-      "harvestId": "harvest_local_harvest_terra_1786215725146",
-      "copyText": "Et si quelqu'un observait la Terre depuis des siècles sans jamais être certain de ce qu'il voyait ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
-      "repeatCount": 14,
-      "chosenExperiment": "explore",
-      "experimentHypothesis": "Another subject may improve editorial diversity.",
-      "delivery": {
-        "status": "not-attempted",
-        "publishingEnabled": false
-      },
-      "metricsStatus": "unavailable",
-      "outcome": "not-verified",
-      "matchedMetrics": [],
-      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
-    },
     {
       "observedAt": "2026-10-11T10:18:20Z",
       "seedId": "terra",
@@ -3509,35 +3492,36 @@
       "outcome": "not-verified",
       "metricsStatus": "available",
       "lesson": "No confirmed delivery: avoid claims of publication or audience response."
+    },
+    {
+      "kind": "gerard-experiment-cycle",
+      "observedAt": "2026-10-28T21:03:40.699Z",
+      "seedId": "gerard-et-gerard",
+      "harvestId": "harvest_local_harvest_gerard-et-gerard_1784579429759",
+      "copyText": "Et si deux extraterrestres essayaient de comprendre pourquoi les humains courent sur des tapis qui ne vont nulle part ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
+      "repeatCount": 0,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "not-attempted",
+        "publishingEnabled": false
+      },
+      "outcome": "not-verified",
+      "metricsStatus": "available",
+      "lesson": "No confirmed delivery: avoid claims of publication or audience response."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-28T20:52:54Z",
+    "observedAt": "2026-10-28T21:03:40Z",
     "source": "publisher",
     "capability": "analytics.read",
-    "response": {
-      "status": "gap",
-      "contract": "publisher-capability-gap-v1",
-      "capability": "analytics.read",
-      "discoveryRequired": true,
-      "connectedMatches": 0,
-      "mission": {
-        "role": "tool-discovery",
-        "query": "social media analytics API tool",
-        "acceptance": [
-          "documented capability match",
-          "developer/API access",
-          "executable integration path",
-          "no inferred capability from marketing nouns"
-        ],
-        "nextEndpoint": "/api/observatory/discovery/preview"
-      }
-    }
+    "status": "unavailable",
+    "httpStatus": "000"
   },
   "guidance": {
-    "seedId": "terra",
+    "seedId": "gerard-et-gerard",
     "chosenExperiment": "explore",
-    "nextExperiment": "Test a distinct creative angle; keep earlier posts unchanged.",
+    "nextExperiment": "Explore an angle, observe actual delivery and await comparable verified analytics.",
     "performanceRankingEnabled": false,
     "metricoolSignalsAvailable": true,
     "metricoolLatestSnapshot": "2026-10-27",
@@ -3604,7 +3588,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3624,7 +3608,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3644,7 +3628,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3664,7 +3648,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3684,7 +3668,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3704,7 +3688,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3724,7 +3708,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3744,7 +3728,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-28T20:52:55.188Z",
+        "observedAt": "2026-10-28T21:03:40.736Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3764,7 +3748,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-28T20:52:55.188Z",
+    "lastIntegratedAt": "2026-10-28T21:03:40.736Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   },
   "pendingExperiments": [],

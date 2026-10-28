@@ -1,17 +1,17 @@
 {
-  "preparedAt": "2026-10-28T20:52:34Z",
-  "status": "ready",
+  "preparedAt": "2026-10-28T21:03:11Z",
+  "status": "blocked",
   "contract": "gerard-metricool-bridge-next-v1",
-  "harvestId": "neon_iter_iter_terra_1786289427863",
-  "seedId": "terra",
-  "title": "☁️ Récolte serveur · TERRA (itération 3)",
-  "score": 70,
+  "harvestId": "harvest_local_harvest_gerard-et-gerard_1784579429759",
+  "seedId": "gerard-et-gerard",
+  "title": "Apprentissages et angles · Gérard & Gérard — Brèves histoires d'une simulation oubliée",
+  "score": 85,
   "copy": {
-    "text": "**Version \"mystère\"** : Photo floue d’un livre TERRA avec la phrase *\"Devinez ce que vous tenez entre vos mains.\"*\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+    "text": "Et si deux extraterrestres essayaient de comprendre pourquoi les humains courent sur des tapis qui ne vont nulle part ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
     "strategy": "first-explicit-angle"
   },
   "media": {
-    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
+    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
     "direct": true,
     "official": true
   },
@@ -43,20 +43,24 @@
   },
   "provenance": {
     "source": "garden-autoselection",
-    "harvestId": "neon_iter_iter_terra_1786289427863",
-    "seedId": "terra"
+    "harvestId": "harvest_local_harvest_gerard-et-gerard_1784579429759",
+    "seedId": "gerard-et-gerard"
   },
   "editorialLearning": {
     "repeatedExactCopy": false,
     "lesson": "Compare repeated posts against reach and engagement; try another angle next time."
   },
   "externalPublicationEvidence": {
-    "previouslyPublished": false,
-    "confirmedNetworks": [],
-    "accountNames": [],
+    "previouslyPublished": true,
+    "confirmedNetworks": [
+      "instagram"
+    ],
+    "accountNames": [
+      "benoitlubert"
+    ],
     "publisherAttribution": "unknown",
     "source": "human-verified-external-publications",
-    "editorialAdvice": "No verified external post for this seed."
+    "editorialAdvice": "Previously promoted: use a fresh creative angle; verify against the existing post before scheduling."
   },
   "editorialRoute": {
     "contract": "publisher-editorial-routing-v1",
@@ -72,11 +76,10 @@
     "publishingEnabled": false
   },
   "delivery": {
-    "status": "unknown",
-    "httpStatus": "409",
+    "status": "not-attempted",
     "publishingEnabled": false
   },
-  "action": "hold-for-manual-buffer-review",
+  "action": "do-not-schedule",
   "transport": {
     "provider": "buffer",
     "account": "benoitlubert",
@@ -84,40 +87,9 @@
   },
   "editorialQuality": {
     "kind": "book",
-    "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/terra/1000045325.jpg",
-    "verifiedDestination": "https://www.amazon.fr/dp/B0H4CN5MSH",
-    "status": "complete"
+    "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
+    "verifiedDestination": "https://www.amazon.fr/dp/B0H68811RL",
+    "status": "incomplete"
   },
-  "bufferPreflight": {
-    "contract": "publisher-buffer-book-preflight-v1",
-    "status": "ready-for-controlled-test",
-    "topic": "book",
-    "destination": {
-      "audience": "author-books",
-      "preferredProvider": "buffer",
-      "preferredAccount": "benoitlubert",
-      "fallbackAccount": null,
-      "requiresChannelVerification": true
-    },
-    "channelId": "6ac8c8226a5c39ccb65fdbf6",
-    "keyConfigured": true,
-    "textPresent": true,
-    "reason": null,
-    "publishingEnabled": false
-  },
-  "learning": {
-    "bufferDraft": {
-      "outcome": "unconfirmed",
-      "httpStatus": "409",
-      "publisherStatus": "confirmation-required",
-      "reason": "BUFFER_RESPONSE_UNCONFIRMED",
-      "bufferHttpStatus": null,
-      "graphqlErrorCodes": [],
-      "reservationStatus": "unknown",
-      "lesson": "An uncertain external write is not evidence of a draft. Inspect reservation and provider response; never retry automatically.",
-      "nextAction": "diagnose-read-only",
-      "autonomousRetryAllowed": false,
-      "requiresHumanApprovalForNewWrite": true
-    }
-  }
+  "reason": "book-editorial-metadata-incomplete"
 }
