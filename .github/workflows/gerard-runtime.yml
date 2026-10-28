@@ -260,7 +260,7 @@ jobs:
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
-          STATUS="$(curl --silent --show-error --max-time 20 --output /tmp/gerard-publisher-gmail.json --write-out '%{http_code}' "$PUBLISHER_URL/api/production/status" || true)"
+          STATUS="$(curl --silent --show-error --max-time 20 --output /tmp/gerard-publisher-gmail.json --write-out '%{http_code}' "$PUBLISHER_URL/api/production/diagnostics" || true)"
           if [ "$STATUS" != "200" ]; then
             echo "Publisher Gmail probe unavailable (HTTP $STATUS); delivery remains disabled."
             exit 0
