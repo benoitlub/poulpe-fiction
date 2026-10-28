@@ -1,5 +1,5 @@
 name: Gerard owner-only Publisher Gmail test
-# Re-run after scoped Composio user lookup deployment; operation ID stays fixed.
+# Owner-authorized check of both existing Composio project bindings; operation ID stays fixed.
 on:
   push:
     branches: [main]
@@ -29,5 +29,5 @@ jobs:
             -H 'Content-Type: application/json' \
             --data '{"operationId":"gerard-owner-20261028-oidc-001","allowProjectGmailLookup":true}')"
           echo "publisher.http=$http_code"
-          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("publisher.status="+String(x.status||"unknown"));console.log("publisher.reason="+String(x.reason||"none"));console.log("publisher.gmail_count="+String(x.count??"unknown"));console.log("publisher.project_gmail_count="+String(x.projectGmailCount??"unknown"))' "$response_file"
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("publisher.status="+String(x.status||"unknown"));console.log("publisher.reason="+String(x.reason||"none"));console.log("publisher.gmail_count="+String(x.count??"unknown"));console.log("publisher.project_gmail_count="+String(x.projectGmailCount??"unknown"));console.log("publisher.alternate_project_gmail_count="+String(x.alternateProjectGmailCount??"unknown"))' "$response_file"
           test "$http_code" = 200
