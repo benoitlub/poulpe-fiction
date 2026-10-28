@@ -512,9 +512,11 @@ async function main() {
         } else if (harvest.status === "deferred") {
           // Absence of external evidence is a transparent pause, not a fake
           // prospect and not a failed workflow that skips all later safeguards.
-          result.status = "ok";
+          result.status = "deferred";
           result.decision = "b2b-sources-deferred";
-          result.deferred = { reason: harvest.verification.reason, source: "publisher-worker" };
+          result.deferred = { reason: harvest.verification.reason, source: "publisher-worker", researchRequired: true, seedId: selectedSeed.seedId };
+          state.lastBusinessResearchBlocker = { at: nowIso(), seedId: selectedSeed.seedId, operationId, status: "deferred", reason: harvest.verification.reason, publisherStatus: businessSourceState ?? "not-attempted", candidates: businessSources?.length ?? 0 };
+          console.log(JSON.stringify({ event: "gerard-b2b-research-blocked", ...state.lastBusinessResearchBlocker }));
         } else {
           if (harvest.status === "ok") { delete state.aiCooldownUntil; state.aiConsecutiveRateLimits = 0; }
           result.status = harvest.status === "ok" ? "ok" : "failed";
