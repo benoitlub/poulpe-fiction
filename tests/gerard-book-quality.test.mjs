@@ -73,3 +73,13 @@ test("verified TERRA seed rejects a link to another book", () => {
   const unrelated = evaluate({ ...base, seedId: "terra", copy: { text: "TERRA https://www.amazon.fr/dp/B0H68811RL" } });
   assert.equal(unrelated.status, "blocked");
 });
+
+test("TERRA can test a fresh mystery angle despite a technical iteration title", () => {
+  const candidate = { ...base, seedId: "terra", title: "☁️ Récolte serveur · TERRA (itération 3)",
+    copy: { text: "Version mystère : devinez ce que cache TERRA. Découvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH" } };
+  const accepted = evaluate(candidate);
+  assert.equal(accepted.status, "ready");
+  assert.equal(accepted.editorialQuality.status, "complete");
+  const unrelated = evaluate({ ...candidate, copy: { text: "Un autre roman : https://www.amazon.fr/dp/B0H4CN5MSH" } });
+  assert.equal(unrelated.status, "blocked", "the copy must still identify TERRA");
+});
