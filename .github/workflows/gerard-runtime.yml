@@ -18,6 +18,7 @@ on:
       - "scripts/gerard-b2b-qualification.mjs"
       - "scripts/gerard-b2b-memory.mjs"
       - "scripts/gerard-mail-outbox.mjs"
+      - "scripts/gerard-gmail-owner-test.mjs"
       - "scripts/gerard-personal-letters.mjs"
       - "tests/gerard-mail-outbox.test.mjs"
       - "tests/gerard-personal-letters.test.mjs"
@@ -254,6 +255,15 @@ jobs:
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
+
+      - name: Diagnose Gmail capability and run authorized owner-only test
+        working-directory: poulpe-fiction
+        env:
+          GERARD_GMAIL_CLIENT_ID: ${{ secrets.GERARD_GMAIL_CLIENT_ID }}
+          GERARD_GMAIL_CLIENT_SECRET: ${{ secrets.GERARD_GMAIL_CLIENT_SECRET }}
+          GERARD_GMAIL_REFRESH_TOKEN: ${{ secrets.GERARD_GMAIL_REFRESH_TOKEN }}
+          GERARD_GMAIL_OWNER_TEST_ENABLED: ${{ vars.GERARD_GMAIL_OWNER_TEST_ENABLED || 'false' }}
+        run: node scripts/gerard-gmail-owner-test.mjs
 
       - name: Archive an occasional personal letter for the Banc (never send Gmail)
         working-directory: poulpe-fiction
