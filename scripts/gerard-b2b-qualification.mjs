@@ -42,8 +42,21 @@ function stripHtml(html) {
     .replace(/\s+/g, ' ').trim().slice(0, 12_000);
 }
 
+// Only publicly advertised mailto contacts are candidates for outreach.
+// Never manufacture addresses from a domain or a person's name.
+export function findPublishedContactEmail(html) {
+  const candidates = [...String(html).matchAll(/href\s*=\s*["']mailto:([^"'?#\s]+)(?:\?[^"']*)?["']/gi)]
+    .map(match => {
+      try { return decodeURIComponent(match[1]).trim().toLowerCase(); } catch { return ""; }
+    }).filter(email => /^[^@\s<>]+@[^@\s<>]+\.[a-z]{2,}$/i.test(email));
+  const unique = [...new Set(candidates)];
+  const priority = /^(?:contact|partenariats?|partnerships?|commercial|bonjour|info)@/i;
+  return unique.find(email => priority.test(email)) ?? unique[0] ?? null;
+}
+
 export function assessBusinessPage(candidate, html) {
   const text = stripHtml(html);
+  const contactEmail = findPublishedContactEmail(html);
   const signals = [];
   if (SELLER.test(text)) signals.push('distribution-ou-vente-professionnelle');
   if (GAME.test(text)) signals.push('univers-jeux');
@@ -52,7 +65,7 @@ export function assessBusinessPage(candidate, html) {
     (signals.includes('univers-jeux') ? 35 : 0) +
     (signals.includes('canal-partenariat-ou-contact') ? 20 : 0);
   return { ...candidate, verification: 'page-read', qualification: score >= 70 ? 'priority-review' : 'investigate',
-    fitScore: score, signals, evidence: text.slice(0, 280),
+    fitScore: score, signals, contactEmail, evidence: text.slice(0, 280),
     nextAction: score >= 70 ? 'Vérifier conditions revendeur et possibilité de proposer Pro.Hibited' :
       'Examiner manuellement la pertinence du partenariat', contacted: false };
 }
