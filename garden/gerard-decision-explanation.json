@@ -1,10 +1,10 @@
 {
-  "explainedAt": "2026-10-28T21:03:12Z",
-  "harvestId": "harvest_local_harvest_gerard-et-gerard_1784579429759",
-  "seedId": "gerard-et-gerard",
-  "subject": "Apprentissages et angles · Gérard & Gérard — Brèves histoires d'une simulation oubliée",
-  "copyText": "Et si deux extraterrestres essayaient de comprendre pourquoi les humains courent sur des tapis qui ne vont nulle part ?\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
-  "editorialScore": 85,
+  "explainedAt": "2026-10-28T21:28:49Z",
+  "harvestId": "neon_iter_iter_terra_1786289427863",
+  "seedId": "terra",
+  "subject": "☁️ Récolte serveur · TERRA (itération 3)",
+  "copyText": "**Version \"mystère\"** : Photo floue d’un livre TERRA avec la phrase *\"Devinez ce que vous tenez entre vos mains.\"*\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+  "editorialScore": 70,
   "chosenNetwork": [
     "facebook",
     "instagram"
@@ -22,15 +22,15 @@
     "mediaCapability": "official-media",
     "mediaFailures": []
   },
-  "decision": "do-not-schedule",
-  "reasoning": "Aucun contenu prêt : décision suspendue.",
+  "decision": "hold-for-buffer-draft",
+  "reasoning": "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici.",
   "limits": [
     "Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.",
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 54,
-  "previousSelectionsOfSameCopy": 0,
+  "previousSelectionsOfSameSeed": 30,
+  "previousSelectionsOfSameCopy": 30,
   "repeatedSelection": true,
   "publishedExactCopy": false,
   "publishedEvidence": [],
@@ -47,7 +47,7 @@
   "reasoningModel": {
     "version": "evidence-hypothesis-experiment-v1",
     "known": [
-      "Publisher selected seed: gerard-et-gerard",
+      "Publisher selected seed: terra",
       "This seed was previously selected."
     ],
     "hypothesis": "A different subject or angle may broaden editorial coverage.",
@@ -55,7 +55,7 @@
       "Audience response is not yet measured for this copy."
     ],
     "publisherSignal": {
-      "status": "gap",
+      "status": "unavailable",
       "capability": "analytics.read"
     },
     "experiment": "Test a different angle or subject on the next cycle; compare only verified metrics.",
@@ -74,7 +74,7 @@
         "id": "new-angle",
         "hypothesis": "A new creative angle may perform differently.",
         "test": "Try new copy or media while retaining the subject.",
-        "priority": 2
+        "priority": 3
       },
       {
         "id": "observe",
