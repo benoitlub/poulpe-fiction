@@ -537,15 +537,16 @@ async function main() {
     at: nowIso(), operationId, mode, intention: intent.objective,
     outcome: result.status, decision: result.decision ?? null,
     seedId: result.seedId ?? null, parcelId: result.parcelId ?? null,
-    error: result.status === "ok" ? null :
+    error: ["ok", "deferred"].includes(result.status) ? null :
       String(result.error ?? result.decision ?? result.harvest?.error ?? "operation-failed").slice(0, 500),
-    feedback: result.status === "ok" ? "observe-downstream-results" : "avoid-blind-retry",
+    feedback: result.status === "deferred" ? "await-new-evidence" : result.status === "ok" ? "observe-downstream-results" : "avoid-blind-retry",
   };
   state.learningHistory = [...(Array.isArray(state.learningHistory) ? state.learningHistory : []).slice(-49), learningEntry];
   state.history = [...(state.history || []).slice(-19), { at: nowIso(), mode, reason: decision.reason, operationId, result: result.status }];
   state.lastMode = mode; state.lastRunAt = nowIso(); state.lastResult = result; await saveState(state);
   console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.done", mode, result }));
-  if (result.status !== "ok") process.exitCode = 1;
+  // A documented lack of new B2B evidence is a normal outcome: let publication continue.
+  if (!["ok", "deferred"].includes(result.status)) process.exitCode = 1;
 }
 
 await main();
