@@ -134,19 +134,19 @@
       "result": "ok"
     },
     {
-      "at": "2026-10-28T15:03:28.882Z",
+      "at": "2026-10-28T15:15:17.132Z",
       "mode": "cultivate",
       "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1793199785991",
+      "operationId": "gerard-cultivate-1793200504863",
       "result": "ok"
     }
   ],
   "lastMode": "cultivate",
-  "lastRunAt": "2026-10-28T15:03:28.882Z",
+  "lastRunAt": "2026-10-28T15:15:17.132Z",
   "lastResult": {
     "status": "ok",
     "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1793199785991",
+    "operationId": "gerard-cultivate-1793200504863",
     "seedId": "benoit-client-acquisition",
     "parcelId": "benoit-business-growth",
     "phase": "knowledge",
@@ -166,7 +166,7 @@
       "status": "ok",
       "httpStatus": 200,
       "payload": {
-        "operationId": "gerard-cultivate-1793199785991-knowledge",
+        "operationId": "gerard-cultivate-1793200504863-knowledge",
         "status": "completed",
         "summary": "Knowledge Package benoit-lubert-professional préparé par Publisher.",
         "output": {
@@ -185,19 +185,19 @@
             "digestedItems": 2
           }
         },
-        "missionId": "gerard-cultivate-1793199785991-knowledge",
+        "missionId": "gerard-cultivate-1793200504863-knowledge",
         "contextId": "benoit-business-growth",
         "adapterId": "publisher",
         "lifecycle": {
-          "missionId": "gerard-cultivate-1793199785991-knowledge",
+          "missionId": "gerard-cultivate-1793200504863-knowledge",
           "state": "completed",
-          "createdAt": "2026-10-28T15:03:26.044Z",
-          "updatedAt": "2026-10-28T15:03:28.872Z",
+          "createdAt": "2026-10-28T15:15:14.566Z",
+          "updatedAt": "2026-10-28T15:15:17.067Z",
           "transitions": [
             {
               "from": null,
               "to": "received",
-              "at": "2026-10-28T15:03:26.044Z",
+              "at": "2026-10-28T15:15:14.566Z",
               "metadata": {
                 "contextId": "benoit-business-growth",
                 "requiredCapabilities": [
@@ -208,11 +208,11 @@
             {
               "from": "received",
               "to": "recorded",
-              "at": "2026-10-28T15:03:26.044Z",
+              "at": "2026-10-28T15:15:14.566Z",
               "reason": "Mission recorded.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793199785991-knowledge",
-                "missionId": "gerard-cultivate-1793199785991-knowledge",
+                "operationId": "gerard-cultivate-1793200504863-knowledge",
+                "missionId": "gerard-cultivate-1793200504863-knowledge",
                 "contextId": "benoit-business-growth",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -222,11 +222,11 @@
             {
               "from": "recorded",
               "to": "planned",
-              "at": "2026-10-28T15:03:26.044Z",
+              "at": "2026-10-28T15:15:14.566Z",
               "reason": "Capabilities resolved.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793199785991-knowledge",
-                "missionId": "gerard-cultivate-1793199785991-knowledge",
+                "operationId": "gerard-cultivate-1793200504863-knowledge",
+                "missionId": "gerard-cultivate-1793200504863-knowledge",
                 "contextId": "benoit-business-growth",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -236,11 +236,11 @@
             {
               "from": "planned",
               "to": "waiting-executor",
-              "at": "2026-10-28T15:03:26.044Z",
+              "at": "2026-10-28T15:15:14.566Z",
               "reason": "Compatible adapter selected.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793199785991-knowledge",
-                "missionId": "gerard-cultivate-1793199785991-knowledge",
+                "operationId": "gerard-cultivate-1793200504863-knowledge",
+                "missionId": "gerard-cultivate-1793200504863-knowledge",
                 "contextId": "benoit-business-growth",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -251,11 +251,11 @@
             {
               "from": "waiting-executor",
               "to": "executing",
-              "at": "2026-10-28T15:03:26.044Z",
+              "at": "2026-10-28T15:15:14.566Z",
               "reason": "External adapter execution started.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793199785991-knowledge",
-                "missionId": "gerard-cultivate-1793199785991-knowledge",
+                "operationId": "gerard-cultivate-1793200504863-knowledge",
+                "missionId": "gerard-cultivate-1793200504863-knowledge",
                 "contextId": "benoit-business-growth",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -266,11 +266,11 @@
             {
               "from": "executing",
               "to": "completed",
-              "at": "2026-10-28T15:03:28.872Z",
+              "at": "2026-10-28T15:15:17.067Z",
               "reason": "Knowledge Package benoit-lubert-professional préparé par Publisher.",
               "metadata": {
-                "operationId": "gerard-cultivate-1793199785991-knowledge",
-                "missionId": "gerard-cultivate-1793199785991-knowledge",
+                "operationId": "gerard-cultivate-1793200504863-knowledge",
+                "missionId": "gerard-cultivate-1793200504863-knowledge",
                 "contextId": "benoit-business-growth",
                 "requiredCapabilities": [
                   "knowledge.search"
@@ -314,8 +314,8 @@
       }
     },
     "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1793199785991-harvest",
-      "harvestedAt": "2026-10-28T15:03:28.878Z",
+      "harvestId": "gerard-cultivate-1793200504863-harvest",
+      "harvestedAt": "2026-10-28T15:15:17.073Z",
       "seedId": "benoit-client-acquisition",
       "parcelId": "benoit-business-growth",
       "title": "Benoît · Partenaires, distributeurs et acheteurs B2B",
@@ -332,7 +332,7 @@
     }
   },
   "lastDecision": {
-    "at": "2026-10-28T15:03:05.988Z",
+    "at": "2026-10-28T15:15:04.860Z",
     "mode": "cultivate",
     "reason": "deliverable-production-priority",
     "backlog": 42,
@@ -934,8 +934,8 @@
       "feedback": "observe-downstream-results"
     },
     {
-      "at": "2026-10-28T15:03:28.882Z",
-      "operationId": "gerard-cultivate-1793199785991",
+      "at": "2026-10-28T15:15:17.132Z",
+      "operationId": "gerard-cultivate-1793200504863",
       "mode": "cultivate",
       "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
       "outcome": "ok",
@@ -951,7 +951,7 @@
     "benoit-business-growth": {},
     "benoit-lubert:benoit-business-growth": {
       "www.europages.fr/entreprises/france/grossiste/jeux%20de%20societe.html": {
-        "examinedAt": "2026-10-28T15:03:17.624Z",
+        "examinedAt": "2026-10-28T15:15:11.240Z",
         "assessment": {
           "title": "France Grossiste jeux de societe - Europages",
           "url": "https://www.europages.fr/entreprises/france/grossiste/jeux%20de%20societe.html",
@@ -970,7 +970,7 @@
         }
       },
       "cannareporter.eu/fr/2026/03/17/Le-plus-grand-salon-B2B-du-cannabis-en-Europe-revient-%C3%A0-Berlin-du-13-au-15-avril-2026.": {
-        "examinedAt": "2026-10-28T15:03:17.624Z",
+        "examinedAt": "2026-10-28T15:15:11.240Z",
         "assessment": {
           "title": "Le plus grand salon B2B du cannabis en Europe revient à Berlin du 13 au ...",
           "url": "https://cannareporter.eu/fr/2026/03/17/Le-plus-grand-salon-B2B-du-cannabis-en-Europe-revient-%C3%A0-Berlin-du-13-au-15-avril-2026./",
@@ -1168,7 +1168,7 @@
     }
   },
   "lastCommunityRadar": {
-    "at": "2026-10-28T15:03:26.040Z",
+    "at": "2026-10-28T15:15:14.561Z",
     "seedId": "benoit-client-acquisition",
     "status": "discovered",
     "count": 20,
@@ -1180,7 +1180,7 @@
     "contacted": 0
   },
   "lastImageStudio": {
-    "at": "2026-10-28T15:03:26.040Z",
+    "at": "2026-10-28T15:15:14.561Z",
     "seedId": "benoit-client-acquisition",
     "status": "awaiting-authorization"
   }
