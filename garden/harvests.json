@@ -1497,6 +1497,19 @@
         "harvestState": "ready-to-offer"
       },
       "state": "ready-to-offer"
+    },
+    {
+      "harvestId": "gerard-cultivate-1793268731967-harvest",
+      "harvestedAt": "2026-10-29T10:12:21.574Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "title": "Trois portes",
+      "content": "**Action immédiate pour Poulpe Fiction (Phase 1 – Observation & Préparation)**\n\n**1. Créer un espace \"Cabane de départ\" (interface principale)**\n- **Éléments clés à afficher** :\n  - **Salutation de Gérard** (ex: *\"Bonjour. Voici ce qui m’a marqué hier : [3 tiens…]\"*).\n  - **Zone \"Ce qui m’intrigue\"** (liste dynamique des *étonnements* du Garden, comme dans ADR 3).\n  - **Sac préparé** (vide au départ, à remplir via interactions).\n  - **Pique-nique** (liste des greffons *potentiels* pour l’aventure, ex: *Dream Weaver, OCR*).\n  - **Carnet de culture** (accès en lecture/écriture pour Gérard, avec 1-2 entrées pré-remplies si pertinent).\n\n**2. Prototyper une conversation naturelle**\n- **Exemple de dialogue initial** :\n  *\"Tu as l’air occupé. Qu’est-ce qui t’a retenu hier ?\"* → Gérard répond avec 1-2 *étonnements* récents (ex: *\"Tiens… Lovable a mis 30s à analyser ce UI mockup, alors que GitHub OCR le fait en 5s\"*).\n  → **Action possible** : *\"Veux-tu explorer cette différence ? Préparer un sac pour comparer ?\"*\n\n**3. Lancer une micro-aventure d’observation**\n- **Curiosité déclenchée** : *\"Pourquoi le Garden semble-t-il plus dense sur mobile ?\"* (exemple canonique).\n- **Sac à préparer** (à co-construire avec l’utilisateur) :\n  - *Observation* : captures d’écran du Garden mobile vs desktop.\n  - *Rêve* : *\"Un aquarium plus calme\"* (à préciser).\n  - *Bouture* : Lovable (pour tester une refonte UI).\n  - *Limites* : *\"Pas de modification sans validation du jardinier\"*.\n\n**4. Valider les règles de sécurité**\n- **Jet d’encre à activer si** :\n  - Coût estimé > 10 tokens Mistral.\n  - Greffon non autorisé (ex: *Voice* sans policy claire).\n  - Action ambiguë (ex: *\"Fais-moi deviner ce que je pense\"*).\n- **Message type** : *\"Attention, cette aventure pourrait coûter [X] tokens et modifier [Y]. Confirme ou ajuste le sac.\"*\n\n**5. Documenter le carnet de culture**\n- **Première entrée suggérée** (à écrire par Gérard) :\n  *\"Aujourd’hui, j’ai remarqué que les ‘tiens…’ reviennent souvent sur les outils. Peut-être que la lenteur n’est pas un bug, mais une invitation à choisir.\"*\n\n---\n**À éviter** :\n- Automatiser les aventures (Gérard doit *choisir* de lancer).\n- Afficher des métadonnées techniques (ex: logs, scores de nouveauté).\n- Confondre *curiosité* et *mission* (ex: *\"Explore cette parcelle\"* → devient *Seed* seulement si validée).\n\n**Prochaine étape** :\n- Observer les réactions de Gérard aux *tiens…* et aux propositions de sac.\n- Affiner les greffons en fonction des *étonnements* récurrents.\n\n---\n**Format visuel suggéré** :\n```\n[Cabane de Poulpe Fiction]\n🌿 Garden : [3 nouvelles pousses]\n📖 Carnet : [1 entrée récente]\n🎲 Ce qui m’intrigue :\n  - [Tiens… X]\n  - [Tiens… Y]\n🎒 Sac : [vide] → [Préparer une aventure]\n🍎 Pique-nique : [Dream Weaver, OCR]\n```",
+      "capability": "content.generate",
+      "producer": null,
+      "route": "octopus->publisher-adapter",
+      "delivery": null,
+      "state": "harvested"
     }
   ]
 }
