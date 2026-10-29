@@ -3993,6 +3993,64 @@
         "Compare matched TikTok posts within platform after accumulating enough observations.",
         "Check Amazon Ads delivery alerts and eligibility; do not increase spend based on absence of impressions alone."
       ]
+    },
+    {
+      "id": "benoit-instagram-grid-and-caption-evidence-2026-10-29",
+      "observedAt": "2026-10-29",
+      "source": "owner-supplied-instagram-screenshots",
+      "network": "instagram",
+      "account": "@benoitlubert",
+      "verification": "manually-observed-ui",
+      "attribution": "visible-account-posts-only; do not infer which agent generated media or captions",
+      "observations": [
+        {
+          "subject": "Gérard & Gérard",
+          "visibleVisual": "Two FRUNCH glasses beneath planet Earth",
+          "issue": [
+            "Near-identical image reused in recent grid",
+            "Public caption includes shot direction and voice-over prompt",
+            "Raw Markdown asterisks visible"
+          ],
+          "visibleGridViews": [
+            0,
+            35
+          ],
+          "caveat": "Grid tiles not matched to verified post URLs; view counts are screenshot-only."
+        },
+        {
+          "subject": "TERRA",
+          "visibleVisual": "TERRA book-cover illustration with glowing planet",
+          "issue": [
+            "Near-identical cover used in adjacent grid tiles",
+            "Caption includes internal 'Version mystère' brief and Markdown markers"
+          ],
+          "visibleGridViews": [
+            5,
+            23
+          ],
+          "caveat": "Grid tiles not matched to verified post URLs; view counts are screenshot-only."
+        }
+      ],
+      "otherVisibleGridTiles": [
+        {
+          "subject": "Les Vacances Interdites",
+          "views": 436
+        },
+        {
+          "subject": "Gérard & Gérard with blue-haired character",
+          "views": 517
+        },
+        {
+          "subject": "TERRA book on table",
+          "views": 269
+        }
+      ],
+      "safeConclusions": [
+        "Prompt leakage and visual repetition are verified qualitative quality issues.",
+        "Do not use screenshot view counts as comparative performance evidence without matched URLs, formats, and post ages.",
+        "Preserve existing posts; apply caption/media preflight and novelty checks to future candidates."
+      ],
+      "nextVerification": "Match posts to canonical URLs and provider post-level statistics when connectors become available."
     }
   ]
 }
