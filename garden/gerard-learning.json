@@ -1,38 +1,6 @@
 {
-  "updatedAt": "2026-10-29T01:03:06.800Z",
+  "updatedAt": "2026-10-29T10:06:16.663Z",
   "observations": [
-    {
-      "observedAt": "2026-10-12T21:19:31Z",
-      "seedId": null,
-      "harvestId": null,
-      "copyText": null,
-      "repeatCount": 0,
-      "chosenExperiment": null,
-      "experimentHypothesis": null,
-      "delivery": {
-        "status": "not-attempted"
-      },
-      "metricsStatus": "unavailable",
-      "outcome": "not-verified",
-      "matchedMetrics": [],
-      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
-    },
-    {
-      "observedAt": "2026-10-12T21:45:26Z",
-      "seedId": null,
-      "harvestId": null,
-      "copyText": null,
-      "repeatCount": 0,
-      "chosenExperiment": null,
-      "experimentHypothesis": null,
-      "delivery": {
-        "status": "not-attempted"
-      },
-      "metricsStatus": "unavailable",
-      "outcome": "not-verified",
-      "matchedMetrics": [],
-      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
-    },
     {
       "observedAt": "2026-10-12T21:58:35Z",
       "seedId": null,
@@ -3532,10 +3500,51 @@
       "outcome": "not-verified",
       "metricsStatus": "available",
       "lesson": "No confirmed delivery: avoid claims of publication or audience response."
+    },
+    {
+      "kind": "gerard-experiment-cycle",
+      "observedAt": "2026-10-29T10:06:16.624Z",
+      "seedId": "terra",
+      "harvestId": "neon_iter_iter_terra_1786289427863",
+      "copyText": "**Version \"mystère\"** : Photo floue d’un livre TERRA avec la phrase *\"Devinez ce que vous tenez entre vos mains.\"*\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H4CN5MSH",
+      "repeatCount": 34,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "confirmed-published",
+        "kind": "buffer-publication",
+        "postId": "6ae275a3cc91be5434b28880",
+        "providerStatus": "sent",
+        "publicationDate": "2026-10-29T07:27:00.000Z",
+        "publishingEnabled": true
+      },
+      "outcome": "not-verified",
+      "metricsStatus": "available",
+      "lesson": "No confirmed delivery: avoid claims of publication or audience response."
+    },
+    {
+      "observedAt": "2026-10-29T10:06:16.663Z",
+      "kind": "metricool-post-measurement",
+      "source": "metricool-connected-analytics",
+      "network": "instagram",
+      "publishedDate": "2026-10-21",
+      "postUrl": "https://www.instagram.com/p/Dew5ztpFZFc/",
+      "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
+      "postPurpose": "promotion-unattributed",
+      "metrics": {
+        "reach": 37,
+        "interactions": 1,
+        "comments": 0,
+        "likes": 1,
+        "saves": 0,
+        "engagementPerThousand": 2.7027027027027026
+      },
+      "outcome": "measured-not-ranked",
+      "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-29T01:03:06Z",
+    "observedAt": "2026-10-29T10:06:16Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -3558,12 +3567,12 @@
     }
   },
   "guidance": {
-    "seedId": "gerard-et-gerard",
+    "seedId": "terra",
     "chosenExperiment": "explore",
     "nextExperiment": "Test a distinct creative angle; keep earlier posts unchanged.",
     "performanceRankingEnabled": false,
     "metricoolSignalsAvailable": true,
-    "metricoolLatestSnapshot": "2026-10-27",
+    "metricoolLatestSnapshot": "2026-10-29",
     "nextPublicExperiment": "Create a new differentiated post, then compare verified outcomes on the same network and format.",
     "ownerCreativeFeedback": [
       {
@@ -3584,14 +3593,6 @@
       },
       {
         "feedbackId": "benoit-instagram-caption-quality-2026-10-29",
-        "creativeGuidance": [
-          "Separate internal creative brief, public caption, and actual media into distinct fields.",
-          "Never expose shot directions, voice-over instructions, placeholders, brackets, raw Markdown emphasis or prompt fragments in public captions.",
-          "Before scheduling, strip or rewrite production instructions and render plain-language platform-ready captions; preserve meaningful hashtags and verified links.",
-          "Check that the attached image or video actually matches the caption and promises; if not, revise the caption or hold the candidate.",
-          "Perform a final preflight review of caption, media, destination account, link, duplicates and provider requirements before scheduling.",
-          "Record quality failures as learning signals without inferring audience performance."
-        ],
         "prohibitedActions": [
           "Do not delete, edit or cancel already published or scheduled posts on the basis of this feedback.",
           "Do not create a test publication.",
@@ -3632,10 +3633,10 @@
   "socialFeedback": {
     "status": "observed",
     "source": "metricool-connected-analytics",
-    "snapshotCheckedAt": "2026-10-27",
+    "snapshotCheckedAt": "2026-10-29",
     "snapshotPeriod": {
       "from": "2026-10-01",
-      "to": "2026-10-27"
+      "to": "2026-10-29"
     },
     "completeness": "partial-provider-response",
     "measuredPostCount": 8,
@@ -3652,7 +3653,7 @@
       "instagram": {
         "promotionalPostsObserved": 2,
         "reachSamples": 2,
-        "medianObservedReach": 28,
+        "medianObservedReach": 28.5,
         "linkClicksObserved": null,
         "comparison": "descriptive-only",
         "note": "Small, possibly incomplete sample. Do not rank subjects or infer audience preference."
@@ -3660,7 +3661,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3680,7 +3681,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3700,7 +3701,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3720,7 +3721,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3740,7 +3741,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3760,7 +3761,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3780,7 +3781,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3800,7 +3801,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-29T01:03:06.800Z",
+        "observedAt": "2026-10-29T10:06:16.663Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3809,18 +3810,18 @@
         "copyText": "🎂 Aujourd’hui, Blacklace Island fête Natasha !\n\n24 ans, des cheveux bleu nuit, un regard qui ne laisse rien passer… et cet œil tatoué qui semble en savoir plus qu’il ne devrait. 👁️\n\nJoyeux anniversaire Natasha ! 💙🧡\n\nSi vous débarquiez sur Blacklace Island, qu’aimeriez-vous lui demander ?\n\n#BlacklaceIsland #Natasha #JoyeuxAnniversaire #UniversFictionnel #PersonnageOriginal #ProHibited",
         "postPurpose": "promotion-unattributed",
         "metrics": {
-          "reach": 36,
+          "reach": 37,
           "interactions": 1,
           "comments": 0,
           "likes": 1,
           "saves": 0,
-          "engagementPerThousand": 2.7777777777777777
+          "engagementPerThousand": 2.7027027027027026
         },
         "outcome": "measured-not-ranked",
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-29T01:03:06.800Z",
+    "lastIntegratedAt": "2026-10-29T10:06:16.663Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   },
   "pendingExperiments": [],
