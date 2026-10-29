@@ -332,7 +332,7 @@ jobs:
           # Editorial repetitions are learning opportunities. Provider-side
           # reservation fingerprints still prevent accidental transport retries.
           EXCLUDED_IDS=""
-          EXCLUDED_SEED_IDS="420-dice"
+          EXCLUDED_SEED_IDS=""
           # Curiosity: after three consecutive selections of the same seed,
           # request an alternative from Publisher. This is a temporary preference,
           # not a permanent ban on editorial repetition.
@@ -364,19 +364,8 @@ jobs:
               echo "Applying previous experiment: explore beyond $PREVIOUS_SEED"
             fi
           fi
-          # Temporary editorial rest for 420 Dice after excessive repetition.
-          # Exclude its known harvest ID directly; no dependency on garden/harvests.json.
-          # If no alternative exists, the bridge returns empty rather than silently
-          # selecting 420 Dice again. No effect on existing scheduled posts.
-          # Exclude all local harvest IDs for the repeated 420-dice seed,
-          # not only one historic ID; keep the known ID as a fallback.
-          RESTED_IDS="harvest_local_harvest_420-dice_1786215725387"
-          if [ -f garden/harvests.json ]; then
-            DYNAMIC_REST_IDS="$(jq -r '[.. | objects | select(.seedId? == "420-dice") | (.harvestId? // .id? // empty) | select(type == "string")] | unique | join(",")' garden/harvests.json)"
-            RESTED_IDS="$(printf '%s,%s' "$RESTED_IDS" "$DYNAMIC_REST_IDS" | sed 's/^,//;s/,$//')"
-          fi
-          EXCLUDED_IDS="$(printf '%s,%s' "$EXCLUDED_IDS" "$RESTED_IDS" | sed 's/^,//;s/,$//')"
-          echo "Editorial rotation: resting repeated 420 Dice harvest."
+          # All seeds, including 420 Dice, are eligible again; normal repetition
+          # checks and provider reservation fingerprints still apply.
           # If the top candidate is a book held for Buffer, inspect alternatives
           # instead of letting that single item monopolize every scheduled cycle.
           # Never force books through Metricool or bypass account routing.
