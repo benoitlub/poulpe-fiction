@@ -3581,6 +3581,22 @@
           "Ne pas publier automatiquement une nouvelle version.",
           "Ne pas engager de dépenses ou activer un service payant."
         ]
+      },
+      {
+        "feedbackId": "benoit-instagram-caption-quality-2026-10-29",
+        "creativeGuidance": [
+          "Separate internal creative brief, public caption, and actual media into distinct fields.",
+          "Never expose shot directions, voice-over instructions, placeholders, brackets, raw Markdown emphasis or prompt fragments in public captions.",
+          "Before scheduling, strip or rewrite production instructions and render plain-language platform-ready captions; preserve meaningful hashtags and verified links.",
+          "Check that the attached image or video actually matches the caption and promises; if not, revise the caption or hold the candidate.",
+          "Perform a final preflight review of caption, media, destination account, link, duplicates and provider requirements before scheduling.",
+          "Record quality failures as learning signals without inferring audience performance."
+        ],
+        "prohibitedActions": [
+          "Do not delete, edit or cancel already published or scheduled posts on the basis of this feedback.",
+          "Do not create a test publication.",
+          "Do not modify Octopus, code or workflows for this feedback."
+        ]
       }
     ],
     "ownerPlatformSignals": {
@@ -3819,6 +3835,35 @@
         "Ne pas engager de dépenses ou activer un service payant."
       ],
       "status": "accepted-for-learning"
+    },
+    {
+      "id": "benoit-instagram-caption-quality-2026-10-29",
+      "source": "owner-reviewed-instagram-screenshots",
+      "observedAt": "2026-10-29",
+      "status": "accepted-for-learning",
+      "affectedSeeds": [
+        "terra",
+        "gerard-et-gerard"
+      ],
+      "issue": "Creative production instructions and Markdown leaked into public Instagram captions; published visual differs from described scene.",
+      "examples": [
+        "*[Plan serré sur deux mains tenant un livre, voix off énergique]*",
+        "**Version \"mystère\"** : Photo floue d’un livre TERRA"
+      ],
+      "publicationQualityRules": [
+        "Separate internal creative brief, public caption, and actual media into distinct fields.",
+        "Never expose shot directions, voice-over instructions, placeholders, brackets, raw Markdown emphasis or prompt fragments in public captions.",
+        "Before scheduling, strip or rewrite production instructions and render plain-language platform-ready captions; preserve meaningful hashtags and verified links.",
+        "Check that the attached image or video actually matches the caption and promises; if not, revise the caption or hold the candidate.",
+        "Perform a final preflight review of caption, media, destination account, link, duplicates and provider requirements before scheduling.",
+        "Record quality failures as learning signals without inferring audience performance."
+      ],
+      "futurePublicationGate": "If a caption contains suspected prompt leakage or media/caption mismatch, do not schedule; revise or retain as candidate until verified.",
+      "prohibitedActions": [
+        "Do not delete, edit or cancel already published or scheduled posts on the basis of this feedback.",
+        "Do not create a test publication.",
+        "Do not modify Octopus, code or workflows for this feedback."
+      ]
     }
   ],
   "ownerPlatformObservations": [
