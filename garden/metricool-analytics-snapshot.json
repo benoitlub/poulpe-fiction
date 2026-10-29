@@ -1,10 +1,10 @@
 {
   "source": "metricool-connected-analytics",
   "brandId": "3350145",
-  "checkedAt": "2026-10-27",
+  "checkedAt": "2026-10-29",
   "period": {
     "from": "2026-10-01",
-    "to": "2026-10-27"
+    "to": "2026-10-29"
   },
   "status": "available",
   "completeness": "partial-provider-response",
@@ -239,10 +239,10 @@
       "url": "https://www.instagram.com/p/Dew5ztpFZFc/",
       "metrics": {
         "comments": 0,
-        "engagementPerThousand": 2.7777777777777777,
+        "engagementPerThousand": 2.7027027027027026,
         "interactions": 1,
         "likes": 1,
-        "reach": 36,
+        "reach": 37,
         "saves": 0
       },
       "source": "metricool-connector",
