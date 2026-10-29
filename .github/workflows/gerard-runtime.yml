@@ -516,6 +516,15 @@ jobs:
               fi
               mv /tmp/gerard-preflight.json garden/next-social-publication.json
             fi
+            # Prevent internal creative instructions from leaking into public copy.
+            # This is a fail-closed check for future candidates, not a rewrite of existing posts.
+            if [ "$(jq -r '.status // ""' garden/next-social-publication.json)" = "ready" ]; then
+              if jq -e '(.copy.text // "") | test("(?i)(\\\\*\\\\*|\\\\[plan |\\\\[lien en bio\\\\]|voix off|version [\\\\\"“]?mystère|photo floue d.un livre|\\\\*\\\\[)")' garden/next-social-publication.json >/dev/null; then
+                echo "Editorial preflight: internal brief or raw markup detected; holding candidate."
+                jq '.status="blocked" | .reason="editorial-prompt-leak" | .action="do-not-schedule" | .delivery={status:"not-attempted",publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-editorial-block.json
+                mv /tmp/gerard-editorial-block.json garden/next-social-publication.json
+              fi
+            fi
             echo "Social package ready:"
             jq '{status,harvestId,title,score,copy,media,compatibleNetworks}' garden/next-social-publication.json
             fi
