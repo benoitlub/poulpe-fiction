@@ -3597,6 +3597,23 @@
           "Do not create a test publication.",
           "Do not modify Octopus, code or workflows for this feedback."
         ]
+      },
+      {
+        "feedbackId": "benoit-instagram-editorial-diversity-2026-10-29",
+        "creativeGuidance": [
+          "Before selecting a new post, inspect recent posts on the destination account and check both caption similarity and visual reuse.",
+          "Avoid identical or near-identical images in closely spaced publications; repeated subjects need a genuinely new angle or media.",
+          "Vary subjects organically across books, games, characters and worlds while respecting each destination account's editorial scope.",
+          "Explore distinct angles such as humor, excerpts, questions, behind-the-scenes, demonstrations and discovery.",
+          "Treat view counts as contextual signals only; compare performance only within same network, format and comparable age; do not infer superiority from screenshot counts alone.",
+          "Preserve spontaneity: no rigid rotation or forced quota of topics.",
+          "If diversity cannot be verified, keep the candidate for review rather than claim novelty."
+        ],
+        "prohibitedActions": [
+          "Do not alter or cancel existing posts.",
+          "Do not schedule a test publication.",
+          "Do not change code, workflows or Octopus."
+        ]
       }
     ],
     "ownerPlatformSignals": {
@@ -3863,6 +3880,27 @@
         "Do not delete, edit or cancel already published or scheduled posts on the basis of this feedback.",
         "Do not create a test publication.",
         "Do not modify Octopus, code or workflows for this feedback."
+      ]
+    },
+    {
+      "id": "benoit-instagram-editorial-diversity-2026-10-29",
+      "source": "owner-reviewed-instagram-grid",
+      "observedAt": "2026-10-29",
+      "status": "accepted-for-learning",
+      "issue": "Repeated near-identical TERRA covers and Gérard & Gérard FRUNCH visuals in adjacent Instagram posts.",
+      "creativeGuidance": [
+        "Before selecting a new post, inspect recent posts on the destination account and check both caption similarity and visual reuse.",
+        "Avoid identical or near-identical images in closely spaced publications; repeated subjects need a genuinely new angle or media.",
+        "Vary subjects organically across books, games, characters and worlds while respecting each destination account's editorial scope.",
+        "Explore distinct angles such as humor, excerpts, questions, behind-the-scenes, demonstrations and discovery.",
+        "Treat view counts as contextual signals only; compare performance only within same network, format and comparable age; do not infer superiority from screenshot counts alone.",
+        "Preserve spontaneity: no rigid rotation or forced quota of topics.",
+        "If diversity cannot be verified, keep the candidate for review rather than claim novelty."
+      ],
+      "prohibitedActions": [
+        "Do not alter or cancel existing posts.",
+        "Do not schedule a test publication.",
+        "Do not change code, workflows or Octopus."
       ]
     }
   ],
