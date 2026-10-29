@@ -1068,6 +1068,12 @@ jobs:
           console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, verification: result.verification, payload: result.payload }, null, 2));
           if (!['dream', 'cultivate', 'play', 'symbiosis', 'rest'].includes(state.lastMode)) throw new Error(`Unexpected Gerard mode: ${state.lastMode}`);
           if (state.lastMode !== 'cultivate') { console.log(`Non-harvest cycle (${state.lastMode}); harvest validation skipped.`); process.exit(0); }
+          // A deferred garden bag is a valid no-harvest outcome, not an endpoint failure.
+          // Keep unexpected statuses and genuinely failed harvests fatal.
+          if (result.status === 'deferred' && result.harvestMode === 'garden-prepare-bag') {
+            console.log('Garden bag preparation deferred; no harvest to validate this cycle.');
+            process.exit(0);
+          }
           if (result.status !== 'ok') throw new Error(`Harvest endpoint failed: ${result.status}`);
           if (result.verification && result.verification.processed < 1) throw new Error('No tentacle was processed.');
           NODE
