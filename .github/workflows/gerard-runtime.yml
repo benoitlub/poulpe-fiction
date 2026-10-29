@@ -525,6 +525,20 @@ jobs:
                 mv /tmp/gerard-editorial-block.json garden/next-social-publication.json
               fi
             fi
+            # A previously used image is not forbidden forever, but an identical
+            # image + caption combination must not be scheduled twice.
+            if [ "$(jq -r '.status // ""' garden/next-social-publication.json)" = "ready" ] && [ -f garden/gerard-decision-history.json ]; then
+              if jq -e --slurpfile candidate garden/next-social-publication.json '
+                ($candidate[0].copy.text // "") as $caption |
+                ($candidate[0].media.url // "") as $image |
+                $caption != "" and $image != "" and
+                any(.[]; (.copyText // "") == $caption and (.mediaUrl // .media.url // "") == $image)
+              ' garden/gerard-decision-history.json >/dev/null; then
+                echo "Editorial preflight: repeated image and caption; holding candidate."
+                jq '.status="blocked" | .reason="editorial-exact-repeat" | .action="do-not-schedule" | .delivery={status:"not-attempted",publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-repeat-block.json
+                mv /tmp/gerard-repeat-block.json garden/next-social-publication.json
+              fi
+            fi
             echo "Social package ready:"
             jq '{status,harvestId,title,score,copy,media,compatibleNetworks}' garden/next-social-publication.json
             fi
