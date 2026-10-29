@@ -134,17 +134,17 @@
       "result": "deferred"
     },
     {
-      "at": "2026-10-29T10:08:14.996Z",
+      "at": "2026-10-29T10:10:12.170Z",
       "mode": "symbiosis",
       "reason": "delivery-backlog-priority",
-      "operationId": "gerard-symbiosis-1793268494069",
+      "operationId": "gerard-symbiosis-1793268611539",
       "result": "ok"
     }
   ],
   "lastMode": "symbiosis",
-  "lastRunAt": "2026-10-29T10:08:14.996Z",
+  "lastRunAt": "2026-10-29T10:10:12.170Z",
   "lastResult": {
-    "at": "2026-10-29T10:08:14.982Z",
+    "at": "2026-10-29T10:10:12.169Z",
     "mode": "symbiosis",
     "status": "ok",
     "scope": "local-harvest-inventory-only",
@@ -230,14 +230,14 @@
     "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   },
   "lastDecision": {
-    "at": "2026-10-29T10:08:14.068Z",
+    "at": "2026-10-29T10:10:11.537Z",
     "mode": "symbiosis",
     "reason": "delivery-backlog-priority",
     "backlog": 50
   },
   "lastSeedId": "benoit-client-acquisition",
   "lastSymbiosis": {
-    "at": "2026-10-29T10:08:14.982Z",
+    "at": "2026-10-29T10:10:12.169Z",
     "duplicateCount": 0,
     "candidateCount": 50
   },
@@ -831,8 +831,8 @@
       "feedback": "await-new-evidence"
     },
     {
-      "at": "2026-10-29T10:08:14.996Z",
-      "operationId": "gerard-symbiosis-1793268494069",
+      "at": "2026-10-29T10:10:12.170Z",
+      "operationId": "gerard-symbiosis-1793268611539",
       "mode": "symbiosis",
       "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
       "outcome": "ok",
