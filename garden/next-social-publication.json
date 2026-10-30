@@ -1,49 +1,36 @@
 {
-  "preparedAt": "2026-10-30T01:08:01Z",
+  "preparedAt": "2026-10-30T10:10:58Z",
   "status": "ready",
   "contract": "gerard-metricool-bridge-next-v1",
-  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-  "seedId": "420-dice",
-  "title": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
-  "score": 85,
+  "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
+  "seedId": "gerard-et-gerard",
+  "title": "☁️ Récolte serveur · Gérard & Gérard (itération 3)",
+  "score": 70,
   "copy": {
-    "text": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
-    "strategy": "first-explicit-angle"
+    "text": "🎥 *[Plan serré sur deux mains tenant un livre, voix off énergique]*\n*\"Deux Gérard. Un seul livre. Et si c’était VOUS le troisième ?*\n*Gérard A ou Gérard B ? Faites votre choix… et découvrez lequel vous ressemble !*\n*👉 [Lien en bio] #GérardEtGérard\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
+    "strategy": "explicit-social-content"
   },
-  "media": null,
+  "media": {
+    "url": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
+    "direct": true,
+    "official": true
+  },
   "production": {
-    "capability": "text-only-fallback",
-    "generated": false,
-    "mediaFailures": [
-      "API budget exhausted.",
-      "gmail: Error: Too many subrequests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits",
-      "elevenlabs: Error: COMPOSIO_API_KEY is not configured"
-    ]
+    "capability": "official-media",
+    "generated": false
   },
   "compatibleNetworks": [
-    "facebook"
+    "facebook",
+    "instagram"
   ],
   "networkRules": {
-    "facebook": {
-      "mediaOptional": true
-    },
     "instagram": {
-      "compatible": false,
-      "reason": "media-required"
+      "requiresMedia": true,
+      "isAiGenerated": false
     },
     "youtube": {
       "compatible": false,
-      "reason": "video-required"
-    }
-  },
-  "metricool": {
-    "draft": true,
-    "autoPublish": false,
-    "destination": {
-      "category": "creative-promotable",
-      "brandId": "3350145",
-      "timezone": "Europe/Madrid",
-      "routing": "default-brand"
+      "reason": "image-only-media-requires-video"
     }
   },
   "guardrails": {
@@ -52,61 +39,77 @@
     "quotaScope": "metricool-brand",
     "quotaPolicy": "block-before-scheduling-when-monthly-limit-is-reached",
     "minimumSpacingHours": 4,
-    "duplicateProtection": "required-before-live-execution",
-    "action": "retain-until-scheduling-verified"
+    "duplicateProtection": "caller-supplied-excludeCopy"
   },
   "provenance": {
     "source": "garden-autoselection",
-    "harvestId": "harvest_local_harvest_420-dice_1786215725387",
-    "seedId": "420-dice"
+    "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
+    "seedId": "gerard-et-gerard"
   },
   "editorialLearning": {
-    "repeatedExactCopy": true,
+    "repeatedExactCopy": false,
     "lesson": "Compare repeated posts against reach and engagement; try another angle next time."
   },
   "externalPublicationEvidence": {
-    "previouslyPublished": false,
-    "confirmedNetworks": [],
-    "accountNames": [],
+    "previouslyPublished": true,
+    "confirmedNetworks": [
+      "instagram"
+    ],
+    "accountNames": [
+      "benoitlubert"
+    ],
     "publisherAttribution": "unknown",
     "source": "human-verified-external-publications",
-    "editorialAdvice": "No verified external post for this seed."
+    "editorialAdvice": "Previously promoted: use a fresh creative angle; verify against the existing post before scheduling."
   },
   "editorialRoute": {
     "contract": "publisher-editorial-routing-v1",
     "status": "dry-run",
-    "topic": "game",
+    "topic": "book",
     "destination": {
-      "audience": "games",
-      "preferredProvider": "metricool",
-      "preferredAccount": "pro.hbtd",
+      "audience": "author-books",
+      "preferredProvider": "buffer",
+      "preferredAccount": "benoitlubert",
       "fallbackAccount": null,
       "requiresChannelVerification": true
     },
     "publishingEnabled": false
   },
   "delivery": {
-    "status": "blocked",
-    "publishingEnabled": false,
-    "stage": "authorization",
-    "reason": "METRICOOL_EXECUTION_TOKEN_MISSING"
+    "status": "confirmed-published",
+    "kind": "buffer-publication",
+    "postId": "6ae278807a72c9efac02572b",
+    "providerStatus": "sent",
+    "publicationDate": "2026-10-29T09:25:00.000Z",
+    "publishingEnabled": true
   },
+  "action": "buffer-publication-confirmed",
   "transport": {
-    "provider": "metricool",
-    "account": "pro.hbtd",
+    "provider": "buffer",
+    "account": "benoitlubert",
     "draftOnly": true
   },
-  "metricoolHandoff": {
-    "status": "blocked",
-    "stage": "authorization",
-    "reason": "METRICOOL_EXECUTION_TOKEN_MISSING",
-    "operationId": "gerard-metricool-9f8dafcf1067751297d87b3ca3944670cc7f9a131744f6e84969183159692393",
-    "missionId": "gerard-metricool-9f8dafcf1067751297d87b3ca3944670cc7f9a131744f6e84969183159692393-1793322481830",
-    "postId": null,
-    "publicationDate": null,
-    "retryAfterSeconds": null,
-    "budget": null,
-    "scheduled": false,
-    "published": false
+  "editorialQuality": {
+    "kind": "book",
+    "officialCover": "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/main/public/media/books/Gerard_et_Gerard_couverture_retouchee.jpg",
+    "verifiedDestination": "https://www.amazon.fr/dp/B0H68811RL",
+    "status": "complete"
+  },
+  "bufferPreflight": {
+    "contract": "publisher-buffer-book-preflight-v1",
+    "status": "ready-for-controlled-test",
+    "topic": "book",
+    "destination": {
+      "audience": "author-books",
+      "preferredProvider": "buffer",
+      "preferredAccount": "benoitlubert",
+      "fallbackAccount": null,
+      "requiresChannelVerification": true
+    },
+    "channelId": "6ac8c8226a5c39ccb65fdbf6",
+    "keyConfigured": true,
+    "textPresent": true,
+    "reason": null,
+    "publishingEnabled": false
   }
 }
