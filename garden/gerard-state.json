@@ -1,13 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-10-28T20:04:12.478Z",
-      "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
-      "operationId": "gerard-symbiosis-1793217852217",
-      "result": "ok"
-    },
-    {
       "at": "2026-10-28T20:15:45.676Z",
       "mode": "cultivate",
       "reason": "deliverable-production-priority",
@@ -139,224 +132,116 @@
       "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793355010199",
       "result": "ok"
+    },
+    {
+      "at": "2026-10-30T18:04:39.204Z",
+      "mode": "symbiosis",
+      "reason": "delivery-backlog-priority",
+      "operationId": "gerard-symbiosis-1793383477195",
+      "result": "ok"
     }
   ],
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-10-30T10:10:29.969Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-10-30T18:04:39.204Z",
   "lastResult": {
+    "at": "2026-10-30T18:04:39.202Z",
+    "mode": "symbiosis",
     "status": "ok",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1793355010199",
-    "seedId": "benoit-client-acquisition",
-    "parcelId": "benoit-business-growth",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "benoit-lubert-professional",
-      "source": "notion"
+    "scope": "local-harvest-inventory-only",
+    "publisherReconciliation": "candidate-inventory-only",
+    "publisher": {
+      "status": "observed",
+      "candidateCount": 10,
+      "candidateHarvestIds": [
+        "harvest_local_harvest_420-dice_1786215725387",
+        "harvest_local_harvest_terra_1786215725146",
+        "harvest_local_harvest_gerard-et-gerard_1786215725072",
+        "harvest_local_harvest_420-dice_1786190554657",
+        "harvest_local_harvest_terra_1786190554611",
+        "harvest_local_harvest_gerard-et-gerard_1786190554601",
+        "harvest_local_harvest_gerard-et-gerard_1784579429759",
+        "neon_iter_iter_feulette-tachetee_1786291228831",
+        "neon_iter_iter_terra_1786289427863",
+        "neon_iter_iter_gerard-et-gerard_1786288530352"
+      ]
     },
-    "delivery": {
-      "recipient": "Benoît",
-      "mode": "propose-before-send",
-      "harvestState": "ready-to-offer"
-    },
-    "decision": "harvest-ready-to-offer",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1793355010199-knowledge",
-        "status": "completed",
-        "summary": "Knowledge Package benoit-lubert-professional préparé par Publisher.",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "benoit-lubert-professional",
-          "source": "notion",
-          "verified": true,
-          "context": "KNOWLEDGE PACKAGE PUBLISHER VÉRIFIÉ — SOURCE DE VÉRITÉ FERMÉE\n\nParcelle / produit : benoit-lubert-professional\n\nPÉRIMÈTRE STRICT : les seules connaissances autorisées sont les sources Notion ci-dessous.\n\nIgnore toute connaissance mémorisée, digérée ou provenant d'une autre parcelle, même si elle appartient au même écosystème Blacklace.\n\nSOURCE NOTION AUTORISÉE 1: 📚 Benoît Lubert — Livres & Univers\nUnivers: benoit-lubert-professional\nTags: benoit-lubert-professional | benoit lubert professional | notion-workspace\nPrésentation\n\nCette page sert de hub auteur pour rassembler les livres de Benoît Lubert, clarifier les portes d’entrée de chaque univers et préparer les textes réutilisables pour Amazon, Instagram, Blacklace Echo et les pages de fin des livres.\n\nBio auteur\n\nBio courte\n\nBenoît Lubert est auteur indépendant, créateur multimédia et explorateur d’univers narratifs.\n\nIl écrit des fables modernes, des récits satiriques, des contes étranges et des histoires où se croisent observation, transmission, humour absurde, enfance, influence et mondes imaginaires.\n\nBio longue\n\nBenoît Lubert est auteur, créateur multimédia et formateur. Après plusieurs années à explorer la narration, l’image, le jeu et les outils numériques, il développe des univers où se rencontrent fables cosmiques, satire sociale, contes modernes, humour absurde et science-fiction poétique.\n\nSes livres forment peu à peu une bibliothèque de mondes : certains observent la transmission et la mémoire, d’autres détournent les mythes, questionnent l’influence ou regardent l’enfance avec tendresse et étrangeté.\n\nIl est l’auteur de TERRA, Neverland Ltd., La Feulette tachetée et La crotte de nez magique.\n\nBibliothèque\n\nTERRA\n\nSous-titre : Une fable cosmique sur l’observation et la transmission.\n\nPositionnement : fable cosmique, conte philosophique, transmission, regard, mémoire.\n\nPhrase courte : Un petit livre sur ce que l’on transmet quand on apprend à quelqu’un à observer le monde.\n\nÀ utiliser pour : page auteur, post Instagram, rayon des fables cosmiques, bibliothèque du Feuch Institut.\n\nNeverland Ltd.\n\nSérie : Neverland Ltd.\n\nTome 1 : Neverland Ltd. — Les enquêtes contemporaines de Peter Pan.\n\nTome 2 : Neverland LTD — Volume 2 : Les nouvelles aventures de Peter Pan.\n\nPositionnement : réinvention contemporaine, enquête, mythe de Peter Pan, aventures modernes.\n\nÀ clarifier : harmoniser les titres et l’ordre de lecture sur Amazon/KDP.\n\nLa Feulette tachetée\n\nPositionnement corrigé : fable satirique sur l’influence.\n\nPhrase courte : Une fable satirique sur l’influence, les récits qui contaminent les regards et les petites créatures symboliques que l’on suit parfois sans s’en rendre compte.\n\nAngle : satire douce, conte étrange, mécanismes d’influence, imaginaire Blacklace.\n\nÀ utiliser pour : rayon des fables satiriques, page Blacklace, description Amazon, post de présentation.\n\nLa crotte de nez magique\n\nPositionnement : jeunesse absurde, aventure comique, imaginaire tendre.\n\nPhrase courte : Une aventure jeunesse absurde et tendre, pensée comme une porte d’entrée drôle vers l’imaginaire.\n\nPage “Du même auteur”\n\nTexte à placer à la fin des ebooks et des brochés :\n\nDU MÊME AUTEUR\n\nTERRA  \n\nUne fable cosmique sur l’observation et la transmission.\n\nNeverland Ltd.  \n\nLes enquêtes contemporaines de Peter Pan.\n\nNeverland LTD — Volume 2  \n\nLes nouvelles aventures de Peter Pan.\n\nLa Feulette tachetée  \n\nUne fable satirique sur l’influence.\n\nLa crotte de nez magique  \n\nUne aventure jeunesse absurde et tendre.\n\nRetrouvez les livres et les univers de Benoît Lubert sur Amazon et dans l’univers Blacklace Island.\n\nPage centrale publique à créer\n\nTitre proposé\n\nBenoît Lubert — Livres, fables et univers\n\nStructure publique\n\nBio courte\n\nBibliothèque\n\nTERRA\n\nNeverland Ltd.\n\nLa Feulette tachetée\n\nLa crotte de nez magique\n\nLien vers Amazon\n\nLien vers Blacklace Echo\n\nLien vers Instagram\n\nInvitation à rejoindre les nouvelles du Feuch Institut\n\nLien Blacklace Echo\n\nhttps://benoitlub.github.io/blacklace-echo/\n\nActions suivantes\n\nAjouter cette bio dans Amazon Author Central.\n\nAjouter une page “Du même auteur” dans TERRA.\n\nAjouter une page “Du même auteur” dans Neverland Ltd.\n\nAjouter une page “Du même auteur” dans La Feulette tachetée.\n\nAjouter une page “Du même auteur” dans La crotte de nez magique.\n\nCréer une section “Bibliothèque du Feuch Institut” dans Blacklace Echo.\n\nAjouter les liens Amazon exacts de chaque livre.\n\nPréparer un post Instagram pour TERRA avec la photo/mockup.\n\nNote de cohérence\n\nLa bibliothèque ne doit pas faire croire que tous les livres appartiennent au même genre. L’unité vient plutôt de la démarche : créer des fables, des portes d’entrée, des récits étranges et des objets narratifs reliés par le regard, la transmission, l’influence et l’imaginaire.\n\nBible de série — mise à jour du 25 juin 2026\n\nComédie de science-fiction française : quatre ados ilvaardiens en vacances clandestines dans les Yvelines. Le ton reste : observation tendre, humour de décalage, forêt vivante, ados qui ne savent pas encore qu’ils changent.\n\nIntention validée\n\nLes vacances interdites ne sont pas seulement interdites parce que la Terre est une zone surveillée. Elles le sont aussi parce que la Terre transforme. Les quatre cousins viennent pour glander, observer, manger du Frunch et éviter de faire l’enquête de Norvëhl. En réalité, ils vivent leur dernier été d’insouciance avant la bascule adulte.\n\nRègle émotionnelle : aucun personnage ne verbalise “je grandis” ou “je change”. Le lecteur doit le sentir à travers les gestes : Norvëhl oublie son match, reste silencieux devant Émilie, reçoit la confiance de Pixel, puis découvre que sa voix mue au pire moment possible.\n\nCouleur Bjørn Riel à conserver\n\nL’humour doit venir du calme avec lequel les personnages prennent au sérieux des situations absurdes. Ils observent les canards, les moustiques, les joggeurs, les chiens, les écureuils, les humains avec laisse, comme s’ils menaient une étude capitale.\n\nLa nature n’est pas un décor : elle observe. Le silence, la forêt, la lenteur et les animaux doivent compter autant que l’intrigue.\n\nAjouts validés pour le chapitre 2\n\nLes quatre retournent près de l’étang parce que Norvëhl a oublié son écran de Trillo Ball contre une souche.\n\nIls découvrent un joggeur et concluent que les humains dépensent volontairement leur énergie, ce qui est inquiétant.\n\nUn écureuil est assis sur l’écran oublié : ils en déduisent presque qu’il en est devenu propriétaire.\n\nIls observent Émilie lancer une balle à Pixel et élaborent des théories absurdes sur le chien, la balle et la laisse.\n\nNorvëhl entend le rire d’Émilie et sa voix mue brutalement.\n\nLe chien entend / réagit, puis Émilie tourne la tête dans leur direction.\n\nScène brouillon — Chapitre 2 : Les bipèdes à laisse\n\nLe lendemain, ils décidèrent de retourner à l'étang.\n\nEnfin... “décidèrent” était un bien grand mot.\n\nIls étaient surtout revenus parce que Norvëhl avait oublié son écran de Trillo Ball contre une souche.\n\n— Tu pourrais faire attention à tes affaires, soupira Threnak.\n\n— Si je savais où elles sont, je ne les oublierais pas.\n\n— C'est précisément le principe.\n\nIls descendirent de leur arbre par petits bonds, amortissant leur chute grâce aux semelles gravifiques de leurs bottes. Les dernières branches les déposèrent presque délicatement sur un tapis de mousse.\n\nSovrik s'immobilisa aussitôt.\n\n— Écoutez.\n\nTous se turent.\n\nOn entendait des dizaines de sons.\n\nUn merle.\n\nDes feuilles.\n\nUne branche qui craquait.\n\nL'eau de l'étang.\n\nPuis...\n\n— Là.\n\nUn bruit régulier.\n\nPaf.\n\nPaf.\n\nPaf.\n\n— Encore des humains, conclut Threnak.\n\nQuelques secondes plus tard, un joggeur surgit entre les arbres.\n\nIl courait.\n\nTout seul.\n\nSans rien transporter.\n\nSans être poursuivi.\n\nSans chien.\n\nLes quatre le suivirent du regard jusqu'à ce qu'il disparaisse.\n\nPersonne ne parla pendant plusieurs secondes.\n\nPuis Ystaad résuma la situation.\n\n— C'est inquiétant.\n\n— Peut-être qu'il est en retard.\n\n— Depuis dix minutes ?\n\n— Peut-être très en retard.\n\nSovrik secoua la tête.\n\n— Non...\n\nIl réfléchit.\n\n— Je crois qu'il court... pour courir.\n\nTrois regards se tournèrent vers lui.\n\n— Ça n'a aucun sens, dit Norvëhl.\n\n— Je sais.\n\nIls notèrent mentalement cette nouvelle étrangeté terrestre : les humains dépensent volontairement leur énergie.\n\nCette planète devenait décidément difficile à comprendre.\n\nIls retrouvèrent le Trillo Ball exactement là où Norvëhl l'avait laissé.\n\nUn écureuil était assis dessus.\n\nL'animal les observa.\n\nEux observèrent l'animal.\n\nPersonne ne bougea.\n\nFinalement, l'écureuil descendit tranquillement, prit une noisette et repartit comme si ces quatre extraterrestres n'avaient jamais existé.\n\nNorvëhl récupéra son écran.\n\n— Je crois qu'il vient de nous autoriser à le reprendre.\n\n— Tu crois qu'il était propriétaire ?\n\n— C'est lui qui était assis dessus.\n\nArgument difficile à contester.\n\nPlus tard, ils aperçurent une nouvelle humaine.\n\nEnfin...\n\nLa même.\n\nÉmilie.\n\nElle lançait une balle à son chien.\n\nL'animal revenait inlassablement.\n\nRelançait.\n\nRevenait.\n\nRelançait.\n\nThrenak fronça les sourcils.\n\n— Pourquoi elle la relance ?\n\n— Pour qu'il la rapporte.\n\n— Mais elle vient de l'avoir.\n\n— Oui.\n\n— Alors pourquoi...\n\nPersonne ne trouva de réponse.\n\nIls restèrent cachés derrière un chêne pendant près de vingt minutes à observer ce rituel incompréhensible.\n\nAu bout d'un moment, Norvëhl murmura :\n\n— Je crois que le chien oublie.\n\nYstaad acquiesça gravement.\n\n— Oui.\n\n— Et elle lui rappelle où est la balle.\n\nSovrik hésita.\n\n— Ou alors...\n\nIls le regardèrent.\n\n— ...ils jouent.\n\nLe silence retomba.\n\nCette hypothèse semblait presque trop simple.\n\nÉmilie éclata de rire.\n\nUn vrai rire.\n\nPas très fort.\n\nMais suffisamment pour traverser les arbres.\n\nNorvëhl sentit quelque chose vibrer en lui.\n\nIl porta machinalement une main à sa gorge.\n\n— Vesht... je...\n\nSa voix dérapa.\n\n“...je crois...”\n\nElle était soudain devenue beaucoup plus grave.\n\nLes trois autres levèrent lentement les yeux.\n\nThrenak afficha un sourire immense.\n\n— Ah...\n\nNorvëhl toussota.\n\n— C'est...\n\nSa voix remonta d'un coup dans les aigus.\n\n“...bizarre.”\n\nCette fois, Threnak éclata de rire.\n\n— Vesht !\n\nYstaad souriait discrètement.\n\nMême Sovrik ne parvenait plus à rester sérieux.\n\n— Ça y est...\n\nThrenak posa une main sur son épaule.\n\n— Tu mues.\n\nNorvëhl leva les yeux au ciel.\n\n— N'importe quoi.\n\n— Tu viens de parler comme le père de Ystaad.\n\n— Pas vrai.\n\n— Si.\n\nNorvëhl ouvrit la bouche pour protester.\n\nRien ne sortit.\n\nPuis sa voix revint...\n\nEncore plus grave.\n\nLes oiseaux s'envolèrent.\n\nLe chien d'Émilie dressa brusquement les oreilles.\n\nEt, pour la première fois, la jeune femme tourna la tête exactement dans leur direction.\n\nLes quatre cessèrent instantanément de respirer.\n\nL'été venait peut-être de commencer.\n\nMais quelque chose leur disait que leurs vacances allaient devenir beaucoup plus compliquées.\n\nNotes d’écriture à reporter dans la bible\n\nLe gag de la mue doit rester drôle, mais il doit aussi signaler que Norvëhl change malgré lui.\n\nNe pas transformer Émilie en simple intérêt amoureux. Elle reste une présence humaine indépendante.\n\nPixel peut devenir le premier vrai contact affectif avec la Terre.\n\nLes scènes “il ne se passe presque rien” sont essentielles : c’est là que le lecteur s’attache aux quatre.\n\nGarder la logique : ils sont intelligents, mais ils interprètent la Terre avec une culture qui n’est pas la nôtre.\n\nSOURCE NOTION AUTORISÉE 2: Espace interne — Prospection Benoît — Offres IA, Notion, automatisation\nUnivers: benoit-lubert-professional\nTags: benoit-lubert-professional | benoit lubert professional | notion-workspace\nObjectif de cette page\n\nCette page est ton espace interne de prospection.\n\nElle sert à construire ton propre pipeline commercial en parallèle de la mission Yaelbali.\n\nL’idée est d’utiliser la même méthode de qualification, mais pour tes propres offres :\n\ncréation de systèmes Notion ;\n\nautomatisation légère ;\n\npréqualification de prospects ;\n\nagents IA ;\n\nmise en place Mistral AI ;\n\nworkflows Make ou n8n ;\n\noffres mensuelles de maintenance et amélioration.\n\nPositionnement commercial\n\nTu ne vends pas “un outil”.\n\nTu vends :\n\nun système clair ;\n\ndu temps gagné ;\n\nune base propre ;\n\ndes relances mieux structurées ;\n\ndes prospects mieux triés ;\n\nune maintenance continue ;\n\ndes ajustements selon les besoins du client.\n\nCibles possibles\n\nCible 1 — Indépendants débordés\n\nPersonnes qui ont des demandes, des contacts ou des opportunités mais aucun système pour les suivre.\n\nExemples : coachs, consultants, freelances, thérapeutes, formateurs, créateurs de services.\n\nCible 2 — Petites entreprises locales\n\nEntreprises avec des demandes entrantes ou des prospects dispersés entre Facebook, Instagram, Messenger, WhatsApp, email.\n\nExemples : artisans, commerces, agences locales, prestataires de services.\n\nCible 3 — Créateurs et vendeurs de services\n\nPersonnes qui parlent déjà avec leur audience mais ne savent pas transformer les signaux faibles en opportunités commerciales.\n\nCible 4 — Professionnels ayant besoin d’un CRM simple\n\nClients qui n’ont pas besoin d’un Salesforce ou HubSpot complet, mais d’une base simple et exploitable.\n\nOffres à tester\n\nOffre 1 — Pilote système prospects\n\nPrix possible : 200 € à 300 €.\n\nLivrables :\n\nbase Notion ;\n\ngrille de qualification ;\n\n5 à 10 prospects ou opportunités analysées ;\n\nmessages de relance ;\n\nrecommandations d’action.\n\nOffre 2 — Maintenance mensuelle légère\n\nPrix possible : 100 € à 150 € / mois.\n\nLivrables :\n\najustements de la base ;\n\namélioration des messages ;\n\ncorrection des champs ;\n\nsupport léger ;\n\nsynthèse mensuelle.\n\nOffre 3 — Suivi actif prospects\n\nPrix possible : 200 € à 300 € / mois.\n\nLivrables :\n\nrecherche ou ajout régulier de prospects ;\n\nqualification continue ;\n\nscoring ;\n\nrelances proposées ;\n\nsuivi des statuts ;\n\namélioration du système.\n\nOffre 4 — Automatisation avancée\n\nPrix possible : 400 € et plus.\n\nLivrables :\n\nconnexion Make ou n8n ;\n\nformulaire d’entrée ;\n\nIA de résumé ou scoring ;\n\nnotifications ;\n\nworkflow de relance ;\n\ndocumentation.\n\nSectorisation des résultats\n\nSecteur A — Prospects pour Yaelbali\n\nIls restent dans la page client Yaelbali.\n\nIls ne doivent pas être mélangés avec tes prospects.\n\nSecteur B — Prospects pour Benoît\n\nIls restent dans cette page interne.\n\nIls concernent tes propres clients potentiels.\n\nSecteur C — Sources de prospection\n\nListe des endroits où chercher :\n\ngroupes Facebook ;\n\ncommentaires publics ;\n\npublications LinkedIn ;\n\ndemandes d’aide dans des communautés ;\n\nforums spécialisés ;\n\nrecommandations ;\n\nanciens contacts ;\n\nconversations Messenger ou email consenties ;\n\npetites entreprises visibles mais mal organisées.\n\nSecteur D — Méthode / prompts / automatisation\n\nCette partie reste interne.\n\nElle peut contenir :\n\nprompts Mistral ;\n\nmodèles de scoring ;\n\nscripts n8n ;\n\nscénarios Make ;\n\nrègles de qualification ;\n\nmessages de prospection ;\n\noffres commerciales.\n\nModèle de fiche prospect interne\n\nNom / entreprise\n\nÀ compléter.\n\nType de cible\n\nIndépendant, petite entreprise, créateur, commerce local, formateur, consultant, autre.\n\nSource\n\nD’où vient le prospect ?\n\nSignal repéré\n\nQuel problème ou besoin semble visible ?\n\nOffre adaptée\n\nPilote, maintenance, suivi actif, automatisation avancée.\n\nAngle d’approche\n\nPourquoi ce prospect pourrait être intéressé ?\n\nScore\n\nNote sur 10.\n\nPriorité\n\nChaud / tiède / à vérifier / non prioritaire.\n\nMessage proposé\n\nMessage court, naturel et non agressif.\n\nProchaine action\n\nContacter, vérifier, attendre, relancer, archiver.\n\nMessage de prospection possible pour Benoît\n\nBonjour,\n\nJ’ai vu que vous gérez plusieurs demandes ou échanges autour de votre activité.\n\nJe travaille justement sur des petits systèmes simples pour aider les indépendants et petites structures à mieux suivre leurs prospects : base Notion, qualification des contacts, messages de relance, et éventuellement automatisation légère avec IA.\n\nL’idée n’est pas de faire une grosse usine à gaz, mais de créer un outil clair pour savoir qui contacter, quand relancer et quelles opportunités prioriser.\n\nJe cherche actuellement quelques cas concrets pour tester une offre pilote à prix accessible.\n\nSi ça vous intéresse, je peux vous montrer ce que ça peut donner sur un exemple simple.\n\nRègles importantes\n\nNe pas mélanger les prospects Yaelbali et tes prospects.\n\nNe pas partager cette page avec un client.\n\nNe pas stocker d’informations sensibles inutiles.\n\nNoter la source de chaque prospect.\n\nGarder une approche propre, personnalisée et non intrusive.\n\nVendre le résultat avant la technique.\n\nProchaine étape\n\nCréer ensuite une base Notion centrale ou deux bases séparées :\n\nProspects — Yaelbali\n\nProspects — Benoît\n\nLe plus propre est d’avoir deux bases séparées, pour éviter toute fuite ou confusion lors du partage client.\n\nUtilise uniquement les faits explicitement présents dans ces sources ou fournis dans la mission.\n\nN'ajoute aucune relation transmedia ou inter-univers qui ne soit pas explicitement écrite dans ces sources.\n\nN'invente aucun produit, prix, disponibilité, lien, personnage, espèce, citation, témoignage, statistique, fonctionnalité ou preuve.\n\nQuand une information manque, omets-la. Ne la complète pas par vraisemblance.",
-          "itemCount": 2,
-          "diagnostics": {
-            "connected": true,
-            "error": null,
-            "totalItems": 3,
-            "matchedItems": 2,
-            "discoveredItems": 2,
-            "digestedItems": 2
-          }
-        },
-        "missionId": "gerard-cultivate-1793355010199-knowledge",
-        "contextId": "benoit-business-growth",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1793355010199-knowledge",
-          "state": "completed",
-          "createdAt": "2026-10-30T10:10:26.530Z",
-          "updatedAt": "2026-10-30T10:10:29.960Z",
-          "transitions": [
-            {
-              "from": null,
-              "to": "received",
-              "at": "2026-10-30T10:10:26.530Z",
-              "metadata": {
-                "contextId": "benoit-business-growth",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ]
-              }
-            },
-            {
-              "from": "received",
-              "to": "recorded",
-              "at": "2026-10-30T10:10:26.530Z",
-              "reason": "Mission recorded.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793355010199-knowledge",
-                "missionId": "gerard-cultivate-1793355010199-knowledge",
-                "contextId": "benoit-business-growth",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ]
-              }
-            },
-            {
-              "from": "recorded",
-              "to": "planned",
-              "at": "2026-10-30T10:10:26.530Z",
-              "reason": "Capabilities resolved.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793355010199-knowledge",
-                "missionId": "gerard-cultivate-1793355010199-knowledge",
-                "contextId": "benoit-business-growth",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ]
-              }
-            },
-            {
-              "from": "planned",
-              "to": "waiting-executor",
-              "at": "2026-10-30T10:10:26.530Z",
-              "reason": "Compatible adapter selected.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793355010199-knowledge",
-                "missionId": "gerard-cultivate-1793355010199-knowledge",
-                "contextId": "benoit-business-growth",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ],
-                "executorId": "publisher"
-              }
-            },
-            {
-              "from": "waiting-executor",
-              "to": "executing",
-              "at": "2026-10-30T10:10:26.530Z",
-              "reason": "External adapter execution started.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793355010199-knowledge",
-                "missionId": "gerard-cultivate-1793355010199-knowledge",
-                "contextId": "benoit-business-growth",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ],
-                "executorId": "publisher"
-              }
-            },
-            {
-              "from": "executing",
-              "to": "completed",
-              "at": "2026-10-30T10:10:29.960Z",
-              "reason": "Knowledge Package benoit-lubert-professional préparé par Publisher.",
-              "metadata": {
-                "operationId": "gerard-cultivate-1793355010199-knowledge",
-                "missionId": "gerard-cultivate-1793355010199-knowledge",
-                "contextId": "benoit-business-growth",
-                "requiredCapabilities": [
-                  "knowledge.search"
-                ],
-                "executorId": "publisher",
-                "output": {
-                  "capability": "knowledge.search",
-                  "slug": "benoit-lubert-professional",
-                  "source": "notion",
-                  "verified": true,
-                  "context": "KNOWLEDGE PACKAGE PUBLISHER VÉRIFIÉ — SOURCE DE VÉRITÉ FERMÉE\n\nParcelle / produit : benoit-lubert-professional\n\nPÉRIMÈTRE STRICT : les seules connaissances autorisées sont les sources Notion ci-dessous.\n\nIgnore toute connaissance mémorisée, digérée ou provenant d'une autre parcelle, même si elle appartient au même écosystème Blacklace.\n\nSOURCE NOTION AUTORISÉE 1: 📚 Benoît Lubert — Livres & Univers\nUnivers: benoit-lubert-professional\nTags: benoit-lubert-professional | benoit lubert professional | notion-workspace\nPrésentation\n\nCette page sert de hub auteur pour rassembler les livres de Benoît Lubert, clarifier les portes d’entrée de chaque univers et préparer les textes réutilisables pour Amazon, Instagram, Blacklace Echo et les pages de fin des livres.\n\nBio auteur\n\nBio courte\n\nBenoît Lubert est auteur indépendant, créateur multimédia et explorateur d’univers narratifs.\n\nIl écrit des fables modernes, des récits satiriques, des contes étranges et des histoires où se croisent observation, transmission, humour absurde, enfance, influence et mondes imaginaires.\n\nBio longue\n\nBenoît Lubert est auteur, créateur multimédia et formateur. Après plusieurs années à explorer la narration, l’image, le jeu et les outils numériques, il développe des univers où se rencontrent fables cosmiques, satire sociale, contes modernes, humour absurde et science-fiction poétique.\n\nSes livres forment peu à peu une bibliothèque de mondes : certains observent la transmission et la mémoire, d’autres détournent les mythes, questionnent l’influence ou regardent l’enfance avec tendresse et étrangeté.\n\nIl est l’auteur de TERRA, Neverland Ltd., La Feulette tachetée et La crotte de nez magique.\n\nBibliothèque\n\nTERRA\n\nSous-titre : Une fable cosmique sur l’observation et la transmission.\n\nPositionnement : fable cosmique, conte philosophique, transmission, regard, mémoire.\n\nPhrase courte : Un petit livre sur ce que l’on transmet quand on apprend à quelqu’un à observer le monde.\n\nÀ utiliser pour : page auteur, post Instagram, rayon des fables cosmiques, bibliothèque du Feuch Institut.\n\nNeverland Ltd.\n\nSérie : Neverland Ltd.\n\nTome 1 : Neverland Ltd. — Les enquêtes contemporaines de Peter Pan.\n\nTome 2 : Neverland LTD — Volume 2 : Les nouvelles aventures de Peter Pan.\n\nPositionnement : réinvention contemporaine, enquête, mythe de Peter Pan, aventures modernes.\n\nÀ clarifier : harmoniser les titres et l’ordre de lecture sur Amazon/KDP.\n\nLa Feulette tachetée\n\nPositionnement corrigé : fable satirique sur l’influence.\n\nPhrase courte : Une fable satirique sur l’influence, les récits qui contaminent les regards et les petites créatures symboliques que l’on suit parfois sans s’en rendre compte.\n\nAngle : satire douce, conte étrange, mécanismes d’influence, imaginaire Blacklace.\n\nÀ utiliser pour : rayon des fables satiriques, page Blacklace, description Amazon, post de présentation.\n\nLa crotte de nez magique\n\nPositionnement : jeunesse absurde, aventure comique, imaginaire tendre.\n\nPhrase courte : Une aventure jeunesse absurde et tendre, pensée comme une porte d’entrée drôle vers l’imaginaire.\n\nPage “Du même auteur”\n\nTexte à placer à la fin des ebooks et des brochés :\n\nDU MÊME AUTEUR\n\nTERRA  \n\nUne fable cosmique sur l’observation et la transmission.\n\nNeverland Ltd.  \n\nLes enquêtes contemporaines de Peter Pan.\n\nNeverland LTD — Volume 2  \n\nLes nouvelles aventures de Peter Pan.\n\nLa Feulette tachetée  \n\nUne fable satirique sur l’influence.\n\nLa crotte de nez magique  \n\nUne aventure jeunesse absurde et tendre.\n\nRetrouvez les livres et les univers de Benoît Lubert sur Amazon et dans l’univers Blacklace Island.\n\nPage centrale publique à créer\n\nTitre proposé\n\nBenoît Lubert — Livres, fables et univers\n\nStructure publique\n\nBio courte\n\nBibliothèque\n\nTERRA\n\nNeverland Ltd.\n\nLa Feulette tachetée\n\nLa crotte de nez magique\n\nLien vers Amazon\n\nLien vers Blacklace Echo\n\nLien vers Instagram\n\nInvitation à rejoindre les nouvelles du Feuch Institut\n\nLien Blacklace Echo\n\nhttps://benoitlub.github.io/blacklace-echo/\n\nActions suivantes\n\nAjouter cette bio dans Amazon Author Central.\n\nAjouter une page “Du même auteur” dans TERRA.\n\nAjouter une page “Du même auteur” dans Neverland Ltd.\n\nAjouter une page “Du même auteur” dans La Feulette tachetée.\n\nAjouter une page “Du même auteur” dans La crotte de nez magique.\n\nCréer une section “Bibliothèque du Feuch Institut” dans Blacklace Echo.\n\nAjouter les liens Amazon exacts de chaque livre.\n\nPréparer un post Instagram pour TERRA avec la photo/mockup.\n\nNote de cohérence\n\nLa bibliothèque ne doit pas faire croire que tous les livres appartiennent au même genre. L’unité vient plutôt de la démarche : créer des fables, des portes d’entrée, des récits étranges et des objets narratifs reliés par le regard, la transmission, l’influence et l’imaginaire.\n\nBible de série — mise à jour du 25 juin 2026\n\nComédie de science-fiction française : quatre ados ilvaardiens en vacances clandestines dans les Yvelines. Le ton reste : observation tendre, humour de décalage, forêt vivante, ados qui ne savent pas encore qu’ils changent.\n\nIntention validée\n\nLes vacances interdites ne sont pas seulement interdites parce que la Terre est une zone surveillée. Elles le sont aussi parce que la Terre transforme. Les quatre cousins viennent pour glander, observer, manger du Frunch et éviter de faire l’enquête de Norvëhl. En réalité, ils vivent leur dernier été d’insouciance avant la bascule adulte.\n\nRègle émotionnelle : aucun personnage ne verbalise “je grandis” ou “je change”. Le lecteur doit le sentir à travers les gestes : Norvëhl oublie son match, reste silencieux devant Émilie, reçoit la confiance de Pixel, puis découvre que sa voix mue au pire moment possible.\n\nCouleur Bjørn Riel à conserver\n\nL’humour doit venir du calme avec lequel les personnages prennent au sérieux des situations absurdes. Ils observent les canards, les moustiques, les joggeurs, les chiens, les écureuils, les humains avec laisse, comme s’ils menaient une étude capitale.\n\nLa nature n’est pas un décor : elle observe. Le silence, la forêt, la lenteur et les animaux doivent compter autant que l’intrigue.\n\nAjouts validés pour le chapitre 2\n\nLes quatre retournent près de l’étang parce que Norvëhl a oublié son écran de Trillo Ball contre une souche.\n\nIls découvrent un joggeur et concluent que les humains dépensent volontairement leur énergie, ce qui est inquiétant.\n\nUn écureuil est assis sur l’écran oublié : ils en déduisent presque qu’il en est devenu propriétaire.\n\nIls observent Émilie lancer une balle à Pixel et élaborent des théories absurdes sur le chien, la balle et la laisse.\n\nNorvëhl entend le rire d’Émilie et sa voix mue brutalement.\n\nLe chien entend / réagit, puis Émilie tourne la tête dans leur direction.\n\nScène brouillon — Chapitre 2 : Les bipèdes à laisse\n\nLe lendemain, ils décidèrent de retourner à l'étang.\n\nEnfin... “décidèrent” était un bien grand mot.\n\nIls étaient surtout revenus parce que Norvëhl avait oublié son écran de Trillo Ball contre une souche.\n\n— Tu pourrais faire attention à tes affaires, soupira Threnak.\n\n— Si je savais où elles sont, je ne les oublierais pas.\n\n— C'est précisément le principe.\n\nIls descendirent de leur arbre par petits bonds, amortissant leur chute grâce aux semelles gravifiques de leurs bottes. Les dernières branches les déposèrent presque délicatement sur un tapis de mousse.\n\nSovrik s'immobilisa aussitôt.\n\n— Écoutez.\n\nTous se turent.\n\nOn entendait des dizaines de sons.\n\nUn merle.\n\nDes feuilles.\n\nUne branche qui craquait.\n\nL'eau de l'étang.\n\nPuis...\n\n— Là.\n\nUn bruit régulier.\n\nPaf.\n\nPaf.\n\nPaf.\n\n— Encore des humains, conclut Threnak.\n\nQuelques secondes plus tard, un joggeur surgit entre les arbres.\n\nIl courait.\n\nTout seul.\n\nSans rien transporter.\n\nSans être poursuivi.\n\nSans chien.\n\nLes quatre le suivirent du regard jusqu'à ce qu'il disparaisse.\n\nPersonne ne parla pendant plusieurs secondes.\n\nPuis Ystaad résuma la situation.\n\n— C'est inquiétant.\n\n— Peut-être qu'il est en retard.\n\n— Depuis dix minutes ?\n\n— Peut-être très en retard.\n\nSovrik secoua la tête.\n\n— Non...\n\nIl réfléchit.\n\n— Je crois qu'il court... pour courir.\n\nTrois regards se tournèrent vers lui.\n\n— Ça n'a aucun sens, dit Norvëhl.\n\n— Je sais.\n\nIls notèrent mentalement cette nouvelle étrangeté terrestre : les humains dépensent volontairement leur énergie.\n\nCette planète devenait décidément difficile à comprendre.\n\nIls retrouvèrent le Trillo Ball exactement là où Norvëhl l'avait laissé.\n\nUn écureuil était assis dessus.\n\nL'animal les observa.\n\nEux observèrent l'animal.\n\nPersonne ne bougea.\n\nFinalement, l'écureuil descendit tranquillement, prit une noisette et repartit comme si ces quatre extraterrestres n'avaient jamais existé.\n\nNorvëhl récupéra son écran.\n\n— Je crois qu'il vient de nous autoriser à le reprendre.\n\n— Tu crois qu'il était propriétaire ?\n\n— C'est lui qui était assis dessus.\n\nArgument difficile à contester.\n\nPlus tard, ils aperçurent une nouvelle humaine.\n\nEnfin...\n\nLa même.\n\nÉmilie.\n\nElle lançait une balle à son chien.\n\nL'animal revenait inlassablement.\n\nRelançait.\n\nRevenait.\n\nRelançait.\n\nThrenak fronça les sourcils.\n\n— Pourquoi elle la relance ?\n\n— Pour qu'il la rapporte.\n\n— Mais elle vient de l'avoir.\n\n— Oui.\n\n— Alors pourquoi...\n\nPersonne ne trouva de réponse.\n\nIls restèrent cachés derrière un chêne pendant près de vingt minutes à observer ce rituel incompréhensible.\n\nAu bout d'un moment, Norvëhl murmura :\n\n— Je crois que le chien oublie.\n\nYstaad acquiesça gravement.\n\n— Oui.\n\n— Et elle lui rappelle où est la balle.\n\nSovrik hésita.\n\n— Ou alors...\n\nIls le regardèrent.\n\n— ...ils jouent.\n\nLe silence retomba.\n\nCette hypothèse semblait presque trop simple.\n\nÉmilie éclata de rire.\n\nUn vrai rire.\n\nPas très fort.\n\nMais suffisamment pour traverser les arbres.\n\nNorvëhl sentit quelque chose vibrer en lui.\n\nIl porta machinalement une main à sa gorge.\n\n— Vesht... je...\n\nSa voix dérapa.\n\n“...je crois...”\n\nElle était soudain devenue beaucoup plus grave.\n\nLes trois autres levèrent lentement les yeux.\n\nThrenak afficha un sourire immense.\n\n— Ah...\n\nNorvëhl toussota.\n\n— C'est...\n\nSa voix remonta d'un coup dans les aigus.\n\n“...bizarre.”\n\nCette fois, Threnak éclata de rire.\n\n— Vesht !\n\nYstaad souriait discrètement.\n\nMême Sovrik ne parvenait plus à rester sérieux.\n\n— Ça y est...\n\nThrenak posa une main sur son épaule.\n\n— Tu mues.\n\nNorvëhl leva les yeux au ciel.\n\n— N'importe quoi.\n\n— Tu viens de parler comme le père de Ystaad.\n\n— Pas vrai.\n\n— Si.\n\nNorvëhl ouvrit la bouche pour protester.\n\nRien ne sortit.\n\nPuis sa voix revint...\n\nEncore plus grave.\n\nLes oiseaux s'envolèrent.\n\nLe chien d'Émilie dressa brusquement les oreilles.\n\nEt, pour la première fois, la jeune femme tourna la tête exactement dans leur direction.\n\nLes quatre cessèrent instantanément de respirer.\n\nL'été venait peut-être de commencer.\n\nMais quelque chose leur disait que leurs vacances allaient devenir beaucoup plus compliquées.\n\nNotes d’écriture à reporter dans la bible\n\nLe gag de la mue doit rester drôle, mais il doit aussi signaler que Norvëhl change malgré lui.\n\nNe pas transformer Émilie en simple intérêt amoureux. Elle reste une présence humaine indépendante.\n\nPixel peut devenir le premier vrai contact affectif avec la Terre.\n\nLes scènes “il ne se passe presque rien” sont essentielles : c’est là que le lecteur s’attache aux quatre.\n\nGarder la logique : ils sont intelligents, mais ils interprètent la Terre avec une culture qui n’est pas la nôtre.\n\nSOURCE NOTION AUTORISÉE 2: Espace interne — Prospection Benoît — Offres IA, Notion, automatisation\nUnivers: benoit-lubert-professional\nTags: benoit-lubert-professional | benoit lubert professional | notion-workspace\nObjectif de cette page\n\nCette page est ton espace interne de prospection.\n\nElle sert à construire ton propre pipeline commercial en parallèle de la mission Yaelbali.\n\nL’idée est d’utiliser la même méthode de qualification, mais pour tes propres offres :\n\ncréation de systèmes Notion ;\n\nautomatisation légère ;\n\npréqualification de prospects ;\n\nagents IA ;\n\nmise en place Mistral AI ;\n\nworkflows Make ou n8n ;\n\noffres mensuelles de maintenance et amélioration.\n\nPositionnement commercial\n\nTu ne vends pas “un outil”.\n\nTu vends :\n\nun système clair ;\n\ndu temps gagné ;\n\nune base propre ;\n\ndes relances mieux structurées ;\n\ndes prospects mieux triés ;\n\nune maintenance continue ;\n\ndes ajustements selon les besoins du client.\n\nCibles possibles\n\nCible 1 — Indépendants débordés\n\nPersonnes qui ont des demandes, des contacts ou des opportunités mais aucun système pour les suivre.\n\nExemples : coachs, consultants, freelances, thérapeutes, formateurs, créateurs de services.\n\nCible 2 — Petites entreprises locales\n\nEntreprises avec des demandes entrantes ou des prospects dispersés entre Facebook, Instagram, Messenger, WhatsApp, email.\n\nExemples : artisans, commerces, agences locales, prestataires de services.\n\nCible 3 — Créateurs et vendeurs de services\n\nPersonnes qui parlent déjà avec leur audience mais ne savent pas transformer les signaux faibles en opportunités commerciales.\n\nCible 4 — Professionnels ayant besoin d’un CRM simple\n\nClients qui n’ont pas besoin d’un Salesforce ou HubSpot complet, mais d’une base simple et exploitable.\n\nOffres à tester\n\nOffre 1 — Pilote système prospects\n\nPrix possible : 200 € à 300 €.\n\nLivrables :\n\nbase Notion ;\n\ngrille de qualification ;\n\n5 à 10 prospects ou opportunités analysées ;\n\nmessages de relance ;\n\nrecommandations d’action.\n\nOffre 2 — Maintenance mensuelle légère\n\nPrix possible : 100 € à 150 € / mois.\n\nLivrables :\n\najustements de la base ;\n\namélioration des messages ;\n\ncorrection des champs ;\n\nsupport léger ;\n\nsynthèse mensuelle.\n\nOffre 3 — Suivi actif prospects\n\nPrix possible : 200 € à 300 € / mois.\n\nLivrables :\n\nrecherche ou ajout régulier de prospects ;\n\nqualification continue ;\n\nscoring ;\n\nrelances proposées ;\n\nsuivi des statuts ;\n\namélioration du système.\n\nOffre 4 — Automatisation avancée\n\nPrix possible : 400 € et plus.\n\nLivrables :\n\nconnexion Make ou n8n ;\n\nformulaire d’entrée ;\n\nIA de résumé ou scoring ;\n\nnotifications ;\n\nworkflow de relance ;\n\ndocumentation.\n\nSectorisation des résultats\n\nSecteur A — Prospects pour Yaelbali\n\nIls restent dans la page client Yaelbali.\n\nIls ne doivent pas être mélangés avec tes prospects.\n\nSecteur B — Prospects pour Benoît\n\nIls restent dans cette page interne.\n\nIls concernent tes propres clients potentiels.\n\nSecteur C — Sources de prospection\n\nListe des endroits où chercher :\n\ngroupes Facebook ;\n\ncommentaires publics ;\n\npublications LinkedIn ;\n\ndemandes d’aide dans des communautés ;\n\nforums spécialisés ;\n\nrecommandations ;\n\nanciens contacts ;\n\nconversations Messenger ou email consenties ;\n\npetites entreprises visibles mais mal organisées.\n\nSecteur D — Méthode / prompts / automatisation\n\nCette partie reste interne.\n\nElle peut contenir :\n\nprompts Mistral ;\n\nmodèles de scoring ;\n\nscripts n8n ;\n\nscénarios Make ;\n\nrègles de qualification ;\n\nmessages de prospection ;\n\noffres commerciales.\n\nModèle de fiche prospect interne\n\nNom / entreprise\n\nÀ compléter.\n\nType de cible\n\nIndépendant, petite entreprise, créateur, commerce local, formateur, consultant, autre.\n\nSource\n\nD’où vient le prospect ?\n\nSignal repéré\n\nQuel problème ou besoin semble visible ?\n\nOffre adaptée\n\nPilote, maintenance, suivi actif, automatisation avancée.\n\nAngle d’approche\n\nPourquoi ce prospect pourrait être intéressé ?\n\nScore\n\nNote sur 10.\n\nPriorité\n\nChaud / tiède / à vérifier / non prioritaire.\n\nMessage proposé\n\nMessage court, naturel et non agressif.\n\nProchaine action\n\nContacter, vérifier, attendre, relancer, archiver.\n\nMessage de prospection possible pour Benoît\n\nBonjour,\n\nJ’ai vu que vous gérez plusieurs demandes ou échanges autour de votre activité.\n\nJe travaille justement sur des petits systèmes simples pour aider les indépendants et petites structures à mieux suivre leurs prospects : base Notion, qualification des contacts, messages de relance, et éventuellement automatisation légère avec IA.\n\nL’idée n’est pas de faire une grosse usine à gaz, mais de créer un outil clair pour savoir qui contacter, quand relancer et quelles opportunités prioriser.\n\nJe cherche actuellement quelques cas concrets pour tester une offre pilote à prix accessible.\n\nSi ça vous intéresse, je peux vous montrer ce que ça peut donner sur un exemple simple.\n\nRègles importantes\n\nNe pas mélanger les prospects Yaelbali et tes prospects.\n\nNe pas partager cette page avec un client.\n\nNe pas stocker d’informations sensibles inutiles.\n\nNoter la source de chaque prospect.\n\nGarder une approche propre, personnalisée et non intrusive.\n\nVendre le résultat avant la technique.\n\nProchaine étape\n\nCréer ensuite une base Notion centrale ou deux bases séparées :\n\nProspects — Yaelbali\n\nProspects — Benoît\n\nLe plus propre est d’avoir deux bases séparées, pour éviter toute fuite ou confusion lors du partage client.\n\nUtilise uniquement les faits explicitement présents dans ces sources ou fournis dans la mission.\n\nN'ajoute aucune relation transmedia ou inter-univers qui ne soit pas explicitement écrite dans ces sources.\n\nN'invente aucun produit, prix, disponibilité, lien, personnage, espèce, citation, témoignage, statistique, fonctionnalité ou preuve.\n\nQuand une information manque, omets-la. Ne la complète pas par vraisemblance.",
-                  "itemCount": 2,
-                  "diagnostics": {
-                    "connected": true,
-                    "error": null,
-                    "totalItems": 3,
-                    "matchedItems": 2,
-                    "discoveredItems": 2,
-                    "digestedItems": 2
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    "harvest": {
-      "status": "ok",
-      "payload": {
-        "output": {
-          "capability": "business.sources.search",
-          "producer": "composio-web-search",
-          "text": "# Prospection — benoit-lubert\n\nMission : Distribution, coédition ou partenariat rémunéré pour Pro.Hibited, Jointed, 420 Dice et autres créations. Sources publiques examinées, aucune prise de contact ni revenu confirmé.\n\n1. Grossistes et fournisseurs en France | FranceGrossiste\n   URL : https://www.francegrossiste.com/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Grossistes et fournisseurs en France | FranceGrossiste ▶ SOURCING EXPERIENCE™ Découvrez FranceGrossiste France Grossiste SOURCING EXPERIENCE™ FOURNISSEURS • GROSSISTES • SOURCING • IA France Grossiste LE SOURCING PROFESSIONNEL NOUVELLE GÉNÉRATION 🔊 ✕ 01 • SOURCING Tout commence \n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n2. WDK Groupe Partner | Distributeur de jeux et jouets en France\n   URL : https://wdkpartner.com/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : WDK Groupe Partner | Distributeur de jeux et jouets en France Skip to main content Hit enter to search or ESC to close Close Search Menu Accueil Le Groupe Nos jouets Wonderkids Nos jeux Widyka Notre groupement indépendant Nos gammes exclusives Notre gamme de sport Out2Play Nos fa\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n3. Ludistri, votre distributeur jeux de société spécialiste du dé\n   URL : https://www.ludistri.fr/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : --> Ludistri votre distributeur jeux de société, spécialiste du dé Connectez-vous pour accéder à nos tarifs ! Vous pouvez utiliser le bouton \"se connecter\" ci-dessous, ou cliquez ici pour une connexion rapide par email si vous avez oublié votre mot-de-passe . Si vous n'avez pas d\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n4. Actualités des événements cannabis - Newsweed\n   URL : https://www.newsweed.fr/categ/actualites-cannabis/evenements/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Actualités des événements cannabis - Newsweed Recherche Newsletters &times; Explorer Variétés de cannabis Coffeeshops d&rsquo;Amsterdam Célébrités Légalisation dans le monde Outils Actualités Cannabis en France Cannabis en Europe Cannabis en Allemagne Cannabis en Suisse Cannabis \n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n5. Canna expo : guide des salons du cannabis | La Boutique 420\n   URL : https://www.laboutique420.com/blog/canna-expo-guide-salons-cannabis-europe-n339\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Canna expo : guide des salons du cannabis | La Boutique 420 Français Deutsch &#xE8B6; Rechercher &#xE7FF; Mon compte shopping_cart 0 &#xE5D2; &#xE8B6; Graines de collection CBD Variétés Marques Nouveautés ! Promos Headshop BLOG Ce site s'adresse aux personnes majeures. Voir les T\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n6. Nos partenaires - Asmodee France\n   URL : https://www.asmodee.fr/nos-partenaires/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Nos partenaires - Asmodee France À propos Comment choisir ? Nos selections Nos Best Sellers Catalogue Type de jeux Ambiance Coopératifs Enquête et Enigmes Stratégie et réflexion Pédagogiques Pour Qui ? Jeux à deux Jeux en famille Avec les enfants Pour les experts À partir de 3 à \n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n7. SAYAN France | grossiste jeux vidéo\n   URL : https://www.sayan-france.fr/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : --> SAYAN France | grossiste jeux vidéo /*** VSM_CSS ***/ @font-face {font-family: 'helvetica-w01-roman'; font-style: normal; font-weight: 400; src: url('//static.parastorage.com/fonts/v2/2af1bf48-e783-4da8-9fa0-599dde29f2d5/v1/helvetica-lt-w10-roman.woff2') format('woff2'); unic\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n8. Grossiste CBD pour revendeurs & distributeurs | CBDB2B\n   URL : https://www.cbdb2b.com/grossiste-cbd-pour/revendeur-distributeur\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Grossiste CBD pour revendeurs distributeurs | CBDB2B Vérification d'âge Ce site s'adresse exclusivement aux professionnels majeurs. Vous devez avoir 18 ans ou plus pour y accéder. J'ai 18 ans ou plus Quitter le site Aller au contenu Informations de lot sur demande Livraison en Fr\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n9. Le plus grand salon B2B du cannabis en Europe revient à Berlin du 13 au ...\n   URL : https://cannareporter.eu/fr/2026/03/17/Le-plus-grand-salon-B2B-du-cannabis-en-Europe-revient-%C3%A0-Berlin-du-13-au-15-avril-2026./\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Le plus grand salon B2B du cannabis en Europe revient à Berlin du 13 au 15 avril 2026 – CannaReporter National internationale interviews Santé Politique Chanvre Economie sociétés Société Patrons Rejoignez-nous! Statut éditorial Suivez nous sur CannaReporter Le plus grand salon B2\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n10. Tous les professionnels du CBD : catégorie Distributeurs\n   URL : https://cbd-maps.com/cat/distributeurs/\n   Statut : research-only; score probant 0/100\n   Éléments : Tous les professionnels du CBD : catégorie Distributeurs Aller au contenu CBDMAPS Connecting Hemp People CARTE PAR SERVICES Producteurs Breeders Distributeurs Boutiques Labels Logistique Associations Laboratoires Restauration Médias PAR PAYS France Suisse Allemagne Belgique Itali\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n"
-        }
+    "totalHarvests": 85,
+    "activeHarvests": 53,
+    "compostedCount": 32,
+    "uniqueContent": 53,
+    "duplicateCount": 0,
+    "duplicateHarvestIds": [],
+    "candidateCount": 53,
+    "candidateSample": [
+      {
+        "harvestId": "gerard-cultivate-1793213375163-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
       },
-      "verification": {
-        "completed": true,
-        "verifiedContacts": 0,
-        "contacted": false
-      }
-    },
-    "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1793355010199-harvest",
-      "harvestedAt": "2026-10-30T10:10:29.965Z",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "title": "Benoît · Partenaires, distributeurs et acheteurs B2B",
-      "content": "# Prospection — benoit-lubert\n\nMission : Distribution, coédition ou partenariat rémunéré pour Pro.Hibited, Jointed, 420 Dice et autres créations. Sources publiques examinées, aucune prise de contact ni revenu confirmé.\n\n1. Grossistes et fournisseurs en France | FranceGrossiste\n   URL : https://www.francegrossiste.com/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Grossistes et fournisseurs en France | FranceGrossiste ▶ SOURCING EXPERIENCE™ Découvrez FranceGrossiste France Grossiste SOURCING EXPERIENCE™ FOURNISSEURS • GROSSISTES • SOURCING • IA France Grossiste LE SOURCING PROFESSIONNEL NOUVELLE GÉNÉRATION 🔊 ✕ 01 • SOURCING Tout commence \n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n2. WDK Groupe Partner | Distributeur de jeux et jouets en France\n   URL : https://wdkpartner.com/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : WDK Groupe Partner | Distributeur de jeux et jouets en France Skip to main content Hit enter to search or ESC to close Close Search Menu Accueil Le Groupe Nos jouets Wonderkids Nos jeux Widyka Notre groupement indépendant Nos gammes exclusives Notre gamme de sport Out2Play Nos fa\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n3. Ludistri, votre distributeur jeux de société spécialiste du dé\n   URL : https://www.ludistri.fr/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : --> Ludistri votre distributeur jeux de société, spécialiste du dé Connectez-vous pour accéder à nos tarifs ! Vous pouvez utiliser le bouton \"se connecter\" ci-dessous, ou cliquez ici pour une connexion rapide par email si vous avez oublié votre mot-de-passe . Si vous n'avez pas d\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n4. Actualités des événements cannabis - Newsweed\n   URL : https://www.newsweed.fr/categ/actualites-cannabis/evenements/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Actualités des événements cannabis - Newsweed Recherche Newsletters &times; Explorer Variétés de cannabis Coffeeshops d&rsquo;Amsterdam Célébrités Légalisation dans le monde Outils Actualités Cannabis en France Cannabis en Europe Cannabis en Allemagne Cannabis en Suisse Cannabis \n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n5. Canna expo : guide des salons du cannabis | La Boutique 420\n   URL : https://www.laboutique420.com/blog/canna-expo-guide-salons-cannabis-europe-n339\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Canna expo : guide des salons du cannabis | La Boutique 420 Français Deutsch &#xE8B6; Rechercher &#xE7FF; Mon compte shopping_cart 0 &#xE5D2; &#xE8B6; Graines de collection CBD Variétés Marques Nouveautés ! Promos Headshop BLOG Ce site s'adresse aux personnes majeures. Voir les T\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n6. Nos partenaires - Asmodee France\n   URL : https://www.asmodee.fr/nos-partenaires/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Nos partenaires - Asmodee France À propos Comment choisir ? Nos selections Nos Best Sellers Catalogue Type de jeux Ambiance Coopératifs Enquête et Enigmes Stratégie et réflexion Pédagogiques Pour Qui ? Jeux à deux Jeux en famille Avec les enfants Pour les experts À partir de 3 à \n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n7. SAYAN France | grossiste jeux vidéo\n   URL : https://www.sayan-france.fr/\n   Statut : investigate-contact; score probant 25/100\n   Éléments : --> SAYAN France | grossiste jeux vidéo /*** VSM_CSS ***/ @font-face {font-family: 'helvetica-w01-roman'; font-style: normal; font-weight: 400; src: url('//static.parastorage.com/fonts/v2/2af1bf48-e783-4da8-9fa0-599dde29f2d5/v1/helvetica-lt-w10-roman.woff2') format('woff2'); unic\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n8. Grossiste CBD pour revendeurs & distributeurs | CBDB2B\n   URL : https://www.cbdb2b.com/grossiste-cbd-pour/revendeur-distributeur\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Grossiste CBD pour revendeurs distributeurs | CBDB2B Vérification d'âge Ce site s'adresse exclusivement aux professionnels majeurs. Vous devez avoir 18 ans ou plus pour y accéder. J'ai 18 ans ou plus Quitter le site Aller au contenu Informations de lot sur demande Livraison en Fr\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n9. Le plus grand salon B2B du cannabis en Europe revient à Berlin du 13 au ...\n   URL : https://cannareporter.eu/fr/2026/03/17/Le-plus-grand-salon-B2B-du-cannabis-en-Europe-revient-%C3%A0-Berlin-du-13-au-15-avril-2026./\n   Statut : investigate-contact; score probant 25/100\n   Éléments : Le plus grand salon B2B du cannabis en Europe revient à Berlin du 13 au 15 avril 2026 – CannaReporter National internationale interviews Santé Politique Chanvre Economie sociétés Société Patrons Rejoignez-nous! Statut éditorial Suivez nous sur CannaReporter Le plus grand salon B2\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.\n\n10. Tous les professionnels du CBD : catégorie Distributeurs\n   URL : https://cbd-maps.com/cat/distributeurs/\n   Statut : research-only; score probant 0/100\n   Éléments : Tous les professionnels du CBD : catégorie Distributeurs Aller au contenu CBDMAPS Connecting Hemp People CARTE PAR SERVICES Producteurs Breeders Distributeurs Boutiques Labels Logistique Associations Laboratoires Restauration Médias PAR PAYS France Suisse Allemagne Belgique Itali\n   À vérifier : besoin réel, décideur et canal professionnel public, budget, échéance.",
-      "capability": "business.sources.search",
-      "producer": "composio-web-search",
-      "route": "octopus->publisher-adapter",
-      "delivery": {
-        "recipient": "Benoît",
-        "mode": "propose-before-send",
-        "harvestState": "ready-to-offer"
+      {
+        "harvestId": "gerard-cultivate-1793217258252-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
       },
-      "state": "ready-to-offer"
-    }
+      {
+        "harvestId": "gerard-cultivate-1793218528515-harvest",
+        "parcelId": "benoit-business-growth",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793220689178-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793222873623-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793226097891-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793229203581-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793268731967-harvest",
+        "parcelId": "poulpe-fiction",
+        "state": "harvested"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793298746286-harvest",
+        "parcelId": "project-yael-prospection",
+        "state": "ready-to-offer"
+      },
+      {
+        "harvestId": "gerard-cultivate-1793355010199-harvest",
+        "parcelId": "benoit-business-growth",
+        "state": "ready-to-offer"
+      }
+    ],
+    "action": "observe-only",
+    "aiCalls": 0,
+    "externalCalls": 1,
+    "note": "Aucune suppression, aucun compost automatique et aucune publication. L'état réel de Publisher nécessite une vérification distincte."
   },
   "lastDecision": {
-    "at": "2026-10-30T10:10:10.197Z",
-    "mode": "cultivate",
-    "reason": "deliverable-production-priority",
-    "backlog": 52,
-    "seedCount": 3
+    "at": "2026-10-30T18:04:37.192Z",
+    "mode": "symbiosis",
+    "reason": "delivery-backlog-priority",
+    "backlog": 53
   },
   "lastSeedId": "benoit-client-acquisition",
   "lastSymbiosis": {
-    "at": "2026-10-30T01:07:33.538Z",
+    "at": "2026-10-30T18:04:39.202Z",
     "duplicateCount": 0,
-    "candidateCount": 52
+    "candidateCount": 53
   },
   "learningHistory": [
-    {
-      "at": "2026-10-26T17:27:13.777Z",
-      "operationId": "gerard-cultivate-1793035622042",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "b2b-sources-deferred",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
     {
       "at": "2026-10-26T17:35:16.802Z",
       "operationId": "gerard-symbiosis-1793036115963",
@@ -942,6 +827,18 @@
       "decision": "harvest-ready-to-offer",
       "seedId": "benoit-client-acquisition",
       "parcelId": "benoit-business-growth",
+      "error": null,
+      "feedback": "observe-downstream-results"
+    },
+    {
+      "at": "2026-10-30T18:04:39.204Z",
+      "operationId": "gerard-symbiosis-1793383477195",
+      "mode": "symbiosis",
+      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
+      "outcome": "ok",
+      "decision": null,
+      "seedId": null,
+      "parcelId": null,
       "error": null,
       "feedback": "observe-downstream-results"
     }
