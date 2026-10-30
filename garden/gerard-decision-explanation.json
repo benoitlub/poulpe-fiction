@@ -1,45 +1,60 @@
 {
-  "explainedAt": "2026-10-29T18:33:27Z",
-  "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
-  "seedId": "gerard-et-gerard",
-  "subject": "☁️ Récolte serveur · Gérard & Gérard (itération 3)",
-  "copyText": "🎥 *[Plan serré sur deux mains tenant un livre, voix off énergique]*\n*\"Deux Gérard. Un seul livre. Et si c’était VOUS le troisième ?*\n*Gérard A ou Gérard B ? Faites votre choix… et découvrez lequel vous ressemble !*\n*👉 [Lien en bio] #GérardEtGérard\n\nDécouvrir le livre : https://www.amazon.fr/dp/B0H68811RL",
-  "editorialScore": 70,
+  "explainedAt": "2026-10-30T01:08:01Z",
+  "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+  "seedId": "420-dice",
+  "subject": "Récolte · 420 Dice Game Reboot — Jeu de dés mobile",
+  "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+  "editorialScore": 85,
   "chosenNetwork": [
-    "facebook",
-    "instagram"
+    "facebook"
   ],
   "destination": {
-    "audience": "author-books",
-    "preferredProvider": "buffer",
-    "preferredAccount": "benoitlubert",
+    "audience": "games",
+    "preferredProvider": "metricool",
+    "preferredAccount": "pro.hbtd",
     "fallbackAccount": null,
     "requiresChannelVerification": true
   },
   "evidence": {
     "source": "garden-autoselection",
-    "copyStrategy": "explicit-social-content",
-    "mediaCapability": "official-media",
-    "mediaFailures": []
+    "copyStrategy": "first-explicit-angle",
+    "mediaCapability": "text-only-fallback",
+    "mediaFailures": [
+      "API budget exhausted.",
+      "gmail: Error: Too many subrequests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits",
+      "elevenlabs: Error: COMPOSIO_API_KEY is not configured"
+    ]
   },
-  "decision": "hold-for-buffer-draft",
-  "reasoning": "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici.",
+  "decision": "not-attempted",
+  "reasoning": "Récolte éligible sélectionnée par le classement du Publisher ; routage jeux vers Metricool. Ce score ne prouve pas une préférence du public.",
   "limits": [
     "Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.",
     "Aucune comparaison des statistiques Metricool n’est établie ici.",
     "Une répétition de texte déjà publié n’est pas automatiquement exclue."
   ],
-  "previousSelectionsOfSameSeed": 47,
-  "previousSelectionsOfSameCopy": 46,
+  "previousSelectionsOfSameSeed": 17,
+  "previousSelectionsOfSameCopy": 17,
   "repeatedSelection": true,
-  "publishedExactCopy": false,
-  "publishedEvidence": [],
+  "publishedExactCopy": true,
+  "publishedEvidence": [
+    {
+      "id": 388552621,
+      "publicationDate": {
+        "dateTime": "2026-10-06T10:35:00",
+        "timezone": "Europe/Madrid"
+      },
+      "networks": [
+        "facebook",
+        "instagram"
+      ]
+    }
+  ],
   "historyEvidence": "Decision history and manually verified Metricool snapshot; no audience-performance inference.",
-  "warning": null,
+  "warning": "Exact text already published in verified Metricool history; choose a fresh angle before publishing.",
   "audienceFeedback": {
     "status": "available",
     "checkedAt": "2026-10-29",
-    "matchedMetrics": 0,
+    "matchedMetrics": 2,
     "note": "No verified per-post engagement evidence"
   },
   "nextAction": "Ask Publisher for a different eligible seed next cycle.",
@@ -47,19 +62,18 @@
   "reasoningModel": {
     "version": "evidence-hypothesis-experiment-v1",
     "known": [
-      "Publisher selected seed: gerard-et-gerard",
+      "Publisher selected seed: 420-dice",
+      "The same copy appears in verified publication history.",
       "This seed was previously selected."
     ],
     "hypothesis": "A different subject or angle may broaden editorial coverage.",
-    "unknown": [
-      "Audience response is not yet measured for this copy."
-    ],
+    "unknown": [],
     "publisherSignal": {
       "status": "gap",
       "capability": "analytics.read"
     },
     "experiment": "Test a different angle or subject on the next cycle; compare only verified metrics.",
-    "confidence": "tentative"
+    "confidence": "measured"
   },
   "deliberation": {
     "version": "editorial-experiments-v1",
@@ -80,7 +94,7 @@
         "id": "observe",
         "hypothesis": "Measured results may distinguish creative approaches.",
         "test": "Collect verified per-post analytics before claiming an improvement.",
-        "priority": 1
+        "priority": 3
       }
     ],
     "previouslyExploredSeedCount": 3,
