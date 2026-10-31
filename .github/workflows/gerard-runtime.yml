@@ -333,34 +333,30 @@ jobs:
           # reservation fingerprints still prevent accidental transport retries.
           EXCLUDED_IDS=""
           EXCLUDED_SEED_IDS=""
-          # Curiosity: after three consecutive selections of the same seed,
-          # request an alternative from Publisher. This is a temporary preference,
-          # not a permanent ban on editorial repetition.
+          # Curiosity: temporarily exclude subjects heavily repeated in the
+          # last twelve selections, without touching existing scheduled posts.
           if [ -f garden/gerard-decision-history.json ]; then
-            REPEATED_SEED="$(jq -r 'if length >= 3 and (.[-3].seedId == .[-2].seedId) and (.[-2].seedId == .[-1].seedId) then .[-1].seedId // "" else "" end' garden/gerard-decision-history.json)"
-            if [ -n "$REPEATED_SEED" ]; then
-              EXCLUDED_SEED_IDS="$EXCLUDED_SEED_IDS,$REPEATED_SEED"
-              if [ -f garden/harvests.json ]; then
-                EXCLUDED_IDS="$(jq -r --arg seed "$REPEATED_SEED" '[.. | objects | select(.seedId? == $seed) | (.harvestId? // .id? // empty) | select(type == "string")] | unique | join(",")' garden/harvests.json)"
-              fi
-              echo "Gerard explores alternatives to $REPEATED_SEED"
+            EXCLUDED_SEED_IDS="$(jq -r '
+              [.[-12:][]? | .seedId // empty]
+              | group_by(.)
+              | map(select(length >= 3) | .[0])
+              | join(",")
+            ' garden/gerard-decision-history.json)"
+            if [ -n "$EXCLUDED_SEED_IDS" ] && [ -f garden/harvests.json ]; then
+              EXCLUDED_IDS="$(jq -r --arg seeds "$EXCLUDED_SEED_IDS" '
+                ($seeds | split(",")) as $excluded
+                | [.. | objects | select(.seedId? as $seed | $excluded | index($seed)) | (.harvestId? // .id? // empty) | select(type == "string")]
+                | unique | join(",")
+              ' garden/harvests.json)"
             fi
+            [ -z "$EXCLUDED_SEED_IDS" ] || echo "Rotating away from: $EXCLUDED_SEED_IDS"
           fi
-          # Close the loop: last cycle's chosen experiment affects this cycle's
-          # Publisher request. Exclude the seed even when local harvests are stale;
-          # keep known harvest IDs for compatibility, never invent new IDs.
+          # Respect the experiment chosen in the previous cycle.
           if [ -f garden/gerard-learning.json ]; then
             EXPERIMENT="$(jq -r '.guidance.chosenExperiment // ""' garden/gerard-learning.json)"
             PREVIOUS_SEED="$(jq -r '.guidance.seedId // ""' garden/gerard-learning.json)"
             if [ "$EXPERIMENT" = "explore" ] && [ -n "$PREVIOUS_SEED" ]; then
-              EXCLUDED_SEED_IDS="$EXCLUDED_SEED_IDS,$PREVIOUS_SEED"
-              EXPERIMENT_IDS=""
-              if [ -f garden/harvests.json ]; then
-                EXPERIMENT_IDS="$(jq -r --arg seed "$PREVIOUS_SEED" '[.. | objects | select(.seedId? == $seed) | (.harvestId? // .id? // empty) | select(type == "string")] | unique | join(",")' garden/harvests.json)"
-              fi
-              if [ -n "$EXPERIMENT_IDS" ]; then
-                EXCLUDED_IDS="$(printf '%s,%s' "$EXCLUDED_IDS" "$EXPERIMENT_IDS" | sed 's/^,//;s/,$//')"
-              fi
+              EXCLUDED_SEED_IDS="$(printf '%s,%s' "$EXCLUDED_SEED_IDS" "$PREVIOUS_SEED" | tr ',' '\n' | sed '/^$/d' | sort -u | paste -sd, -)"
               echo "Applying previous experiment: explore beyond $PREVIOUS_SEED"
             fi
           fi
