@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from '../scripts/gerard-client-acquisition.mjs';
+import { getAcquisitionConfig, getAcquisitionSquads, assessAcquisitionCandidate, buildAcquisitionPulse, formatAcquisitionReview, handoffAcquisitionReviews } from '../scripts/gerard-client-acquisition.mjs';
 import { searchBusinessSources } from '../scripts/gerard-b2b-bridge.mjs';
 
 const instance = id => ({ parcelId: `parcel-${id}`, knowledgeSlug: `knowledge-${id}`, templates: [{ id: 'client-acquisition', config: { clientId: id, offer: 'Atelier IA', targetSectors: ['formation'] } }] });
@@ -19,6 +19,24 @@ test('a relevant page is not automatically a hot lead or contacted client', () =
   assert.equal(lead.contacted, false);
   assert.equal(lead.acquisitionScore, 25);
   assert.match(formatAcquisitionReview([lead], config), /aucune prise de contact/);
+});
+
+test('business pulse packages market, priority and one next action without enabling outreach', () => {
+  const config = { ...getAcquisitionConfig(instance('a')), squads: [
+    { id: 'distribution', label: 'Squad Distribution', objective: 'Trouver des distributeurs.' },
+    { id: 'events', label: 'Squad Events', objective: 'Trouver des événements.' },
+  ] };
+  const sources = [
+    assessAcquisitionCandidate({ title: 'Centre A', url: 'https://a.example.org', verification: 'page-read', evidence: 'Formation continue' }, config),
+    assessAcquisitionCandidate({ title: 'Centre B', url: 'https://b.example.org', verification: 'page-read', evidence: 'Formation continue' }, config),
+    assessAcquisitionCandidate({ title: 'Article', url: 'https://news.example.org', verification: 'search-result-only', snippet: 'Formation' }, config),
+  ];
+  const pulse = buildAcquisitionPulse(sources, config);
+  assert.equal(pulse.observed, 3);
+  assert.equal(pulse.priorityCount, 2);
+  assert.equal(pulse.automaticOutreach, false);
+  assert.equal(getAcquisitionSquads(config)[0].label, 'Squad Distribution');
+  assert.match(formatAcquisitionReview(sources, config), /3 sources observées → 2 à approfondir → 1 prochaine action/);
 });
 
 test('a search result and off-sector page remain research only', () => {

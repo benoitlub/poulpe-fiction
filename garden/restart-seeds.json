@@ -40,12 +40,57 @@
           "config": {
             "clientId": "benoit-lubert",
             "offer": "Distribution, coédition ou partenariat rémunéré pour Pro.Hibited, Jointed, 420 Dice et autres créations",
-            "targetSectors": ["cannabis", "jeux", "distribution", "salon", "événement"],
-            "keywords": ["grossiste", "revendeur", "partenariat", "éditeur"],
-            "geographies": ["France", "Espagne", "Europe"],
-            "languages": ["fr", "en", "es"],
-            "budgetRange": { "min": 200, "max": 1000, "currency": "EUR" },
-            "automaticOutreach": false
+            "targetSectors": [
+              "cannabis",
+              "jeux",
+              "distribution",
+              "salon",
+              "événement"
+            ],
+            "keywords": [
+              "grossiste",
+              "revendeur",
+              "partenariat",
+              "éditeur"
+            ],
+            "geographies": [
+              "France",
+              "Espagne",
+              "Europe"
+            ],
+            "languages": [
+              "fr",
+              "en",
+              "es"
+            ],
+            "budgetRange": {
+              "min": 200,
+              "max": 1000,
+              "currency": "EUR"
+            },
+            "automaticOutreach": false,
+            "squads": [
+              {
+                "id": "distribution-jeux",
+                "label": "Squad Distribution Jeux",
+                "objective": "Identifier distributeurs, grossistes et revendeurs pertinents pour les jeux physiques."
+              },
+              {
+                "id": "salons-events",
+                "label": "Squad Salons & Events",
+                "objective": "Identifier organisateurs, exposants et partenaires d'événements où les jeux peuvent être présentés ou animés."
+              },
+              {
+                "id": "edition-coedition",
+                "label": "Squad Éditeurs & Coédition",
+                "objective": "Identifier éditeurs, coéditeurs et partenaires de marque pertinents pour coédition, licence ou distribution."
+              }
+            ],
+            "pulseTarget": {
+              "market": 10,
+              "priority": 3,
+              "nextActions": 1
+            }
           }
         },
         {
