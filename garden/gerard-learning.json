@@ -1,22 +1,6 @@
 {
-  "updatedAt": "2026-10-31T12:44:44.173Z",
+  "updatedAt": "2026-10-31T19:22:42.061Z",
   "observations": [
-    {
-      "observedAt": "2026-10-14T17:34:20Z",
-      "seedId": null,
-      "harvestId": null,
-      "copyText": null,
-      "repeatCount": 0,
-      "chosenExperiment": null,
-      "experimentHypothesis": null,
-      "delivery": {
-        "status": "not-attempted"
-      },
-      "metricsStatus": "unavailable",
-      "outcome": "not-verified",
-      "matchedMetrics": [],
-      "lesson": "Analytics unavailable: do not infer failure or success; continue testing."
-    },
     {
       "observedAt": "2026-10-14T17:46:08Z",
       "seedId": null,
@@ -3583,10 +3567,29 @@
       "outcome": "not-verified",
       "metricsStatus": "available",
       "lesson": "No confirmed delivery: avoid claims of publication or audience response."
+    },
+    {
+      "kind": "gerard-experiment-cycle",
+      "observedAt": "2026-10-31T19:22:42.027Z",
+      "seedId": "420-dice",
+      "harvestId": "harvest_local_harvest_420-dice_1786215725387",
+      "copyText": "Et si le 421 devenait un jeu mobile avec des gages ? Découvrez 420 Dice Game.",
+      "repeatCount": 20,
+      "chosenExperiment": "explore",
+      "experimentHypothesis": "Another subject may improve editorial diversity.",
+      "delivery": {
+        "status": "blocked",
+        "publishingEnabled": false,
+        "stage": "authorization",
+        "reason": "METRICOOL_EXECUTION_TOKEN_MISSING"
+      },
+      "outcome": "not-verified",
+      "metricsStatus": "available",
+      "lesson": "No confirmed delivery: avoid claims of publication or audience response."
     }
   ],
   "publisherAdvice": {
-    "observedAt": "2026-10-31T12:44:44Z",
+    "observedAt": "2026-10-31T19:22:41Z",
     "source": "publisher",
     "capability": "analytics.read",
     "response": {
@@ -3609,7 +3612,7 @@
     }
   },
   "guidance": {
-    "seedId": "gerard-et-gerard",
+    "seedId": "420-dice",
     "chosenExperiment": "explore",
     "nextExperiment": "Test a distinct creative angle; keep earlier posts unchanged.",
     "performanceRankingEnabled": false,
@@ -3703,7 +3706,7 @@
     },
     "posts": [
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3723,7 +3726,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3743,7 +3746,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3763,7 +3766,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3783,7 +3786,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3803,7 +3806,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3823,7 +3826,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "facebook",
@@ -3843,7 +3846,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       },
       {
-        "observedAt": "2026-10-31T12:44:44.173Z",
+        "observedAt": "2026-10-31T19:22:42.061Z",
         "kind": "metricool-post-measurement",
         "source": "metricool-connected-analytics",
         "network": "instagram",
@@ -3863,7 +3866,7 @@
         "lesson": "These are observed provider metrics, not evidence of causality or Gerard authorship. Compare only compatible posts after collecting more observations."
       }
     ],
-    "lastIntegratedAt": "2026-10-31T12:44:44.173Z",
+    "lastIntegratedAt": "2026-10-31T19:22:42.061Z",
     "inferencePolicy": "No cross-network ranking, no user-preference claims and no attribution of publication to Gerard without transport evidence."
   },
   "pendingExperiments": [],
