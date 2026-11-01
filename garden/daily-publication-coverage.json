@@ -1,8 +1,8 @@
 {
-  "checkedAt": "2026-10-31T19:21:54.795Z",
+  "checkedAt": "2026-11-01T00:11:32.100Z",
   "timezone": "Europe/Paris",
-  "day": "2026-10-31",
-  "month": "2026-10",
+  "day": "2026-11-01",
+  "month": "2026-11",
   "metricoolBudget": {
     "limit": 20,
     "used": null,
@@ -10,10 +10,10 @@
     "exhausted": null,
     "verified": false,
     "status": "incomplete-provider-history",
-    "minimumObservedPosts": 7,
-    "minimumObservedNetworkDeliveries": 10,
+    "minimumObservedPosts": 0,
+    "minimumObservedNetworkDeliveries": 0,
     "observedPostsToday": 0,
-    "source": "metricool-manually-verified-snapshot",
+    "source": "no-current-month-snapshot",
     "policy": "Do not auto-schedule from this report; verify the actual Metricool monthly usage first.",
     "note": "Publisher iterations are production records, not posts. A past snapshot cannot establish current usage or remaining plan quota."
   },
