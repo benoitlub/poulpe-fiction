@@ -8,12 +8,12 @@
     "build:gege": "node scripts/gege-snapshot.mjs && vite build --config prototypes/gege/vite.config.mjs && node scripts/stage-gege.mjs"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "lucide-react": "latest"
+    "@vitejs/plugin-react": "6.1.2",
+    "vite": "8.3.5",
+    "typescript": "7.0.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "lucide-react": "1.66.0"
   },
   "devDependencies": {}
 }
