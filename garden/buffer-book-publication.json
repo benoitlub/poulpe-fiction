@@ -1,15 +1,6 @@
 {
-  "recordedAt": "2026-10-23T13:35:39Z",
-  "source": "Buffer GraphQL provider confirmation",
-  "contract": "gerard-existing-buffer-post-v1",
-  "harvestId": "neon_iter_iter_gerard-et-gerard_1786288530352",
-  "seedId": "gerard-et-gerard",
-  "originalPostId": "6acfd4de0b61877d1315e86b",
-  "status": "already-queued-or-sent",
-  "scheduled": true,
-  "channelId": "6ac8c8226a5c39ccb65fdbf6",
-  "scheduledAt": "2026-10-15T06:27:00.000Z",
-  "providerStatus": "sent",
-  "duplicateCreated": false,
-  "note": "Existing Buffer draft modified in place; no new Buffer post created."
+  "publicProjection": true,
+  "status": "private",
+  "storage": "postgresql",
+  "schema": "gerard-private-runtime-v1"
 }

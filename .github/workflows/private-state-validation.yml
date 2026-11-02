@@ -1,0 +1,68 @@
+name: Private runtime persistence
+on:
+  pull_request:
+    paths:
+      - 'scripts/gerard-private-runtime.mjs'
+      - 'scripts/gerard-state-summary.mjs'
+      - '.github/workflows/private-state-validation.yml'
+      - '.github/workflows/gerard-runtime.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/gerard-private-runtime.mjs'
+      - '.github/workflows/private-state-validation.yml'
+permissions:
+  contents: read
+jobs:
+  postgres-roundtrip:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: gerard_test
+          POSTGRES_PASSWORD: ephemeral_test_only
+          POSTGRES_DB: gerard_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgresql://gerard_test:ephemeral_test_only@localhost:5432/gerard_test
+      GERARD_PUBLISHER_DB_PACKAGE: /tmp/gerard-pg/package.json
+      GERARD_PRIVATE_GARDEN_PATH: /tmp/gerard-private-fixture
+      GERARD_PRIVATE_VERSION_PATH: /tmp/gerard-private-test-version
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/gerard-pg --ignore-scripts --no-audit --no-fund pg@8.22.0
+      - name: Create synthetic private records
+        run: |
+          mkdir -p "$GERARD_PRIVATE_GARDEN_PATH"
+          node --input-type=module - <<'NODE'
+          import {writeFile} from 'node:fs/promises';
+          await writeFile(process.env.GERARD_PRIVATE_GARDEN_PATH+'/gerard-state.json', JSON.stringify({lastMode:'cultivate',businessSourceMemory:{secret:'PRIVATE_TEST_SENTINEL'},lastResult:{status:'ok'}}));
+          NODE
+      - run: node scripts/gerard-private-runtime.mjs hydrate
+      - run: node scripts/gerard-private-runtime.mjs persist
+      - name: Public file must contain no private body
+        run: |
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict'; import {readFile} from 'node:fs/promises';
+          const text=await readFile(process.env.GERARD_PRIVATE_GARDEN_PATH+'/gerard-state.json','utf8');
+          assert.doesNotMatch(text,/PRIVATE_TEST_SENTINEL/);
+          assert.equal(JSON.parse(text).publicProjection,true);
+          NODE
+      - run: node scripts/gerard-private-runtime.mjs hydrate
+      - name: Restore must retain the complete private record
+        run: |
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict'; import {readFile} from 'node:fs/promises';
+          const s=JSON.parse(await readFile(process.env.GERARD_PRIVATE_GARDEN_PATH+'/gerard-state.json','utf8'));
+          assert.equal(s.businessSourceMemory.secret,'PRIVATE_TEST_SENTINEL');
+          NODE
+      - run: node scripts/gerard-private-runtime.mjs persist

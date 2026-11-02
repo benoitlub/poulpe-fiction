@@ -9,6 +9,7 @@ import {
   runParcelStudio,
   studioOperationId,
   studioFeedbackForParcel,
+  verifyStudioProbe,
 } from "../scripts/gerard-av-studio.mjs";
 const seed = {
   seedId: "s-new",
@@ -57,9 +58,22 @@ test("registered gameplay clip replaces image and Mistral without cross-parcel i
   const configured = {
     ...seed,
     templates: [
-      { id: "image-studio", config: { assetId: "own-media", subject: "Do not call Mistral", allowMistralImage: true } },
+      {
+        id: "image-studio",
+        config: {
+          assetId: "own-media",
+          subject: "Do not call Mistral",
+          allowMistralImage: true,
+        },
+      },
       seed.templates[1],
-      { id: "video-studio", config: { durationSeconds: 12, videoAssetId: "registered-own-gameplay-01" } },
+      {
+        id: "video-studio",
+        config: {
+          durationSeconds: 12,
+          videoAssetId: "registered-own-gameplay-01",
+        },
+      },
     ],
   };
   const mission = await studioMission(configured, "video", "gameplay-01");
@@ -69,7 +83,10 @@ test("registered gameplay clip replaces image and Mistral without cross-parcel i
   assert.equal(request.imagePrompt, undefined);
   assert.deepEqual(mission.authorizedResources, ["video.studio"]);
   assert.equal(request.automaticPublication, false);
-  assert.notEqual(studioOperationId(seed, "video"), studioOperationId(configured, "video"));
+  assert.notEqual(
+    studioOperationId(seed, "video"),
+    studioOperationId(configured, "video"),
+  );
 });
 test("external generation is never inferred from template defaults or connected accounts", async () => {
   const m = await studioMission(
@@ -87,6 +104,22 @@ test("external generation is never inferred from template defaults or connected 
   );
   assert.deepEqual(m.authorizedResources, ["audio.studio", "mistral.text"]);
   assert.ok(!m.authorizedResources.includes("social.publish"));
+});
+test("a requested voice or music source cannot be silently replaced", async () => {
+  for (const [config, reason] of [
+    [{ voiceProvider: "elevenlabs" }, "studio-voice-provider-unavailable"],
+    [{ musicSource: "licensed-library" }, "studio-music-source-unavailable"],
+    [{ musicGainDb: -40 }, "studio-mix-settings-unavailable"],
+  ]) {
+    await assert.rejects(
+      studioMission(
+        { ...seed, templates: [{ id: "audio-studio", config }] },
+        "audio",
+        "op",
+      ),
+      new RegExp(reason),
+    );
+  }
 });
 test("missing file, incomplete mission and cross-parcel success cannot become an archive", async (t) => {
   const dir = await mkdtemp(path.join(tmpdir(), "av-client-"));
@@ -121,6 +154,7 @@ test("downloads and hashes actual bytes, rejects tampering, and preserves a veri
     sha = createHash("sha256").update(bytes).digest("hex");
   let calls = 0;
   const report = {
+    id: "a".repeat(64),
     status: "ready-for-review",
     parcelId: seed.parcelId,
     seedId: seed.seedId,
@@ -130,6 +164,7 @@ test("downloads and hashes actual bytes, rejects tampering, and preserves a veri
     artifact: {
       filename: "image.png",
       sha256: sha,
+      bytes: bytes.length,
       downloadUrl:
         "/api/production/studio/artifacts/" + "a".repeat(64) + "/image.png",
     },
@@ -167,23 +202,169 @@ test("downloads and hashes actual bytes, rejects tampering, and preserves a veri
   assert.equal(b.reused, true);
   assert.equal(calls, 2);
 });
+test("the main artifact descriptor must agree with the manifest before any download", async (t) => {
+  const dir = await mkdtemp(path.join(tmpdir(), "studio-descriptor-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const bytes = Buffer.from("unit fixture, not an actual image"),
+    digest = createHash("sha256").update(bytes).digest("hex");
+  const r = {
+    id: "a".repeat(64),
+    status: "ready-for-review",
+    parcelId: seed.parcelId,
+    seedId: seed.seedId,
+    operationId: "op",
+    published: false,
+    files: [{ filename: "image.png", sha256: digest, bytes: bytes.length }],
+    artifact: {
+      filename: "image.png",
+      sha256: "0".repeat(64),
+      bytes: bytes.length,
+      downloadUrl:
+        "/api/production/studio/artifacts/" + "a".repeat(64) + "/image.png",
+    },
+  };
+  await assert.rejects(
+    runParcelStudio(seed, {
+      kind: "image",
+      operationId: "op",
+      outputDir: dir,
+      submit: async () => ({ status: "completed", output: r }),
+      download: async () => {
+        throw new Error("must not download inconsistent metadata");
+      },
+      verifyFile: async () => {},
+    }),
+    /descriptor-mismatch/,
+  );
+});
+test("local verification uses the requested duration and rejects incomplete media evidence", () => {
+  const p = {
+    format: { duration: "18" },
+    streams: [
+      {
+        codec_type: "video",
+        codec_name: "h264",
+        width: 1080,
+        height: 1920,
+        pix_fmt: "yuv420p",
+        r_frame_rate: "30/1",
+      },
+      {
+        codec_type: "audio",
+        codec_name: "aac",
+        sample_rate: "48000",
+        channels: 2,
+      },
+    ],
+  };
+  assert.doesNotThrow(() => verifyStudioProbe(p, "video", 18));
+  for (const bad of [
+    { ...p, format: { duration: "24" } },
+    { ...p, format: {} },
+    { ...p, streams: [p.streams[0], { ...p.streams[1], channels: 1 }] },
+    {
+      ...p,
+      streams: [{ ...p.streams[0], r_frame_rate: "24/1" }, p.streams[1]],
+    },
+  ])
+    assert.throws(
+      () => verifyStudioProbe(bad, "video", 18),
+      /studio-local-video-invalid/,
+    );
+  assert.throws(
+    () => verifyStudioProbe(p, "video", undefined),
+    /studio-local-video-invalid/,
+  );
+  assert.throws(
+    () =>
+      verifyStudioProbe(
+        {
+          format: { duration: "1" },
+          streams: [
+            {
+              codec_type: "audio",
+              codec_name: "pcm_s16le",
+              sample_rate: "48000",
+              channels: 2,
+            },
+          ],
+        },
+        "audio",
+        18,
+      ),
+    /studio-local-audio-invalid/,
+  );
+});
+test("the image prompt preserves the style and aspect ratio chosen in the template", async () => {
+  const m = await studioMission(
+    {
+      ...seed,
+      templates: [
+        {
+          id: "image-studio",
+          config: {
+            subject: "A different project",
+            style: "watercolour",
+            aspectRatio: "9:16",
+          },
+        },
+      ],
+    },
+    "image",
+    "op",
+  );
+  assert.match(m.context.metadata.studioRequest.imagePrompt, /watercolour/);
+  assert.match(m.context.metadata.studioRequest.imagePrompt, /9:16/);
+});
 
 test("transmits only approved parcel-specific video guidance and changes cache identity", async () => {
-  const learning = { guidance: { ownerCreativeFeedback: [
-    { feedbackId: "review-420", parcelId: "another-project", assetType: "short-video",
-      creativeGuidance: ["Move the camera", "Animate the dice"], prohibitedActions: ["Do not publish"] },
-    { feedbackId: "foreign", parcelId: "other", assetType: "short-video",
-      creativeGuidance: ["Unrelated direction"] },
-    { feedbackId: "audio", parcelId: "another-project", assetType: "audio",
-      creativeGuidance: ["Unrelated direction"] },
-  ] } };
+  const learning = {
+    guidance: {
+      ownerCreativeFeedback: [
+        {
+          feedbackId: "review-420",
+          parcelId: "another-project",
+          assetType: "short-video",
+          creativeGuidance: ["Move the camera", "Animate the dice"],
+          prohibitedActions: ["Do not publish"],
+        },
+        {
+          feedbackId: "foreign",
+          parcelId: "other",
+          assetType: "short-video",
+          creativeGuidance: ["Unrelated direction"],
+        },
+        {
+          feedbackId: "audio",
+          parcelId: "another-project",
+          assetType: "audio",
+          creativeGuidance: ["Unrelated direction"],
+        },
+      ],
+    },
+  };
   const guidance = studioFeedbackForParcel(learning, seed.parcelId);
   assert.equal(guidance.length, 1);
   assert.equal(guidance[0].feedbackId, "review-420");
-  assert.deepEqual(studioFeedbackForParcel(learning, seed.parcelId, "audio"), []);
+  assert.deepEqual(
+    studioFeedbackForParcel(learning, seed.parcelId, "audio"),
+    [],
+  );
   const mission = await studioMission(seed, "video", "new-operation", guidance);
-  assert.deepEqual(mission.context.metadata.studioRequest.creativeFeedback, guidance);
-  assert.equal(mission.context.metadata.studioRequest.automaticPublication, false);
-  assert.notEqual(studioOperationId(seed, "video"), studioOperationId(seed, "video", guidance));
-  assert.equal(studioOperationId(seed, "video", guidance), studioOperationId(seed, "video", guidance));
+  assert.deepEqual(
+    mission.context.metadata.studioRequest.creativeFeedback,
+    guidance,
+  );
+  assert.equal(
+    mission.context.metadata.studioRequest.automaticPublication,
+    false,
+  );
+  assert.notEqual(
+    studioOperationId(seed, "video"),
+    studioOperationId(seed, "video", guidance),
+  );
+  assert.equal(
+    studioOperationId(seed, "video", guidance),
+    studioOperationId(seed, "video", guidance),
+  );
 });

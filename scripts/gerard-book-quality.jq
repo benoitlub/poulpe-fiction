@@ -7,11 +7,15 @@
    or ($seed == "terra" and ($text | contains("terra")))
    # The verified, seed-specific book link identifies the work even with a creative hook.
    or ($canonicalDestination != null and ((.copy.text // "") | contains($canonicalDestination)))) as $matchingBook
+| ((if $seed == "la-feulette-tachetee" or ($title | contains("feulette")) then ["crotte de nez magique"]
+     elif $seed == "la-crotte-de-nez-magique" or ($title | contains("crotte de nez magique")) then ["feulette tachetée"]
+     else [] end) | map(select(. as $other | $text | contains($other)))) as $crossWorkMentions
 | .editorialQuality = {
     kind: "book",
+    crossWorkMentions: $crossWorkMentions,
     officialCover: (if .media.official == true then .media.url else null end),
     verifiedDestination: ((.copy.text // "") | ([scan("https://www\\.amazon\\.fr/dp/[A-Za-z0-9]+")][0] // null)),
-    status: (if (.media.official == true) and ((.media.url // "") | test("^https://"))
+    status: (if ($crossWorkMentions | length) == 0 and (.media.official == true) and ((.media.url // "") | test("^https://"))
                   and $matchingBook
                   and ($text | test("https://www\\.amazon\\.fr/dp/[A-Za-z0-9]+"))
                   and ($canonicalDestination == null or ((.copy.text // "") | contains($canonicalDestination)))

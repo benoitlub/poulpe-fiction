@@ -19,6 +19,7 @@ import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qua
 import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from "./gerard-client-acquisition.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
+import { summarizeCycleResult, summarizeStateResult } from "./gerard-state-summary.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
@@ -123,7 +124,7 @@ function selectSeedForRotation(seeds, state) {
 
 async function saveState(state) {
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
-  await writeFile(STATE_PATH, JSON.stringify(state, null, 2) + "\n", "utf8");
+  await writeFile(STATE_PATH, JSON.stringify(summarizeStateResult(state), null, 2) + "\n", "utf8");
 }
 
 async function saveMailDrafts(sources, parcelId) {
@@ -441,10 +442,9 @@ async function main() {
           state.lastImageStudio = { at: nowIso(), seedId: selectedSeed.seedId, status: "awaiting-authorization" };
         } else {
           try {
-            // The existing image enable flag authorizes the same Mistral image
-            // action as before; registered media never needs that paid fallback.
-            const imageSeed = { ...selectedSeed, templates:selectedSeed.templates.map(t => t.id === "image-studio" ?
-              { ...t, config:{...t.config, allowMistralImage:!t.config?.assetId} } : t) };
+            // Enabling the studio is not consent to spend provider credits.
+            // Keep the exact per-template permission, including an explicit no.
+            const imageSeed = selectedSeed;
             const studioId=studioOperationId(imageSeed,"image");
             const outputDir=new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`,import.meta.url);
             const media=await runImageStudio(imageSeed,{outputDir,operationId:studioId,submit:submitStudioMission});
@@ -544,9 +544,10 @@ async function main() {
   state.learningHistory = [...(Array.isArray(state.learningHistory) ? state.learningHistory : []).slice(-49), learningEntry];
   state.history = [...(state.history || []).slice(-19), { at: nowIso(), mode, reason: decision.reason, operationId, result: result.status }];
   state.lastMode = mode; state.lastRunAt = nowIso(); state.lastResult = result; await saveState(state);
-  console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.done", mode, result }));
+  console.log(JSON.stringify({ at: nowIso(), event: "gerard-cycle.done", mode, result: summarizeCycleResult(result) }));
   // A documented lack of new B2B evidence is a normal outcome: let publication continue.
   if (!["ok", "deferred"].includes(result.status)) process.exitCode = 1;
 }
 
 await main();
+

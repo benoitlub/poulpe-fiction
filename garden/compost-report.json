@@ -1,30 +1,6 @@
 {
-  "at": "2026-10-14T22:40:59.775Z",
-  "contract": "gerard-compost-report-v1",
-  "scope": "local-harvests-only",
-  "previousTotal": 37,
-  "totalHarvests": 37,
-  "newlyComposted": 1,
-  "reasons": {
-    "simulated": 0,
-    "exactDuplicate": 0,
-    "crossParcel": 0,
-    "offDomainClient": 1
-  },
-  "activeHarvests": 5,
-  "compostedHarvests": 32,
-  "archivedHarvests": 0,
-  "newlyCompostedIds": [
-    "gerard-cultivate-1791979340112-harvest"
-  ],
-  "action": "marked-composted",
-  "safeguards": {
-    "deleted": 0,
-    "learningHistoryChanged": false,
-    "remotePublisherChanged": false,
-    "socialPostsChanged": false,
-    "onlyExactDuplicatesOrExplicitContamination": true,
-    "reversible": true
-  },
-  "note": "Contents, IDs and provenance stay in garden/harvests.json. The state can be restored manually. No remote data or publication was changed."
+  "publicProjection": true,
+  "status": "private",
+  "storage": "postgresql",
+  "schema": "gerard-private-runtime-v1"
 }
