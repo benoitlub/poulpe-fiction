@@ -1,13 +1,6 @@
 {
   "history": [
     {
-      "at": "2026-10-28T23:13:57.239Z",
-      "mode": "cultivate",
-      "reason": "deliverable-production-priority",
-      "operationId": "gerard-cultivate-1793229203581",
-      "result": "ok"
-    },
-    {
       "at": "2026-10-29T01:02:16.402Z",
       "mode": "symbiosis",
       "reason": "delivery-backlog-priority",
@@ -139,40 +132,93 @@
       "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793580155385",
       "result": "ok"
+    },
+    {
+      "at": "2026-11-02T00:53:08.322Z",
+      "mode": "cultivate",
+      "reason": "deliverable-production-priority",
+      "operationId": "gerard-cultivate-1793580768963",
+      "result": "deferred"
     }
   ],
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-02T00:42:36.316Z",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-02T00:53:08.322Z",
   "lastResult": {
-    "at": "2026-11-02T00:42:36.309Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "deferred",
+    "harvestMode": "garden-prepare-bag",
+    "operationId": "gerard-cultivate-1793580768963",
+    "seedId": "benoit-client-acquisition",
+    "parcelId": "benoit-business-growth",
+    "phase": "knowledge",
+    "knowledge": {
+      "status": "completed",
+      "verified": true,
+      "slug": "benoit-lubert-professional",
+      "source": "notion"
+    },
+    "delivery": {
+      "mode": "propose-before-send"
+    },
+    "decision": "b2b-sources-deferred",
+    "octopus": {
+      "status": "ok",
+      "httpStatus": 200,
+      "payload": {
+        "operationId": "gerard-cultivate-1793580768963-knowledge",
+        "status": "completed",
+        "output": {
+          "capability": "knowledge.search",
+          "slug": "benoit-lubert-professional",
+          "source": "notion",
+          "verified": true,
+          "itemCount": 2,
+          "diagnostics": {
+            "connected": true,
+            "totalItems": 3,
+            "matchedItems": 2,
+            "discoveredItems": 2,
+            "digestedItems": 2
+          }
+        },
+        "missionId": "gerard-cultivate-1793580768963-knowledge",
+        "contextId": "benoit-business-growth",
+        "adapterId": "publisher",
+        "lifecycle": {
+          "missionId": "gerard-cultivate-1793580768963-knowledge",
+          "state": "completed",
+          "createdAt": "2026-11-02T00:53:02.426Z",
+          "updatedAt": "2026-11-02T00:53:08.319Z"
+        }
+      }
+    },
+    "harvest": {
+      "status": "deferred",
+      "verification": {
+        "reason": "b2b-no-new-evidence",
+        "seedId": "benoit-client-acquisition"
+      }
+    },
+    "deferred": {
+      "reason": "b2b-no-new-evidence",
+      "source": "publisher-worker",
+      "researchRequired": true,
+      "seedId": "benoit-client-acquisition"
+    }
   },
   "lastDecision": {
-    "at": "2026-11-02T00:42:35.383Z",
-    "mode": "symbiosis",
-    "reason": "delivery-backlog-priority",
-    "backlog": 58
+    "at": "2026-11-02T00:52:48.961Z",
+    "mode": "cultivate",
+    "reason": "deliverable-production-priority",
+    "backlog": 58,
+    "seedCount": 3
   },
-  "lastSeedId": "yael-prospection",
+  "lastSeedId": "benoit-client-acquisition",
   "lastSymbiosis": {
     "at": "2026-11-02T00:42:36.309Z",
     "duplicateCount": 0,
     "candidateCount": 58
   },
   "learningHistory": [
-    {
-      "at": "2026-10-26T22:21:27.181Z",
-      "operationId": "gerard-cultivate-1793053264659",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
     {
       "at": "2026-10-27T00:32:24.009Z",
       "operationId": "gerard-symbiosis-1793061143124",
@@ -760,12 +806,37 @@
       "parcelId": null,
       "error": null,
       "feedback": "observe-downstream-results"
+    },
+    {
+      "at": "2026-11-02T00:53:08.322Z",
+      "operationId": "gerard-cultivate-1793580768963",
+      "mode": "cultivate",
+      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "error": null,
+      "feedback": "await-new-evidence"
     }
   ],
   "aiConsecutiveRateLimits": 0,
   "businessSourceMemory": {
     "benoit-business-growth": {},
     "benoit-lubert:benoit-business-growth": {
+      "mddistribution.fr/fr": {
+        "examinedAt": "2026-11-02T00:52:54.957Z",
+        "assessment": {
+          "title": "MD Distribution — Grossiste CBD B2B",
+          "url": "https://mddistribution.fr/fr",
+          "snippet": "MD Distribution — distribution B2B de flacons, pots et contenants. Catalogue, commande en masse et devis pour professionnels.",
+          "verification": "unverified",
+          "qualification": "investigate",
+          "fitScore": null,
+          "signals": [],
+          "contacted": false
+        }
+      },
       "originecbd.fr/content/164-grossiste-cbd-france-europe-fournisseur-b2b-premium": {
         "examinedAt": "2026-11-01T00:11:41.137Z",
         "assessment": {
@@ -781,19 +852,6 @@
           ],
           "evidence": "Grossiste CBD B2B – Fournisseur Premium France Europe 17 Rue de l'Arsenal 75004 Paris 09 82 59 64 90 💬 Une question ? Un conseil ? Chez Origine CBD, notre équipe est à votre écoute avec un service client réactif et humain Group%20(3) Group%20(4) Group%20(5) Vector%20(4) BLOG ENC",
           "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "mddistribution.fr/fr": {
-        "examinedAt": "2026-11-01T00:11:41.137Z",
-        "assessment": {
-          "title": "MD Distribution — Grossiste CBD B2B",
-          "url": "https://mddistribution.fr/fr",
-          "snippet": "MD Distribution — distribution B2B de flacons, pots et contenants. Catalogue, commande en masse et devis pour professionnels.",
-          "verification": "unverified",
-          "qualification": "investigate",
-          "fitScore": null,
-          "signals": [],
           "contacted": false
         }
       },
@@ -1179,11 +1237,11 @@
     }
   },
   "lastCommunityRadar": {
-    "at": "2026-11-01T00:11:48.457Z",
+    "at": "2026-11-02T00:53:02.421Z",
     "seedId": "benoit-client-acquisition",
     "status": "discovered",
-    "count": 19,
-    "total": 35,
+    "count": 20,
+    "total": 36,
     "statuses": [
       "sources-found",
       "sources-found"
@@ -1191,14 +1249,14 @@
     "contacted": 0
   },
   "lastImageStudio": {
-    "at": "2026-11-01T00:11:48.457Z",
+    "at": "2026-11-02T00:53:02.421Z",
     "seedId": "benoit-client-acquisition",
     "status": "awaiting-authorization"
   },
   "lastBusinessResearchBlocker": {
-    "at": "2026-10-29T10:05:31.371Z",
+    "at": "2026-11-02T00:53:08.322Z",
     "seedId": "benoit-client-acquisition",
-    "operationId": "gerard-cultivate-1793268324454",
+    "operationId": "gerard-cultivate-1793580768963",
     "status": "deferred",
     "reason": "b2b-no-new-evidence",
     "publisherStatus": "sources-found",
