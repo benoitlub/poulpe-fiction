@@ -1,63 +1,6 @@
 {
-  "checkedAt": "2026-11-02T00:52:47.725Z",
-  "timezone": "Europe/Paris",
-  "day": "2026-11-02",
-  "month": "2026-11",
-  "metricoolBudget": {
-    "limit": 20,
-    "used": null,
-    "remaining": null,
-    "exhausted": null,
-    "verified": false,
-    "status": "incomplete-provider-history",
-    "minimumObservedPosts": 0,
-    "minimumObservedNetworkDeliveries": 0,
-    "observedPostsToday": 0,
-    "source": "no-current-month-snapshot",
-    "policy": "Do not auto-schedule from this report; verify the actual Metricool monthly usage first.",
-    "note": "Publisher iterations are production records, not posts. A past snapshot cannot establish current usage or remaining plan quota."
-  },
-  "target": "Respect Metricool quota; rotate parcels when actual published/queued history is verified.",
-  "coverage": [
-    {
-      "parcelId": "poulpe-fiction",
-      "publishedToday": null,
-      "publicationCountToday": null,
-      "publicationCountMonth": null,
-      "status": "not-verifiable-from-iterations",
-      "publisherIterationCount": 1
-    },
-    {
-      "parcelId": "project-yael-prospection",
-      "publishedToday": null,
-      "publicationCountToday": null,
-      "publicationCountMonth": null,
-      "status": "not-verifiable-from-iterations",
-      "publisherIterationCount": 16
-    },
-    {
-      "parcelId": "benoit-business-growth",
-      "publishedToday": null,
-      "publicationCountToday": null,
-      "publicationCountMonth": null,
-      "status": "not-verifiable-from-iterations",
-      "publisherIterationCount": 0
-    }
-  ],
-  "experiment": {
-    "contract": "gerard-publication-experiment-v1",
-    "status": "observing-not-authorized-to-publish",
-    "window": {
-      "start": "2026-10-18",
-      "endExclusive": "2026-11-17"
-    },
-    "target": 30,
-    "verifiedDatedPublications": 0,
-    "remainingTarget": 30,
-    "evidenceStatus": "partial",
-    "missingDateOrIdentity": 1,
-    "metricoolQuotaVerified": false,
-    "publishingEnabled": false,
-    "note": "Only uniquely identified, dated, confirmed publications count; unknown is not zero. No scheduling permission granted."
-  }
+  "publicProjection": true,
+  "status": "private",
+  "storage": "postgresql",
+  "schema": "gerard-private-runtime-v1"
 }

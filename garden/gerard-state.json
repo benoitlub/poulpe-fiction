@@ -1,1265 +1,136 @@
 {
+  "publicProjection": true,
+  "status": "private",
+  "storage": "postgresql",
+  "schema": "gerard-private-runtime-v1",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-02T01:05:09.394Z",
+  "lastSeedId": "benoit-client-acquisition",
   "history": [
     {
-      "at": "2026-10-29T01:02:16.402Z",
-      "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
-      "operationId": "gerard-symbiosis-1793235735540",
-      "result": "ok"
-    },
-    {
       "at": "2026-10-29T10:05:31.371Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793268324454",
       "result": "deferred"
     },
     {
       "at": "2026-10-29T10:08:14.996Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793268494069",
       "result": "ok"
     },
     {
       "at": "2026-10-29T10:12:21.579Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793268731967",
       "result": "ok"
     },
     {
       "at": "2026-10-29T10:34:07.730Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793270047155",
       "result": "ok"
     },
     {
       "at": "2026-10-29T18:32:51.756Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793298746286",
       "result": "ok"
     },
     {
       "at": "2026-10-30T01:07:33.539Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793322453159",
       "result": "ok"
     },
     {
       "at": "2026-10-30T10:10:29.969Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793355010199",
       "result": "ok"
     },
     {
       "at": "2026-10-30T18:04:39.204Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793383477195",
       "result": "ok"
     },
     {
       "at": "2026-10-30T22:27:43.737Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793399238705",
       "result": "ok"
     },
     {
       "at": "2026-10-31T05:53:56.510Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793426036196",
       "result": "ok"
     },
     {
       "at": "2026-10-31T12:43:56.702Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793450616700",
       "result": "ok"
     },
     {
       "at": "2026-10-31T19:21:57.084Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793474516145",
       "result": "ok"
     },
     {
       "at": "2026-11-01T00:11:51.501Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793491893236",
       "result": "ok"
     },
     {
       "at": "2026-11-01T06:18:34.076Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793513913749",
       "result": "ok"
     },
     {
       "at": "2026-11-01T15:42:45.777Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793547754930",
       "result": "ok"
     },
     {
       "at": "2026-11-01T16:06:35.919Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793549195493",
       "result": "ok"
     },
     {
       "at": "2026-11-01T22:09:03.334Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793570920923",
       "result": "ok"
     },
     {
       "at": "2026-11-02T00:42:36.316Z",
       "mode": "symbiosis",
-      "reason": "delivery-backlog-priority",
       "operationId": "gerard-symbiosis-1793580155385",
       "result": "ok"
     },
     {
       "at": "2026-11-02T00:53:08.322Z",
       "mode": "cultivate",
-      "reason": "deliverable-production-priority",
       "operationId": "gerard-cultivate-1793580768963",
       "result": "deferred"
+    },
+    {
+      "at": "2026-11-02T01:05:09.394Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1793581508632",
+      "result": "ok"
     }
   ],
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-02T00:53:08.322Z",
   "lastResult": {
-    "status": "deferred",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1793580768963",
-    "seedId": "benoit-client-acquisition",
-    "parcelId": "benoit-business-growth",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "benoit-lubert-professional",
-      "source": "notion"
-    },
-    "delivery": {
-      "mode": "propose-before-send"
-    },
-    "decision": "b2b-sources-deferred",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1793580768963-knowledge",
-        "status": "completed",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "benoit-lubert-professional",
-          "source": "notion",
-          "verified": true,
-          "itemCount": 2,
-          "diagnostics": {
-            "connected": true,
-            "totalItems": 3,
-            "matchedItems": 2,
-            "discoveredItems": 2,
-            "digestedItems": 2
-          }
-        },
-        "missionId": "gerard-cultivate-1793580768963-knowledge",
-        "contextId": "benoit-business-growth",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1793580768963-knowledge",
-          "state": "completed",
-          "createdAt": "2026-11-02T00:53:02.426Z",
-          "updatedAt": "2026-11-02T00:53:08.319Z"
-        }
-      }
-    },
-    "harvest": {
-      "status": "deferred",
-      "verification": {
-        "reason": "b2b-no-new-evidence",
-        "seedId": "benoit-client-acquisition"
-      }
-    },
-    "deferred": {
-      "reason": "b2b-no-new-evidence",
-      "source": "publisher-worker",
-      "researchRequired": true,
-      "seedId": "benoit-client-acquisition"
-    }
-  },
-  "lastDecision": {
-    "at": "2026-11-02T00:52:48.961Z",
-    "mode": "cultivate",
-    "reason": "deliverable-production-priority",
-    "backlog": 58,
-    "seedCount": 3
-  },
-  "lastSeedId": "benoit-client-acquisition",
-  "lastSymbiosis": {
-    "at": "2026-11-02T00:42:36.309Z",
-    "duplicateCount": 0,
-    "candidateCount": 58
-  },
-  "learningHistory": [
-    {
-      "at": "2026-10-27T00:32:24.009Z",
-      "operationId": "gerard-symbiosis-1793061143124",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-27T09:08:10.325Z",
-      "operationId": "gerard-cultivate-1793092070919",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "b2b-sources-deferred",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-27T10:11:52.600Z",
-      "operationId": "gerard-symbiosis-1793095912116",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-27T15:25:39.394Z",
-      "operationId": "gerard-cultivate-1793114722482",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-27T15:39:04.816Z",
-      "operationId": "gerard-symbiosis-1793115544259",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-27T22:22:13.113Z",
-      "operationId": "gerard-cultivate-1793139712660",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T05:52:20.556Z",
-      "operationId": "gerard-symbiosis-1793166740166",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T10:50:13.214Z",
-      "operationId": "gerard-cultivate-1793184579788",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T12:10:41.881Z",
-      "operationId": "gerard-symbiosis-1793189440620",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T12:26:37.651Z",
-      "operationId": "gerard-cultivate-1793190370466",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T12:30:18.076Z",
-      "operationId": "gerard-symbiosis-1793190617252",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T12:32:47.264Z",
-      "operationId": "gerard-cultivate-1793190745722",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T13:07:39.705Z",
-      "operationId": "gerard-symbiosis-1793192858921",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T15:15:17.132Z",
-      "operationId": "gerard-cultivate-1793200504863",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T18:19:10.746Z",
-      "operationId": "gerard-symbiosis-1793211550312",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T18:50:09.456Z",
-      "operationId": "gerard-cultivate-1793213375163",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T19:02:37.719Z",
-      "operationId": "gerard-symbiosis-1793214155369",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T19:54:51.530Z",
-      "operationId": "gerard-cultivate-1793217258252",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T20:04:12.478Z",
-      "operationId": "gerard-symbiosis-1793217852217",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T20:15:45.676Z",
-      "operationId": "gerard-cultivate-1793218528515",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T20:21:10.528Z",
-      "operationId": "gerard-symbiosis-1793218869296",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T20:52:02.169Z",
-      "operationId": "gerard-cultivate-1793220689178",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T21:02:05.756Z",
-      "operationId": "gerard-symbiosis-1793221324400",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T21:28:17.001Z",
-      "operationId": "gerard-cultivate-1793222873623",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T21:30:17.683Z",
-      "operationId": "gerard-symbiosis-1793223017000",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T21:47:26.885Z",
-      "operationId": "gerard-cultivate-1793224036276",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "deferred",
-      "decision": "b2b-sources-deferred",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "await-new-evidence"
-    },
-    {
-      "at": "2026-10-28T21:50:42.257Z",
-      "operationId": "gerard-symbiosis-1793224241905",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T22:21:49.469Z",
-      "operationId": "gerard-cultivate-1793226097891",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T22:34:08.813Z",
-      "operationId": "gerard-symbiosis-1793226848431",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-28T23:13:57.239Z",
-      "operationId": "gerard-cultivate-1793229203581",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-29T01:02:16.402Z",
-      "operationId": "gerard-symbiosis-1793235735540",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-29T10:05:31.371Z",
-      "operationId": "gerard-cultivate-1793268324454",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "deferred",
-      "decision": "b2b-sources-deferred",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "await-new-evidence"
-    },
-    {
-      "at": "2026-10-29T10:08:14.996Z",
-      "operationId": "gerard-symbiosis-1793268494069",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-29T10:12:21.579Z",
-      "operationId": "gerard-cultivate-1793268731967",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-29T10:34:07.730Z",
-      "operationId": "gerard-symbiosis-1793270047155",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-29T18:32:51.756Z",
-      "operationId": "gerard-cultivate-1793298746286",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-30T01:07:33.539Z",
-      "operationId": "gerard-symbiosis-1793322453159",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-30T10:10:29.969Z",
-      "operationId": "gerard-cultivate-1793355010199",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-30T18:04:39.204Z",
-      "operationId": "gerard-symbiosis-1793383477195",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-30T22:27:43.737Z",
-      "operationId": "gerard-cultivate-1793399238705",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-31T05:53:56.510Z",
-      "operationId": "gerard-symbiosis-1793426036196",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-31T12:43:56.702Z",
-      "operationId": "gerard-cultivate-1793450616700",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-10-31T19:21:57.084Z",
-      "operationId": "gerard-symbiosis-1793474516145",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-11-01T00:11:51.501Z",
-      "operationId": "gerard-cultivate-1793491893236",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-11-01T06:18:34.076Z",
-      "operationId": "gerard-symbiosis-1793513913749",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-11-01T15:42:45.777Z",
-      "operationId": "gerard-cultivate-1793547754930",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-11-01T16:06:35.919Z",
-      "operationId": "gerard-symbiosis-1793549195493",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-11-01T22:09:03.334Z",
-      "operationId": "gerard-cultivate-1793570920923",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-11-02T00:42:36.316Z",
-      "operationId": "gerard-symbiosis-1793580155385",
-      "mode": "symbiosis",
-      "intention": "Réconcilier localement les récoltes et préparer les prochaines décisions sans publication ni appel IA.",
-      "outcome": "ok",
-      "decision": null,
-      "seedId": null,
-      "parcelId": null,
-      "error": null,
-      "feedback": "observe-downstream-results"
-    },
-    {
-      "at": "2026-11-02T00:53:08.322Z",
-      "operationId": "gerard-cultivate-1793580768963",
-      "mode": "cultivate",
-      "intention": "Faire avancer une graine existante du jardin vers une récolte réelle et exploitable.",
-      "outcome": "deferred",
-      "decision": "b2b-sources-deferred",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "error": null,
-      "feedback": "await-new-evidence"
-    }
-  ],
-  "aiConsecutiveRateLimits": 0,
-  "businessSourceMemory": {
-    "benoit-business-growth": {},
-    "benoit-lubert:benoit-business-growth": {
-      "mddistribution.fr/fr": {
-        "examinedAt": "2026-11-02T00:52:54.957Z",
-        "assessment": {
-          "title": "MD Distribution — Grossiste CBD B2B",
-          "url": "https://mddistribution.fr/fr",
-          "snippet": "MD Distribution — distribution B2B de flacons, pots et contenants. Catalogue, commande en masse et devis pour professionnels.",
-          "verification": "unverified",
-          "qualification": "investigate",
-          "fitScore": null,
-          "signals": [],
-          "contacted": false
-        }
-      },
-      "originecbd.fr/content/164-grossiste-cbd-france-europe-fournisseur-b2b-premium": {
-        "examinedAt": "2026-11-01T00:11:41.137Z",
-        "assessment": {
-          "title": "Grossiste CBD B2B - Fournisseur Premium France & Europe",
-          "url": "https://originecbd.fr/content/164-grossiste-cbd-france-europe-fournisseur-b2b-premium",
-          "snippet": "Origine Diffusion, grossiste CBD fiable pour professionnels : catalogue complet, prix pro, livraison France & Europe, accompagnement B2B personnalisé.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Grossiste CBD B2B – Fournisseur Premium France Europe 17 Rue de l'Arsenal 75004 Paris 09 82 59 64 90 💬 Une question ? Un conseil ? Chez Origine CBD, notre équipe est à votre écoute avec un service client réactif et humain Group%20(3) Group%20(4) Group%20(5) Vector%20(4) BLOG ENC",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.francegrossiste.com/": {
-        "examinedAt": "2026-10-30T10:10:19.027Z",
-        "assessment": {
-          "title": "Grossistes et fournisseurs en France | FranceGrossiste",
-          "url": "https://www.francegrossiste.com/",
-          "snippet": "Recherchez des grossistes, fabricants, déstockeurs et fournisseurs B2B dans plus de 100 catégories. Entreprises : inscrivez votre société sur FranceGrossiste.",
-          "verification": "page-read",
-          "qualification": "priority-review",
-          "fitScore": 90,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "univers-jeux",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Grossistes et fournisseurs en France | FranceGrossiste ▶ SOURCING EXPERIENCE™ Découvrez FranceGrossiste France Grossiste SOURCING EXPERIENCE™ FOURNISSEURS • GROSSISTES • SOURCING • IA France Grossiste LE SOURCING PROFESSIONNEL NOUVELLE GÉNÉRATION 🔊 ✕ 01 • SOURCING Tout commence ",
-          "nextAction": "Vérifier conditions revendeur et possibilité de proposer Pro.Hibited",
-          "contacted": false
-        }
-      },
-      "wdkpartner.com/": {
-        "examinedAt": "2026-10-30T10:10:19.027Z",
-        "assessment": {
-          "title": "WDK Groupe Partner | Distributeur de jeux et jouets en France",
-          "url": "https://wdkpartner.com/",
-          "snippet": "Leader et spécialiste du jouet depuis 60 ans, WDK Groupe Partner distribue des milliers de références pour les professionnels en France et à l'international.",
-          "verification": "page-read",
-          "qualification": "priority-review",
-          "fitScore": 90,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "univers-jeux",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "WDK Groupe Partner | Distributeur de jeux et jouets en France Skip to main content Hit enter to search or ESC to close Close Search Menu Accueil Le Groupe Nos jouets Wonderkids Nos jeux Widyka Notre groupement indépendant Nos gammes exclusives Notre gamme de sport Out2Play Nos fa",
-          "nextAction": "Vérifier conditions revendeur et possibilité de proposer Pro.Hibited",
-          "contacted": false
-        }
-      },
-      "www.ludistri.fr/": {
-        "examinedAt": "2026-10-30T10:10:19.027Z",
-        "assessment": {
-          "title": "Ludistri, votre distributeur jeux de société spécialiste du dé",
-          "url": "https://www.ludistri.fr/",
-          "snippet": "Ludistri.fr, votre partenaire de confiance pour les jeux de société, les dés et les accessoires de jeux de rôle. Découvrez notre large sélection de jeux pour tous les âges et tous les goûts. En tant que grossiste spécialisé, nous proposons des produits de qualité pour les boutiques spécialisées, les magasins de jouets, et plus encore.",
-          "verification": "page-read",
-          "qualification": "priority-review",
-          "fitScore": 90,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "univers-jeux",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "--> Ludistri votre distributeur jeux de société, spécialiste du dé Connectez-vous pour accéder à nos tarifs ! Vous pouvez utiliser le bouton \"se connecter\" ci-dessous, ou cliquez ici pour une connexion rapide par email si vous avez oublié votre mot-de-passe . Si vous n'avez pas d",
-          "nextAction": "Vérifier conditions revendeur et possibilité de proposer Pro.Hibited",
-          "contacted": false
-        }
-      },
-      "www.newsweed.fr/categ/actualites-cannabis/evenements": {
-        "examinedAt": "2026-10-30T10:10:19.027Z",
-        "assessment": {
-          "title": "Actualités des événements cannabis - Newsweed",
-          "url": "https://www.newsweed.fr/categ/actualites-cannabis/evenements/",
-          "snippet": "Comptes-rendus, annonces et reportages sur les salons, conférences et expos cannabis, chanvre et CBD. Toute l'actualité événementielle par Newsweed.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Actualités des événements cannabis - Newsweed Recherche Newsletters &times; Explorer Variétés de cannabis Coffeeshops d&rsquo;Amsterdam Célébrités Légalisation dans le monde Outils Actualités Cannabis en France Cannabis en Europe Cannabis en Allemagne Cannabis en Suisse Cannabis ",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.laboutique420.com/blog/canna-expo-guide-salons-cannabis-europe-n339": {
-        "examinedAt": "2026-10-30T10:10:19.027Z",
-        "assessment": {
-          "title": "Canna expo : guide des salons du cannabis | La Boutique 420",
-          "url": "https://www.laboutique420.com/blog/canna-expo-guide-salons-cannabis-europe-n339",
-          "snippet": "Canna expo : découvrez ce que sont les salons du cannabis, les grands rendez-vous européens comme le Spannabis et le CBD Expo, et ce qu'on y trouve.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Canna expo : guide des salons du cannabis | La Boutique 420 Français Deutsch &#xE8B6; Rechercher &#xE7FF; Mon compte shopping_cart 0 &#xE5D2; &#xE8B6; Graines de collection CBD Variétés Marques Nouveautés ! Promos Headshop BLOG Ce site s'adresse aux personnes majeures. Voir les T",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.asmodee.fr/nos-partenaires": {
-        "examinedAt": "2026-10-30T10:10:19.027Z",
-        "assessment": {
-          "title": "Nos partenaires - Asmodee France",
-          "url": "https://www.asmodee.fr/nos-partenaires/",
-          "snippet": "Ils nous font confiance ! Retrouvez l'ensemble de nos partenaires et éditeurs dont nous distribuons les jeux de société et jeux de cartes.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "univers-jeux",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Nos partenaires - Asmodee France À propos Comment choisir ? Nos selections Nos Best Sellers Catalogue Type de jeux Ambiance Coopératifs Enquête et Enigmes Stratégie et réflexion Pédagogiques Pour Qui ? Jeux à deux Jeux en famille Avec les enfants Pour les experts À partir de 3 à ",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.sayan-france.fr/": {
-        "examinedAt": "2026-10-30T10:10:19.027Z",
-        "assessment": {
-          "title": "SAYAN France | grossiste jeux vidéo",
-          "url": "https://www.sayan-france.fr/",
-          "snippet": "SAYAN France est un grossiste et revendeur de jeux vidéo et produits culturels, situé à Marseille. Nous faisons bénéficier à nos clients professionnels d'offres de déstockages compétitives à prix défiant toute concurrence.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 35,
-          "signals": [
-            "distribution-ou-vente-professionnelle"
-          ],
-          "evidence": "--> SAYAN France | grossiste jeux vidéo /*** VSM_CSS ***/ @font-face {font-family: 'helvetica-w01-roman'; font-style: normal; font-weight: 400; src: url('//static.parastorage.com/fonts/v2/2af1bf48-e783-4da8-9fa0-599dde29f2d5/v1/helvetica-lt-w10-roman.woff2') format('woff2'); unic",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.cbdb2b.com/grossiste-cbd-pour/revendeur-distributeur": {
-        "examinedAt": "2026-10-28T20:15:35.296Z",
-        "assessment": {
-          "title": "Grossiste CBD pour revendeurs & distributeurs | CBDB2B",
-          "url": "https://www.cbdb2b.com/grossiste-cbd-pour/revendeur-distributeur",
-          "snippet": "Revendeur & Distributeur Grossiste CBD pour revendeurs et distributeurs : volumes, tarifs, accompagnement. Vous alimentez un réseau de points de vente. Vous avez besoin de volumes, de tarifs dégressifs agressifs, d'un interlocuteur unique qui connaît votre territoire. CBDB2B propose des conditions dédiées aux revendeurs et distributeurs.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Grossiste CBD pour revendeurs distributeurs | CBDB2B Vérification d'âge Ce site s'adresse exclusivement aux professionnels majeurs. Vous devez avoir 18 ans ou plus pour y accéder. J'ai 18 ans ou plus Quitter le site Aller au contenu Informations de lot sur demande Livraison en Fr",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "cbd-maps.com/cat/distributeurs": {
-        "examinedAt": "2026-10-28T20:15:35.296Z",
-        "assessment": {
-          "title": "Tous les professionnels du CBD : catégorie Distributeurs",
-          "url": "https://cbd-maps.com/cat/distributeurs/",
-          "snippet": "L'Herbe en France - Votre plateforme CBD française en circuit court L'Herbe en France est la première plateforme qui connecte directement les consommateurs aux producteurs de CBD français. Notre mission : vous offrir des produits CBD de qualité, traçables et locaux, tout en soutenant l'agriculture française du chanvre. Aujourd'hui ...",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Tous les professionnels du CBD : catégorie Distributeurs Aller au contenu CBDMAPS Connecting Hemp People CARTE PAR SERVICES Producteurs Breeders Distributeurs Boutiques Labels Logistique Associations Laboratoires Restauration Médias PAR PAYS France Suisse Allemagne Belgique Itali",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.europages.fr/entreprises/france/grossiste/jeux%20de%20societe.html": {
-        "examinedAt": "2026-10-28T15:15:11.240Z",
-        "assessment": {
-          "title": "France Grossiste jeux de societe - Europages",
-          "url": "https://www.europages.fr/entreprises/france/grossiste/jeux%20de%20societe.html",
-          "snippet": "France : parcourez les 9 Grossiste du secteur jeux de societe sur Europages, plateforme de sourcing B2B à l'international.",
-          "verification": "page-read",
-          "qualification": "priority-review",
-          "fitScore": 90,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "univers-jeux",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Jeux de societe Grossiste France | Entreprises et fournisseurs B2B | europages Vos dernières recherches Editer Effacer tout Terminé Obtenez des devis Demandes de devis Devenez fournisseur Connexion Entreprises - Fournisseurs - Services jeux de société Filtres Pays du fournisseur ",
-          "nextAction": "Vérifier conditions revendeur et possibilité de proposer Pro.Hibited",
-          "contacted": false
-        }
-      },
-      "cannareporter.eu/fr/2026/03/17/Le-plus-grand-salon-B2B-du-cannabis-en-Europe-revient-%C3%A0-Berlin-du-13-au-15-avril-2026.": {
-        "examinedAt": "2026-10-28T15:15:11.240Z",
-        "assessment": {
-          "title": "Le plus grand salon B2B du cannabis en Europe revient à Berlin du 13 au ...",
-          "url": "https://cannareporter.eu/fr/2026/03/17/Le-plus-grand-salon-B2B-du-cannabis-en-Europe-revient-%C3%A0-Berlin-du-13-au-15-avril-2026./",
-          "snippet": "Les efforts de modernisation des politiques relatives au cannabis s'accélèrent en Europe, l'Allemagne demeurant un chef de file continental en la matière. Alors que le secteur légal du cannabis continue de se développer en Allemagne et sur d'autres marchés européens, la Conférence internationale sur le commerce du cannabis (ICBC) poursuit son développement.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Le plus grand salon B2B du cannabis en Europe revient à Berlin du 13 au 15 avril 2026 – CannaReporter National internationale interviews Santé Politique Chanvre Economie sociétés Société Patrons Rejoignez-nous! Statut éditorial Suivez nous sur CannaReporter Le plus grand salon B2",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "junglecannabisseeds.com/pro": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "Espace Professionnels — Distribution, Marque Blanche & B2B | Jungle Seeds",
-          "url": "https://junglecannabisseeds.com/pro/",
-          "snippet": "Jungle Seeds pour les pros : distribution graines et CBD, création de marque, marque blanche, grandes quantités B2B, catalogue européen. Devis sous 72h.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Espace Professionnels — Distribution, Marque Blanche B2B | Jungle Seeds Skip to navigation Skip to main content Search USA Deutschland United Kingdom Login / Register Sign in Create an Account Identifiant ou e-mail * Obligatoire Password * Obligatoire Log in Lost your password? R",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "b2bcanna.com/": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "B2BCANNA - Grossiste CBD & Cannabis légal pour professionnels",
-          "url": "https://b2bcanna.com/",
-          "snippet": "B2BCANNA, grossiste CBD & cannabis légal pour professionnels. Achetez en vrac, lancez votre marque avec notre offre white label ou revendez nos marques sélectionnées. Solution clé en main pour boutiques, revendeurs et distributeurs. Demandez un devis.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "B2BCANNA – Grossiste CBD Cannabis légal pour professionnels check_circle error info report Liste de souhaits close Votre liste de souhaits est vide delete Livraison offerte dès 500€ d'achat search Rechercher search close search favorite account_circle local_mall 0 Fleurs keyboard",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.grossistecbdfrance.com/": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "Grossiste CBD France — Fournisseur & Semi-Grossiste B2B",
-          "url": "https://www.grossistecbdfrance.com/",
-          "snippet": "Grossiste CBD : votre centrale d'achat B2B & Semi-Gros en Europe Fleurs, résines, huiles, vape & isolats — tarifs dégressifs, conformité certifiée et logistique 48h pour votre activité B2B. Accompagnement commercial dédié à chaque segment du marché.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Grossiste CBD France — Fournisseur & Semi-Grossiste B2B Grossiste CBD France Nos Services Nos Produits Fleurs CBD Résines Hash Huiles Extraits Vape Puffs Moonrocks Isolats Distillats Cannabinoïdes R D White Label Trim, Small Buds Biomasse FAQ Ressources Nous contacter Nos Service",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "royalgreendistribution.fr/": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "CBD Royal | Grossiste de CBD en France et en Europe",
-          "url": "https://royalgreendistribution.fr/",
-          "snippet": "CBD Royal c'est le grossiste de produits au chanvre de qualité. Fournisseur de confiance pour l'achat en gros de CBD en France et Europe",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "CBD Royal | Grossiste de CBD en France et en Europe Passer au contenu Contact 09:00 - 18:00 +4207755551742 WhatsApp Contact À propos Actualités Français Čeština English Français Čeština English Français Fleurs CBD Fleurs Indoor Fleurs Hydro Fleurs Glasshouse Fleurs CBD greenhouse",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "cannova.fr/": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "Grossiste CBD France — Producteur B2B depuis 2018 | CANNOVA",
-          "url": "https://cannova.fr/",
-          "snippet": "Grossiste CBD et producteur pour les professionnels — pionnier en France depuis 2018. Fleurs, résines, e-liquides et aliments CBD, analyses laboratoire à l'appui.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Grossiste CBD France — Producteur B2B depuis 2018 | CANNOVA Aller au contenu Aucun résultat Accueil Analyses CBD Blog Boutique Conditions générales Contact Formation CBD Mentions légales Mon compte Notre entreprise Panier Politique de confidentialité Politique de cookies Rétracta",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "royalgreendistribution.fr/cbd/salon-cbd-2026": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "Quels sont les principaux salons professionnels CBD en 2026 ?",
-          "url": "https://royalgreendistribution.fr/cbd/salon-cbd-2026/",
-          "snippet": "Découvrez quels sont les principaux salons professionnels sur le CBD auxquels participer 2026, que ce soit en France ou ailleurs dans le monde.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Quels sont les principaux salons professionnels CBD en 2026 ? Passer au contenu Contact 09:00 - 18:00 +4207755551742 WhatsApp Contact À propos Actualités Français Čeština English Français Čeština English Français Fleurs CBD Fleurs Indoor Fleurs Hydro Fleurs Glasshouse Fleurs CBD ",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "hashlab.fr/grossiste-cbd": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "Grossiste CBD & Chanvre France | Fournisseur B2B Premium",
-          "url": "https://hashlab.fr/grossiste-cbd/",
-          "snippet": "Devenez partenaire Hash Lab, grossiste en chanvre Sativa L spécialisé en fleurs Cali & résines premium. 🚀 Qualité labellisée, tarifs dégressifs et conformité législation 2026.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Grossiste CBD Chanvre France 🌿 | Fournisseur B2B Premium Skip to navigation Skip to main content Contactez-nous CBD PAS CHER TOUTES NOS RÉSINES CBD ⭐ Expert du Hash Nos Résines CBD Sélection premium Voir tout → Toutes nos résines CBD Hash Lab Signature Séléction Exckusive Pollen",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.cbdb2b.com/": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "CBDB2B | Catalogue B2B de fleurs et résines CBD",
-          "url": "https://www.cbdb2b.com/",
-          "snippet": "Consultez le catalogue professionnel de fleurs et résines CBD. Les prix, quantités et conditions sont affichés selon les références après validation du compte.",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 55,
-          "signals": [
-            "distribution-ou-vente-professionnelle",
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "CBDB2B | Catalogue B2B de fleurs et résines CBD Vérification d'âge Ce site s'adresse exclusivement aux professionnels majeurs. Vous devez avoir 18 ans ou plus pour y accéder. J'ai 18 ans ou plus Quitter le site Aller au contenu Informations de lot sur demande Livraison en France ",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "chamancbd.com/grossistes-cultivateurs": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "Grossistes & Cultivateurs - Chaman CBD",
-          "url": "https://chamancbd.com/grossistes-cultivateurs/",
-          "snippet": "Grossistes & Cultivateurs Vente et achat de chanvre en gros dans toute l'Europe. Cannabis légal riche en CBD à vendre et à acheter par kilos, centaines de grammes, en vrac ou déjà emballé Distribution de fleurs de CBD avec suivis et analyses fiables Vente aux buralistes, bars tabac, magasins de presse, épiceries, et boutiques […]",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 35,
-          "signals": [
-            "distribution-ou-vente-professionnelle"
-          ],
-          "evidence": "Grossistes Cultivateurs - Chaman CBD .br_ce_image_currency{cursor:pointer;display:inline-block}.br_ce_image_currency input{display:none}.br_ce_image_currency img{padding:10%}.br_ce_image_currency input:checked+img{background-color:rgba(0,0,125,.5)}.br_mm_single_product_limitation",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      },
-      "www.europages.fr/entreprises/france/cannabis.html": {
-        "examinedAt": "2026-10-28T10:50:00.404Z",
-        "assessment": {
-          "title": "Cannabis France | Entreprises et fournisseurs B2B | europages",
-          "url": "https://www.europages.fr/entreprises/france/cannabis.html",
-          "snippet": "67 Entreprises et fournisseurs pour cannabis Trouvez des grossistes et contactez-les directement Plateforme B2B leader Trouvez des entreprises dès maintenant !",
-          "verification": "page-read",
-          "qualification": "investigate",
-          "fitScore": 20,
-          "signals": [
-            "canal-partenariat-ou-contact"
-          ],
-          "evidence": "Cannabis France | Entreprises et fournisseurs B2B | europages Vos dernières recherches Editer Effacer tout Terminé Obtenez des devis Demandes de devis Devenez fournisseur Connexion Entreprises - Fournisseurs - Services cannabis Filtres Pays du fournisseur Allemagne (75) France (6",
-          "nextAction": "Examiner manuellement la pertinence du partenariat",
-          "contacted": false
-        }
-      }
-    }
-  },
-  "lastCommunityRadar": {
-    "at": "2026-11-02T00:53:02.421Z",
-    "seedId": "benoit-client-acquisition",
-    "status": "discovered",
-    "count": 20,
-    "total": 36,
-    "statuses": [
-      "sources-found",
-      "sources-found"
-    ],
-    "contacted": 0
-  },
-  "lastImageStudio": {
-    "at": "2026-11-02T00:53:02.421Z",
-    "seedId": "benoit-client-acquisition",
-    "status": "awaiting-authorization"
-  },
-  "lastBusinessResearchBlocker": {
-    "at": "2026-11-02T00:53:08.322Z",
-    "seedId": "benoit-client-acquisition",
-    "operationId": "gerard-cultivate-1793580768963",
-    "status": "deferred",
-    "reason": "b2b-no-new-evidence",
-    "publisherStatus": "sources-found",
-    "candidates": 10
+    "at": "2026-11-02T01:05:09.386Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
