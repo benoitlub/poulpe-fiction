@@ -121,3 +121,28 @@ test("an empty selection never retries without exclusions or routes a publicatio
   assert.equal(result.candidate.status, "empty");
 });
 
+
+test("nonconsecutive repetition in the last twelve decisions also requests variety", t => {
+  assertSeeds(runSelection(t, {
+    "gerard-decision-history.json": ["terra", "a", "terra", "b", "terra"].map(seedId => ({seedId})),
+  }), ["terra"]);
+});
+
+test("old repetition outside the observation window does not ban a subject", t => {
+  assertSeeds(runSelection(t, {
+    "gerard-decision-history.json": [...Array.from({length:3},()=>({seedId:"terra"})), ...Array.from({length:12},(_,i)=>({seedId:"fresh-"+i}))],
+  }), []);
+});
+
+test("repeated subjects and the prior explore decision retain all known harvest IDs", t => {
+  const result = runSelection(t, {
+    "gerard-decision-history.json": ["terra", "a", "terra", "b", "terra"].map(seedId=>({seedId})),
+    "gerard-learning.json": {guidance:{chosenExperiment:"explore",seedId:"feuch-dice"}},
+    "harvests.json": {harvests:[{seedId:"terra",harvestId:"terra-1"},{seedId:"feuch-dice",harvestId:"feuch-1"}]},
+  });
+  assertSeeds(result, ["terra","feuch-dice"]);
+  for(const url of result.selections) {
+    const ids=url.searchParams.get("excludeHarvestIds").split(",");
+    assert.ok(ids.includes("terra-1")); assert.ok(ids.includes("feuch-1"));
+  }
+});
