@@ -1,5 +1,5 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { runParcelStudio } from './gerard-av-studio.mjs';
+import { runParcelStudio, studioImagePrompt } from './gerard-av-studio.mjs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createHash } from 'node:crypto';
@@ -15,13 +15,14 @@ export function imageStudioConfig(seed, template) {
  return { ...template.defaults, ...config, parcelId:seed.parcelId, seedId:seed.seedId, provider:'mistral' };
 }
 export function imageStudioPrompt(config) {
- return [config.subject, config.style ? 'Style: '+config.style : '', 'Aspect ratio: '+config.aspectRatio, 'No readable text or logos unless explicitly provided.'].filter(Boolean).join('. ');
+ return studioImagePrompt(config);
 }
 export async function runImageStudio(seed,{ request, download, outputDir, templateUrl=TEMPLATE, submit, operationId, publisherUrl, verifyFile }={}) {
  if(submit)return runParcelStudio(seed,{kind:'image',submit,operationId,outputDir,publisherUrl,download,verifyFile});
  const template=JSON.parse(await readFile(templateUrl,'utf8'));
  const config=imageStudioConfig(seed,template);
  if (!config) return {status:'disabled'};
+ if (config.allowMistralImage !== true) return {status:'blocked',reason:'mistral-image-authorization-required',published:false};
  if (!request || !download || !outputDir) throw new Error('image-studio-adapters-required');
  const prompt=imageStudioPrompt(config);
  const response=await request(prompt);
