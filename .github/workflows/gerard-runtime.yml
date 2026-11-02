@@ -443,6 +443,15 @@ jobs:
               guardrails,
               provenance
             }' /tmp/gerard-social-next.json > garden/next-social-publication.json
+            # Attach advisory creative mix to new packages only; never modify previously queued posts.
+            if [ -f garden/gerard-learning.json ]; then
+              jq --slurpfile learning garden/gerard-learning.json '
+                . + {editorialExperiment: ($learning[0].guidance.editorialExperiment // {
+                  status:"advisory", suggestedCategory:null, note:"No measured creative history yet"
+                })}
+              ' garden/next-social-publication.json > /tmp/gerard-editorial-advisory.json
+              mv /tmp/gerard-editorial-advisory.json garden/next-social-publication.json
+            fi
             # Observe repeats rather than block them: learn from analytics later.
             if [ -f garden/metricool-published-snapshot.json ]; then
               jq --slurpfile published garden/metricool-published-snapshot.json '
