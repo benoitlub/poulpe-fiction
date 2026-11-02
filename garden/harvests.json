@@ -915,13 +915,13 @@
       "privateContent": true
     },
     {
-      "harvestId": "gerard-cultivate-1793600394773-harvest",
-      "harvestedAt": "2026-11-02T06:20:30.592Z",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "capability": "content.generate",
       "route": "octopus->publisher-adapter",
       "state": "ready-to-offer",
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection",
+      "harvestId": "gerard-cultivate-1793600394773-harvest",
+      "capability": "content.generate",
+      "harvestedAt": "2026-11-02T06:20:30.592Z",
       "privateContent": true
     }
   ]
