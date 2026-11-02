@@ -134,6 +134,12 @@ jobs:
           corepack enable
           pnpm install --no-frozen-lockfile
 
+      - name: Restore private runtime snapshots from the existing database
+        working-directory: poulpe-fiction
+        env:
+          GERARD_PUBLISHER_DB_PACKAGE: ${{ github.workspace }}/publisher/lib/db/package.json
+        run: node scripts/gerard-private-runtime.mjs hydrate
+
       # Do NOT run the DB push here: it can propose destructive schema changes
       # against the shared production database and requires an interactive TTY.
       # The deployed Worker ensures the existing schema without destroying data.
@@ -1094,17 +1100,25 @@ jobs:
           if (result.verification && result.verification.processed < 1) throw new Error('No tentacle was processed.');
           NODE
 
+      - name: Persist private snapshots before publishing metadata
+        working-directory: poulpe-fiction
+        env:
+          GERARD_PUBLISHER_DB_PACKAGE: ${{ github.workspace }}/publisher/lib/db/package.json
+        run: node scripts/gerard-private-runtime.mjs persist
+
       - name: Commit updated Gerard state
         working-directory: poulpe-fiction
         run: |
           set -euo pipefail
+          PUBLIC_STATE_FILES=()
+          mapfile -d '' PUBLIC_STATE_FILES < <(find garden -maxdepth 1 -type f -name '*.json' ! -name 'restart-seeds.json' ! -name 'publication-experiment-30d.json' ! -name 'gerard-owner-feedback.json' ! -name 'verified-external-publications.json' -print0)
           STUDIO_FILES=()
           if [ -d garden/studio ]; then mapfile -d '' STUDIO_FILES < <(find garden/studio -type f -print0); fi
-          if [ -n "$(git status --porcelain garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json garden/studio)" ]; then
+          if [ -n "$(git status --porcelain garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json garden/studio "${PUBLIC_STATE_FILES[@]}")" ]; then
             git config user.name "gerard-runtime[bot]"
             git config user.email "gerard-runtime@users.noreply.github.com"
             # Stage only existing optional files, plus tracked deletions.
-            for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
+            for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}" "${PUBLIC_STATE_FILES[@]}"; do
               if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
                 git add -A -- "$file"
               fi
@@ -1123,7 +1137,7 @@ jobs:
                 fi
               else
                 echo "Generated state conflicts with upstream; resolving snapshot files only."
-                for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}"; do
+                for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}" "${PUBLIC_STATE_FILES[@]}"; do
                   if git ls-files -u -- "$file" | grep -q .; then
                     if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
                       git show REBASE_HEAD:"$file" > "$file"
