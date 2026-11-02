@@ -9,6 +9,8 @@ on:
     paths:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
+      - "scripts/gerard-learning-cycle.mjs"
+      - "tests/gerard-learning-cycle.test.mjs"
       - "scripts/gerard-community-radar.mjs"
       - "scripts/gerard-image-studio.mjs"
       - "templates/image-studio.v1.json"

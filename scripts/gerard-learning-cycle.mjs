@@ -6,6 +6,15 @@ import { integrateOwnerFeedback } from './gerard-owner-feedback.mjs';
 
 const accepted = new Set(['queued', 'published', 'sent']);
 const rejected = new Set(['failed', 'error', 'rejected']);
+export function deliveryOutcome(delivery = {}) {
+  const status = delivery.status ?? 'not-attempted';
+  if (accepted.has(status)) return 'transport-accepted';
+  const postId = delivery.postId ?? delivery.providerPostId;
+  if (status === 'confirmed-published' && typeof postId === 'string' && postId.trim() &&
+      ['sent', 'published'].includes(delivery.providerStatus)) return 'transport-accepted';
+  if (status === 'blocked') return 'transport-blocked';
+  return rejected.has(status) ? 'transport-failed' : 'not-verified';
+}
 const clean = value => typeof value === 'string' && value.trim() ? value.trim() : null;
 
 export function integrateLearningCycle(previous, decision, publication, analytics, publisher, now = new Date().toISOString()) {
@@ -17,14 +26,15 @@ export function integrateLearningCycle(previous, decision, publication, analytic
   const status = delivery.status ?? 'not-attempted';
   const identity = clean(d.harvestId) ?? clean(d.seedId) ?? null;
   const experiment = clean(d.deliberation?.chosen?.id) ?? 'new-angle';
-  const outcome = accepted.has(status) ? 'transport-accepted' : rejected.has(status) ? 'transport-failed' : 'not-verified';
+  const outcome = deliveryOutcome(delivery);
   const observation = {
     kind: 'gerard-experiment-cycle', observedAt: now, seedId: d.seedId ?? null,
     harvestId: d.harvestId ?? null, copyText: d.copyText ?? null,
     repeatCount: d.previousSelectionsOfSameCopy ?? 0,
     chosenExperiment: experiment, experimentHypothesis: d.deliberation?.chosen?.hypothesis ?? null,
     delivery, outcome, metricsStatus: a.status ?? 'unavailable',
-    lesson: outcome === 'transport-failed' ? 'Transport failed: inspect the connection before retrying.'
+    lesson: outcome === 'transport-blocked' ? 'Transport was blocked before delivery: restore access; audience outcome remains unknown.'
+      : outcome === 'transport-failed' ? 'Transport failed: inspect the connection before retrying.'
       : outcome === 'transport-accepted' ? 'Transport accepted, audience outcome remains unverified until provider metrics are linked.'
       : 'No confirmed delivery: avoid claims of publication or audience response.',
   };
@@ -47,7 +57,7 @@ export function integrateLearningCycle(previous, decision, publication, analytic
   const guidance = {
     ...(old.guidance ?? {}), seedId: d.seedId ?? old.guidance?.seedId ?? null,
     chosenExperiment: experiment,
-    nextExperiment: outcome === 'transport-failed' ? 'Diagnose failed transport before another attempt.'
+    nextExperiment: ['transport-failed', 'transport-blocked'].includes(outcome) ? 'Diagnose failed transport before another attempt.'
       : (d.previousSelectionsOfSameCopy ?? 0) > 0 ? 'Test a distinct creative angle; keep earlier posts unchanged.'
       : 'Explore an angle, observe actual delivery and await comparable verified analytics.',
     performanceRankingEnabled: false,

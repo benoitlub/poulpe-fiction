@@ -34,3 +34,26 @@ test('only harvest-attributed, verified provider evidence completes an experimen
   assert.equal(linked.learning.completedExperiments[0].assessment, 'verified-provider-observation');
   assert.equal(linked.learning.guidance.performanceRankingEnabled, false);
 });
+
+test('a verified sent receipt creates a pending experiment, not an audience success', () => {
+  const delivery = {status:'confirmed-published',postId:'provider-post-1',providerStatus:'sent'};
+  const result=integrateLearningCycle({},decision,{delivery},{},{},'2026-11-02T12:00:00Z');
+  assert.equal(result.observations.at(-1).outcome,'transport-accepted');
+  assert.equal(result.pendingExperiments.length,1);
+  assert.equal(result.pendingExperiments[0].assessment,'awaiting-verified-attributed-metrics');
+  assert.equal(result.guidance.performanceRankingEnabled,false);
+});
+test('a publication label alone is not a verified provider receipt', () => {
+  for(const delivery of [{status:'confirmed-published'},{status:'confirmed-published',postId:'provider-post-1',providerStatus:'draft'}]) {
+    const result=integrateLearningCycle({},decision,{delivery},{},{},'2026-11-02T12:00:00Z');
+    assert.equal(result.observations.at(-1).outcome,'not-verified');
+    assert.equal(result.pendingExperiments.length,0);
+  }
+});
+test('an authorization block is recorded as a block, never as a poor audience result', () => {
+  const result=integrateLearningCycle({},decision,{delivery:{status:'blocked',reason:'TOKEN_MISSING'}},{},{},'2026-11-02T12:00:00Z');
+  assert.equal(result.observations.at(-1).outcome,'transport-blocked');
+  assert.match(result.guidance.nextExperiment,/Diagnose/);
+  assert.equal(result.pendingExperiments.length,0);
+  assert.equal(result.guidance.performanceRankingEnabled,false);
+});
