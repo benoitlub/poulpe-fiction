@@ -531,6 +531,20 @@ async function main() {
     result = await callOctopus({ operationId, parcelId: "poulpe-fiction", title: intent.title, objective: intent.objective, requiredCapabilities: intent.requiredCapabilities, context: { id: "poulpe-fiction", label: "Poulpe Fiction", objective: intent.objective, metadata: { source: "gerard-cycle", mode } } });
   }
 
+  // Keep the newest verified studio artifact for the next social-package run.
+  // It is not published here; the metricool handoff checks seed, source and owner holds.
+  if (result?.decision === "studio-files-ready-for-review" && result.studio?.report?.artifact?.sha256) {
+    state.latestStudioArtifact = {
+      seedId: result.seedId,
+      parcelId: result.parcelId,
+      operationId: result.studio.operationId,
+      sha256: result.studio.report.artifact.sha256,
+      bytes: result.studio.report.artifact.bytes,
+      producedAt: nowIso(),
+      producedRunId: process.env.GITHUB_RUN_ID || null,
+    };
+  }
+
   // Retain a bounded learning trail: attempts, outcomes and causes, not just successes.
   // No additional model call and no extra Metricool publication are needed.
   const learningEntry = {
