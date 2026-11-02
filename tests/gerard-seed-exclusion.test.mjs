@@ -63,57 +63,86 @@ process.stdout.write(status);
 function assertSeeds(result, expected) {
   assert.equal(result.selections.length, 2, "must exercise the first call and a Buffer alternative");
   for (const url of result.selections) {
-    assert.deepEqual(new Set(url.searchParams.get("excludeSeedIds").split(",")), new Set(expected));
+    const excluded = url.searchParams.get("excludeSeedIds");
+    assert.ok(!excluded.startsWith(",") && !excluded.endsWith(","), "exclusions have no empty edge entries");
+    assert.deepEqual(new Set(excluded.split(",").filter(Boolean)), new Set(expected));
   }
   assert.ok(result.selections[1].searchParams.get("excludeHarvestIds").split(",").includes("book-1"));
   assert.equal(result.candidate.harvestId, "creative-1");
 }
 
-test("rested 420 seed survives alternative selection without any local harvest file", t => {
-  assertSeeds(runSelection(t), ["420-dice"]);
+test("all seeds including 420 remain eligible without repetition evidence", t => {
+  assertSeeds(runSelection(t), []);
 });
 
-test("all locally known 420 harvests and the historic fallback are retained", t => {
-  const result = runSelection(t, { "harvests.json": [
+test("a temporarily repeated 420 seed excludes known harvests without inventing historic IDs", t => {
+  const result = runSelection(t, { "gerard-decision-history.json": Array.from({ length: 3 }, () => ({ seedId: "420-dice" })), "harvests.json": [
     { seedId: "420-dice", harvestId: "420-new" },
     { seedId: "420-dice", id: "420-old" },
     { seedId: "other", id: "other-id" },
   ] });
   assertSeeds(result, ["420-dice"]);
   const ids = result.selections[0].searchParams.get("excludeHarvestIds").split(",");
-  for (const id of ["420-new", "420-old", "harvest_local_harvest_420-dice_1786215725387"]) assert.ok(ids.includes(id));
+  for (const id of ["420-new", "420-old"]) assert.ok(ids.includes(id));
+  assert.ok(!ids.includes("harvest_local_harvest_420-dice_1786215725387"));
   assert.ok(!ids.includes("other-id"));
 });
 
 test("three repeated selections exclude the seed even without a local inventory", t => {
   assertSeeds(runSelection(t, {
     "gerard-decision-history.json": Array.from({ length: 3 }, () => ({ seedId: "feuch-dice" })),
-  }), ["420-dice", "feuch-dice"]);
+  }), ["feuch-dice"]);
 });
 
 test("Gerard's explore decision excludes the previous seed and preserves URL encoding", t => {
   assertSeeds(runSelection(t, {
     "gerard-learning.json": { guidance: { chosenExperiment: "explore", seedId: "seed & test" } },
-  }), ["420-dice", "seed & test"]);
+  }), ["seed & test"]);
 });
 
 test("repeat and explore decisions combine independently", t => {
   assertSeeds(runSelection(t, {
     "gerard-decision-history.json": Array.from({ length: 3 }, () => ({ seedId: "feuch-dice" })),
     "gerard-learning.json": { guidance: { chosenExperiment: "explore", seedId: "terra" } },
-  }), ["420-dice", "feuch-dice", "terra"]);
+  }), ["feuch-dice", "terra"]);
 });
 
 test("a different experiment and mixed history do not exclude extra seeds", t => {
   assertSeeds(runSelection(t, {
     "gerard-decision-history.json": [{ seedId: "a" }, { seedId: "b" }, { seedId: "a" }],
     "gerard-learning.json": { guidance: { chosenExperiment: "refine", seedId: "terra" } },
-  }), ["420-dice"]);
+  }), []);
 });
 
 test("an empty selection never retries without exclusions or routes a publication", t => {
   const result = runSelection(t, {}, true);
   assert.equal(result.calls.length, 1);
-  assert.equal(result.selections[0].searchParams.get("excludeSeedIds"), "420-dice");
+  assert.equal(result.selections[0].searchParams.get("excludeSeedIds"), "");
   assert.equal(result.candidate.status, "empty");
+});
+
+
+test("nonconsecutive repetition in the last twelve decisions also requests variety", t => {
+  assertSeeds(runSelection(t, {
+    "gerard-decision-history.json": ["terra", "a", "terra", "b", "terra"].map(seedId => ({seedId})),
+  }), ["terra"]);
+});
+
+test("old repetition outside the observation window does not ban a subject", t => {
+  assertSeeds(runSelection(t, {
+    "gerard-decision-history.json": [...Array.from({length:3},()=>({seedId:"terra"})), ...Array.from({length:12},(_,i)=>({seedId:"fresh-"+i}))],
+  }), []);
+});
+
+test("repeated subjects and the prior explore decision retain all known harvest IDs", t => {
+  const result = runSelection(t, {
+    "gerard-decision-history.json": ["terra", "a", "terra", "b", "terra"].map(seedId=>({seedId})),
+    "gerard-learning.json": {guidance:{chosenExperiment:"explore",seedId:"feuch-dice"}},
+    "harvests.json": {harvests:[{seedId:"terra",harvestId:"terra-1"},{seedId:"feuch-dice",harvestId:"feuch-1"}]},
+  });
+  assertSeeds(result, ["terra","feuch-dice"]);
+  for(const url of result.selections) {
+    const ids=url.searchParams.get("excludeHarvestIds").split(",");
+    assert.ok(ids.includes("terra-1")); assert.ok(ids.includes("feuch-1"));
+  }
 });
