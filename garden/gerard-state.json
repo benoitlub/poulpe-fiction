@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-02T19:34:18.134Z",
-  "lastSeedId": "yael-prospection",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-02T22:57:47.737Z",
+  "lastSeedId": "benoit-client-acquisition",
   "history": [
-    {
-      "at": "2026-10-29T18:32:51.756Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793298746286"
-    },
     {
       "at": "2026-10-30T01:07:33.539Z",
       "mode": "symbiosis",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-02T19:34:18.134Z",
       "mode": "symbiosis",
-      "operationId": "gerard-symbiosis-1793648057543",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1793648057543"
+    },
+    {
+      "at": "2026-11-02T22:57:47.737Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1793660250546",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-27T22:22:13.113Z",
-      "mode": "cultivate",
-      "seedId": "yael-prospection",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "parcelId": "project-yael-prospection",
-      "operationId": "gerard-cultivate-1793139712660"
-    },
     {
       "at": "2026-10-28T05:52:20.556Z",
       "mode": "symbiosis",
@@ -500,14 +491,94 @@
     },
     {
       "at": "2026-11-02T19:34:18.134Z",
-      "operationId": "gerard-symbiosis-1793648057543",
       "mode": "symbiosis",
-      "outcome": "ok"
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1793648057543"
+    },
+    {
+      "at": "2026-11-02T22:57:47.737Z",
+      "operationId": "gerard-cultivate-1793660250546",
+      "mode": "cultivate",
+      "outcome": "ok",
+      "decision": "harvest-ready-to-offer",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth"
     }
   ],
   "lastResult": {
-    "at": "2026-11-02T19:34:18.133Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "ok",
+    "harvestMode": "garden-prepare-bag",
+    "operationId": "gerard-cultivate-1793660250546",
+    "seedId": "benoit-client-acquisition",
+    "parcelId": "benoit-business-growth",
+    "phase": "knowledge",
+    "knowledge": {
+      "status": "completed",
+      "verified": true,
+      "slug": "benoit-lubert-professional",
+      "source": "notion"
+    },
+    "delivery": {
+      "mode": "propose-before-send"
+    },
+    "decision": "harvest-ready-to-offer",
+    "octopus": {
+      "status": "ok",
+      "httpStatus": 200,
+      "payload": {
+        "operationId": "gerard-cultivate-1793660250546-knowledge",
+        "status": "completed",
+        "output": {
+          "capability": "knowledge.search",
+          "slug": "benoit-lubert-professional",
+          "source": "notion",
+          "verified": true,
+          "itemCount": 2,
+          "diagnostics": {
+            "connected": true,
+            "totalItems": 3,
+            "matchedItems": 2,
+            "discoveredItems": 2,
+            "digestedItems": 2
+          }
+        },
+        "missionId": "gerard-cultivate-1793660250546-knowledge",
+        "contextId": "benoit-business-growth",
+        "adapterId": "publisher",
+        "lifecycle": {
+          "missionId": "gerard-cultivate-1793660250546-knowledge",
+          "state": "completed",
+          "createdAt": "2026-11-02T22:57:44.672Z",
+          "updatedAt": "2026-11-02T22:57:47.727Z"
+        }
+      }
+    },
+    "harvest": {
+      "status": "ok",
+      "payload": {
+        "output": {
+          "capability": "business.sources.search",
+          "producer": "composio-web-search"
+        }
+      },
+      "verification": {
+        "completed": true,
+        "verifiedContacts": 0,
+        "contacted": false
+      }
+    },
+    "persistedHarvest": {
+      "harvestId": "gerard-cultivate-1793660250546-harvest",
+      "harvestedAt": "2026-11-02T22:57:47.733Z",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "capability": "business.sources.search",
+      "producer": "composio-web-search",
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "mode": "propose-before-send"
+      },
+      "state": "ready-to-offer"
+    }
   }
 }
