@@ -366,6 +366,10 @@ jobs:
           fi
           # All seeds, including 420 Dice, are eligible again; normal repetition
           # checks and provider reservation fingerprints still apply.
+          # Keep the same exclusions on the initial and alternative requests,
+          # without empty entries or duplicates from combined observations.
+          EXCLUDED_SEED_IDS="$(printf '%s' "$EXCLUDED_SEED_IDS" | jq -sRr 'split(",") | map(select(length > 0)) | unique | join(",")')"
+          EXCLUDED_IDS="$(printf '%s' "$EXCLUDED_IDS" | jq -sRr 'split(",") | map(select(length > 0)) | unique | join(",")')"
           # If the top candidate is a book held for Buffer, inspect alternatives
           # instead of letting that single item monopolize every scheduled cycle.
           # Never force books through Metricool or bypass account routing.
@@ -1254,3 +1258,4 @@ jobs:
           print(report)
           PY
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file /tmp/gerard-probes.md
+
