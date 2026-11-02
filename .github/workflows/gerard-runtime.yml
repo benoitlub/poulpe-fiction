@@ -10,6 +10,8 @@ on:
       - "garden/restart-seeds.json"
       - "scripts/gerard-cycle.mjs"
       - "scripts/gerard-learning-cycle.mjs"
+      - "scripts/gerard-editorial-mix.mjs"
+      - "tests/gerard-editorial-mix.test.mjs"
       - "tests/gerard-learning-cycle.test.mjs"
       - "scripts/gerard-community-radar.mjs"
       - "scripts/gerard-image-studio.mjs"
@@ -229,6 +231,10 @@ jobs:
           set -euo pipefail
           curl --fail --silent --show-error "$PUBLISHER_URL/api/tentacles/iterations?limit=200" > /tmp/gerard-iterations.json
           node scripts/gerard-publication-coverage.mjs /tmp/gerard-iterations.json
+
+      - name: Verify non-blocking editorial experiment
+        working-directory: poulpe-fiction
+        run: node --test tests/gerard-editorial-mix.test.mjs
 
       - name: Verify Gerard compost safeguards
         working-directory: poulpe-fiction
