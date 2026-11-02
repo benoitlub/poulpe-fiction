@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches:
+      - main
       - refactor/adopt-garden
 
 jobs:
@@ -28,3 +29,4 @@ jobs:
 
       - name: Test
         run: npm test
+
