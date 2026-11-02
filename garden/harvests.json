@@ -925,13 +925,13 @@
       "privateContent": true
     },
     {
-      "harvestId": "gerard-cultivate-1793660250546-harvest",
-      "harvestedAt": "2026-11-02T22:57:47.733Z",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "capability": "business.sources.search",
       "route": "octopus->publisher-adapter",
       "state": "ready-to-offer",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "harvestId": "gerard-cultivate-1793660250546-harvest",
+      "capability": "business.sources.search",
+      "harvestedAt": "2026-11-02T22:57:47.733Z",
       "privateContent": true
     }
   ]

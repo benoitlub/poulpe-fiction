@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-02T22:57:47.737Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-02T22:59:26.814Z",
   "lastSeedId": "benoit-client-acquisition",
   "history": [
-    {
-      "at": "2026-10-30T01:07:33.539Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793322453159"
-    },
     {
       "at": "2026-10-30T10:10:29.969Z",
       "mode": "cultivate",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-02T22:57:47.737Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1793660250546",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1793660250546"
+    },
+    {
+      "at": "2026-11-02T22:59:26.814Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1793660366141",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-28T05:52:20.556Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793166740166"
-    },
     {
       "at": "2026-10-28T10:50:13.214Z",
       "mode": "cultivate",
@@ -497,88 +491,23 @@
     },
     {
       "at": "2026-11-02T22:57:47.737Z",
-      "operationId": "gerard-cultivate-1793660250546",
       "mode": "cultivate",
+      "seedId": "benoit-client-acquisition",
       "outcome": "ok",
       "decision": "harvest-ready-to-offer",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth"
+      "parcelId": "benoit-business-growth",
+      "operationId": "gerard-cultivate-1793660250546"
+    },
+    {
+      "at": "2026-11-02T22:59:26.814Z",
+      "operationId": "gerard-symbiosis-1793660366141",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1793660250546",
-    "seedId": "benoit-client-acquisition",
-    "parcelId": "benoit-business-growth",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "benoit-lubert-professional",
-      "source": "notion"
-    },
-    "delivery": {
-      "mode": "propose-before-send"
-    },
-    "decision": "harvest-ready-to-offer",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1793660250546-knowledge",
-        "status": "completed",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "benoit-lubert-professional",
-          "source": "notion",
-          "verified": true,
-          "itemCount": 2,
-          "diagnostics": {
-            "connected": true,
-            "totalItems": 3,
-            "matchedItems": 2,
-            "discoveredItems": 2,
-            "digestedItems": 2
-          }
-        },
-        "missionId": "gerard-cultivate-1793660250546-knowledge",
-        "contextId": "benoit-business-growth",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1793660250546-knowledge",
-          "state": "completed",
-          "createdAt": "2026-11-02T22:57:44.672Z",
-          "updatedAt": "2026-11-02T22:57:47.727Z"
-        }
-      }
-    },
-    "harvest": {
-      "status": "ok",
-      "payload": {
-        "output": {
-          "capability": "business.sources.search",
-          "producer": "composio-web-search"
-        }
-      },
-      "verification": {
-        "completed": true,
-        "verifiedContacts": 0,
-        "contacted": false
-      }
-    },
-    "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1793660250546-harvest",
-      "harvestedAt": "2026-11-02T22:57:47.733Z",
-      "seedId": "benoit-client-acquisition",
-      "parcelId": "benoit-business-growth",
-      "capability": "business.sources.search",
-      "producer": "composio-web-search",
-      "route": "octopus->publisher-adapter",
-      "delivery": {
-        "mode": "propose-before-send"
-      },
-      "state": "ready-to-offer"
-    }
+    "at": "2026-11-02T22:59:26.813Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
