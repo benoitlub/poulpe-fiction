@@ -127,14 +127,14 @@ jobs:
       - name: Install and build Octopus Engine
         working-directory: octopus
         run: |
-          npm install --legacy-peer-deps
+          npm ci --legacy-peer-deps
           npm run build
 
       - name: Install Publisher
         working-directory: publisher
         run: |
           corepack enable
-          pnpm install --no-frozen-lockfile
+          pnpm install --frozen-lockfile
 
       - name: Restore private runtime snapshots from the existing database
         working-directory: poulpe-fiction
