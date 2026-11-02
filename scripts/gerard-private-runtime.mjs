@@ -10,7 +10,7 @@ const schema = "gerard-private-runtime-v1";
 const safeName = name => /^[a-z0-9][a-z0-9-]*\.json$/.test(name);
 // Reviewed source configuration remains versioned and is never restored over edits.
 const sourceConfiguration = new Set(["restart-seeds.json", "publication-experiment-30d.json", "gerard-owner-feedback.json", "verified-external-publications.json"]);
-const metadataKeys = new Set(["id", "seedId", "parcelId", "harvestId", "operationId", "at", "harvestedAt", "updatedAt", "preparedAt", "lastRunAt", "lastMode", "lastSeedId", "mode", "result", "status", "state", "capability", "route", "count", "completed", "simulated", "isMock", "mock"]);
+const metadataKeys = new Set(["id", "seedId", "parcelId", "harvestId", "operationId", "at", "harvestedAt", "updatedAt", "preparedAt", "lastRunAt", "lastMode", "lastSeedId", "mode", "result", "outcome", "decision", "provenance", "status", "state", "capability", "route", "count", "completed", "simulated", "isMock", "mock"]);
 function metadata(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   return Object.fromEntries(Object.entries(value).filter(([k, v]) => metadataKeys.has(k) &&
@@ -20,6 +20,7 @@ export function publicProjection(name, value) {
   const base = { publicProjection: true, status: "private", storage: "postgresql", schema };
   if (name === "gerard-state.json") return { ...base, ...metadata(value),
     history: (Array.isArray(value.history) ? value.history : []).map(metadata),
+    learningHistory: (Array.isArray(value.learningHistory) ? value.learningHistory : []).map(metadata),
     lastResult: summarizeCycleResult(value.lastResult) };
   if (name === "restart-seeds.json") return { ...base, seeds: (value.seeds ?? []).map(metadata) };
   if (name === "harvests.json") return { ...base, harvests: (value.harvests ?? []).map(h => ({ ...metadata(h), privateContent: true })) };
