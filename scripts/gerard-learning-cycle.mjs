@@ -3,6 +3,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { integrateOwnerFeedback } from './gerard-owner-feedback.mjs';
+import { editorialMix, suggestEditorialCategory } from './gerard-editorial-mix.mjs';
 
 const accepted = new Set(['queued', 'published', 'sent']);
 const rejected = new Set(['failed', 'error', 'rejected']);
@@ -54,6 +55,11 @@ export function integrateLearningCycle(previous, decision, publication, analytic
       assessment: 'awaiting-verified-attributed-metrics',
     }].slice(-30);
   }
+  // Advisory creative mix: only explicit original creative classifications count.
+  // Historical unattributed posts are not silently relabeled as promotional.
+  const creativeAssets = Array.isArray(old.editorialAssets) ? old.editorialAssets : [];
+  const mix = editorialMix(creativeAssets);
+  const suggestedCategory = suggestEditorialCategory(creativeAssets);
   const guidance = {
     ...(old.guidance ?? {}), seedId: d.seedId ?? old.guidance?.seedId ?? null,
     chosenExperiment: experiment,
@@ -61,6 +67,8 @@ export function integrateLearningCycle(previous, decision, publication, analytic
       : (d.previousSelectionsOfSameCopy ?? 0) > 0 ? 'Test a distinct creative angle; keep earlier posts unchanged.'
       : 'Explore an angle, observe actual delivery and await comparable verified analytics.',
     performanceRankingEnabled: false,
+    editorialExperiment: { cycleDays: 30, mix, suggestedCategory, status: 'advisory',
+      note: 'Do not edit scheduled posts. Category selection is optional and never gates publishing.' },
   };
   return {
     ...old, updatedAt: now,
