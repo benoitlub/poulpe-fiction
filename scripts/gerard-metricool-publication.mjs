@@ -2,6 +2,38 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
+/**
+ * Attach only a committed, prior-run Studio MP4 to the matching Metricool
+ * package. A video with explicit owner no-auto-publish guidance stays in review.
+ */
+export function attachStudioVideo(candidate, studio, learning = {}, { publisherUrl = process.env.PUBLISHER_URL, currentRunId = process.env.GITHUB_RUN_ID } = {}) {
+  if (!candidate || !studio || studio.producedRunId === currentRunId ||
+      studio.seedId !== candidate.seedId || !studio.operationId ||
+      !/^[a-f0-9]{64}$/.test(studio.sha256 ?? "") ||
+      candidate.status !== "ready" || candidate.transport?.provider !== "metricool" ||
+      candidate.editorialRoute?.destination?.preferredProvider !== "metricool" ||
+      candidate.action === "do-not-schedule" || candidate.metricoolHandoff?.scheduled || candidate.metricoolHandoff?.published ||
+      !candidate.harvestId || !Array.isArray(candidate.compatibleNetworks) ||
+      !candidate.compatibleNetworks.length || candidate.compatibleNetworks.some((network) => !["facebook", "instagram"].includes(network))) return candidate;
+  const feedback = [
+    ...(learning?.guidance?.ownerCreativeFeedback ?? []),
+    ...(learning?.ownerFeedback ?? []),
+  ].filter((item) => item?.parcelId === studio.parcelId && item?.assetType === "short-video");
+  const explicitPublicationHold = feedback.some((item) =>
+    (item.prohibitedActions ?? []).some((action) => /automatiqu|automatically/i.test(action) && /publier|publication|publish/i.test(action)));
+  if (explicitPublicationHold) return candidate;
+  let base;
+  try { base = new URL(publisherUrl); } catch { return candidate; }
+  if (base.protocol !== "https:") return candidate;
+  const parcel = encodeURIComponent(studio.parcelId);
+  const id = encodeURIComponent(studio.operationId);
+  const url = new URL("/api/production/studio-media/" + parcel + "/" + id + "/short.mp4", base).toString();
+  return { ...candidate, media: {
+    ...(candidate.media ?? {}), url, direct: true, generated: true,
+    sourceHarvestId: candidate.harvestId,
+    studioArtifact: { parcelId: studio.parcelId, operationId: studio.operationId, sha256: studio.sha256, bytes: studio.bytes },
+  } };
+}
 export function metricoolMission(candidate, { execute = false, now = new Date() } = {}) {
   if (candidate?.status !== "ready" || candidate?.transport?.provider !== "metricool" ||
       candidate?.editorialRoute?.destination?.preferredProvider !== "metricool" ||
@@ -93,7 +125,12 @@ export async function submitBufferPublication(candidate, options = {}) {
 
 async function main() {
   const path = "garden/next-social-publication.json";
-  const candidate = JSON.parse(await readFile(path, "utf8"));
+  let candidate = JSON.parse(await readFile(path, "utf8"));
+  const [state, learning] = await Promise.all([
+    readFile("garden/gerard-state.json", "utf8").then(JSON.parse).catch(() => ({})),
+    readFile("garden/gerard-learning.json", "utf8").then(JSON.parse).catch(() => ({})),
+  ]);
+  candidate = attachStudioVideo(candidate, state.latestStudioArtifact, learning);
   const updated = await submitMetricoolPublication(candidate, {
     execute: process.env.GERARD_METRICOOL_EXECUTION_ENABLED === "true", octopusUrl: process.env.OCTOPUS_URL,
   });
