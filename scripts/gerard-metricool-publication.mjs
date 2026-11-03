@@ -16,7 +16,7 @@ export function metricoolMission(candidate, { execute = false, now = new Date() 
   if (networks.some(n => !allowed.includes(n))) return null;
   // TikTok requires a video asset and the explicit Blacklace destination.
   // A generic image URL or an inferred account is never sufficient.
-  if (networks.includes("tiktok") && (!candidate.media?.url || !/\\.mp4(?:[?#]|$)/i.test(candidate.media.url) ||
+  if (networks.includes("tiktok") && (!candidate.media?.url || !/\.mp4(?:[?#]|$)/i.test(candidate.media.url) ||
       String(candidate.transport?.brandId ?? "") !== "7653100" || networks.length !== 1)) return null;
   if (!harvestId || !networks.length || (!text.trim() && !media.length)) return null;
   const stable = createHash("sha256").update(JSON.stringify([harvestId, text, media, [...networks].sort()])).digest("hex");
