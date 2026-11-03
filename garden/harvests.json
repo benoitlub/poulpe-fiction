@@ -935,13 +935,13 @@
       "privateContent": true
     },
     {
-      "harvestId": "gerard-cultivate-1793674630378-harvest",
-      "harvestedAt": "2026-11-03T02:57:19.257Z",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "capability": "content.generate",
       "route": "octopus->publisher-adapter",
       "state": "harvested",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "harvestId": "gerard-cultivate-1793674630378-harvest",
+      "capability": "content.generate",
+      "harvestedAt": "2026-11-03T02:57:19.257Z",
       "privateContent": true
     }
   ]
