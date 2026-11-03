@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-03T12:55:07.408Z",
-  "lastSeedId": "gerard-restart-2026-10-04",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-03T15:08:47.785Z",
+  "lastSeedId": "yael-prospection",
   "history": [
-    {
-      "at": "2026-11-01T15:42:45.777Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793547754930"
-    },
     {
       "at": "2026-11-01T16:06:35.919Z",
       "mode": "symbiosis",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-03T12:55:07.408Z",
       "mode": "symbiosis",
-      "operationId": "gerard-symbiosis-1793710507061",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1793710507061"
+    },
+    {
+      "at": "2026-11-03T15:08:47.785Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1793718473509",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-28T18:50:09.456Z",
-      "mode": "cultivate",
-      "seedId": "gerard-restart-2026-10-04",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "parcelId": "poulpe-fiction",
-      "operationId": "gerard-cultivate-1793213375163"
-    },
     {
       "at": "2026-10-28T19:02:37.719Z",
       "mode": "symbiosis",
@@ -500,14 +491,113 @@
     },
     {
       "at": "2026-11-03T12:55:07.408Z",
-      "operationId": "gerard-symbiosis-1793710507061",
       "mode": "symbiosis",
-      "outcome": "ok"
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1793710507061"
+    },
+    {
+      "at": "2026-11-03T15:08:47.785Z",
+      "operationId": "gerard-cultivate-1793718473509",
+      "mode": "cultivate",
+      "outcome": "ok",
+      "decision": "harvest-ready-to-offer",
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection"
     }
   ],
   "lastResult": {
-    "at": "2026-11-03T12:55:07.406Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "ok",
+    "harvestMode": "garden-prepare-bag",
+    "operationId": "gerard-cultivate-1793718473509",
+    "seedId": "yael-prospection",
+    "parcelId": "project-yael-prospection",
+    "phase": "knowledge",
+    "knowledge": {
+      "status": "completed",
+      "verified": true,
+      "slug": "yael-prequalification-de-prospects",
+      "source": "notion"
+    },
+    "delivery": {
+      "mode": "propose-before-send"
+    },
+    "decision": "harvest-ready-to-offer",
+    "octopus": {
+      "status": "ok",
+      "httpStatus": 200,
+      "payload": {
+        "operationId": "gerard-cultivate-1793718473509-knowledge",
+        "status": "completed",
+        "output": {
+          "capability": "knowledge.search",
+          "slug": "yael-prequalification-de-prospects",
+          "source": "notion",
+          "verified": true,
+          "itemCount": 1,
+          "diagnostics": {
+            "connected": true,
+            "totalItems": 35,
+            "matchedItems": 1,
+            "discoveredItems": 34,
+            "digestedItems": 1
+          }
+        },
+        "missionId": "gerard-cultivate-1793718473509-knowledge",
+        "contextId": "project-yael-prospection",
+        "adapterId": "publisher",
+        "lifecycle": {
+          "missionId": "gerard-cultivate-1793718473509-knowledge",
+          "state": "completed",
+          "createdAt": "2026-11-03T15:07:53.535Z",
+          "updatedAt": "2026-11-03T15:08:08.055Z"
+        }
+      }
+    },
+    "harvest": {
+      "status": "ok",
+      "httpStatus": 200,
+      "payload": {
+        "operationId": "gerard-cultivate-1793718473509-harvest",
+        "missionId": "gerard-cultivate-1793718473509-harvest",
+        "status": "completed",
+        "contextId": "project-yael-prospection",
+        "tentacleId": "octopus-core",
+        "executorId": "octopus-core",
+        "resourceResult": {
+          "resourceId": "mistral",
+          "status": "success",
+          "output": {}
+        },
+        "output": {},
+        "lifecycle": {
+          "missionId": "gerard-cultivate-1793718473509-harvest",
+          "state": "completed",
+          "createdAt": "2026-11-03T15:08:08.069Z",
+          "updatedAt": "2026-11-03T15:08:47.775Z"
+        }
+      },
+      "verification": {
+        "seedId": "yael-prospection",
+        "parcelId": "project-yael-prospection",
+        "operationId": "gerard-cultivate-1793718473509-harvest",
+        "capability": "content.generate",
+        "completed": true,
+        "simulated": false,
+        "contentLength": 4173,
+        "route": "octopus->publisher-adapter"
+      }
+    },
+    "persistedHarvest": {
+      "harvestId": "gerard-cultivate-1793718473509-harvest",
+      "harvestedAt": "2026-11-03T15:08:47.780Z",
+      "seedId": "yael-prospection",
+      "parcelId": "project-yael-prospection",
+      "capability": "content.generate",
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "mode": "propose-before-send"
+      },
+      "state": "ready-to-offer"
+    }
   }
 }
