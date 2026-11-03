@@ -106,6 +106,19 @@ async function loadSeeds() {
   return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && (seed?.knowledgeSlug || seed.templates?.some(t => ["audio-studio","video-studio"].includes(t.id) && t.enabled !== false))) : [];
 }
 
+async function inspectUnfinishedParcel(parcelId) {
+  // Read-only: this snapshot may be stale and cannot prove a provider's live status.
+  try {
+    const inventory = JSON.parse(await readFile(new URL("../garden/gerard-recovery-inventory.json", import.meta.url), "utf8"));
+    const items = (Array.isArray(inventory.items) ? inventory.items : []).filter(item =>
+      item?.parcelId === parcelId || item?.project?.toLowerCase().replace(/[^a-z0-9]/g, "") === parcelId?.toLowerCase().replace(/[^a-z0-9]/g, ""));
+    return items.map(({id,status,blockers,nextAction,source}) => ({id,status,blockers,nextAction,source}));
+  } catch (error) {
+    console.log(JSON.stringify({event:"gerard.parcel-inventory.unavailable",parcelId,error:String(error).slice(0,120)}));
+    return [];
+  }
+}
+
 function selectSeedForRotation(seeds, state) {
   if (!seeds.length) return null;
   const lastSeedId = state?.lastSeedId ?? null;
@@ -337,6 +350,12 @@ async function main() {
   } else if (mode === "cultivate") {
     const seeds = await loadSeeds();
     const selectedSeed = selectSeedForRotation(seeds, state);
+    if (selectedSeed) {
+      const unfinished = await inspectUnfinishedParcel(selectedSeed.parcelId);
+      console.log(JSON.stringify({event:"gerard.parcel-inventory.checked",parcelId:selectedSeed.parcelId,seedId:selectedSeed.seedId,unfinishedCount:unfinished.length,unfinished}));
+      // Advisory only: rights, stale snapshots and provider status require a separate
+      // verification; never silently republish, delete or block the entire garden.
+    }
     if (!selectedSeed) {
       result = { status: "failed", operationId, decision: "no-active-seed" };
     } else if (selectedSeed.templates?.some(t => ["audio-studio","video-studio"].includes(t.id) && t.enabled !== false)) {

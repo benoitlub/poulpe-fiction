@@ -1,0 +1,54 @@
+{
+  "contract": "gerard-recovery-inventory-v1",
+  "purpose": "Read-only inventory of existing creative assets to review before producing duplicates. This is not an instruction to publish.",
+  "updatedAt": "2026-11-03",
+  "rules": {
+    "preserveExistingScheduledPosts": true,
+    "noAutomaticReschedule": true,
+    "noAutomaticPublish": true,
+    "requireProviderVerificationBeforeScheduling": true,
+    "requireRightsAndMediaReview": true,
+    "avoidExactDuplicates": true,
+    "route": {"books": "buffer", "games": "metricool"}
+  },
+  "items": [
+    {
+      "id": "420-dice-studio-20261026",
+      "project": "420 Dice",
+      "type": "video-short",
+      "source": "garden/studio/420-dice/studio-7b03daf789d1042a62c65adeca0312fca634fc8063790d4fc3459e418a6843cb/report.json",
+      "artifact": "short.mp4 (reported; retrieval not verified)",
+      "evidence": "18-second 1080x1920 video, French voice, music and subtitles; slow image zoom, not full gameplay animation",
+      "status": "review-required",
+      "blockers": ["publicationApproved=false", "rights scope local-preview", "quality review needed"],
+      "preferredProvider": "metricool",
+      "nextAction": "Verify playable file, media quality, rights and explicit publication approval before scheduling."
+    },
+    {
+      "id": "terra-buffer-queued-20261028",
+      "project": "TERRA",
+      "type": "book-social-post",
+      "source": "GitHub Actions run 41399155992; Buffer reservation evidence",
+      "evidence": "A Buffer reservation with status queued and provider post_id was reported for TERRA",
+      "status": "provider-reconciliation-required",
+      "blockers": ["Confirm actual current provider status before any new scheduling"],
+      "preferredProvider": "buffer",
+      "nextAction": "Inspect existing Buffer queue and published history; do not duplicate or alter the reservation."
+    },
+    {
+      "id": "instagram-production-blocked",
+      "project": "Unspecified project",
+      "type": "social-production-route",
+      "source": "production-pack.js",
+      "evidence": "An Instagram publication route is marked blocked and depends on social visual and vertical video",
+      "status": "candidate-not-verified-asset",
+      "blockers": ["No specific ready-to-publish media or text identified"],
+      "preferredProvider": "metricool",
+      "nextAction": "Locate the exact media, copy, rights and relevant account before proposing scheduling."
+    }
+  ],
+  "lastChecked": {
+    "metricool": "2026-11-03: no scheduled posts returned for 2026-11-03 through 2026-11-20 in Pro.hibited and Blacklace accounts",
+    "caveat": "This inventory is a snapshot and does not claim to be an exhaustive live list."
+  }
+}
