@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-03T10:59:30.970Z",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-03T11:29:48.589Z",
   "lastSeedId": "420-dice-short-demo",
   "history": [
-    {
-      "at": "2026-10-31T12:43:56.702Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793450616700"
-    },
     {
       "at": "2026-10-31T19:21:57.084Z",
       "mode": "symbiosis",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-03T10:59:30.970Z",
       "mode": "symbiosis",
-      "operationId": "gerard-symbiosis-1793703570390",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1793703570390"
+    },
+    {
+      "at": "2026-11-03T11:29:48.589Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1793705388416",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-28T12:32:47.264Z",
-      "mode": "cultivate",
-      "seedId": "yael-prospection",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "parcelId": "project-yael-prospection",
-      "operationId": "gerard-cultivate-1793190745722"
-    },
     {
       "at": "2026-10-28T13:07:39.705Z",
       "mode": "symbiosis",
@@ -500,14 +491,26 @@
     },
     {
       "at": "2026-11-03T10:59:30.970Z",
-      "operationId": "gerard-symbiosis-1793703570390",
       "mode": "symbiosis",
-      "outcome": "ok"
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1793703570390"
+    },
+    {
+      "at": "2026-11-03T11:29:48.589Z",
+      "operationId": "gerard-cultivate-1793705388416",
+      "mode": "cultivate",
+      "outcome": "ok",
+      "decision": "studio-files-ready-for-review",
+      "seedId": "420-dice-short-demo",
+      "parcelId": "420-dice"
     }
   ],
   "lastResult": {
-    "at": "2026-11-03T10:59:30.970Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "ok",
+    "operationId": "gerard-cultivate-1793705388416",
+    "seedId": "420-dice-short-demo",
+    "parcelId": "420-dice",
+    "decision": "studio-files-ready-for-review",
+    "published": false
   }
 }
