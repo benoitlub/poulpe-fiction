@@ -1,0 +1,324 @@
+{
+  "contract": "publisher-studio-v1",
+  "id": "b957fc30a9a3eab5cd42a153463c6f67855301598935286610f0b64f8382bdf5",
+  "fingerprint": "f696a0266101b3116e64bf6a552149e307dfc602ed70f4afac22bf707c2e931b",
+  "capability": "video.studio",
+  "parcelId": "420-dice",
+  "seedId": "420-dice-short-demo",
+  "operationId": "studio-5ea38ed0ee79bec01104eb96f208b8e1e70032a356545f98b8264150592139df",
+  "createdAt": "2026-11-03T10:08:52.021Z",
+  "published": false,
+  "publicationEnabled": false,
+  "creativeFeedback": [
+    {
+      "feedbackId": "benoit-420-dice-short-2026-10-26",
+      "creativeGuidance": [
+        "Conserver la voix française Piper qui fonctionne.",
+        "Montrer les dés et le déroulement d'une vraie partie plutôt qu'une image fixe.",
+        "Construire plusieurs plans animés, avec mouvements de caméra et transitions.",
+        "Évaluer l'intérêt visuel du rendu avant de considérer le Short réussi."
+      ],
+      "prohibitedActions": [
+        "Ne pas modifier les publications déjà programmées.",
+        "Ne pas publier automatiquement une nouvelle version.",
+        "Ne pas engager de dépenses ou activer un service payant."
+      ]
+    }
+  ],
+  "creativeDirectionStatus": "received-for-review-not-proof-of-visual-compliance",
+  "decisionOwner": "gerard",
+  "files": [
+    {
+      "filename": "audio.wav",
+      "bytes": 3456078,
+      "sha256": "d9eac243cec80b16cfe1c92075ec19c867301f4d08a809c518c27dafbb8d5cde"
+    },
+    {
+      "filename": "captions.ass",
+      "bytes": 1014,
+      "sha256": "a71fbea365658815c7ea9d0721f318b334c5b556c7698b6fe540dd2b0adbfb61"
+    },
+    {
+      "filename": "captions.srt",
+      "bytes": 377,
+      "sha256": "7d958cf862d5d1a19a48991784f161573081d1ffb0574212ca571921f4f2d4f6"
+    },
+    {
+      "filename": "effects.wav",
+      "bytes": 1728044,
+      "sha256": "69e0e4e2bb9ea3e1e2624943203974bdc45fed48f42684a598468a1156e4e045"
+    },
+    {
+      "filename": "image.png",
+      "bytes": 491313,
+      "sha256": "ff6168fc59da038eadd62c039992629fc0a36242dca68861d622bf42d92509fe"
+    },
+    {
+      "filename": "mix.wav",
+      "bytes": 3456078,
+      "sha256": "d63738d06c23157a199c10e0685a4e676a97a99e1abd903f89839b9848842e9a"
+    },
+    {
+      "filename": "music.wav",
+      "bytes": 1728044,
+      "sha256": "6ac9b36daa4e03dc21b290f707f2129e67c6844f5f5f0267071211c524374a91"
+    },
+    {
+      "filename": "poster.jpg",
+      "bytes": 44417,
+      "sha256": "db6cbd355c07a384c0f24d7a89b58ca8fce393dc1d8f6d6aee93036f603faf9c"
+    },
+    {
+      "filename": "request.json",
+      "bytes": 2150,
+      "sha256": "dede915768bb8626c83184d3d77c4a731e92898455f42fbf9239f3bebb1dc161"
+    },
+    {
+      "filename": "script.json",
+      "bytes": 1155,
+      "sha256": "3eab3b633a1e28499424ccc59a0a4e4d6565e2c55da159278e05d7428202a40b"
+    },
+    {
+      "filename": "short.mp4",
+      "bytes": 1549854,
+      "sha256": "9f39df0685dd247263cd18e0054659b5a5604e1f730dcdc6bbce03dd6e6008c5"
+    },
+    {
+      "filename": "source-image",
+      "bytes": 29930,
+      "sha256": "4c6ed4a2f17fbbef4439c59334472171ffe9e1e2db67887937a21c0c6ce8f41a"
+    },
+    {
+      "filename": "title.txt",
+      "bytes": 13,
+      "sha256": "78f0945d913f13ec243933cf9587ba6ab585212b71f4b8d1cda1e2b99a36e95f"
+    },
+    {
+      "filename": "voice-0.txt",
+      "bytes": 25,
+      "sha256": "61c9e027c3c84fcebd433bbc2e9eb4471b714e01006b85e1fbae441e53ed586e"
+    },
+    {
+      "filename": "voice-0.wav",
+      "bytes": 70360,
+      "sha256": "666afd113a382c7e6f6119c262b66357c282072f39e56dd332d74d95beb80cb1"
+    },
+    {
+      "filename": "voice-1.txt",
+      "bytes": 37,
+      "sha256": "7746e2d374f399f3427e5c9b5b10bbd42311f721f1d1b370fe22c249a6179015"
+    },
+    {
+      "filename": "voice-1.wav",
+      "bytes": 108076,
+      "sha256": "dbad48647d08c6b63f4362cc66969ebf4a44aa4c7ad496fe74766873f25dca46"
+    },
+    {
+      "filename": "voice-2.txt",
+      "bytes": 45,
+      "sha256": "dbdc049a3b1b587b6b8d20af44a47f66ae2aa01a154601fe1ab09b8de5eca776"
+    },
+    {
+      "filename": "voice-2.wav",
+      "bytes": 145452,
+      "sha256": "9e2edc797fe9bab502ef64d57f43d2b061266969049b4465d539674063ff7cd7"
+    },
+    {
+      "filename": "voice-3.txt",
+      "bytes": 28,
+      "sha256": "94d26b67a19bbb6f3e03e2bdabc11f2181f95137cb6ec99995af8bab4a7b5212"
+    },
+    {
+      "filename": "voice-3.wav",
+      "bytes": 95276,
+      "sha256": "059277419bd9fffd426a49a8c2417720240c03b7db33ad7b9ceeb6fc65a89bee"
+    },
+    {
+      "filename": "voice-4.txt",
+      "bytes": 33,
+      "sha256": "7faa4613fba3dfcba84a6e26ce63b3264426867683d78c0b06d59279c871e50c"
+    },
+    {
+      "filename": "voice-4.wav",
+      "bytes": 80428,
+      "sha256": "1f157203cbc12c3f50e899857133f030e989a3553320eb278618cc4937933726"
+    },
+    {
+      "filename": "voice-5.txt",
+      "bytes": 44,
+      "sha256": "eea1b5dd54eb5b766a519851b96faa29e8b6595b1dd25e447f5b9759593189af"
+    },
+    {
+      "filename": "voice-5.wav",
+      "bytes": 89644,
+      "sha256": "e538a858bb9c7d4e95868493143b119d3b6be5dbb4844d37756eea48a3e01d35"
+    },
+    {
+      "filename": "voice.wav",
+      "bytes": 3456078,
+      "sha256": "11f1df5deda226447bebf4f3d4ccb2fc45ba52a1d5ba20a6fa0e6de1df19504b"
+    }
+  ],
+  "reportUrl": "/api/production/studio/artifacts/b957fc30a9a3eab5cd42a153463c6f67855301598935286610f0b64f8382bdf5/report.json",
+  "status": "ready-for-review",
+  "image": {
+    "provider": "registered-media",
+    "assetId": "420-dice-official-game",
+    "sourceSha256": "4c6ed4a2f17fbbef4439c59334472171ffe9e1e2db67887937a21c0c6ce8f41a",
+    "rights": {
+      "license": "LicenseRef-Owner-Authorized-Preview",
+      "scope": "local-preview",
+      "source": "https://github.com/benoitlub/420-dice-game-reboot/blob/bf315300db5c5ab580c6f86bb14ae56d884b6739/public/opengraph.jpg",
+      "attribution": "420 Dice Game — Benoît Lubert / Blacklace Studio. Réutilisation pour la démonstration demandée par le propriétaire ; aucune licence publique ni autorisation de diffusion inférée."
+    },
+    "sourceDimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "crop": {
+      "x": 380,
+      "y": 0,
+      "width": 520,
+      "height": 720
+    },
+    "verifiedFile": true,
+    "outputSha256": "ff6168fc59da038eadd62c039992629fc0a36242dca68861d622bf42d92509fe",
+    "width": 1080,
+    "height": 1920
+  },
+  "audio": {
+    "segments": [
+      {
+        "text": "Trois dés. Trois essais.",
+        "caption": "Trois dés. Trois essais.",
+        "start": 0.3,
+        "end": 1.8944670000000001,
+        "meanVolumeDb": -16.4
+      },
+      {
+        "text": "Gardez vos dés, relancez les autres.",
+        "caption": "Gardez vos dés. Relancez les autres.",
+        "start": 2.074467,
+        "end": 4.524172,
+        "meanVolumeDb": -16.2
+      },
+      {
+        "text": "Quatre, deux, zéro : décrochez le trophée.",
+        "caption": "4, 2, 0 : décrochez le trophée.",
+        "start": 4.704172,
+        "end": 8.001406,
+        "meanVolumeDb": -15.8
+      },
+      {
+        "text": "Pas de quatre, deux, zéro ?",
+        "caption": "Pas de 4, 2, 0 ?",
+        "start": 8.181405999999999,
+        "end": 10.340862,
+        "meanVolumeDb": -15.6
+      },
+      {
+        "text": "Découvrez le gage de votre pack.",
+        "caption": "Découvrez le gage de votre pack.",
+        "start": 10.520862,
+        "end": 12.343627999999999,
+        "meanVolumeDb": -13.5
+      },
+      {
+        "text": "À vous de jouer à quatre cent vingt Dice !",
+        "caption": "À vous de jouer à 420 Dice !",
+        "start": 12.523627999999999,
+        "end": 14.555373999999999,
+        "meanVolumeDb": -14.1
+      }
+    ],
+    "durationSeconds": 18,
+    "speechEndSeconds": 14.555373999999999,
+    "loudness": {
+      "integratedLufs": -16,
+      "truePeakDbtp": -3.4,
+      "lra": 2.7
+    },
+    "voice": {
+      "provider": "piper-local",
+      "language": "fr_FR",
+      "modelSha256": "641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99",
+      "rights": {
+        "license": "CC-BY-4.0",
+        "attribution": "SIWIS French Speech Synthesis Database, University of Edinburgh; Piper fr_FR-siwis-medium",
+        "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/siwis/medium/MODEL_CARD"
+      }
+    },
+    "music": {
+      "provider": "original-procedural",
+      "license": "CC0-1.0",
+      "attribution": "Publisher original procedural soundtrack; dedicated to the public domain"
+    },
+    "effects": {
+      "provider": "original-procedural",
+      "license": "CC0-1.0"
+    },
+    "scriptProvider": "approved-parcel-script",
+    "externalProviderCost": 0
+  },
+  "video": {
+    "verified": true,
+    "fullDecode": true,
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationSeconds": 18,
+    "videoCodec": "h264",
+    "pixelFormat": "yuv420p",
+    "audioCodec": "aac",
+    "sampleRate": 48000,
+    "channels": 2,
+    "loudness": {
+      "integratedLufs": -16.02,
+      "truePeakDbtp": -3.4,
+      "lra": 2.6
+    },
+    "synchronizedCaptionCount": 6,
+    "subtitleTiming": "per-sentence measured TTS durations; no word-level alignment",
+    "animation": "slow image zoom; no inferred character or gameplay animation",
+    "sourceKind": "still-image",
+    "distinctSampledFrames": 5,
+    "imageMotionOutsideCaptions": [
+      1.58676,
+      1.63375,
+      1.63403,
+      1.7606
+    ]
+  },
+  "artifact": {
+    "filename": "short.mp4",
+    "bytes": 1549854,
+    "sha256": "9f39df0685dd247263cd18e0054659b5a5604e1f730dcdc6bbce03dd6e6008c5",
+    "mimeType": "video/mp4",
+    "downloadUrl": "/api/production/studio/artifacts/b957fc30a9a3eab5cd42a153463c6f67855301598935286610f0b64f8382bdf5/short.mp4"
+  },
+  "cost": {
+    "externalProviderCalls": 0,
+    "externalProviderGenerations": 0,
+    "externalProviderCost": 0,
+    "localComputeCostNotMetered": true
+  },
+  "creativeReview": {
+    "feedbackIds": [
+      "benoit-420-dice-short-2026-10-26"
+    ],
+    "notes": [
+      "Conserver la voix française Piper qui fonctionne.",
+      "Montrer les dés et le déroulement d'une vraie partie plutôt qu'une image fixe.",
+      "Construire plusieurs plans animés, avec mouvements de caméra et transitions.",
+      "Évaluer l'intérêt visuel du rendu avant de considérer le Short réussi."
+    ],
+    "status": "human-review-required",
+    "visualComplianceVerified": false
+  },
+  "rights": {
+    "publicationApproved": false,
+    "reviewRequired": true,
+    "scope": "local-preview"
+  },
+  "completedAt": "2026-11-03T10:09:25.272Z"
+}
