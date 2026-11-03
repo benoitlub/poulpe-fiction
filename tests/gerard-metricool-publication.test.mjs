@@ -65,3 +65,16 @@ test("Buffer requires Gerard's exact channel, image and single Instagram destina
   assert.equal(out.bufferHandoff.postId, "buffer-simulated"); assert.equal(out.delivery.publishingEnabled, true);
   assert.equal(metricoolMission(book), null);
 });
+
+test("Blacklace TikTok MP4 can be handed off but wrong brand, image and mixed networks cannot", () => {
+  const video = { ...candidate, media: { url: "https://cdn.example.org/short.mp4" },
+    transport: { provider: "metricool", brandId: "7653100" }, compatibleNetworks: ["tiktok"] };
+  const mission = metricoolMission(video);
+  assert.deepEqual(mission.context.metadata.socialPublication.networks, ["tiktok"]);
+  assert.equal(mission.context.metadata.socialPublication.dryRun, true);
+  for (const invalid of [
+    { ...video, media: { url: "https://cdn.example.org/cover.jpg" } },
+    { ...video, transport: { provider: "metricool", brandId: "3350145" } },
+    { ...video, compatibleNetworks: ["tiktok", "facebook"] },
+  ]) assert.equal(metricoolMission(invalid), null);
+});

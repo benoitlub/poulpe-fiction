@@ -9,11 +9,15 @@ export function metricoolMission(candidate, { execute = false, now = new Date() 
   const harvestId = typeof candidate.harvestId === "string" ? candidate.harvestId.trim() : "";
   const text = typeof candidate.copy?.text === "string" ? candidate.copy.text : "";
   const media = candidate.media?.url ? [candidate.media.url] : [];
-  const allowed = media.length ? ["facebook", "instagram"] : ["facebook"];
+  const allowed = media.length ? ["facebook", "instagram", "tiktok"] : ["facebook"];
   // Respect the networks supplied by the media/selection capability. Do not
   // quietly add Instagram to a Facebook-only decision because a URL exists.
   const networks = [...new Set(candidate.compatibleNetworks ?? [])];
   if (networks.some(n => !allowed.includes(n))) return null;
+  // TikTok requires a video asset and the explicit Blacklace destination.
+  // A generic image URL or an inferred account is never sufficient.
+  if (networks.includes("tiktok") && (!candidate.media?.url || !/\.mp4(?:[?#]|$)/i.test(candidate.media.url) ||
+      String(candidate.transport?.brandId ?? "") !== "7653100" || networks.length !== 1)) return null;
   if (!harvestId || !networks.length || (!text.trim() && !media.length)) return null;
   const stable = createHash("sha256").update(JSON.stringify([harvestId, text, media, [...networks].sort()])).digest("hex");
   const operationId = `gerard-metricool-${stable}`;
