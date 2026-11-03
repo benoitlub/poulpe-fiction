@@ -8,7 +8,9 @@ import { pathToFileURL } from "node:url";
  */
 export function attachStudioVideo(candidate, studio, learning = {}, { publisherUrl = process.env.PUBLISHER_URL, currentRunId = process.env.GITHUB_RUN_ID } = {}) {
   if (!candidate || !studio || studio.producedRunId === currentRunId ||
-      studio.seedId !== candidate.seedId || !studio.operationId ||
+      typeof studio.seedId !== "string" || typeof studio.parcelId !== "string" ||
+      typeof studio.operationId !== "string" || typeof studio.bytes !== "number" || studio.bytes <= 0 ||
+      studio.seedId !== candidate.seedId ||
       !/^[a-f0-9]{64}$/.test(studio.sha256 ?? "") ||
       candidate.status !== "ready" || candidate.transport?.provider !== "metricool" ||
       candidate.editorialRoute?.destination?.preferredProvider !== "metricool" ||
