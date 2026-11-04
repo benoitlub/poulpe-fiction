@@ -18,6 +18,7 @@ import { runParcelStudio, studioOperationId, studioFeedbackForParcel, submitStud
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
 import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from "./gerard-client-acquisition.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
+import { rankJobCandidates, formatJobSearchContext } from "./gerard-job-radar.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
 import { summarizeCycleResult, summarizeStateResult } from "./gerard-state-summary.mjs";
 
@@ -408,14 +409,15 @@ async function main() {
       let businessSourceState = null;
       let businessSourceChanges = null;
       const acquisition = getAcquisitionConfig(selectedSeed);
-      if (acquisition || selectedSeed.seedId === "benoit-client-acquisition") {
+      const jobSearch = selectedSeed.templates?.some(t => t.id === "job-search" && t.enabled !== false) === true;
+      if (acquisition || selectedSeed.seedId === "benoit-client-acquisition" || jobSearch) {
         try {
           const lookup = await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
           const parcel = selectedSeed.parcelId;
           const memoryKey = acquisition ? `${acquisition.clientId}:${parcel}` : parcel;
           const prior = state.businessSourceMemory?.[memoryKey] || {};
           const plan = planBusinessResearch(lookup.candidates, prior);
-          const examined = plan.fresh.length ? await qualifyBusinessSources(plan.fresh) : [];
+          const examined = plan.fresh.length ? (jobSearch ? rankJobCandidates(plan.fresh) : await qualifyBusinessSources(plan.fresh)) : [];
           const learned = rememberBusinessResearch(prior, examined);
           state.businessSourceMemory = { ...(state.businessSourceMemory || {}), [memoryKey]: learned.memory };
           businessSourceChanges = learned.changed;
@@ -423,7 +425,7 @@ async function main() {
             .sort((a, b) => (b.acquisitionScore ?? b.fitScore ?? -1) - (a.acquisitionScore ?? a.fitScore ?? -1));
           // Old Pro.Hibited mail drafts are not reusable for other clients.
           // The template only creates a reviewable research package.
-          const newDrafts = acquisition ? 0 : await saveMailDrafts(businessSources, parcel);
+          const newDrafts = acquisition || jobSearch ? 0 : await saveMailDrafts(businessSources, parcel);
           if (acquisition) {
             const notion = await handoffAcquisitionReviews(businessSources, acquisition, {
               publisherUrl: PUBLISHER_URL,
@@ -432,7 +434,7 @@ async function main() {
             console.log(JSON.stringify({ event: 'gerard-client-acquisition-notion', clientId: acquisition.clientId, ...notion }));
           }
           businessSourceState = lookup.status;
-          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, newMailDrafts: newDrafts, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
+          console.log(JSON.stringify({ event: jobSearch ? "gerard-job-search" : "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, newMailDrafts: newDrafts, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
         } catch (error) {
           businessSources = [];
           businessSourceState = "unavailable";
@@ -502,19 +504,23 @@ async function main() {
         // generative model to invent company names or imply outreach happened.
         const sourcedKnowledge = businessSources !== null ? {
           ...knowledgeOutput,
-          context: "Données internes sur les créations (hors anciennes offres freelance) :\n" +
-            String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0] +
-            "\n\nSources B2B candidates : " + JSON.stringify(businessSources),
+          context: jobSearch
+            ? formatJobSearchContext(businessSources) + "\n\nContexte biographique autorisé : " + String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0]
+            : "Données internes sur les créations (hors anciennes offres freelance) :\n" +
+              String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0] +
+              "\n\nSources B2B candidates : " + JSON.stringify(businessSources),
         } : knowledgeOutput;
         const harvest = businessSources !== null
           ? businessSources.length === 0
             ? { status: "deferred", verification: { reason: businessSourceState === "no-sources" ? "b2b-no-qualified-search-results" : "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
             : businessSourceChanges?.length === 0
             ? { status: "deferred", verification: { reason: "b2b-no-new-evidence", seedId: selectedSeed.seedId } }
-            : { status: "ok", payload: { output: {
-                capability: "business.sources.search", producer: "composio-web-search",
-                text: acquisition ? formatAcquisitionReview(businessSources, acquisition) : formatQualifiedSources(businessSources),
-              } }, verification: { completed: true, verifiedContacts: 0, contacted: false } }
+            : jobSearch
+              ? await runRealHarvest(selectedSeed, sourcedKnowledge, operationId)
+              : { status: "ok", payload: { output: {
+                  capability: "business.sources.search", producer: "composio-web-search",
+                  text: acquisition ? formatAcquisitionReview(businessSources, acquisition) : formatQualifiedSources(businessSources),
+                } }, verification: { completed: true, verifiedContacts: 0, contacted: false } }
           : await runRealHarvest(selectedSeed, sourcedKnowledge, operationId);
         result.harvest = harvest;
         if (harvest.status === "ok") result.persistedHarvest = await saveHarvest(selectedSeed, harvest, operationId);
