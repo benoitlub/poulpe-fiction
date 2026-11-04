@@ -95,15 +95,15 @@ async function loadState() {
 }
 
 async function loadSeeds() {
-  // A manual audiovisual preview uses only the reviewed demo seed; never
-  // insert it into the autonomous rotation of business/book parcels.
+  // A manual 420 Dice preview uses only its reviewed demo seed; regular
+  // enabled studio seeds also remain eligible in the autonomous rotation.
   if (process.env.GERARD_STUDIO_PREVIEW_SEED === "420-dice" &&
       process.env.GERARD_AV_STUDIO_ENABLED === "true" &&
       process.env.GERARD_MODE === "cultivate") {
     return [JSON.parse(await readFile(new URL("../examples/studio/420-dice.seed.json", import.meta.url), "utf8"))];
   }
   const parsed = JSON.parse(await readFile(SEEDS_PATH, "utf8"));
-  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && (seed?.knowledgeSlug || seed.templates?.some(t => ["audio-studio","video-studio"].includes(t.id) && t.enabled !== false))) : [];
+  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && (seed?.knowledgeSlug || seed.templates?.some(t => ["image-studio","audio-studio","video-studio"].includes(t.id) && t.enabled !== false))) : [];
 }
 
 async function inspectUnfinishedParcel(parcelId) {
