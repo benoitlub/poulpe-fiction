@@ -973,6 +973,16 @@
       "capability": "business.sources.search",
       "harvestedAt": "2026-11-03T18:00:39.835Z",
       "privateContent": true
+    },
+    {
+      "harvestId": "gerard-cultivate-1793755647438-harvest",
+      "harvestedAt": "2026-11-04T01:27:41.484Z",
+      "seedId": "gerard-restart-2026-10-04",
+      "parcelId": "poulpe-fiction",
+      "capability": "content.generate",
+      "route": "octopus->publisher-adapter",
+      "state": "harvested",
+      "privateContent": true
     }
   ]
 }
