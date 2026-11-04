@@ -993,6 +993,16 @@
       "capability": "content.generate",
       "harvestedAt": "2026-11-04T11:06:49.353Z",
       "privateContent": true
+    },
+    {
+      "harvestId": "gerard-cultivate-1793817684951-harvest",
+      "harvestedAt": "2026-11-04T18:41:42.958Z",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "capability": "business.sources.search",
+      "route": "octopus->publisher-adapter",
+      "state": "ready-to-offer",
+      "privateContent": true
     }
   ]
 }
