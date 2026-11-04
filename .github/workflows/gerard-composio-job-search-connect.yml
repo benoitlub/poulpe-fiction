@@ -25,7 +25,7 @@ jobs:
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=blacklace-publisher-gerard-owner-test" \
             | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>process.stdout.write(JSON.parse(s).value))')"
           test -n "$oidc_token"
-          node -e 'const c=JSON.parse(Buffer.from(process.argv[1].split(".")[1],"base64url"));console.log("oidc.workflow_ref="+String(c.workflow_ref||""));console.log("oidc.event_name="+String(c.event_name||""));console.log("oidc.ref="+String(c.ref||""));console.log("oidc.repository="+String(c.repository||""));console.log("oidc.audience="+JSON.stringify(c.aud))' "$oidc_token"
+          node -e 'const c=JSON.parse(Buffer.from(process.argv[1].split(".")[1],"base64url"));console.log("oidc.workflow_ref="+String(c.workflow_ref||""));console.log("oidc.event_name="+String(c.event_name||""));console.log("oidc.ref="+String(c.ref||""));console.log("oidc.repository="+String(c.repository||""));console.log("oidc.audience="+JSON.stringify(c.aud));console.log("oidc.issuer="+String(c.iss||""));console.log("oidc.subject="+String(c.sub||""));console.log("oidc.exp_present="+String(typeof c.exp==="number"));console.log("oidc.iat_present="+String(typeof c.iat==="number"));console.log("oidc.nbf_present="+String(typeof c.nbf==="number"))' "$oidc_token"
           response_file="$(mktemp)"
           http_code="$(curl --silent --show-error --max-time 30 --output "$response_file" --write-out '%{http_code}' \
             -X POST 'https://blacklace-publisher-worker.benoitlubert.workers.dev/api/gerard/job-search/connect-link' \
