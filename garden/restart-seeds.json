@@ -112,6 +112,33 @@
       ]
     },
     {
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "title": "Benoît · Radar emploi et candidatures",
+      "objective": "Repérer des annonces d'emploi publiques correspondant au parcours de Benoît en formation multimédia, création numérique et outils d'IA. Trier les annonces par adéquation, relever les incertitudes, puis préparer des brouillons de réponse personnalisés à relire. Aucune candidature ne doit être envoyée.",
+      "firstHarvest": "À partir des annonces LinkedIn publiques trouvées, retenir jusqu'à trois offres plausibles. Pour chacune : titre, entreprise si connue, lien, extrait, adéquation avec le parcours réel de Benoît, informations manquantes, et brouillon de réponse naturel adapté à l'offre. Parcours vérifié à date : 20 ans de formation multimédia, 7 ans d'animation auprès d'enfants, 2 ans de commercial, certificat Adobe Photoshop, anglais B2+, huit ans vécus à Valence; espagnol à réactiver et niveau à vérifier. Il utilise ChatGPT et Claude depuis le début de 2026 pour écrire des histoires de science-fiction et a conçu Poulpe Fiction, un outil IA qui produit des campagnes et publie sur ses réseaux. Ne pas inventer de diplôme, de résultat, de niveau de langue, de disponibilité, ni de motivation spécifique. Ne pas envoyer de candidature ni de message.",
+      "knowledgeSlug": "benoit-lubert-professional",
+      "businessSearchQuery": "site:linkedin.com/jobs/view (\"formateur multimédia\" OR \"formateur numérique\" OR \"AI image designer\" OR \"generative AI designer\" OR \"creative designer\" OR \"directeur artistique digital\") (France OR remote OR télétravail)",
+      "delivery": {
+        "recipient": "Benoît",
+        "mode": "review-only",
+        "harvestState": "ready-to-review"
+      },
+      "templates": [
+        {
+          "id": "job-search",
+          "enabled": true,
+          "config": {
+            "location": "France",
+            "remote": true,
+            "maxResults": 8,
+            "source": "linkedin-public-search",
+            "automaticApplications": false
+          }
+        }
+      ]
+    },
+    {
       "seedId": "420-dice-video-studio",
       "parcelId": "420-dice",
       "title": "420 DICE GAME",
@@ -166,33 +193,6 @@
           "config": {
             "title": "420 DICE GAME",
             "durationSeconds": 18
-          }
-        }
-      ]
-    },
-    {
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
-      "title": "Benoît · Radar emploi et candidatures",
-      "objective": "Repérer des annonces d'emploi publiques correspondant au parcours de Benoît en formation multimédia, création numérique et outils d'IA. Trier les annonces par adéquation, relever les incertitudes, puis préparer des brouillons de réponse personnalisés à relire. Aucune candidature ne doit être envoyée.",
-      "firstHarvest": "À partir des annonces LinkedIn publiques trouvées, retenir jusqu'à trois offres plausibles. Pour chacune : titre, entreprise si connue, lien, extrait, adéquation avec le parcours réel de Benoît, informations manquantes, et brouillon de réponse naturel adapté à l'offre. Parcours vérifié à date : 20 ans de formation multimédia, 7 ans d'animation auprès d'enfants, 2 ans de commercial, certificat Adobe Photoshop, anglais B2+, huit ans vécus à Valence; espagnol à réactiver et niveau à vérifier. Il utilise ChatGPT et Claude depuis le début de 2026 pour écrire des histoires de science-fiction et a conçu Poulpe Fiction, un outil IA qui produit des campagnes et publie sur ses réseaux. Ne pas inventer de diplôme, de résultat, de niveau de langue, de disponibilité, ni de motivation spécifique. Ne pas envoyer de candidature ni de message.",
-      "knowledgeSlug": "benoit-lubert-professional",
-      "businessSearchQuery": "site:linkedin.com/jobs/view (\"formateur multimédia\" OR \"formateur numérique\" OR \"AI image designer\" OR \"generative AI designer\" OR \"creative designer\" OR \"directeur artistique digital\") (France OR remote OR télétravail)",
-      "delivery": {
-        "recipient": "Benoît",
-        "mode": "review-only",
-        "harvestState": "ready-to-review"
-      },
-      "templates": [
-        {
-          "id": "job-search",
-          "enabled": true,
-          "config": {
-            "location": "France",
-            "remote": true,
-            "maxResults": 8,
-            "source": "linkedin-public-search",
-            "automaticApplications": false
           }
         }
       ]
