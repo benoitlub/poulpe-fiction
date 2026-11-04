@@ -1,0 +1,76 @@
+{
+  "operationId": "studio-72c6c95fbea243bdcae260bff56fe1778a7291ac6d4f13fae359d3919c8d7fe5",
+  "title": "420 DICE GAME",
+  "objective": "Créer un Short vertical de démonstration avec le studio vidéo local, en utilisant le média officiel et la narration française déjà préparée. Archiver la vidéo vérifiée pour que Gérard l'apprenne et puisse la transmettre à son circuit de publication.",
+  "requiredCapabilities": [
+    "video.studio"
+  ],
+  "authorizedResources": [
+    "video.studio"
+  ],
+  "context": {
+    "id": "420-dice",
+    "metadata": {
+      "seedId": "420-dice-video-studio",
+      "studioRequest": {
+        "version": "studio-v1",
+        "operationId": "studio-72c6c95fbea243bdcae260bff56fe1778a7291ac6d4f13fae359d3919c8d7fe5",
+        "parcelId": "420-dice",
+        "seedId": "420-dice-video-studio",
+        "title": "420 DICE GAME",
+        "durationSeconds": 18,
+        "assetId": "420-dice-official-game",
+        "segments": [
+          {
+            "text": "Trois dés. Trois essais.",
+            "caption": "Trois dés. Trois essais."
+          },
+          {
+            "text": "Gardez vos dés, relancez les autres.",
+            "caption": "Gardez vos dés. Relancez les autres."
+          },
+          {
+            "text": "Quatre, deux, zéro : décrochez le trophée.",
+            "caption": "4, 2, 0 : décrochez le trophée."
+          },
+          {
+            "text": "Pas de quatre, deux, zéro ?",
+            "caption": "Pas de 4, 2, 0 ?"
+          },
+          {
+            "text": "Découvrez le gage de votre pack.",
+            "caption": "Découvrez le gage de votre pack."
+          },
+          {
+            "text": "À vous de jouer à quatre cent vingt Dice !",
+            "caption": "À vous de jouer à 420 Dice !"
+          }
+        ],
+        "scriptRights": {
+          "source": "https://github.com/benoitlub/420-dice-game-reboot/tree/bf315300db5c5ab580c6f86bb14ae56d884b6739 — règles également archivées dans public/knowledge-packs/420-dice.json",
+          "attribution": "Texte de démonstration préparé pour cette mission, d’après les règles du jeu de Benoît Lubert ; aucune génération Mistral revendiquée."
+        },
+        "authorizedResources": [
+          "video.studio"
+        ],
+        "creativeFeedback": [
+          {
+            "feedbackId": "benoit-420-dice-short-2026-10-26",
+            "creativeGuidance": [
+              "Conserver la voix française Piper qui fonctionne.",
+              "Montrer les dés et le déroulement d'une vraie partie plutôt qu'une image fixe.",
+              "Construire plusieurs plans animés, avec mouvements de caméra et transitions.",
+              "Évaluer l'intérêt visuel du rendu avant de considérer le Short réussi."
+            ],
+            "prohibitedActions": [
+              "Ne pas modifier les publications déjà programmées.",
+              "Ne pas publier automatiquement une nouvelle version.",
+              "Ne pas engager de dépenses ou activer un service payant."
+            ]
+          }
+        ],
+        "automaticPublication": false
+      }
+    }
+  }
+}

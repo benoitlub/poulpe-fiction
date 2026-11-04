@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-04T18:54:07.409Z",
-  "lastSeedId": "benoit-job-search",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-04T18:57:27.245Z",
+  "lastSeedId": "420-dice-video-studio",
   "history": [
-    {
-      "at": "2026-11-03T02:57:19.262Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793674630378"
-    },
     {
       "at": "2026-11-03T10:06:19.949Z",
       "mode": "symbiosis",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-04T18:54:07.409Z",
       "mode": "symbiosis",
-      "operationId": "gerard-symbiosis-1793818446541",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1793818446541"
+    },
+    {
+      "at": "2026-11-04T18:57:27.245Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1793818612512",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-28T22:21:49.469Z",
-      "mode": "cultivate",
-      "seedId": "gerard-restart-2026-10-04",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "parcelId": "poulpe-fiction",
-      "operationId": "gerard-cultivate-1793226097891"
-    },
     {
       "at": "2026-10-28T22:34:08.813Z",
       "mode": "symbiosis",
@@ -500,14 +491,26 @@
     },
     {
       "at": "2026-11-04T18:54:07.409Z",
-      "operationId": "gerard-symbiosis-1793818446541",
       "mode": "symbiosis",
-      "outcome": "ok"
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1793818446541"
+    },
+    {
+      "at": "2026-11-04T18:57:27.245Z",
+      "operationId": "gerard-cultivate-1793818612512",
+      "mode": "cultivate",
+      "outcome": "ok",
+      "decision": "studio-files-ready-for-review",
+      "seedId": "420-dice-video-studio",
+      "parcelId": "420-dice"
     }
   ],
   "lastResult": {
-    "at": "2026-11-04T18:54:07.408Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "ok",
+    "operationId": "gerard-cultivate-1793818612512",
+    "seedId": "420-dice-video-studio",
+    "parcelId": "420-dice",
+    "decision": "studio-files-ready-for-review",
+    "published": false
   }
 }
