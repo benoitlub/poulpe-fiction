@@ -44,7 +44,7 @@ export async function searchBusinessSources({ publisherUrl, operationId, seed, c
     objective: seed.objective,
     prompt: seed.businessSearchQuery || query || seed.objective || 'Sources professionnelles B2B publiques et vérifiables',
     requiredCapabilities: ['business.sources.search'], authorizedResources: ['tools.read'],
-    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, clientId: acquisition?.clientId ?? null, source: 'gerard-cycle', toolRequest: { dryRun: false } } },
+    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, clientId: acquisition?.clientId ?? null, source: 'gerard-cycle', sourceType: seed.templates?.some(t => t.id === 'job-search' && t.enabled !== false) ? 'job-search' : 'business', location: seed.templates?.find(t => t.id === 'job-search')?.config?.location ?? 'France', toolRequest: { dryRun: false } } },
   };
   const response = await call(`${publisherUrl}/api/octopus-adapter/execute`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
