@@ -77,12 +77,12 @@ jobs:
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
       AI_MODEL: ${{ secrets.AI_MODEL }}
       AI_PROVIDER: mistral
-      GERARD_IMAGE_STUDIO_ENABLED: ${{ vars.GERARD_IMAGE_STUDIO_ENABLED || 'false' }}
+      GERARD_IMAGE_STUDIO_ENABLED: "true"
       # Manual preview has its own explicit gate; scheduled runs keep the repository setting.
-      GERARD_AV_STUDIO_ENABLED: ${{ inputs.preview_420_dice_short == true && 'true' || vars.GERARD_AV_STUDIO_ENABLED || 'false' }}
+      GERARD_AV_STUDIO_ENABLED: "true"
       GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_420_dice_short == true && '420-dice' || '' }}
       GERARD_MODE: ${{ inputs.preview_420_dice_short == true && 'cultivate' || '' }}
-      # Disabled unless explicitly activated by a human after review/deployment.
+      # Studio generation is owner-authorized; publication still follows the selected provider route.
       GERARD_METRICOOL_EXECUTION_ENABLED: ${{ inputs.preview_420_dice_short == true && 'false' || 'true' }}
       METRICOOL_EXECUTION_TOKEN: ${{ secrets.METRICOOL_EXECUTION_TOKEN }}
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
@@ -179,7 +179,7 @@ jobs:
       - name: Start Publisher locally
         working-directory: publisher
         run: |
-          nohup env PORT=3100 NODE_ENV=production DATABASE_URL="$DATABASE_URL" NOTION_API_KEY="$NOTION_API_KEY" NOTION_PAGE_ID="$NOTION_PAGE_ID" pnpm --filter @workspace/api-server run start > ../publisher.log 2>&1 &
+          nohup env PORT=3100 NODE_ENV=production DATABASE_URL="$DATABASE_URL" MISTRAL_API_KEY="$MISTRAL_API_KEY" NOTION_API_KEY="$NOTION_API_KEY" NOTION_PAGE_ID="$NOTION_PAGE_ID" pnpm --filter @workspace/api-server run start > ../publisher.log 2>&1 &
           echo $! > ../publisher.pid
 
       - name: Wait for local services
