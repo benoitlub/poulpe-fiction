@@ -25,6 +25,7 @@ jobs:
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=blacklace-publisher-gerard-owner-test" \
             | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>process.stdout.write(JSON.parse(s).value))')"
           test -n "$oidc_token"
+          node -e 'const c=JSON.parse(Buffer.from(process.argv[1].split(".")[1],"base64url"));console.log("oidc.workflow_ref="+String(c.workflow_ref||""));console.log("oidc.event_name="+String(c.event_name||""));console.log("oidc.ref="+String(c.ref||""));console.log("oidc.repository="+String(c.repository||""));console.log("oidc.audience="+JSON.stringify(c.aud))' "$oidc_token"
           response_file="$(mktemp)"
           http_code="$(curl --silent --show-error --max-time 30 --output "$response_file" --write-out '%{http_code}' \
             -X POST 'https://blacklace-publisher-worker.benoitlubert.workers.dev/api/gerard/job-search/connect-link' \
