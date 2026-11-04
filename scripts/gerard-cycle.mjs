@@ -124,7 +124,9 @@ function selectSeedForRotation(seeds, state) {
   if (!seeds.length) return null;
   const jobSearchSeed = seeds.find(seed => seed.templates?.some(t => t.id === "job-search" && t.enabled !== false));
   const lastJobSearchAt = Date.parse(state?.lastJobSearchAt || "");
-  if (jobSearchSeed && (!Number.isFinite(lastJobSearchAt) || Date.now() - lastJobSearchAt >= 7 * 24 * 60 * 60 * 1000)) return jobSearchSeed;
+  const successfulJobSearch = ["sources-found", "no-sources"].includes(state?.lastJobSearchStatus);
+  const jobSearchInterval = successfulJobSearch ? 7 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000;
+  if (jobSearchSeed && (!Number.isFinite(lastJobSearchAt) || Date.now() - lastJobSearchAt >= jobSearchInterval)) return jobSearchSeed;
   const lastSeedId = state?.lastSeedId ?? null;
   const index = Math.max(-1, seeds.findIndex((seed) => seed.seedId === lastSeedId));
   const rotated = [...seeds.slice(index + 1), ...seeds.slice(0, index + 1)];
@@ -553,7 +555,10 @@ async function main() {
             : "harvest-failed";
         }
       }
-      if (jobSearch) state.lastJobSearchAt = nowIso();
+      if (jobSearch) {
+        state.lastJobSearchAt = nowIso();
+        state.lastJobSearchStatus = businessSourceState || "unavailable";
+      }
       state.lastSeedId = selectedSeed.seedId;
     }
   } else {
