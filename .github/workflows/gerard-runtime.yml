@@ -179,7 +179,7 @@ jobs:
       - name: Start Publisher locally
         working-directory: publisher
         run: |
-          nohup env PORT=3100 NODE_ENV=production DATABASE_URL="$DATABASE_URL" NOTION_API_KEY="$NOTION_API_KEY" NOTION_PAGE_ID="$NOTION_PAGE_ID" pnpm --filter @workspace/api-server run start > ../publisher.log 2>&1 &
+          nohup env PORT=3100 NODE_ENV=production DATABASE_URL="$DATABASE_URL" MISTRAL_API_KEY="$MISTRAL_API_KEY" NOTION_API_KEY="$NOTION_API_KEY" NOTION_PAGE_ID="$NOTION_PAGE_ID" pnpm --filter @workspace/api-server run start > ../publisher.log 2>&1 &
           echo $! > ../publisher.pid
 
       - name: Wait for local services
