@@ -99,6 +99,10 @@ export async function submitBufferPublication(candidate, options = {}) {
 const MAIL_RECIPIENT = "benoitlubert@gmail.com";
 const MAIL_SUBJECT = "[Gerard Metricool v1]";
 
+function requires420Review(...parts) {
+  return /420[^a-z0-9]*dice/i.test(parts.join(" "));
+}
+
 async function handoffMetricoolByEmail(candidate) {
   const mission = metricoolMission(candidate);
   if (!mission) return candidate;
@@ -106,8 +110,7 @@ async function handoffMetricoolByEmail(candidate) {
   if (!seedId) return candidate;
   const brandId = networks.includes("tiktok") ? "7653100" : "3350145";
   if (candidate.transport.brandId && String(candidate.transport.brandId) !== brandId) return candidate;
-  // The 420 Dice video revision is for review, including when selected for Facebook.
-  if (media.length && /420[^a-z0-9]*dice/i.test([seedId, candidate.title, ...media].join(" "))) return candidate;
+  if (requires420Review(seedId, candidate.title, ...media)) return candidate;
   const subject = MAIL_SUBJECT + " " + operationId;
   const body = JSON.stringify({ contract: "gerard-metricool-mail-v1", operationId, harvestId, seedId, brandId, networks, text, media });
   let outcome = { status: "mail-unconfirmed", operationId };
@@ -305,7 +308,8 @@ async function readOptional(path, fallback = null) {
 
 async function pendingPrepared() {
   const [item, receipt] = await Promise.all([readOptional(PREPARED), readOptional(RECEIPT)]);
-  if (item?.candidate?.harvestId && receipt?.harvestId !== item.candidate.harvestId &&
+  if (item?.candidate?.harvestId && !requires420Review(item.candidate.seedId, item.candidate.title) &&
+      receipt?.harvestId !== item.candidate.harvestId &&
       Date.now() - Date.parse(item.preparedAt) < 24 * 60 * 60 * 1000) return item.candidate;
   return null;
 }
@@ -379,6 +383,7 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
     const { project, angle } = topics[ledger.cursor % topics.length];
     ledger.cursor = (ledger.cursor + 1) % topics.length;
     const [seedId, title, captions] = project;
+    if (requires420Review(seedId, title)) continue;
     const [category] = angle;
     if (attempt === 0 && process.env.GERARD_METRICOOL_LOCAL_ONLY !== "true") {
       try {
