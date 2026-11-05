@@ -26,7 +26,7 @@ export function mailOperationId(draft) {
 }
 
 export function pendingMailDrafts(outbox) {
-  if (!outbox?.sendingEnabled || !Array.isArray(outbox.drafts)) return [];
+  if (!Array.isArray(outbox?.drafts)) return [];
   return outbox.drafts.filter(draft =>
     draft.status === "ready-for-autonomous-send" && !draft.sentAt && !draft.contacted &&
     typeof draft.recipientEmail === "string" && /^[^@\s<>]+@[^@\s<>]+\.[a-z]{2,}$/i.test(draft.recipientEmail) &&

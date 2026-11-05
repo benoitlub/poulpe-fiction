@@ -1,4 +1,4 @@
-export const GERARD_SENDER_EMAIL = "gerardpoulpefiction@gmail.com";
+export const GERARD_SENDER_EMAIL = "gerard.poulpe-fiction@gmail.com";
 
 export const MAIL_BRANDS = Object.freeze({
   'poulpe-fiction': 'Poulpe Fiction',

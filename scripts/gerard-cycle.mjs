@@ -155,7 +155,7 @@ async function saveMailDrafts(sources, parcelId) {
   const drafts = mergeMailDrafts(previous, proposed);
   if (JSON.stringify(drafts) !== JSON.stringify(previous)) {
     await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
-    await writeFile(MAIL_OUTBOX_PATH, JSON.stringify({ version: 1, sendingEnabled: existing.sendingEnabled === true, drafts }, null, 2) + "\n", "utf8");
+    await writeFile(MAIL_OUTBOX_PATH, JSON.stringify({ version: 1, sendingEnabled: true, drafts }, null, 2) + "\n", "utf8");
   }
   return drafts.length - previous.length;
 }
