@@ -152,10 +152,12 @@ jobs:
             --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate","image.studio","audio.studio","video.studio"],executeUrl:$executeUrl}')"
 
       - name: Run Gerard cycle
+        id: studio_cycle
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
 
-      - name: Persist private snapshots before publishing metadata
+      - name: Persist private studio snapshots
+        if: ${{ !cancelled() && (steps.studio_cycle.outcome == 'success' || steps.studio_cycle.outcome == 'failure') }}
         working-directory: poulpe-fiction
         env:
           GERARD_PUBLISHER_DB_PACKAGE: ${{ github.workspace }}/publisher/lib/db/package.json
