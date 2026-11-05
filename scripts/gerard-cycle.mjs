@@ -111,6 +111,7 @@ async function loadSeeds() {
     if (!seed?.seedId || !seed?.parcelId) return false;
     const studio = seed.templates?.some(t => ["image-studio", "audio-studio", "video-studio"].includes(t.id) && t.enabled !== false);
     if (process.env.GERARD_TENTACLE === "studio") return studio;
+    if (seed.imageStudioOnly === true) return false;
     if (process.env.GERARD_TENTACLE === "production") return !studio && seed.knowledgeSlug;
     return studio || seed.knowledgeSlug;
   });
@@ -375,9 +376,15 @@ async function main() {
     }
     if (!selectedSeed) {
       result = { status: "failed", operationId, decision: "no-active-seed" };
-    } else if (selectedSeed.templates?.some(t => ["audio-studio","video-studio"].includes(t.id) && t.enabled !== false)) {
-      const kind = selectedSeed.templates.some(t => t.id === "video-studio" && t.enabled !== false) ? "video" : "audio";
-      if (process.env.GERARD_AV_STUDIO_ENABLED !== "true") {
+    } else if (selectedSeed.imageStudioOnly === true ||
+        selectedSeed.templates?.some(t => ["audio-studio", "video-studio"].includes(t.id) && t.enabled !== false)) {
+      let kind = "audio";
+      if (selectedSeed.imageStudioOnly === true) kind = "image";
+      else if (selectedSeed.templates.some(t => t.id === "video-studio" && t.enabled !== false)) kind = "video";
+      const studioEnabled = kind === "image"
+        ? process.env.GERARD_IMAGE_STUDIO_ENABLED
+        : process.env.GERARD_AV_STUDIO_ENABLED;
+      if (studioEnabled !== "true") {
         result = { status:"failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId, decision:"studio-awaiting-authorization", published:false };
       } else {
         try {
