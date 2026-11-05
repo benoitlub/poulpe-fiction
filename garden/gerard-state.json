@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-05T13:47:59.479Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-05T13:51:15.888Z",
   "lastSeedId": "420-dice-video-studio",
   "history": [
-    {
-      "at": "2026-11-03T12:55:07.408Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793710507061"
-    },
     {
       "at": "2026-11-03T15:08:47.785Z",
       "mode": "cultivate",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-05T13:47:59.479Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1793886445428",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1793886445428"
+    },
+    {
+      "at": "2026-11-05T13:51:15.888Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1793886675392",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-29T10:34:07.730Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793270047155"
-    },
     {
       "at": "2026-10-29T18:32:51.756Z",
       "mode": "cultivate",
@@ -497,20 +491,23 @@
     },
     {
       "at": "2026-11-05T13:47:59.479Z",
-      "operationId": "gerard-cultivate-1793886445428",
       "mode": "cultivate",
+      "seedId": "420-dice-video-studio",
       "outcome": "ok",
       "decision": "studio-files-ready-for-review",
-      "seedId": "420-dice-video-studio",
-      "parcelId": "420-dice"
+      "parcelId": "420-dice",
+      "operationId": "gerard-cultivate-1793886445428"
+    },
+    {
+      "at": "2026-11-05T13:51:15.888Z",
+      "operationId": "gerard-symbiosis-1793886675392",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "operationId": "gerard-cultivate-1793886445428",
-    "seedId": "420-dice-video-studio",
-    "parcelId": "420-dice",
-    "decision": "studio-files-ready-for-review",
-    "published": false
+    "at": "2026-11-05T13:51:15.888Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
