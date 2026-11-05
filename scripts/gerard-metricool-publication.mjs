@@ -141,17 +141,54 @@ async function handoffMetricoolByEmail(candidate) {
     delivery: { status: outcome.status, publishingEnabled: false, stage: "gmail-relay", reason: outcome.reason ?? null } };
 }
 
-// Public projects from the Blacklace garden. Each supports three editorial
-// treatments, so the fallback can move on even when one subject lacks sources.
+// Local captions are deliberately phrased as prompts to the community.
+// They require no provider, media, or unverified claims about the project.
 const FACEBOOK_PROJECTS = [
-  ["prohibited-online", "Pro.Hibited Online"],
-  ["blacklace-dice", "Blacklace Dice"],
-  ["feuch-dice", "Feuch Dice"],
-  ["prout-hibited", "Prout.Hibited"],
-  ["jointed", "Jointed"],
-  ["420-dice", "420 Dice Game"],
-  ["blacklace-island", "Blacklace Island"],
-  ["feuch-game", "Feuch Game"],
+  ["prohibited-online", "Pro.Hibited Online", [
+    "Si tu pouvais saboter ton propre plan pour faire rire la table, tu le ferais ?",
+    "Dans un jeu en ligne, tu préfères une revanche immédiate ou le temps de refaire la partie avec les autres ?",
+    "Pour découvrir Pro.Hibited Online, tu voudrais voir un premier tour ou le moment où le plan déraille ?",
+  ]],
+  ["blacklace-dice", "Blacklace Dice", [
+    "Le dé tombe sous la table. Résultat annulé ou les enfers comptent comme surface de jeu ?",
+    "Quel détail rend un lancer plus satisfaisant pour toi : le bruit, le suspense ou la réaction des autres ?",
+    "Pour découvrir Blacklace Dice, tu commencerais par un lancer commenté ou un petit défi à tenter en groupe ?",
+  ]],
+  ["feuch-dice", "Feuch Dice", [
+    "Tu as droit à une formule ridicule pour porter chance à ton prochain lancer. Laquelle ?",
+    "Pour rendre un lancer mémorable, tu travaillerais d’abord le rythme ou la surprise ?",
+    "Pour découvrir Feuch Dice, tu voterais pour un défi éclair ou une revanche en trois manches ?",
+  ]],
+  ["prout-hibited", "Prout.Hibited", [
+    "Concours de poker face : qui dans ta bande craquerait en premier si le jeu avait ce nom ?",
+    "Où placerais-tu le curseur de l’absurde : dans le titre, dans la situation ou dans la chute ?",
+    "Pour présenter Prout.Hibited en dix secondes, tu tenterais le pitch très sérieux ou la bande-annonce complètement absurde ?",
+  ]],
+  ["jointed", "Jointed", [
+    "Imagine deux cartes adversaires condamnées à faire équipe. Quels noms donnerais-tu à ce duo improbable ?",
+    "Pour une combinaison de cartes, tu préfères comprendre l’idée tout de suite ou la découvrir en jouant ?",
+    "Pour découvrir Jointed, tu regarderais d’abord une association de cartes ou le dilemme qui force à choisir ?",
+  ]],
+  ["420-dice", "420 Dice Game", [
+    "Quand un lancer ne te donne rien, tu accuses le hasard, la gravité ou ton dé porte-malheur ?",
+    "Dans une séquence de dés, tu couperais l’image sur le lancer ou sur la tête du joueur juste après ?",
+    "Pour découvrir 420 Dice Game, tu veux voir le lancer le plus chanceux ou celui que personne ne voudrait assumer ?",
+  ]],
+  ["blacklace-island", "Blacklace Island", [
+    "Tu débarques sur une île au crépuscule. Tu suis les lucioles ou tu cherches d’abord un abri ?",
+    "Sur une carte d’île, quel premier repère te donne envie d’explorer : une lumière au loin ou un chemin qui disparaît ?",
+    "Pour découvrir Blacklace Island, tu ferais le tour de la côte ou tu irais droit vers le point le plus mystérieux ?",
+  ]],
+  ["feuch-game", "Feuch Game", [
+    "Quel est le pire superpouvoir à avoir un soir de jeu ? Le mien serait de deviner le résultat juste après le lancer.",
+    "Qu’est-ce qui fait un bon premier tour : un choix évident pour se lancer ou un dilemme qui donne tout de suite le ton ?",
+    "Pour découvrir Feuch Game, tu préfères un défi à relever ensemble ou chacun son tour sous le regard des autres ?",
+  ]],
+];
+const LOCAL_FOLLOWUPS = [
+  "",
+  " Et qu’est-ce qui te ferait changer d’avis ?",
+  " Demande à la personne avec qui tu joues le plus : elle choisirait comme toi ?",
 ];
 const EDITORIAL_ANGLES = [
   ["entertainment", "Une question amusante ou un mini-défi imaginaire pour les joueurs."],
@@ -164,7 +201,7 @@ function copyKey(text) {
   return text.normalize("NFKC").toLocaleLowerCase("fr").replace(/\s+/g, " ").trim();
 }
 
-async function generateFacebookCandidate(project, angle, oldCaptions) {
+async function requestPublisherCaption(project, angle, oldCaptions) {
   const [seedId, title] = project;
   const [category, treatment] = angle;
   const objective = "Écrire un seul post Facebook en français pour la marque Pro.hibited.";
@@ -177,7 +214,7 @@ async function generateFacebookCandidate(project, angle, oldCaptions) {
       title, objective, requiredCapabilities: ["content.social.write"], authorizedResources: [],
       prompt: [
         objective, `Sujet unique : ${title}.`, treatment,
-        "Retourne uniquement la légende prête à poster, en texte simple, 450 caractères maximum.",
+        "Dans le champ content, écris uniquement la légende prête à poster, en texte simple, 450 caractères maximum.",
         "Aucun lien, prix, disponibilité ou promesse. N'invente aucune règle du jeu, anecdote ni citation.",
         "Aucun scénario de tournage, commentaire interne, Markdown, second projet ou invitation à acheter une substance.",
         ...oldCaptions.slice(-3).map(text => `Angle à ne pas répéter : ${JSON.stringify(text)}`),
@@ -191,16 +228,24 @@ async function generateFacebookCandidate(project, angle, oldCaptions) {
   const result = await response.json();
   const output = result?.output;
   const text = typeof output?.text === "string" ? output.text.trim() : "";
-  if (output?.isMock || output?.mock || output?.simulated || output?.fallbackReason)
-    throw new Error("provider-unavailable");
+  if (output?.isMock || output?.mock || output?.simulated || output?.provider === "mock") {
+    const limited = /429|rate limit|quota/i.test(output?.fallbackReason ?? "");
+    throw new Error(limited ? "provider-rate-limited" : "provider-unavailable");
+  }
   if (result.status !== "completed" || output?.knowledgePackage?.verified !== true)
     throw new Error("project-knowledge-unavailable");
   if (text.length < 25 || text.length > 500 || /https?:\/\/|\*\*|^\s*#\s|\[[^\]]+\]|voix off|plan serré|mode mock actif/im.test(text))
     throw new Error("caption-not-ready");
+  return text;
+}
+
+function makeFacebookCandidate(project, angle, text, strategy) {
+  const [seedId, title] = project;
+  const [category] = angle;
   const hash = createHash("sha256").update(copyKey(text)).digest("hex");
   return {
     status: "ready", harvestId: `gerard-facebook-${hash}`, seedId, title, category,
-    copy: { text, strategy: "autonomous-metricool-fallback" }, compatibleNetworks: ["facebook"],
+    copy: { text, strategy }, compatibleNetworks: ["facebook"],
     transport: { provider: "metricool", brandId: "3350145" },
     editorialRoute: { destination: { preferredProvider: "metricool" } },
   };
@@ -215,37 +260,45 @@ async function prepareMetricoolFallback() {
   }
   const topics = EDITORIAL_ANGLES.flatMap(angle => FACEBOOK_PROJECTS.map(project => ({ project, angle })));
   const recent = ledger.history.slice(-200);
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const seen = new Set(recent.filter(item => typeof item.text === "string").map(item => copyKey(item.text)));
+  let publisherFailure = null;
+  let candidate;
+  for (let attempt = 0; attempt < topics.length; attempt++) {
     const { project, angle } = topics[ledger.cursor % topics.length];
     ledger.cursor = (ledger.cursor + 1) % topics.length;
-    const [seedId] = project;
+    const [seedId, title, captions] = project;
     const [category] = angle;
-    const entry = { at: new Date().toISOString(), seedId, category };
-    recent.push(entry);
-    try {
-      const previous = recent.filter(item => item.seedId === seedId && item.text).map(item => item.text);
-      const candidate = await generateFacebookCandidate(project, angle, previous);
-      const text = candidate.copy.text;
-      if (recent.some(item => item.text && copyKey(item.text) === copyKey(text))) throw new Error("caption-already-tried");
-      entry.text = text;
-      entry.status = "prepared";
-      // Preserve the candidate before starting the external mail handoff.
-      await writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
-      const delivered = await handoffMetricoolByEmail(candidate);
-      entry.status = delivered.metricoolHandoff?.status ?? "handoff-ineligible";
-      entry.handoff = delivered.metricoolHandoff ?? null;
-      await writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
-      return { seedId, category, status: entry.status, handoff: entry.handoff };
-    } catch (error) {
-      // Do not choose a second post if a mail attempt may already have occurred.
-      if (entry.text) throw error;
-      entry.status = error.message;
-      await writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
-      if (entry.status === "provider-unavailable" || entry.status === "octopus-http-429") break;
+    if (attempt === 0) {
+      try {
+        const previous = recent.filter(item => item.seedId === seedId && item.text).map(item => item.text);
+        const text = await requestPublisherCaption(project, angle, previous);
+        if (seen.has(copyKey(text))) throw new Error("caption-already-tried");
+        candidate = makeFacebookCandidate(project, angle, text, "publisher");
+        break;
+      } catch (error) {
+        publisherFailure = error.name === "TimeoutError" ? "publisher-timeout" : error.message;
+      }
+    }
+    const base = captions[EDITORIAL_ANGLES.indexOf(angle)];
+    const text = LOCAL_FOLLOWUPS
+      .map(followup => `${title} — ${base}${followup}`)
+      .find(caption => !seen.has(copyKey(caption)));
+    if (text) {
+      candidate = makeFacebookCandidate(project, angle, text, "local-editorial");
+      break;
     }
   }
-  const { seedId, category, status } = recent.at(-1);
-  return { seedId, category, status };
+  if (!candidate) return { status: "local-catalogue-exhausted", publisherFailure };
+  const { seedId, category, copy: { text, strategy } } = candidate;
+  const entry = { at: new Date().toISOString(), seedId, category, text, strategy, publisherFailure, status: "prepared" };
+  recent.push(entry);
+  const save = () => writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
+  await save();
+  const delivered = await handoffMetricoolByEmail(candidate);
+  entry.status = delivered.metricoolHandoff?.status ?? "handoff-ineligible";
+  entry.handoff = delivered.metricoolHandoff ?? null;
+  await save();
+  return { seedId, category, strategy, publisherFailure, status: entry.status, handoff: entry.handoff };
 }
 
 async function main() {
