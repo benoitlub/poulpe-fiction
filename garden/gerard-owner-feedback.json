@@ -26,6 +26,32 @@
         "Ne pas engager de dépenses ou activer un service payant."
       ],
       "status": "accepted-for-learning"
+    },
+    {
+      "id": "benoit-420-dice-short-2026-11-05",
+      "source": "owner-reviewed-github",
+      "ownerGitHub": "benoitlub",
+      "approvedAt": "2026-11-05",
+      "parcelId": "420-dice",
+      "assetType": "short-video",
+      "artifact": "garden/studio/420-dice/studio-72c6c95fbea243bdcae260bff56fe1778a7291ac6d4f13fae359d3919c8d7fe5/short.mp4",
+      "evaluation": {
+        "voice": "needs-improvement",
+        "motion": "failed",
+        "summary": "Le rendu reprend la même image fixe, sans vraie partie animée. La voix Piper paraît artificielle et ne prononce pas naturellement le nom anglais « 420 Dice Game »."
+      },
+      "creativeGuidance": [
+        "Ce retour du 5 novembre remplace l'ancien avis positif sur Piper : ne pas conserver cette voix au motif que l'avis du 26 octobre l'aurait approuvée.",
+        "Ne pas présenter une image fixe sous-titrée comme une capture animée de 420 Dice ; intégrer une vraie capture de partie avec des lancers et des changements de plans.",
+        "Prononcer « 420 Dice Game » clairement et naturellement. Si la voix Piper disponible ne sait pas prononcer le nom correctement, signaler la limite au lieu de qualifier la voix de réussie.",
+        "N'évaluer le mouvement qu'à partir d'images de jeu réellement distinctes, pas du seul changement des sous-titres."
+      ],
+      "prohibitedActions": [
+        "Ne pas modifier les publications déjà programmées.",
+        "Ne pas publier automatiquement une nouvelle version vidéo.",
+        "Ne pas engager de dépenses ni activer un service payant."
+      ],
+      "status": "accepted-for-learning"
     }
   ]
 }
