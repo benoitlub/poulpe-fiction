@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
+import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
 export function metricoolMission(candidate, { execute = false, now = new Date() } = {}) {
@@ -195,6 +195,103 @@ const EDITORIAL_ANGLES = [
   ["behind-the-scenes", "Une question de conception concrète, formulée comme un choix ouvert."],
   ["promotion", "Une courte invitation à découvrir le projet avec une caractéristique vérifiée."],
 ];
+// Only fixed project IDs choose the image subject. A generated caption never
+// controls the source, the search terms, or the permissions on an asset.
+const VISUAL_SEARCHES = {
+  "prohibited-online": "playing cards on table",
+  "blacklace-dice": "dice tabletop game",
+  "feuch-dice": "dice tabletop game",
+  "prout-hibited": "tabletop game playing cards",
+  jointed: "playing cards hand",
+  "420-dice": "three dice tabletop",
+  "blacklace-island": "island aerial coastline",
+  "feuch-game": "tabletop game pieces",
+};
+
+const OFFICIAL_VISUALS = {
+  "420-dice": [
+    {
+      kind: "capture-source",
+      title: "Jeu officiel · lancer réel à capturer",
+      source: "https://benoitlub.github.io/420-dice-game-reboot/",
+    },
+    {
+      kind: "official-preview",
+      title: "Visuel officiel enregistré au studio · aperçu",
+      source: "https://github.com/benoitlub/420-dice-game-reboot/blob/bf315300db5c5ab580c6f86bb14ae56d884b6739/public/opengraph.jpg",
+      license: "Aperçu local autorisé",
+    },
+  ],
+};
+
+function isHttpsHost(value, host) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.host === host && !url.username && !url.password;
+  } catch { return false; }
+}
+
+function commonsProposal(page) {
+  const info = page.imageinfo?.[0];
+  if (!info || !["image/jpeg", "image/png"].includes(info.mime) || info.width < 640) return null;
+  if (!isHttpsHost(info.descriptionurl, "commons.wikimedia.org") || !isHttpsHost(info.url, "upload.wikimedia.org")) return null;
+  const metadata = info.extmetadata;
+  const license = metadata?.LicenseUrl?.value;
+  if (!/^https?:\/\/creativecommons\.org\/(?:publicdomain\/(?:zero|mark)\/1\.0|licenses\/by\/(?:2\.0|2\.5|3\.0|4\.0))\/?$/i.test(license ?? "")) return null;
+  if (metadata?.Restrictions?.value?.trim()) return null;
+  const author = (metadata?.Artist?.value ?? "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().slice(0, 180);
+  if (license.includes("/licenses/by/") && !author) return null;
+  return {
+    kind: "commons-illustration",
+    title: String(page.title ?? "Illustration").replace(/^File:/, "").slice(0, 160),
+    source: info.descriptionurl,
+    mediaUrl: info.url,
+    license,
+    author,
+  };
+}
+
+async function proposeVisuals(seedId) {
+  const query = VISUAL_SEARCHES[seedId];
+  if (!query) return [];
+  const proposals = [...(OFFICIAL_VISUALS[seedId] ?? [])];
+  try {
+    const api = new URL("https://commons.wikimedia.org/w/api.php");
+    api.search = new URLSearchParams({
+      action: "query", generator: "search", gsrnamespace: "6", gsrlimit: "8",
+      gsrsearch: `filetype:bitmap ${query}`, prop: "imageinfo",
+      iiprop: "url|mime|size|extmetadata", format: "json", formatversion: "2",
+    }).toString();
+    const response = await fetch(api, {
+      headers: { "User-Agent": "PoulpeFiction/1.0 (https://github.com/benoitlub/poulpe-fiction)" },
+      signal: AbortSignal.timeout(6500),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const result = await response.json();
+    if (result.error) throw new Error("Commons API error");
+    const commons = (result.query?.pages ?? []).map(commonsProposal).filter(Boolean).slice(0, 2);
+    proposals.push(...commons);
+  } catch (error) {
+    console.log(JSON.stringify({ event: "gerard.visual-library.unavailable", seedId, reason: error.name === "TimeoutError" ? "timeout" : "commons-request-failed" }));
+  }
+  if (process.env.GITHUB_STEP_SUMMARY && proposals.length) {
+    // Use fixed link labels; remote file titles and author metadata stay in
+    // the private ledger and cannot inject Markdown into the Actions summary.
+    const links = proposals.map(({ kind, source, license }) => {
+      const label = { "capture-source": "Page officielle à capturer", "official-preview": "Visuel officiel pour aperçu",
+        "commons-illustration": "Illustration Wikimedia Commons" }[kind];
+      const terms = kind === "commons-illustration" ? ` · [licence](<${license}>)` : "";
+      return `- [${label}](<${source}>)${terms}`;
+    });
+    try {
+      await appendFile(process.env.GITHUB_STEP_SUMMARY, `\n### Visuels proposés par Gérard · ${seedId}\n\n${links.join("\n")}\n`);
+    } catch {
+      console.log(JSON.stringify({ event: "gerard.visual-summary.unavailable", seedId }));
+    }
+  }
+  return proposals;
+}
+
 const FALLBACK_LEDGER = new URL("../garden/gerard-metricool-fallback.json", import.meta.url);
 
 function copyKey(text) {
@@ -290,7 +387,8 @@ async function prepareMetricoolFallback() {
   }
   if (!candidate) return { status: "local-catalogue-exhausted", publisherFailure };
   const { seedId, category, copy: { text, strategy } } = candidate;
-  const entry = { at: new Date().toISOString(), seedId, category, text, strategy, publisherFailure, status: "prepared" };
+  const visualProposals = await proposeVisuals(seedId);
+  const entry = { at: new Date().toISOString(), seedId, category, text, strategy, publisherFailure, visualProposals, status: "prepared" };
   recent.push(entry);
   const save = () => writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
   await save();
@@ -298,7 +396,7 @@ async function prepareMetricoolFallback() {
   entry.status = delivered.metricoolHandoff?.status ?? "handoff-ineligible";
   entry.handoff = delivered.metricoolHandoff ?? null;
   await save();
-  return { seedId, category, strategy, publisherFailure, status: entry.status, handoff: entry.handoff };
+  return { seedId, category, strategy, publisherFailure, status: entry.status, visualProposalCount: visualProposals.length, handoff: entry.handoff };
 }
 
 async function main() {
