@@ -58,6 +58,64 @@ export async function persistSnapshot(pool, payload, expectedVersion) {
   if (check.rows[0]?.version !== saved.rows[0].version || !isDeepStrictEqual(check.rows[0]?.payload, payload)) throw new Error("private-state-backup-not-verified");
   return saved.rows[0].version;
 }
+// Each tentacle sends only its local changes. The short row lock serializes
+// commits, while the tentacles run independently against their hydrated view.
+function mergeOutbox(base, local, latest) {
+  const before = new Map((base?.drafts ?? []).map(draft => [draft.id, draft]));
+  const merged = new Map((latest?.drafts ?? []).map(draft => [draft.id, draft]));
+  for (const draft of local.drafts ?? []) {
+    const prior = before.get(draft.id);
+    if (isDeepStrictEqual(draft, prior)) continue;
+    const current = merged.get(draft.id);
+    if (!current || isDeepStrictEqual(current, prior)) {
+      merged.set(draft.id, draft);
+      continue;
+    }
+    // A contact outcome must survive a simultaneous refresh of its draft.
+    const attempted = value => value?.sentAt || value?.contacted ||
+      ["sent", "sending", "unknown", "duplicate-blocked"].includes(value?.status);
+    if (attempted(draft) && !attempted(current)) merged.set(draft.id, { ...current, ...draft });
+  }
+  return { ...local, ...latest, drafts: [...merged.values()].slice(-100) };
+}
+
+async function persistTentacle(pool, baseline, local) {
+  const changed = Object.entries(local.files).filter(([name, value]) =>
+    !isDeepStrictEqual(baseline.files[name], value));
+  if (!changed.length) return { files: {}, version: null };
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      "INSERT INTO gerard_private_runtime (snapshot_key, version, payload) VALUES ('poulpe-fiction', 1, $1::jsonb) ON CONFLICT DO NOTHING",
+      [JSON.stringify(baseline)],
+    );
+    const locked = await client.query("SELECT version, payload FROM gerard_private_runtime WHERE snapshot_key = 'poulpe-fiction' FOR UPDATE");
+    const latest = locked.rows[0].payload;
+    const files = { ...latest.files };
+    const applied = {};
+    for (const [name, value] of changed) {
+      const before = baseline.files[name];
+      const current = latest.files[name];
+      if (name === "gerard-mail-outbox.json") applied[name] = mergeOutbox(before, value, current);
+      else if (isDeepStrictEqual(current, before) || isDeepStrictEqual(current, value)) applied[name] = value;
+      else throw new Error("tentacle-state-conflict:" + name);
+      files[name] = applied[name];
+    }
+    const payload = JSON.stringify({ schema, files });
+    if (payload.length > 10_000_000) throw new Error("private-state-too-large");
+    const result = await client.query("UPDATE gerard_private_runtime SET version = version + 1, payload = $1::jsonb, updated_at = now() WHERE snapshot_key = 'poulpe-fiction' RETURNING version, payload", [payload]);
+    if (!isDeepStrictEqual(result.rows[0]?.payload, JSON.parse(payload))) throw new Error("private-state-backup-not-verified");
+    await client.query("COMMIT");
+    return { files: applied, version: result.rows[0].version };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 export async function projectGarden(dir, payload) {
   for (const [name, value] of Object.entries(payload.files)) {
     if (!safeName(name)) throw new Error("private-state-invalid-name");
@@ -82,11 +140,22 @@ async function main() {
         if (Object.values(initial.files).some(v => v.publicProjection === true)) throw new Error("private-state-backup-required");
       }
       await writeFile(marker, String(row?.version ?? 0));
+      if (process.env.GERARD_TENTACLE) {
+        await writeFile(marker + ".baseline", JSON.stringify(await captureGarden(dir)), { mode: 0o600 });
+      }
       console.log(JSON.stringify({ status: row ? "private-state-restored" : "private-state-bootstrap", version: row?.version ?? 0 }));
     } else if (process.argv[2] === "persist") {
       const expected = Number(await readFile(marker, "utf8"));
       const payload = await captureGarden(dir);
       if (Object.values(payload.files).some(v => v.publicProjection === true)) throw new Error("private-state-not-hydrated");
+      if (process.env.GERARD_TENTACLE) {
+        const baseline = JSON.parse(await readFile(marker + ".baseline", "utf8"));
+        const saved = await persistTentacle(pool, baseline, payload);
+        await projectGarden(dir, { files: { ...payload.files, ...saved.files } });
+        console.log(JSON.stringify({ status: "tentacle-state-saved", lane: process.env.GERARD_TENTACLE,
+          version: saved.version, changedFiles: Object.keys(saved.files) }));
+        return;
+      }
       const version = await persistSnapshot(pool, payload, expected);
       // No public file is changed before the durable backup is read back.
       await projectGarden(dir, payload);
@@ -95,5 +164,9 @@ async function main() {
   } finally { await pool.end(); }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  main().catch(() => { console.error("Private runtime persistence failed; refusing public state commit. See the private database configuration."); process.exitCode = 1; });
+  main().catch(error => {
+    const conflict = /^tentacle-state-conflict:[a-z0-9-]+\.json$/.test(error?.message ?? "") ? error.message : null;
+    console.error(conflict ?? "Private runtime persistence failed; refusing public state commit. See the private database configuration.");
+    process.exitCode = 1;
+  });
 }
