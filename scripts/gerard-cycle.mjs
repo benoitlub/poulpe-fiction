@@ -8,6 +8,7 @@
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { creativeBenchmarkPrompt, loadCreativeBenchmarks } from "./gerard-creative-benchmarks.mjs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
@@ -279,6 +280,7 @@ async function callOctopus(mission) {
 async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
   const isB2B = selectedSeed.seedId === "benoit-client-acquisition";
   const verifiedContext = String(knowledgeOutput?.context || knowledgeOutput?.text || "").trim();
+  const benchmarks = await loadCreativeBenchmarks([selectedSeed.seedId, selectedSeed.parcelId, selectedSeed.title, selectedSeed.objective]);
   const prompt = [
     selectedSeed.firstHarvest || selectedSeed.objective || "Produire une récolte utile et directement exploitable.",
     ...(isB2B ? ["", "GARDE-FOU B2B : knowledge.search ne prouve pas une recherche Web actuelle. Si les sources fournies ne contiennent pas de sociétés réelles et leurs URL vérifiables, répondre explicitement SOURCE_EXTERNE_MANQUANTE. Ne produire aucun faux prospect, aucune fausse adresse et aucun statut de contact envoyé."] : []),
@@ -286,7 +288,8 @@ async function runRealHarvest(selectedSeed, knowledgeOutput, operationId) {
     "Contexte vérifié de la parcelle :",
     verifiedContext,
     "",
-    "Contraintes : utilise uniquement ce contexte vérifié. N'invente aucun fait manquant.",
+    ...creativeBenchmarkPrompt(benchmarks),
+    "Contraintes : utilise uniquement ce contexte vérifié pour les faits. N'invente aucun fait manquant.",
   ].join("\n").trim();
 
   const mission = {
@@ -376,9 +379,10 @@ async function main() {
           const learning = await readFile(new URL("../garden/gerard-learning.json", import.meta.url), "utf8")
             .then(JSON.parse).catch(() => ({}));
           const creativeFeedback = studioFeedbackForParcel(learning, selectedSeed.parcelId, kind);
-          const studioId=studioOperationId(selectedSeed,kind,creativeFeedback);
+          const benchmarks = kind === "video" ? await loadCreativeBenchmarks([selectedSeed.seedId, selectedSeed.parcelId, selectedSeed.title]) : [];
+          const studioId=studioOperationId(selectedSeed,kind,creativeFeedback,benchmarks);
           const outputDir = new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`, import.meta.url);
-          const studio = await runParcelStudio(selectedSeed,{kind,operationId:studioId,outputDir,creativeFeedback});
+          const studio = await runParcelStudio(selectedSeed,{kind,operationId:studioId,outputDir,creativeFeedback,benchmarks});
           result = { status:studio.status === "ready-for-review" ? "ok" : "failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId,
             decision:studio.status === "ready-for-review" ? "studio-files-ready-for-review" : "studio-production-blocked", studio, published:false };
         } catch (error) {
