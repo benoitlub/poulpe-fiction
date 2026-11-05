@@ -196,6 +196,150 @@
           }
         }
       ]
+    },
+    {
+      "seedId": "feuch-dice-image-studio",
+      "parcelId": "feuch-dice",
+      "title": "Feuch Dice",
+      "objective": "Créer une illustration originale de Feuch Dice pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Un dé vert lumineux suspendu au-dessus d’une table et deux silhouettes qui se défient du regard. Illustration du défi entre joueurs, sans interface de jeu inventée.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "feuch-lab-image-studio",
+      "parcelId": "feuch-lab",
+      "title": "Feuch Lab",
+      "objective": "Créer une illustration originale de Feuch Lab pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Un laboratoire d’expériences ludiques dont deux portes ouvrent sur des univers de jeu. Ambiance de maquette, sans représenter l’interface réelle du portail.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "blacklace-dice-image-studio",
+      "parcelId": "blacklace-dice",
+      "title": "Blacklace Dice",
+      "objective": "Créer une illustration originale de Blacklace Dice pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Une main lance un dé sombre entre deux chemins dessinés sur une table, métaphore d’une petite décision du quotidien. Aucun texte.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "prohibited-online-image-studio",
+      "parcelId": "prohibited-online",
+      "title": "Pro.Hibited Online",
+      "objective": "Créer une illustration originale de Pro.Hibited Online pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Des cartes de jeu sans inscriptions passent d’une table physique à une surface numérique abstraite. Illustration du passage du jeu de cartes au web, sans interface inventée.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "blacklace-echo-image-studio",
+      "parcelId": "blacklace-echo",
+      "title": "Blacklace Echo",
+      "objective": "Créer une illustration originale de Blacklace Echo pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Une côte imaginaire vue à la verticale, un port éclairé et un fragment de carte narrative. Illustration d’ambiance de Rotas, sans prétendre reproduire la carte du projet.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "bazar-du-feuch-image-studio",
+      "parcelId": "bazar-du-feuch",
+      "title": "Bazar du Feuch",
+      "objective": "Créer une illustration originale de Bazar du Feuch pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Une étagère foisonnante où se côtoient livres sans titre lisible, prototypes et jeux de table. Nature morte d’atelier, sans inventer de produits précis.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "creature-sync-image-studio",
+      "parcelId": "creature-sync",
+      "title": "Creature-Sync",
+      "objective": "Créer une illustration originale de Creature-Sync pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Un oiseau perché et un motif d’onde sonore qui évoque une répartie absurde. Illustration humoristique, sans texte ni prétention de traduction animale réelle.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "spectrl-image-studio",
+      "parcelId": "spectrl",
+      "title": "SpecTRL",
+      "objective": "Créer une illustration originale de SpecTRL pour revue éditoriale.",
+      "imageStudioOnly": true,
+      "templates": [
+        {
+          "id": "image-studio",
+          "enabled": true,
+          "config": {
+            "subject": "Un appareil de scan spectral fictif fait apparaître une silhouette abstraite dans une pièce sombre. Illustration de science-fiction, sans interface réelle ni texte.",
+            "style": "Illustration éditoriale verticale, composition lisible sur mobile",
+            "allowMistralImage": true
+          }
+        }
+      ]
     }
   ]
 }
