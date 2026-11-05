@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-05T14:26:44.344Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-05T14:31:41.247Z",
   "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-03T17:11:14.273Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793725872561"
-    },
     {
       "at": "2026-11-03T18:00:39.840Z",
       "mode": "cultivate",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-05T14:26:44.344Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1793888800327",
-      "result": "deferred"
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1793888800327"
+    },
+    {
+      "at": "2026-11-05T14:31:41.247Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1793889100191",
+      "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-30T01:07:33.539Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793322453159"
-    },
     {
       "at": "2026-10-30T10:10:29.969Z",
       "mode": "cultivate",
@@ -497,74 +491,23 @@
     },
     {
       "at": "2026-11-05T14:26:44.344Z",
-      "operationId": "gerard-cultivate-1793888800327",
       "mode": "cultivate",
+      "seedId": "benoit-job-search",
       "outcome": "deferred",
       "decision": "b2b-sources-deferred",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career"
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1793888800327"
+    },
+    {
+      "at": "2026-11-05T14:31:41.247Z",
+      "operationId": "gerard-symbiosis-1793889100191",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "deferred",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1793888800327",
-    "seedId": "benoit-job-search",
-    "parcelId": "benoit-career",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "benoit-lubert-professional",
-      "source": "notion"
-    },
-    "delivery": {
-      "mode": "review-only"
-    },
-    "decision": "b2b-sources-deferred",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1793888800327-knowledge",
-        "status": "completed",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "benoit-lubert-professional",
-          "source": "notion",
-          "verified": true,
-          "itemCount": 2,
-          "diagnostics": {
-            "connected": true,
-            "totalItems": 3,
-            "matchedItems": 2,
-            "discoveredItems": 2,
-            "digestedItems": 2
-          }
-        },
-        "missionId": "gerard-cultivate-1793888800327-knowledge",
-        "contextId": "benoit-career",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1793888800327-knowledge",
-          "state": "completed",
-          "createdAt": "2026-11-05T14:26:41.937Z",
-          "updatedAt": "2026-11-05T14:26:44.342Z"
-        }
-      }
-    },
-    "harvest": {
-      "status": "deferred",
-      "verification": {
-        "reason": "b2b-external-sources-unavailable",
-        "seedId": "benoit-job-search"
-      }
-    },
-    "deferred": {
-      "reason": "b2b-external-sources-unavailable",
-      "source": "publisher-worker",
-      "researchRequired": true,
-      "seedId": "benoit-job-search"
-    }
+    "at": "2026-11-05T14:31:41.246Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
