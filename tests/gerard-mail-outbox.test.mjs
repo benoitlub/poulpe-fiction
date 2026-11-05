@@ -9,7 +9,7 @@ test('drafts are honest, unsent and have no invented email addresses', () => {
   const [draft] = createMailDrafts([source]);
   assert.equal(draft.recipientEmail, null);
   assert.equal(draft.senderEmail, GERARD_SENDER_EMAIL);
-  assert.equal(draft.senderEmail, 'gerardpoulpefiction@gmail.com');
+  assert.equal(draft.senderEmail, 'gerard.poulpe-fiction@gmail.com');
   assert.equal(draft.contacted, false);
   assert.equal(draft.sentAt, null);
   assert.match(draft.body, /assistant commercial numérique/);
