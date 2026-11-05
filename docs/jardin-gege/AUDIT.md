@@ -1,6 +1,6 @@
 # Le Jardin des Gégé — audit et prototype isolé
 
-Audit du 23 octobre 2026. Le prototype est une greffe dans Poulpe Fiction, sans remplacement de sa home. Sa direction artistique représente Gérard et les Gégé comme de petits hamsters anthropomorphes spécialisés, habitants du jardin aquatique. Les workflows et la home restent conservés. Après autorisation de déploiement, le build principal ajoute uniquement une route d’aperçu dédiée.
+Audit du 23 octobre 2026. Le prototype est une greffe dans Poulpe Fiction, sans remplacement de sa home. Direction artistique corrigée pour la V2 du 26 octobre : Gérard est un poulpe coordinateur ; les Gégé sont de petits hamsters anthropomorphes spécialisés, habitants du jardin aquatique. Les workflows et la home restent conservés. Après autorisation de déploiement, le build principal ajoute uniquement une route d’aperçu dédiée.
 
 ## Sources inspectées
 

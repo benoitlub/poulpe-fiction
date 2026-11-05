@@ -11,15 +11,9 @@ export const roleColors: Record<AgentRole, string> = {
   semeur: "#9fa9de",
 };
 
-/** Shared hamster silhouette for the garden, Gérard and every inspector portrait. */
-export function Gege({
-  role = "jardinier",
-  chief = false,
-}: {
-  role?: AgentRole;
-  chief?: boolean;
-}) {
-  const color = chief ? "#dcb46e" : roleColors[role];
+/** Hamster workers only. Gérard has a separate octopus component. */
+export function Gege({ role = "jardinier" }: { role?: AgentRole }) {
+  const color = roleColors[role];
   return (
     <svg viewBox="0 0 84 96" aria-hidden="true" data-character="hamster">
       <ellipse cx="42" cy="89" rx="29" ry="5" fill="#051f28" opacity=".4" />
@@ -29,17 +23,13 @@ export function Gege({
       <ellipse cx="29" cy="87" rx="9" ry="5" fill="#e7b19a" />
       <ellipse cx="55" cy="87" rx="9" ry="5" fill="#e7b19a" />
       <path d="M25 52q17 9 34 0l4 27q-21 12-42 0Z" fill={color} />
-      {chief ? (
-        <path d="M35 54l7 11 7-11v29H35Z" fill="#f2ddaf" />
-      ) : (
-        <path
-          d="M29 53v12h26V53M32 69h20v9H32Z"
-          fill="none"
-          stroke="#f2ddaf"
-          strokeWidth="2"
-          opacity=".7"
-        />
-      )}
+      <path
+        d="M29 53v12h26V53M32 69h20v9H32Z"
+        fill="none"
+        stroke="#f2ddaf"
+        strokeWidth="2"
+        opacity=".7"
+      />
       <ellipse
         cx="19"
         cy="65"
@@ -89,35 +79,7 @@ export function Gege({
         strokeWidth="1.2"
         strokeLinecap="round"
       />
-      {chief && (
-        <g>
-          <g fill="none" stroke="#866a48" strokeWidth="1.4">
-            <circle cx="31" cy="32" r="7" />
-            <circle cx="53" cy="32" r="7" />
-            <path d="M38 31h8" />
-          </g>
-          <circle cx="54" cy="69" r="5" fill="#f4df9f" stroke="#94723e" />
-          <path d="m54 65 2 6-4-2Z" fill="#437b70" />
-          <path
-            d="M12 66v-6q6-7 12 0v6"
-            stroke="#b69b62"
-            fill="none"
-            strokeWidth="2"
-          />
-          <rect
-            x="12"
-            y="66"
-            width="12"
-            height="15"
-            rx="3"
-            fill="#e8cd82"
-            stroke="#987844"
-            strokeWidth="2"
-          />
-          <path d="M18 69v9" stroke="#fff2bd" strokeWidth="3" />
-        </g>
-      )}
-      {!chief && role === "cueilleur" && (
+      {role === "cueilleur" && (
         <g>
           <path
             d="M7 72q10-15 21 0"
@@ -142,7 +104,7 @@ export function Gege({
           />
         </g>
       )}
-      {!chief && role === "tresseur" && (
+      {role === "tresseur" && (
         <g>
           <rect
             x="5"
@@ -163,7 +125,7 @@ export function Gege({
           <path d="m63 80 2-7 3 2Z" fill="#304641" />
         </g>
       )}
-      {!chief && role === "enlumineur" && (
+      {role === "enlumineur" && (
         <g>
           <path d="M30 17q12-13 25 0Z" fill={color} />
           <path d="m43 11 2-5" stroke="#915d85" strokeWidth="2" />
@@ -182,7 +144,7 @@ export function Gege({
           <path d="m68 60 3-10q7 4 2 11Z" fill="#89bcb3" />
         </g>
       )}
-      {!chief && role === "passeur" && (
+      {role === "passeur" && (
         <g>
           <path d="m28 54 31 28" stroke="#6d5842" strokeWidth="4" />
           <rect x="48" y="70" width="19" height="14" rx="3" fill="#b39362" />
@@ -198,7 +160,7 @@ export function Gege({
           />
         </g>
       )}
-      {!chief && role === "greffeur" && (
+      {role === "greffeur" && (
         <g>
           <path d="M22 22h40" stroke="#745b44" strokeWidth="3" />
           <g fill="#a2c8b8" stroke="#85654a" strokeWidth="2">
@@ -215,7 +177,7 @@ export function Gege({
           <path d="M28 78h26" stroke="#71563e" strokeWidth="4" />
         </g>
       )}
-      {!chief && role === "jardinier" && (
+      {role === "jardinier" && (
         <g>
           <path d="M31 56h22v26H31Z" fill="#bac28c" />
           <path d="M36 69h12v8H36Z" fill="#738a58" />
@@ -227,7 +189,7 @@ export function Gege({
           />
         </g>
       )}
-      {!chief && role === "semeur" && (
+      {role === "semeur" && (
         <g>
           <path d="m9 69 17 1 3 16H7Z" fill="#c6b58b" />
           <path d="M8 72h20" stroke="#887b52" strokeWidth="2" />

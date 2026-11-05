@@ -24,22 +24,22 @@ Le jeu `prototypes/gege/demo.ts` couvre les sept métiers et les six états. Il 
 
 ## Direction visuelle du prototype
 
-React + SVG 2D, sans moteur 3D, turquoise et eau profonde, îlots mousse, cuivre, sable, serres et passerelles. Sept petits hamsters anthropomorphes, avec couleur, tenue et outil propres à chaque métier, et Gérard, hamster coordinateur, au centre. Oreilles rondes dégagées, abajoues généreuses, museau court, moustaches fines et petites pattes : cette silhouette commune doit rester reconnaissable dans la scène comme dans les portraits. Les routes et l’animation dérivent de `visualState(mission)` : les statuts en cours font circuler le courant ; échec et blocage immobilisent le travail ; une réussite retire la route mais conserve son historique.
+React + SVG 2D, sans moteur 3D, turquoise et eau profonde, îlots mousse, cuivre, sable, serres et passerelles. Sept petits hamsters anthropomorphes, avec couleur, tenue et outil propres à chaque métier, et Gérard, poulpe coordinateur à huit tentacules, au centre. Oreilles rondes dégagées, abajoues généreuses, museau court, moustaches fines et petites pattes : cette silhouette des ouvriers doit rester reconnaissable dans la scène comme dans les portraits. Les routes et l’animation dérivent de `visualState(mission)` : les statuts en cours font circuler le courant ; échec et blocage immobilisent le travail ; une réussite retire la route mais conserve son historique.
 
 À approfondir côté Lovable : marche avec cargaison sur les trajets, transitions entre positions lors de nouveaux événements, détails isométriques, mouvements d’ambiance sobres et découpage de la scène sur petits écrans. Le prototype montre une activité de travail sur place et des canaux animés ; ce n’est pas encore le système final de déplacement des cargaisons.
 
-Douze hamsters maximum visibles ; toute mission reste dans la synthèse. Panoramique tactile, zoom par boutons, déplacement au clavier et mode réduction des animations ; pause explicite. Ne pas masquer l’origine, la date de dernière observation, le caractère partiel d’un historique ou un blocage persistant.
+Un hamster par métier avec des missions observées, sept maximum ; chaque groupe expose toutes ses missions et leurs états exacts. Toute mission reste aussi dans la synthèse. Cadrage complet adaptatif, zoom par boutons et pincement, déplacement au clavier, exploration tactile explicite et réduction des animations ; pause explicite. Ne pas masquer l’origine, la date de dernière observation, le caractère partiel d’un historique ou un blocage persistant.
 
 ## Garde-fous d’intégration
 
-La lecture de `snapshot.json` est le seul appel réseau applicatif du prototype. L’aperçu est intégré au build Pages sous `/jardin-gege/` après autorisation de mise en ligne ; la home reste conservée. Aucune API de publication, purge, synchronisation, génération ou diagnostic à effets de bord n’est importée. Les bibliothèques de l’ancienne home ne sont pas chargées. Aucune dépendance nouvelle n’est ajoutée au package de production.
+Le seul appel réseau applicatif du prototype est la lecture GET du flux Publisher via `useGardenFeed`. L’aperçu est intégré au build Pages sous `/jardin-gege/` après autorisation de mise en ligne ; la home reste conservée. Aucune API de publication, purge, synchronisation, génération ou diagnostic à effets de bord n’est importée. Les bibliothèques de l’ancienne home ne sont pas chargées. Aucune dépendance nouvelle n’est ajoutée au package de production.
 
 Ne pas déduire une connexion fournisseur à partir d’un métier représenté. Ne pas faire progresser une tâche par durée d’animation. Ne pas annoncer un pourcentage absent des données. Une carte résultat ne doit être cliquable que si son URL validée est présente. Les priorités de Gérard non raccordées restent signalées comme indisponibles.
 
 
 ## Personnages et accessoires
 
-Les Gégé habitent le jardin aquatique et travaillent debout sur leurs petites pattes. Leur corps est rond et compact, leur pelage miel et crème, leurs attitudes expressives, ingénieuses et un peu maladroites. Les vêtements sont des accessoires de travail adaptés à leur morphologie. Gérard partage leur anatomie ; son gilet doré, ses lunettes rondes, sa boussole et sa lanterne signalent son rôle de coordinateur.
+Les Gégé habitent le jardin aquatique et travaillent debout sur leurs petites pattes. Leur corps est rond et compact, leur pelage miel et crème, leurs attitudes expressives, ingénieuses et un peu maladroites. Les vêtements sont des accessoires de travail adaptés à leur morphologie. Gérard possède sa propre anatomie de poulpe : manteau turquoise, huit tentacules, lunettes de cuivre, col sable doré et boussole. Ne pas lui ajouter d’oreilles de hamster ni de pattes de mammifère.
 
 | Métier | Tenue et accessoires |
 | --- | --- |
@@ -51,11 +51,11 @@ Les Gégé habitent le jardin aquatique et travaillent debout sur leurs petites 
 | Jardinier de fond | Tablier végétal, poche à graines et petit râteau |
 | Semeur | Tenue pervenche, sachet de semences et graines dans la patte |
 
-Le nom du métier « Jardinier de fond » reste une fonction du système. Tous les personnages, y compris ce métier et Gérard, sont des hamsters. Le composant partagé `prototypes/gege/Gege.tsx` fournit la silhouette et les accessoires aux personnages de la scène et aux portraits ; éviter des versions séparées qui divergeraient.
+Le nom du métier « Jardinier de fond » reste une fonction du système. Les ouvriers des sept métiers sont des hamsters ; Gérard est un poulpe. `prototypes/gege/Gege.tsx` fournit les ouvriers de la scène et leurs portraits. `prototypes/gege/Gerard.tsx` fournit le coordinateur de la scène et son portrait. Conserver ces deux composants distincts.
 
 ## Prompt de référence pour les futures illustrations
 
-« Petits hamsters anthropomorphes expressifs vivant et travaillant dans un jardin aquatique miniature en perspective 2,5D. Corps ronds, pelage miel et crème, grandes abajoues, petites oreilles rondes toujours visibles, museau court, fines moustaches et petites pattes. Tenues et outils adaptés à chacun des sept métiers décrits ci-dessus. Gérard est un hamster coordinateur avec gilet doré, lunettes rondes, boussole et lanterne. Bassins translucides, nénuphars, passerelles organiques et ateliers à leur échelle. Turquoise, vert mousse, bleu profond, sable doré et cuivre patiné. Ambiance poétique, habitée, chaleureuse ; silhouettes lisibles sur mobile. »
+« Petits hamsters anthropomorphes expressifs vivant et travaillant dans un jardin aquatique miniature en perspective 2,5D. Corps ronds, pelage miel et crème, grandes abajoues, petites oreilles rondes toujours visibles, museau court, fines moustaches et petites pattes. Tenues et outils adaptés à chacun des sept métiers décrits ci-dessus. Gérard est un poulpe coordinateur central, avec huit tentacules bien distincts, un manteau turquoise, des lunettes rondes en cuivre, un col sable doré et une boussole. Bassins translucides, nénuphars, passerelles organiques et ateliers à leur échelle. Turquoise, vert mousse, bleu profond, sable doré et cuivre patiné. Ambiance poétique, habitée, chaleureuse ; silhouettes lisibles sur mobile. »
 
 Exclusions visuelles : nains de jardin, silhouettes humaines, barbes, bonnets pointus, esthétique cyberpunk ou corporate. Les animations de travail restent pilotées par les événements ; une illustration ne constitue jamais une preuve d’activité réelle.
 
@@ -64,3 +64,12 @@ Aucune image générée ni ancien prompt de génération n’était intégré au
 ## Raccordement du 25 octobre
 
 Le lecteur réel est maintenant isolé dans `src/garden-gege/useGardenFeed.ts`. Utiliser son `snapshot`, son `connection` et sa fonction `refresh` pour les futures scènes Lovable. L’ouverture se fait en mode réel ; la démo reste distincte. Le point de lecture, les métadonnées publiques exposées et les limites de couverture sont documentés dans [READONLY-FEED.md](READONLY-FEED.md), qui remplace les anciennes indications de lecture uniquement locale.
+
+
+## Frontière visuelle V2
+
+Remplacer librement les SVG de `Gerard.tsx` et `Gege.tsx`, en conservant leurs identités distinctes, puis les décors de `Garden.tsx`. `Gerard` ne reçoit aucun état autonome inventé ; `Gege` reçoit uniquement son métier. Les animations de mission restent sur le bouton de scène, calculées avec `visualState`.
+
+La caméra possède ses coordonnées écran dans `useGardenCamera.ts`. Elle ne reçoit et ne produit aucun événement métier. Garder les marqueurs à taille tactile constante et les libellés, parcelles et compteurs hors du transform de zoom. Ne pas réintroduire une largeur minimale qui couperait la vue mobile. Les routes décoratives restent dans le même repère 1000 × 650 que la scène.
+
+Cette V2 est une proposition sur branche distincte, à valider avant remplacement de la page publique. Les contrats, le hook Publisher, les cycles autonomes, les archives et les workflows sont conservés.
