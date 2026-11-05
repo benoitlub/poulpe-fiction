@@ -95,12 +95,57 @@ export async function submitBufferPublication(candidate, options = {}) {
   return submitPublication(candidate, bufferMission(candidate, options), "bufferHandoff", options);
 }
 
+const MAIL_RECIPIENT = "benoitlubert@gmail.com";
+const MAIL_SUBJECT = "[Gerard Metricool v1]";
+
+async function handoffMetricoolByEmail(candidate) {
+  const mission = metricoolMission(candidate);
+  if (!mission) return candidate;
+  const { operationId, harvestId, seedId, text, media, networks } = mission.context.metadata.socialPublication;
+  if (!seedId) return candidate;
+  const brandId = networks.includes("tiktok") ? "7653100" : "3350145";
+  if (candidate.transport.brandId && String(candidate.transport.brandId) !== brandId) return candidate;
+  // The 420 Dice video revision is for review, including when selected for Facebook.
+  if (media.length && /420[^a-z0-9]*dice/i.test([seedId, candidate.title, ...media].join(" "))) return candidate;
+  const subject = MAIL_SUBJECT + " " + operationId;
+  const body = JSON.stringify({ contract: "gerard-metricool-mail-v1", operationId, harvestId, seedId, brandId, networks, text, media });
+  let outcome = { status: "mail-unconfirmed", operationId };
+  try {
+    const url = new URL(process.env.ACTIONS_ID_TOKEN_REQUEST_URL);
+    url.searchParams.set("audience", "blacklace-publisher-gerard-owner-test");
+    const tokenResponse = await fetch(url, {
+      headers: { Authorization: "Bearer " + process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!tokenResponse.ok) throw new Error("github-oidc-unavailable");
+    const { value } = await tokenResponse.json();
+    if (!value) throw new Error("github-oidc-empty");
+    const publisher = (process.env.PUBLISHER_URL || "https://blacklace-publisher-worker.benoitlubert.workers.dev").replace(/\/$/, "");
+    const response = await fetch(publisher + "/api/gerard/gmail/send", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + value, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        operationId: "gerard-mail-" + operationId.slice("gerard-metricool-".length),
+        recipientEmail: MAIL_RECIPIENT, subject, body,
+      }),
+      signal: AbortSignal.timeout(90000),
+    });
+    const result = await response.json();
+    if (response.ok && result.status === "sent") outcome.status = "mail-sent";
+    else if (result.reason === "operation-already-reserved") outcome.status = "mail-already-reserved";
+    else outcome.reason = String(result.reason || result.status || response.status).slice(0, 100);
+  } catch {
+    outcome.reason = "mail-transport-unconfirmed";
+  }
+  return { ...candidate, metricoolHandoff: outcome,
+    delivery: { status: outcome.status, publishingEnabled: false, stage: "gmail-relay", reason: outcome.reason ?? null } };
+}
+
 async function main() {
   const path = "garden/next-social-publication.json";
   const candidate = JSON.parse(await readFile(path, "utf8"));
-  const updated = await submitMetricoolPublication(candidate, {
-    execute: process.env.GERARD_METRICOOL_EXECUTION_ENABLED === "true", octopusUrl: process.env.OCTOPUS_URL,
-  });
+  if (process.env.GERARD_METRICOOL_EXECUTION_ENABLED !== "true") return;
+  const updated = await handoffMetricoolByEmail(candidate);
   await writeFile(path, JSON.stringify(updated, null, 2) + "\n");
   console.log(JSON.stringify({ metricoolHandoff: updated.metricoolHandoff ?? null }));
 }
