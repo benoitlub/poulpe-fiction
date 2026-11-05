@@ -141,12 +141,124 @@ async function handoffMetricoolByEmail(candidate) {
     delivery: { status: outcome.status, publishingEnabled: false, stage: "gmail-relay", reason: outcome.reason ?? null } };
 }
 
+// Public projects from the Blacklace garden. Each supports three editorial
+// treatments, so the fallback can move on even when one subject lacks sources.
+const FACEBOOK_PROJECTS = [
+  ["prohibited-online", "Pro.Hibited Online"],
+  ["blacklace-dice", "Blacklace Dice"],
+  ["feuch-dice", "Feuch Dice"],
+  ["prout-hibited", "Prout.Hibited"],
+  ["jointed", "Jointed"],
+  ["420-dice", "420 Dice Game"],
+  ["blacklace-island", "Blacklace Island"],
+  ["feuch-game", "Feuch Game"],
+];
+const EDITORIAL_ANGLES = [
+  ["entertainment", "Une question amusante ou un mini-défi imaginaire pour les joueurs."],
+  ["behind-the-scenes", "Une question de conception concrète, formulée comme un choix ouvert."],
+  ["promotion", "Une courte invitation à découvrir le projet avec une caractéristique vérifiée."],
+];
+const FALLBACK_LEDGER = new URL("../garden/gerard-metricool-fallback.json", import.meta.url);
+
+function copyKey(text) {
+  return text.normalize("NFKC").toLocaleLowerCase("fr").replace(/\s+/g, " ").trim();
+}
+
+async function generateFacebookCandidate(project, angle, oldCaptions) {
+  const [seedId, title] = project;
+  const [category, treatment] = angle;
+  const objective = "Écrire un seul post Facebook en français pour la marque Pro.hibited.";
+  const response = await fetch(`${(process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "")}/mission`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal: AbortSignal.timeout(60000),
+    body: JSON.stringify({
+      operationId: `gerard-social-fallback-${seedId}-${category}-${Date.now()}`,
+      title, objective, requiredCapabilities: ["content.social.write"], authorizedResources: [],
+      prompt: [
+        objective, `Sujet unique : ${title}.`, treatment,
+        "Retourne uniquement la légende prête à poster, en texte simple, 450 caractères maximum.",
+        "Aucun lien, prix, disponibilité ou promesse. N'invente aucune règle du jeu, anecdote ni citation.",
+        "Aucun scénario de tournage, commentaire interne, Markdown, second projet ou invitation à acheter une substance.",
+        ...oldCaptions.slice(-3).map(text => `Angle à ne pas répéter : ${JSON.stringify(text)}`),
+      ].join("\n"),
+      context: { id: seedId, label: title, metadata: {
+        source: "gerard-cycle", agentName: "Gérard", knowledgeSlug: seedId, platform: "Facebook",
+      } },
+    }),
+  });
+  if (!response.ok) throw new Error(`octopus-http-${response.status}`);
+  const result = await response.json();
+  const output = result?.output;
+  const text = typeof output?.text === "string" ? output.text.trim() : "";
+  if (output?.isMock || output?.mock || output?.simulated || output?.fallbackReason)
+    throw new Error("provider-unavailable");
+  if (result.status !== "completed" || output?.knowledgePackage?.verified !== true)
+    throw new Error("project-knowledge-unavailable");
+  if (text.length < 25 || text.length > 500 || /https?:\/\/|\*\*|^\s*#\s|\[[^\]]+\]|voix off|plan serré|mode mock actif/im.test(text))
+    throw new Error("caption-not-ready");
+  const hash = createHash("sha256").update(copyKey(text)).digest("hex");
+  return {
+    status: "ready", harvestId: `gerard-facebook-${hash}`, seedId, title, category,
+    copy: { text, strategy: "autonomous-metricool-fallback" }, compatibleNetworks: ["facebook"],
+    transport: { provider: "metricool", brandId: "3350145" },
+    editorialRoute: { destination: { preferredProvider: "metricool" } },
+  };
+}
+
+async function prepareMetricoolFallback() {
+  let ledger;
+  try { ledger = JSON.parse(await readFile(FALLBACK_LEDGER, "utf8")); }
+  catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    ledger = { cursor: 0, history: [] };
+  }
+  const topics = EDITORIAL_ANGLES.flatMap(angle => FACEBOOK_PROJECTS.map(project => ({ project, angle })));
+  const recent = ledger.history.slice(-200);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { project, angle } = topics[ledger.cursor % topics.length];
+    ledger.cursor = (ledger.cursor + 1) % topics.length;
+    const [seedId] = project;
+    const [category] = angle;
+    const entry = { at: new Date().toISOString(), seedId, category };
+    recent.push(entry);
+    try {
+      const previous = recent.filter(item => item.seedId === seedId && item.text).map(item => item.text);
+      const candidate = await generateFacebookCandidate(project, angle, previous);
+      const text = candidate.copy.text;
+      if (recent.some(item => item.text && copyKey(item.text) === copyKey(text))) throw new Error("caption-already-tried");
+      entry.text = text;
+      entry.status = "prepared";
+      // Preserve the candidate before starting the external mail handoff.
+      await writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
+      const delivered = await handoffMetricoolByEmail(candidate);
+      entry.status = delivered.metricoolHandoff?.status ?? "handoff-ineligible";
+      entry.handoff = delivered.metricoolHandoff ?? null;
+      await writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
+      return { seedId, category, status: entry.status, handoff: entry.handoff };
+    } catch (error) {
+      // Do not choose a second post if a mail attempt may already have occurred.
+      if (entry.text) throw error;
+      entry.status = error.message;
+      await writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
+      if (entry.status === "provider-unavailable" || entry.status === "octopus-http-429") break;
+    }
+  }
+  const { seedId, category, status } = recent.at(-1);
+  return { seedId, category, status };
+}
+
 async function main() {
   const path = "garden/next-social-publication.json";
   const candidate = JSON.parse(await readFile(path, "utf8"));
   if (process.env.GERARD_METRICOOL_EXECUTION_ENABLED !== "true") return;
   const updated = await handoffMetricoolByEmail(candidate);
-  await writeFile(path, JSON.stringify(updated, null, 2) + "\n");
-  console.log(JSON.stringify({ metricoolHandoff: updated.metricoolHandoff ?? null }));
+  if (updated.metricoolHandoff) {
+    await writeFile(path, JSON.stringify(updated, null, 2) + "\n");
+    console.log(JSON.stringify({ metricoolHandoff: updated.metricoolHandoff }));
+    return;
+  }
+  const fallback = await prepareMetricoolFallback();
+  console.log(JSON.stringify({ metricoolHandoff: fallback.handoff ?? null, metricoolFallback: fallback }));
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
