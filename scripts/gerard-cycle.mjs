@@ -24,7 +24,8 @@ import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
 import { summarizeCycleResult, summarizeStateResult } from "./gerard-state-summary.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const STATE_PATH = new URL("../garden/gerard-state.json", import.meta.url);
+const STATE_PATH = new URL(process.env.GERARD_TENTACLE === "studio"
+  ? "../garden/gerard-studio-state.json" : "../garden/gerard-state.json", import.meta.url);
 const SEEDS_PATH = new URL("../garden/restart-seeds.json", import.meta.url);
 const HARVESTS_PATH = new URL("../garden/harvests.json", import.meta.url);
 const MAIL_OUTBOX_PATH = new URL("../garden/gerard-mail-outbox.json", import.meta.url);
@@ -105,7 +106,14 @@ async function loadSeeds() {
     return [JSON.parse(await readFile(new URL("../examples/studio/420-dice.seed.json", import.meta.url), "utf8"))];
   }
   const parsed = JSON.parse(await readFile(SEEDS_PATH, "utf8"));
-  return Array.isArray(parsed?.seeds) ? parsed.seeds.filter((seed) => seed?.seedId && seed?.parcelId && (seed?.knowledgeSlug || seed.templates?.some(t => ["image-studio","audio-studio","video-studio"].includes(t.id) && t.enabled !== false))) : [];
+  const seeds = Array.isArray(parsed?.seeds) ? parsed.seeds : [];
+  return seeds.filter(seed => {
+    if (!seed?.seedId || !seed?.parcelId) return false;
+    const studio = seed.templates?.some(t => ["image-studio", "audio-studio", "video-studio"].includes(t.id) && t.enabled !== false);
+    if (process.env.GERARD_TENTACLE === "studio") return studio;
+    if (process.env.GERARD_TENTACLE === "production") return !studio && seed.knowledgeSlug;
+    return studio || seed.knowledgeSlug;
+  });
 }
 
 async function inspectUnfinishedParcel(parcelId) {

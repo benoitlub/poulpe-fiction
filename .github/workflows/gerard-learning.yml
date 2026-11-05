@@ -1,0 +1,74 @@
+name: Gérard · Apprentissage et mémoire
+
+on:
+  schedule:
+    - cron: '57 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  learning:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    concurrency:
+      group: gerard-learning
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GERARD_TENTACLE: learning
+      NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+      GERARD_NOTION_MEMORY_PAGE_ID: ${{ vars.GERARD_NOTION_MEMORY_PAGE_ID || '40f39119-7253-812a-819d-e39863e4b86a' }}
+    steps:
+      - name: Checkout Poulpe Fiction
+        uses: actions/checkout@v4
+        with:
+          path: poulpe-fiction
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install snapshot database client
+        run: |
+          npm install --prefix "$RUNNER_TEMP/gerard-db" --no-audit --no-fund --ignore-scripts pg@8.22.0
+          echo "GERARD_PUBLISHER_DB_PACKAGE=$RUNNER_TEMP/gerard-db/package.json" >> "$GITHUB_ENV"
+
+      - name: Restore private state
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs hydrate
+
+      - name: Listen to Publisher analytics capability
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          STATUS="$(curl --silent --show-error --max-time 18 --output /tmp/gerard-publisher-analytics.json --write-out '%{http_code}' "$PUBLISHER_URL/api/observatory/capability-gap?capability=analytics.read&mission=social%20media%20facebook%20instagram%20post%20engagement%20reach")" || STATUS="000"
+          if [ "$STATUS" = "200" ] && jq -e 'type == "object"' /tmp/gerard-publisher-analytics.json >/dev/null 2>&1; then
+            jq --arg observedAt "$(date -u +%FT%TZ)" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",response:.}' /tmp/gerard-publisher-analytics.json > garden/gerard-publisher-advice.json
+          else
+            jq -n --arg observedAt "$(date -u +%FT%TZ)" --arg http "$STATUS" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",status:"unavailable",httpStatus:$http}' > garden/gerard-publisher-advice.json
+          fi
+          jq -c '{source,capability,status:(.status // .response.status // "received")}' garden/gerard-publisher-advice.json
+
+      - name: Update Gerard learning from verified outcomes
+        working-directory: poulpe-fiction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p garden
+          test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
+          node scripts/gerard-learning-cycle.mjs
+          node scripts/gerard-social-feedback.mjs
+
+      - name: Retain confirmed outcomes in Notion
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-notion-memory.mjs
+
+      - name: Persist this tentacle’s changes
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs persist

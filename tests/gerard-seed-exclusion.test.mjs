@@ -5,13 +5,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-// Execute the workflow's real selection block with a local curl replacement.
-// Never run the complete runtime: later steps can schedule real publications.
-const workflow = readFileSync(new URL("../.github/workflows/gerard-runtime.yml", import.meta.url), "utf8");
-const start = workflow.indexOf('          EXCLUDED_IDS=""');
-const end = workflow.indexOf('          if [ "$HTTP_STATUS" = "200" ]; then', start);
+// Execute the real selection block with a local curl replacement.
+// Later parts of the diffusion lane can schedule real publications.
+const script = readFileSync(new URL("../scripts/gerard-social-selection.sh", import.meta.url), "utf8");
+const start = script.indexOf('EXCLUDED_IDS=""');
+const end = script.indexOf('\nif [ "$HTTP_STATUS" = "200" ]; then', start);
 assert.ok(start >= 0 && end > start, "selection block must exist");
-const selection = workflow.slice(start, end).replace(/^          /gm, "");
+const selection = script.slice(start, end);
 
 function runSelection(t, files = {}, empty = false) {
   const root = mkdtempSync(join(tmpdir(), "gerard-seed-test-"));

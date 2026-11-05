@@ -1,0 +1,174 @@
+name: Gérard · Studio
+
+on:
+  schedule:
+    - cron: '37 */3 * * *'
+  workflow_dispatch:
+    inputs:
+      preview_420_dice_short:
+        description: "Rendre un aperçu 420 Dice pour revue"
+        type: boolean
+        default: false
+
+jobs:
+  studio:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: gerard-studio
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GERARD_TENTACLE: studio
+      OCTOPUS_URL: http://127.0.0.1:3000
+      LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
+      PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      AI_MODEL: ${{ secrets.AI_MODEL }}
+      AI_PROVIDER: mistral
+      NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+      NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
+      GERARD_AV_STUDIO_ENABLED: "true"
+      GERARD_IMAGE_STUDIO_ENABLED: "true"
+      GERARD_MODE: cultivate
+      GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_420_dice_short == true && '420-dice' || '' }}
+    steps:
+      - name: Runtime heartbeat
+        shell: bash
+        run: |
+          echo "Gerard runtime started"
+          echo "event=${{ github.event_name }}"
+          echo "sha=${{ github.sha }}"
+          echo "ref=${{ github.ref }}"
+          date -u +"utc=%Y-%m-%dT%H:%M:%SZ"
+
+      - name: Checkout Poulpe Fiction
+        uses: actions/checkout@v4
+        with:
+          path: poulpe-fiction
+
+      - name: Checkout Octopus Engine
+        uses: actions/checkout@v4
+        with:
+          repository: benoitlub/octopus-engine
+          path: octopus
+
+      - name: Checkout Publisher
+        uses: actions/checkout@v4
+        with:
+          repository: benoitlub/blacklace-publisher-ai
+          path: publisher
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install and build Octopus Engine
+        working-directory: octopus
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+
+      - name: Install Publisher
+        working-directory: publisher
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Restore private runtime snapshots from the existing database
+        working-directory: poulpe-fiction
+        env:
+          GERARD_PUBLISHER_DB_PACKAGE: ${{ github.workspace }}/publisher/lib/db/package.json
+        run: node scripts/gerard-private-runtime.mjs hydrate
+
+      # Do NOT run the DB push here: it can propose destructive schema changes
+      # against the shared production database and requires an interactive TTY.
+      # The deployed Worker ensures the existing schema without destroying data.
+
+      - name: Build Publisher
+        working-directory: publisher
+        run: pnpm --filter @workspace/api-server run build
+
+      - name: Prepare local audiovisual tools only when explicitly enabled
+        if: env.GERARD_AV_STUDIO_ENABLED == 'true' || env.GERARD_IMAGE_STUDIO_ENABLED == 'true'
+        working-directory: publisher
+        run: |
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            printf '%s\n' 'https://archive.ubuntu.com/ubuntu' | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+          fi
+          sudo apt-get update -qq -o Acquire::Retries=1 -o Acquire::http::Timeout=30
+          sudo apt-get install -y --no-install-recommends -o Acquire::Retries=1 -o Acquire::http::Timeout=30 ffmpeg fonts-dejavu-core
+          if [ "$GERARD_AV_STUDIO_ENABLED" = "true" ]; then
+            python3 -m venv .studio-venv
+            .studio-venv/bin/pip install 'piper-tts==1.8.0'
+            python3 scripts/setup-studio-voice.py
+            echo "PIPER_BIN=$PWD/.studio-venv/bin/piper" >> "$GITHUB_ENV"
+            echo "PIPER_MODEL=$PWD/data/studio-models/fr_FR-siwis-medium.onnx" >> "$GITHUB_ENV"
+            echo "PIPER_MODEL_SHA256=641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99" >> "$GITHUB_ENV"
+          fi
+
+      - name: Start Octopus Engine locally
+        working-directory: octopus
+        run: |
+          nohup env PORT=3000 NODE_ENV=production npm start > ../octopus.log 2>&1 &
+          echo $! > ../octopus.pid
+
+      - name: Start Publisher locally
+        working-directory: publisher
+        run: |
+          nohup env PORT=3100 NODE_ENV=production DATABASE_URL="$DATABASE_URL" MISTRAL_API_KEY="$MISTRAL_API_KEY" NOTION_API_KEY="$NOTION_API_KEY" NOTION_PAGE_ID="$NOTION_PAGE_ID" pnpm --filter @workspace/api-server run start > ../publisher.log 2>&1 &
+          echo $! > ../publisher.pid
+
+      - name: Wait for local services
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            OCTOPUS_UP=false
+            PUBLISHER_UP=false
+            curl --fail --silent "$OCTOPUS_URL/health" >/dev/null && OCTOPUS_UP=true || true
+            curl --fail --silent "$LOCAL_PUBLISHER_URL/api/healthz" >/dev/null && PUBLISHER_UP=true || true
+            if [ "$OCTOPUS_UP" = true ] && [ "$PUBLISHER_UP" = true ]; then exit 0; fi
+            if ! kill -0 "$(cat octopus.pid)" 2>/dev/null; then cat octopus.log || true; exit 1; fi
+            if ! kill -0 "$(cat publisher.pid)" 2>/dev/null; then cat publisher.log || true; exit 1; fi
+            sleep 2
+          done
+          cat octopus.log || true
+          cat publisher.log || true
+          exit 1
+
+      - name: Register Publisher adapter with Octopus
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            -X POST "$OCTOPUS_URL/adapters/register" \
+            -H "Content-Type: application/json" \
+            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate","image.studio","audio.studio","video.studio"],executeUrl:$executeUrl}')"
+
+      - name: Run Gerard cycle
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-cycle.mjs
+
+      - name: Persist private snapshots before publishing metadata
+        working-directory: poulpe-fiction
+        env:
+          GERARD_PUBLISHER_DB_PACKAGE: ${{ github.workspace }}/publisher/lib/db/package.json
+        run: node scripts/gerard-private-runtime.mjs persist
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-runtime-logs
+          path: |
+            octopus.log
+            publisher.log
+            poulpe-fiction/garden/studio/**
+            publisher/data/studio/jobs/**
+          retention-days: 7

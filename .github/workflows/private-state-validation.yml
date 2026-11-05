@@ -66,3 +66,33 @@ jobs:
           assert.equal(s.businessSourceMemory.secret,'PRIVATE_TEST_SENTINEL');
           NODE
       - run: node scripts/gerard-private-runtime.mjs persist
+
+      - name: Concurrent tentacles retain each other’s changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_lane() {
+            local lane="$1"
+            local command="$2"
+            GERARD_TENTACLE="$lane" GERARD_PRIVATE_GARDEN_PATH="/tmp/gerard-$lane" \
+              GERARD_PRIVATE_VERSION_PATH="/tmp/gerard-$lane-version" \
+              node scripts/gerard-private-runtime.mjs "$command"
+          }
+          run_lane production hydrate
+          run_lane delivery hydrate
+          printf '%s\n' '{"lastMode":"play","lastResult":{"status":"ok"}}' > /tmp/gerard-production/gerard-state.json
+          printf '%s\n' '{"status":"ready","delivery":{"status":"confirmed-scheduled","postId":"fixture"}}' > /tmp/gerard-delivery/next-social-publication.json
+          run_lane production persist &
+          production_pid=$!
+          run_lane delivery persist &
+          delivery_pid=$!
+          wait "$production_pid"
+          wait "$delivery_pid"
+          run_lane learning hydrate
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile } from 'node:fs/promises';
+          const read = async name => JSON.parse(await readFile('/tmp/gerard-learning/' + name, 'utf8'));
+          assert.equal((await read('gerard-state.json')).lastMode, 'play');
+          assert.equal((await read('next-social-publication.json')).delivery.postId, 'fixture');
+          NODE

@@ -1,723 +1,61 @@
-name: Gerard runtime
+# This path is part of Publisher's GitHub OIDC trust for mail delivery.
+name: Gérard · Diffusion et courrier
 
 on:
   schedule:
-    - cron: "17 */3 * * *"
-  push:
-    # Branch/PR validation must never run the live publication cycle.
-    branches: [main]
-    paths:
-      - "garden/restart-seeds.json"
-      - "scripts/gerard-cycle.mjs"
-      - "scripts/gerard-b2b-bridge.mjs"
-      - "scripts/gerard-job-radar.mjs"
-      - "scripts/gerard-learning-cycle.mjs"
-      - "scripts/gerard-editorial-mix.mjs"
-      - "tests/gerard-editorial-mix.test.mjs"
-      - "tests/gerard-learning-cycle.test.mjs"
-      - "scripts/gerard-community-radar.mjs"
-      - "scripts/gerard-image-studio.mjs"
-      - "templates/image-studio.v1.json"
-      - "tests/gerard-image-studio.test.mjs"
-      - "templates/community-radar.v1.json"
-      - "tests/gerard-community-radar.test.mjs"
-      - "scripts/gerard-b2b-qualification.mjs"
-      - "scripts/gerard-b2b-memory.mjs"
-      - "scripts/gerard-mail-outbox.mjs"
-      - "scripts/gerard-autonomous-mail.mjs"
-      - "scripts/gerard-gmail-owner-test.mjs"
-      - "scripts/gerard-personal-letters.mjs"
-      - "tests/gerard-mail-outbox.test.mjs"
-      - "tests/gerard-personal-letters.test.mjs"
-      - "tests/gerard-b2b-qualification.test.mjs"
-      - "tests/gerard-b2b-memory.test.mjs"
-      - "scripts/gerard-compost.mjs"
-      - "tests/gerard-compost.test.mjs"
-      - "scripts/gerard-book-quality.jq"
-      - "tests/gerard-book-quality.test.mjs"
-      - ".github/workflows/gerard-runtime.yml"
+    - cron: '47 */3 * * *'
+    - cron: '7 */3 * * *'
   issues:
     types: [opened, reopened, edited]
   workflow_dispatch:
     inputs:
-      preview_420_dice_short:
-        description: "Render one 420 Dice Short for review, never publish"
-        required: false
-        type: boolean
-        default: false
-      retry_terra_draft:
-        description: "Authorize one TERRA Buffer draft retry (no publication)"
-        required: false
-        type: boolean
-        default: false
-
-concurrency:
-  group: gerard-runtime
-  cancel-in-progress: false
+      tentacle:
+        description: "Tentacule à lancer"
+        type: choice
+        options: [diffusion, courrier]
+        default: diffusion
 
 jobs:
-  cycle:
-    if: github.event_name != 'issues'
+  delivery:
+    if: github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 */3 * * *') || (github.event_name == 'workflow_dispatch' && inputs.tentacle == 'diffusion'))
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 12
+    concurrency:
+      group: gerard-delivery
+      cancel-in-progress: false
     permissions:
-      contents: write
+      contents: read
       id-token: write
     env:
-      OCTOPUS_URL: http://127.0.0.1:3000
-      # Harvests must target the deployed Cloudflare Publisher Worker: the
-      # local Express API-server does not expose /api/tentacles/*.
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
-      GERARD_MAIL_AUTONOMY_ENABLED: "true"
-      # Gérard may queue verified book posts automatically. The Publisher Worker
-      # independently enforces BUFFER_PUBLISHING_ENABLED and its reservation lock.
-      GERARD_BUFFER_AUTO_PUBLISH_ENABLED: "true"
-      PUBLISHER_NOTION_WRITE_TOKEN: ${{ secrets.PUBLISHER_NOTION_WRITE_TOKEN }}
-      LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
-      PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-      AI_MODEL: ${{ secrets.AI_MODEL }}
-      AI_PROVIDER: mistral
-      GERARD_IMAGE_STUDIO_ENABLED: "true"
-      # Manual preview has its own explicit gate; scheduled runs keep the repository setting.
-      GERARD_AV_STUDIO_ENABLED: "true"
-      GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_420_dice_short == true && '420-dice' || '' }}
-      GERARD_MODE: ${{ inputs.preview_420_dice_short == true && 'cultivate' || '' }}
-      # Studio generation is owner-authorized; publication still follows the selected provider route.
-      GERARD_METRICOOL_EXECUTION_ENABLED: ${{ inputs.preview_420_dice_short == true && 'false' || 'true' }}
-      METRICOOL_EXECUTION_TOKEN: ${{ secrets.METRICOOL_EXECUTION_TOKEN }}
-      NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-      NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
+      GERARD_TENTACLE: delivery
+      GERARD_BUFFER_AUTO_PUBLISH_ENABLED: "true"
+      GERARD_METRICOOL_EXECUTION_ENABLED: "true"
+      GERARD_METRICOOL_LOCAL_ONLY: "true"
     steps:
-      - name: Runtime heartbeat
-        shell: bash
-        run: |
-          echo "Gerard runtime started"
-          echo "event=${{ github.event_name }}"
-          echo "sha=${{ github.sha }}"
-          echo "ref=${{ github.ref }}"
-          date -u +"utc=%Y-%m-%dT%H:%M:%SZ"
-
-      - name: Check runtime secrets
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "$MISTRAL_API_KEY" || { echo "Missing MISTRAL_API_KEY"; exit 1; }
-          test -n "$DATABASE_URL" || { echo "Missing DATABASE_URL"; exit 1; }
-
       - name: Checkout Poulpe Fiction
         uses: actions/checkout@v4
         with:
           path: poulpe-fiction
-
-      - name: Checkout Octopus Engine
-        uses: actions/checkout@v4
-        with:
-          repository: benoitlub/octopus-engine
-          path: octopus
-
-      - name: Checkout Publisher
-        uses: actions/checkout@v4
-        with:
-          repository: benoitlub/blacklace-publisher-ai
-          path: publisher
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install and build Octopus Engine
-        working-directory: octopus
+      - name: Install snapshot database client
         run: |
-          npm ci --legacy-peer-deps
-          npm run build
+          npm install --prefix "$RUNNER_TEMP/gerard-db" --no-audit --no-fund --ignore-scripts pg@8.22.0
+          echo "GERARD_PUBLISHER_DB_PACKAGE=$RUNNER_TEMP/gerard-db/package.json" >> "$GITHUB_ENV"
 
-      - name: Install Publisher
-        working-directory: publisher
-        run: |
-          corepack enable
-          pnpm install --frozen-lockfile
-
-      - name: Restore private runtime snapshots from the existing database
+      - name: Restore private state
         working-directory: poulpe-fiction
-        env:
-          GERARD_PUBLISHER_DB_PACKAGE: ${{ github.workspace }}/publisher/lib/db/package.json
         run: node scripts/gerard-private-runtime.mjs hydrate
 
-      # Do NOT run the DB push here: it can propose destructive schema changes
-      # against the shared production database and requires an interactive TTY.
-      # The deployed Worker ensures the existing schema without destroying data.
-
-      - name: Build Publisher
-        working-directory: publisher
-        run: pnpm --filter @workspace/api-server run build
-
-      - name: Prepare local audiovisual tools only when explicitly enabled
-        if: env.GERARD_AV_STUDIO_ENABLED == 'true' || env.GERARD_IMAGE_STUDIO_ENABLED == 'true'
-        working-directory: publisher
-        run: |
-          if [ -f /etc/apt/apt-mirrors.txt ]; then
-            printf '%s\n' 'https://archive.ubuntu.com/ubuntu' | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
-          fi
-          sudo apt-get update -qq -o Acquire::Retries=1 -o Acquire::http::Timeout=30
-          sudo apt-get install -y --no-install-recommends -o Acquire::Retries=1 -o Acquire::http::Timeout=30 ffmpeg fonts-dejavu-core
-          if [ "$GERARD_AV_STUDIO_ENABLED" = "true" ]; then
-            python3 -m venv .studio-venv
-            .studio-venv/bin/pip install 'piper-tts==1.8.0'
-            python3 scripts/setup-studio-voice.py
-            echo "PIPER_BIN=$PWD/.studio-venv/bin/piper" >> "$GITHUB_ENV"
-            echo "PIPER_MODEL=$PWD/data/studio-models/fr_FR-siwis-medium.onnx" >> "$GITHUB_ENV"
-            echo "PIPER_MODEL_SHA256=641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99" >> "$GITHUB_ENV"
-          fi
-
-      - name: Start Octopus Engine locally
-        working-directory: octopus
-        run: |
-          nohup env PORT=3000 NODE_ENV=production npm start > ../octopus.log 2>&1 &
-          echo $! > ../octopus.pid
-
-      - name: Start Publisher locally
-        working-directory: publisher
-        run: |
-          nohup env PORT=3100 NODE_ENV=production DATABASE_URL="$DATABASE_URL" MISTRAL_API_KEY="$MISTRAL_API_KEY" NOTION_API_KEY="$NOTION_API_KEY" NOTION_PAGE_ID="$NOTION_PAGE_ID" pnpm --filter @workspace/api-server run start > ../publisher.log 2>&1 &
-          echo $! > ../publisher.pid
-
-      - name: Wait for local services
-        shell: bash
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 60); do
-            OCTOPUS_UP=false
-            PUBLISHER_UP=false
-            curl --fail --silent "$OCTOPUS_URL/health" >/dev/null && OCTOPUS_UP=true || true
-            curl --fail --silent "$LOCAL_PUBLISHER_URL/api/healthz" >/dev/null && PUBLISHER_UP=true || true
-            if [ "$OCTOPUS_UP" = true ] && [ "$PUBLISHER_UP" = true ]; then exit 0; fi
-            if ! kill -0 "$(cat octopus.pid)" 2>/dev/null; then cat octopus.log || true; exit 1; fi
-            if ! kill -0 "$(cat publisher.pid)" 2>/dev/null; then cat publisher.log || true; exit 1; fi
-            sleep 2
-          done
-          cat octopus.log || true
-          cat publisher.log || true
-          exit 1
-
-      - name: Register Publisher adapter with Octopus
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error \
-            -X POST "$OCTOPUS_URL/adapters/register" \
-            -H "Content-Type: application/json" \
-            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate","image.studio","audio.studio","video.studio"],executeUrl:$executeUrl}')"
-
-      - name: Sync restart Seeds to Publisher
+      - name: Select and explain the next publication
         working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f garden/restart-seeds.json || exit 0
-          curl --fail --silent --show-error \
-            -X POST "$PUBLISHER_URL/api/tentacles/sync" \
-            -H "Content-Type: application/json" \
-            --data @garden/restart-seeds.json
-
-      - name: Verify Gerard publication accounting
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-publication-coverage.test.mjs
-
-      - name: Check daily parcel publication coverage
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error "$PUBLISHER_URL/api/tentacles/iterations?limit=200" > /tmp/gerard-iterations.json
-          node scripts/gerard-publication-coverage.mjs /tmp/gerard-iterations.json
-
-      - name: Verify non-blocking editorial experiment
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-editorial-mix.test.mjs
-
-      - name: Verify Gerard compost safeguards
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-compost.test.mjs
-
-      - name: Verify Publisher B2B bridge
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-b2b-bridge.test.mjs
-
-      - name: Test B2B source qualification
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-b2b-qualification.test.mjs
-
-      - name: Test B2B prospect memory
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-b2b-memory.test.mjs
-
-      - name: Test community radar parcel isolation
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-community-radar.test.mjs
-
-      - name: Test image studio parcel templates
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-image-studio.test.mjs
-
-      - name: Test Gerard email outbox safety
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-mail-outbox.test.mjs
-
-      - name: Test Gerard personal letter safeguards
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-personal-letters.test.mjs
-
-      - name: Compost obsolete local harvests
-        working-directory: poulpe-fiction
-        run: node scripts/gerard-compost.mjs
-
-      - name: Run Gerard cycle
-        working-directory: poulpe-fiction
-        run: node scripts/gerard-cycle.mjs
-
-      - name: Send at most three Gérard outreach messages with Benoît in CC
-        working-directory: poulpe-fiction
-        run: node scripts/gerard-autonomous-mail.mjs
-
-      - name: Probe Publisher Gmail visibility before autonomous delivery
-        working-directory: poulpe-fiction
-        run: |
-          set -euo pipefail
-          STATUS="$(curl --silent --show-error --max-time 20 --output /tmp/gerard-publisher-gmail.json --write-out '%{http_code}' "$PUBLISHER_URL/api/production/diagnostics" || true)"
-          if [ "$STATUS" != "200" ]; then
-            echo "Publisher Gmail probe unavailable (HTTP $STATUS); delivery remains disabled."
-            exit 0
-          fi
-          node -e '
-            const fs=require("node:fs");
-            const payload=JSON.parse(fs.readFileSync("/tmp/gerard-publisher-gmail.json","utf8"));
-            const gmail=payload.gerardGmail;
-            console.log(JSON.stringify({event:"gerard.gmail.publisher-readiness",status:gmail?.status??"diagnostic-not-deployed",runtimeDeliveryVerified:gmail?.runtimeDeliveryVerified===true,sendEnabled:gmail?.sendEnabled===true}));
-          '
-
-      - name: Diagnose Gmail capability and run authorized owner-only test
-        working-directory: poulpe-fiction
-        env:
-          GERARD_GMAIL_CLIENT_ID: ${{ secrets.GERARD_GMAIL_CLIENT_ID }}
-          GERARD_GMAIL_CLIENT_SECRET: ${{ secrets.GERARD_GMAIL_CLIENT_SECRET }}
-          GERARD_GMAIL_REFRESH_TOKEN: ${{ secrets.GERARD_GMAIL_REFRESH_TOKEN }}
-          GERARD_GMAIL_OWNER_TEST_ENABLED: ${{ vars.GERARD_GMAIL_OWNER_TEST_ENABLED || 'false' }}
-        run: node scripts/gerard-gmail-owner-test.mjs
-
-      - name: Archive an occasional personal letter for the Banc (never send Gmail)
-        working-directory: poulpe-fiction
-        run: node scripts/gerard-personal-letters.mjs
-
-      - name: Archive generated Image Studio assets
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gerard-image-studio-${{ github.run_id }}
-          path: garden/image-studio/
-          retention-days: 14
-          if-no-files-found: ignore
-
-      - name: Compost freshly produced local harvests
-        working-directory: poulpe-fiction
-        run: node scripts/gerard-compost.mjs
-
-      - name: Verify book package never disappears on missing metadata
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-book-quality.test.mjs
-
-      - name: Prepare next social publication package
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p garden
-          # Rank again, excluding harvests whose exact copy is confirmed published.
-          # Feed prior observations into the autonomous selection cycle.
-          if [ -f garden/gerard-learning.json ]; then
-            jq -c '.guidance // {}' garden/gerard-learning.json > /tmp/gerard-prior-guidance.json
-            echo "Gerard prior learning:"
-            cat /tmp/gerard-prior-guidance.json
-          fi
-          # Prior learning influences the next experiment, without blocking repeats.
-          if [ -f garden/gerard-learning.json ]; then
-            jq -r '.guidance.nextExperiment // "Explore a new angle."' garden/gerard-learning.json > /tmp/gerard-next-experiment.txt
-          fi
-          # Editorial repetitions are learning opportunities. Provider-side
-          # reservation fingerprints still prevent accidental transport retries.
-          EXCLUDED_IDS=""
-          EXCLUDED_SEED_IDS=""
-          # Temporarily explore alternatives to heavily repeated subjects.
-          # Evidence is bounded to the last twelve selections; never a permanent ban.
-          if [ -f garden/gerard-decision-history.json ]; then
-            EXCLUDED_SEED_IDS="$(jq -r '
-              [.[-12:][]? | .seedId // empty | select(type == "string" and length > 0)]
-              | group_by(.) | map(select(length >= 3) | .[0]) | join(",")
-            ' garden/gerard-decision-history.json)"
-            if [ -n "$EXCLUDED_SEED_IDS" ] && [ -f garden/harvests.json ]; then
-              EXCLUDED_IDS="$(jq -r --arg seeds "$EXCLUDED_SEED_IDS" '
-                ($seeds | split(",")) as $excluded
-                | [.. | objects | select(.seedId? as $seed | $excluded | index($seed))
-                  | (.harvestId? // .id? // empty) | select(type == "string")]
-                | unique | join(",")
-              ' garden/harvests.json)"
-            fi
-            [ -z "$EXCLUDED_SEED_IDS" ] || echo "Gerard explores alternatives to repeated subjects."
-          fi
-          # Close the loop: last cycle's chosen experiment affects this cycle's
-          # Publisher request. Exclude the seed even when local harvests are stale;
-          # keep known harvest IDs for compatibility, never invent new IDs.
-          if [ -f garden/gerard-learning.json ]; then
-            EXPERIMENT="$(jq -r '.guidance.chosenExperiment // ""' garden/gerard-learning.json)"
-            PREVIOUS_SEED="$(jq -r '.guidance.seedId // ""' garden/gerard-learning.json)"
-            if [ "$EXPERIMENT" = "explore" ] && [ -n "$PREVIOUS_SEED" ]; then
-              EXCLUDED_SEED_IDS="$EXCLUDED_SEED_IDS,$PREVIOUS_SEED"
-              EXPERIMENT_IDS=""
-              if [ -f garden/harvests.json ]; then
-                EXPERIMENT_IDS="$(jq -r --arg seed "$PREVIOUS_SEED" '[.. | objects | select(.seedId? == $seed) | (.harvestId? // .id? // empty) | select(type == "string")] | unique | join(",")' garden/harvests.json)"
-              fi
-              if [ -n "$EXPERIMENT_IDS" ]; then
-                EXCLUDED_IDS="$(printf '%s,%s' "$EXCLUDED_IDS" "$EXPERIMENT_IDS" | sed 's/^,//;s/,$//')"
-              fi
-              echo "Applying previous experiment: explore beyond $PREVIOUS_SEED"
-            fi
-          fi
-          # All seeds, including 420 Dice, are eligible again; normal repetition
-          # checks and provider reservation fingerprints still apply.
-          # Keep the same exclusions on the initial and alternative requests,
-          # without empty entries or duplicates from combined observations.
-          EXCLUDED_SEED_IDS="$(printf '%s' "$EXCLUDED_SEED_IDS" | jq -sRr 'split(",") | map(select(length > 0)) | unique | join(",")')"
-          EXCLUDED_IDS="$(printf '%s' "$EXCLUDED_IDS" | jq -sRr 'split(",") | map(select(length > 0)) | unique | join(",")')"
-          # If the top candidate is a book held for Buffer, inspect alternatives
-          # instead of letting that single item monopolize every scheduled cycle.
-          # Never force books through Metricool or bypass account routing.
-          BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next?excludeSeedIds=$(printf '%s' "$EXCLUDED_SEED_IDS" | jq -sRr @uri)&excludeHarvestIds=$(printf '%s' "$EXCLUDED_IDS" | jq -sRr @uri)"
-          HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' "$BRIDGE_URL")"
-          # Walk a bounded list of existing candidates. One Buffer-only book
-          # must not monopolize the Metricool delivery lane.
-          if [ "$HTTP_STATUS" = "200" ] && [ "$(jq -r '.status // ""' /tmp/gerard-social-next.json)" = "ready" ]; then
-            SEARCH_EXCLUDED_IDS="$EXCLUDED_IDS"
-            for ATTEMPT in 1 2 3 4 5 6 7 8; do
-              CANDIDATE_ID="$(jq -r '.harvestId // ""' /tmp/gerard-social-next.json)"
-              [ -n "$CANDIDATE_ID" ] || break
-              ROUTE_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' /tmp/gerard-social-next.json)"
-              ROUTE_STATUS="$(curl --silent --show-error --output /tmp/gerard-candidate-route.json --write-out '%{http_code}' --max-time 20 -X POST "$PUBLISHER_URL/api/social/editorial/route" -H 'Content-Type: application/json' --data "$ROUTE_BODY")" || ROUTE_STATUS="000"
-              [ "$ROUTE_STATUS" = "200" ] || break
-              PROVIDER="$(jq -r '.destination.preferredProvider // ""' /tmp/gerard-candidate-route.json)"
-              if [ "$PROVIDER" = "metricool" ]; then
-                echo "Found Metricool-compatible existing candidate at attempt $ATTEMPT."
-                break
-              fi
-              echo "Candidate $ATTEMPT routes to $PROVIDER; exploring another existing harvest."
-              SEARCH_EXCLUDED_IDS="$(printf '%s,%s' "$SEARCH_EXCLUDED_IDS" "$CANDIDATE_ID" | sed 's/^,//;s/,$//')"
-              ALT_URL="$PUBLISHER_URL/api/social/bridge/next?excludeSeedIds=$(printf '%s' "$EXCLUDED_SEED_IDS" | jq -sRr @uri)&excludeHarvestIds=$(printf '%s' "$SEARCH_EXCLUDED_IDS" | jq -sRr @uri)"
-              ALT_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-alternative.json --write-out '%{http_code}' --max-time 25 "$ALT_URL")" || ALT_STATUS="000"
-              if [ "$ALT_STATUS" != "200" ] || [ "$(jq -r '.status // ""' /tmp/gerard-social-alternative.json)" != "ready" ]; then
-                echo "No further eligible existing candidate; retain original Buffer-safe behavior."
-                break
-              fi
-              cp /tmp/gerard-social-alternative.json /tmp/gerard-social-next.json
-            done
-          fi
-          if [ "$HTTP_STATUS" = "200" ]; then
-            STATUS="$(jq -r '.status // "unknown"' /tmp/gerard-social-next.json)"
-            if [ "$STATUS" != "ready" ]; then
-              echo "Bridge returned HTTP 200 but is not ready: $STATUS"
-              cat /tmp/gerard-social-next.json
-              jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg status "$STATUS" '{preparedAt:$checkedAt,status:"blocked",reason:$status,action:"do-not-schedule"}' > garden/next-social-publication.json
-            else
-            jq '{
-              preparedAt: (now | todateiso8601),
-              status,
-              contract,
-              harvestId,
-              seedId,
-              title,
-              score,
-              copy,
-              media,
-              production,
-              compatibleNetworks,
-              networkRules,
-              metricool,
-              guardrails,
-              provenance
-            }' /tmp/gerard-social-next.json > garden/next-social-publication.json
-            # Attach advisory creative mix to new packages only; never modify previously queued posts.
-            if [ -f garden/gerard-learning.json ]; then
-              jq --slurpfile learning garden/gerard-learning.json '
-                . + {editorialExperiment: ($learning[0].guidance.editorialExperiment // {
-                  status:"advisory", suggestedCategory:null, note:"No measured creative history yet"
-                })}
-              ' garden/next-social-publication.json > /tmp/gerard-editorial-advisory.json
-              mv /tmp/gerard-editorial-advisory.json garden/next-social-publication.json
-            fi
-            # Observe repeats rather than block them: learn from analytics later.
-            if [ -f garden/metricool-published-snapshot.json ]; then
-              jq --slurpfile published garden/metricool-published-snapshot.json '
-                . + {editorialLearning:{repeatedExactCopy:(.copy.text as $t | any($published[0].published[]?; .text == $t)),lesson:"Compare repeated posts against reach and engagement; try another angle next time."}}
-              ' garden/next-social-publication.json > /tmp/gerard-repeat-learning.json
-              mv /tmp/gerard-repeat-learning.json garden/next-social-publication.json
-            fi
-            # Reconcile human-verified external posts (e.g. Instagram outside Metricool).
-            # This is read-only evidence: it does not attribute the post to Gerard,
-            # change deployed apps, or authorize any publication.
-            if [ -f garden/verified-external-publications.json ]; then
-              jq --slurpfile verified garden/verified-external-publications.json '
-                . as $candidate
-                | ([$verified[0].entries[]? | select(.publicationConfirmed == true and .seedId == $candidate.seedId)]) as $matches
-                | . + {externalPublicationEvidence: {
-                    previouslyPublished: ($matches | length > 0),
-                    confirmedNetworks: ([$matches[].network] | unique),
-                    accountNames: ([$matches[].account] | unique),
-                    publisherAttribution: "unknown",
-                    source: "human-verified-external-publications",
-                    editorialAdvice: (if ($matches | length) > 0 then "Previously promoted: use a fresh creative angle; verify against the existing post before scheduling." else "No verified external post for this seed." end)
-                  }}
-                | if any($matches[]; (.captionExcerpt // "") != "" and ((.captionExcerpt | ascii_downcase) == (($candidate.copy.text // "") | ascii_downcase))) then
-                    .status = "blocked"
-                    | .reason = "exact-verified-external-copy"
-                    | .action = "do-not-schedule"
-                  else . end
-              ' garden/next-social-publication.json > /tmp/gerard-external-evidence.json
-              mv /tmp/gerard-external-evidence.json garden/next-social-publication.json
-            fi
-            # Route Gerard's autonomous selection by editorial topic; never publish here.
-            if [ "$(jq -r '.status' garden/next-social-publication.json)" = "blocked" ]; then
-              echo "Duplicate package blocked: skipping editorial route."
-            else
-            ROUTE_PAYLOAD="$(jq -c '{seedId, title, text: (.copy.text // "")}' garden/next-social-publication.json)"
-            ROUTE_HTTP="$(curl --silent --show-error --output /tmp/gerard-editorial-route.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/editorial/route" -H 'Content-Type: application/json' --data "$ROUTE_PAYLOAD")"
-            if [ "$ROUTE_HTTP" = "200" ] && jq -e '.contract == "publisher-editorial-routing-v1" and .destination.preferredProvider != null' /tmp/gerard-editorial-route.json >/dev/null 2>&1; then
-              jq --slurpfile route /tmp/gerard-editorial-route.json '
-                . + {editorialRoute: $route[0], delivery: {status:"not-attempted", publishingEnabled:false}}
-                | if $route[0].destination.preferredProvider == "buffer" then
-                    del(.metricool)
-                    | . + {action:"hold-for-buffer-draft", transport:{provider:"buffer",account:$route[0].destination.preferredAccount,draftOnly:true}}
-                  elif $route[0].destination.preferredProvider == "metricool" then
-                    . + {transport:{provider:"metricool",account:$route[0].destination.preferredAccount,draftOnly:true}}
-                  else
-                    del(.metricool)
-                    | . + {action:"do-not-schedule",transport:{provider:null,draftOnly:true}}
-                  end
-              ' garden/next-social-publication.json > /tmp/gerard-routed.json
-              mv /tmp/gerard-routed.json garden/next-social-publication.json
-            else
-              echo "Editorial route unavailable; hold package for review."
-              jq 'del(.metricool) | . + {editorialRoute:{status:"unavailable"}, delivery:{status:"not-attempted",publishingEnabled:false}, action:"do-not-schedule"}' garden/next-social-publication.json > /tmp/gerard-routed.json
-              mv /tmp/gerard-routed.json garden/next-social-publication.json
-            fi
-            fi # End safe editorial routing for non-duplicate package.
-            # Gerard hands the selected book package to Buffer. Publisher already
-            # resolves verified book destinations and official artwork; do not
-            # append another Amazon link or reject unrelated books by seed name.
-            if [ "$(jq -r '.editorialRoute.topic // ""' garden/next-social-publication.json)" = "book" ]; then
-              # Always return exactly one JSON document. A failed jq capture()
-              # previously emitted zero bytes while exiting 0; this erased
-              # Gerard's package and prevented both delivery and learning.
-              if jq -f scripts/gerard-book-quality.jq garden/next-social-publication.json > /tmp/gerard-book-quality.json \
-                 && jq -e 'type == "object" and (.harvestId | type == "string") and (.editorialQuality | type == "object")' /tmp/gerard-book-quality.json >/dev/null; then
-                mv /tmp/gerard-book-quality.json garden/next-social-publication.json
-              else
-                echo "Book quality returned no valid package; preserving candidate and blocking its delivery."
-                jq '.status="blocked" | .reason="book-quality-evaluation-invalid" | .action="do-not-schedule" | .delivery={status:"not-attempted",publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-book-quality-fallback.json
-                jq -e 'type == "object" and (.harvestId | type == "string")' /tmp/gerard-book-quality-fallback.json >/dev/null
-                mv /tmp/gerard-book-quality-fallback.json garden/next-social-publication.json
-              fi
-            fi
-            # Buffer readiness check uses Gerard's own copy; no external draft or publication.
-            if [ "$(jq -r '.status // ""' garden/next-social-publication.json)" = "ready" ] && [ "$(jq -r '.transport.provider // ""' garden/next-social-publication.json)" = "buffer" ]; then
-              PREFLIGHT_BODY="$(jq -c '{seedId,title,text:(.copy.text // "")}' garden/next-social-publication.json)"
-              PREFLIGHT_HTTP="$(curl --silent --show-error --output /tmp/gerard-buffer-preflight.json --write-out '%{http_code}' -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-preflight" -H 'Content-Type: application/json' --data "$PREFLIGHT_BODY")"
-              if [ "$PREFLIGHT_HTTP" = "200" ] && jq -e '.status == "ready-for-controlled-test"' /tmp/gerard-buffer-preflight.json >/dev/null 2>&1; then
-                jq --slurpfile check /tmp/gerard-buffer-preflight.json '. + {bufferPreflight:$check[0],action:"hold-for-buffer-draft"}' garden/next-social-publication.json > /tmp/gerard-preflight.json
-              else
-                jq --arg http "$PREFLIGHT_HTTP" '. + {bufferPreflight:{status:"blocked",httpStatus:$http},action:"do-not-schedule"}' garden/next-social-publication.json > /tmp/gerard-preflight.json
-              fi
-              mv /tmp/gerard-preflight.json garden/next-social-publication.json
-            fi
-            # Prevent internal creative instructions from leaking into public copy.
-            # This is a fail-closed check for future candidates, not a rewrite of existing posts.
-            if [ "$(jq -r '.status // ""' garden/next-social-publication.json)" = "ready" ]; then
-              if jq -e '(.copy.text // "" | ascii_downcase) as $caption | (["**", "*[", "[plan ", "[lien en bio]", "voix off", "version \\"mystère\\"", "photo floue d"] | any(. as $fragment | $caption | contains($fragment)))' garden/next-social-publication.json >/dev/null; then
-                echo "Editorial preflight: internal brief or raw markup detected; holding candidate."
-                jq '.status="blocked" | .reason="editorial-prompt-leak" | .action="do-not-schedule" | .delivery={status:"not-attempted",publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-editorial-block.json
-                mv /tmp/gerard-editorial-block.json garden/next-social-publication.json
-              fi
-            fi
-            # A previously used image is not forbidden forever, but an identical
-            # image + caption combination must not be scheduled twice.
-            if [ "$(jq -r '.status // ""' garden/next-social-publication.json)" = "ready" ] && [ -f garden/gerard-decision-history.json ]; then
-              if jq -e --slurpfile candidate garden/next-social-publication.json '
-                ($candidate[0].copy.text // "") as $caption |
-                ($candidate[0].media.url // "") as $image |
-                $caption != "" and $image != "" and
-                any(.[]; (.copyText // "") == $caption and (.mediaUrl // .media.url // "") == $image)
-              ' garden/gerard-decision-history.json >/dev/null; then
-                echo "Editorial preflight: repeated image and caption; holding candidate."
-                jq '.status="blocked" | .reason="editorial-exact-repeat" | .action="do-not-schedule" | .delivery={status:"not-attempted",publishingEnabled:false}' garden/next-social-publication.json > /tmp/gerard-repeat-block.json
-                mv /tmp/gerard-repeat-block.json garden/next-social-publication.json
-              fi
-            fi
-            echo "Social package ready:"
-            jq '{status,harvestId,title,score,copy,media,compatibleNetworks}' garden/next-social-publication.json
-            fi
-          elif [ "$HTTP_STATUS" = "404" ]; then
-            echo "No eligible social harvest yet; publication remains safely skipped."
-            jq -n --arg checkedAt "$(date -u +%FT%TZ)" '{preparedAt:$checkedAt,status:"empty",action:"do-not-schedule"}' > garden/next-social-publication.json
-          else
-            echo "Publisher social bridge failed with HTTP $HTTP_STATUS; publication remains safely skipped."
-            cat /tmp/gerard-social-next.json || true
-            jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "$SELECTED_HARVEST_ID" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
-          fi
-
-      - name: Explain Gerard's editorial choice (read-only)
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p garden
-          jq '{
-            explainedAt: (now | todateiso8601),
-            harvestId: (.harvestId // null),
-            seedId: (.seedId // null),
-            subject: (.title // null),
-            copyText: (.copy.text // null),
-            editorialScore: (.score // null),
-            chosenNetwork: (.compatibleNetworks // []),
-            destination: (.editorialRoute.destination // null),
-            evidence: {
-              source: (.provenance.source // null),
-              copyStrategy: (.copy.strategy // null),
-              mediaCapability: (.production.capability // null),
-              mediaFailures: (.production.mediaFailures // [])
-            },
-            decision: (.action // .delivery.status // .status),
-            reasoning: (if .status != "ready" then
-              "Aucun contenu prêt : décision suspendue."
-            elif .editorialRoute.destination.preferredProvider == "metricool" then
-              "Récolte éligible sélectionnée par le classement du Publisher ; routage jeux vers Metricool. Ce score ne prouve pas une préférence du public."
-            elif .editorialRoute.destination.preferredProvider == "buffer" then
-              "Récolte classée par Publisher ; routage livre vers Buffer. Publication non autorisée ici."
-            else
-              "Décision éditoriale non vérifiée ; publication suspendue."
-            end),
-            limits: ["Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.", "Aucune comparaison des statistiques Metricool n’est établie ici.", "Une répétition de texte déjà publié n’est pas automatiquement exclue."]
-          }' garden/next-social-publication.json > garden/gerard-decision-explanation.json
-          # Compare this selection with earlier recorded choices. This is
-          # operational history, not an invented Metricool performance score.
-          if [ -f garden/gerard-decision-history.json ]; then
-            cp garden/gerard-decision-history.json /tmp/gerard-decision-history-before.json
-          else
-            echo '[]' > /tmp/gerard-decision-history-before.json
-          fi
-          # Compare prior decisions and the verified Metricool publication snapshot.
-          # A published exact-copy match is evidence of duplication, not a reason
-          # to invent audience feedback or block unrelated content.
-          if [ -f garden/metricool-published-snapshot.json ]; then
-            cp garden/metricool-published-snapshot.json /tmp/gerard-metricool-snapshot.json
-          else
-            echo '{"published":[]}' > /tmp/gerard-metricool-snapshot.json
-          fi
-          jq --slurpfile history /tmp/gerard-decision-history-before.json --slurpfile published /tmp/gerard-metricool-snapshot.json '
-            . as $current
-            | .previousSelectionsOfSameSeed = ([$history[0][] | select(.seedId == $current.seedId)] | length)
-            | .previousSelectionsOfSameCopy = ([$history[0][] | select(.copyText == $current.copyText and .copyText != null)] | length)
-            | .repeatedSelection = (.previousSelectionsOfSameSeed > 0)
-            | .publishedExactCopy = ([$published[0].published[] | select(.text == $current.copyText and .text != null)] | length > 0)
-            | .publishedEvidence = ([$published[0].published[] | select(.text == $current.copyText and .text != null) | {id,publicationDate,networks}])
-            | .historyEvidence = "Decision history and manually verified Metricool snapshot; no audience-performance inference."
-            | .warning = (if .publishedExactCopy then "Exact text already published in verified Metricool history; choose a fresh angle before publishing." else null end)
-          ' garden/gerard-decision-explanation.json > /tmp/gerard-explanation-final.json
-          mv /tmp/gerard-explanation-final.json garden/gerard-decision-explanation.json
-          # Public analytics are not necessarily available immediately. Preserve
-          # explicit missing-data status rather than interpreting [] as zero.
-          if [ -f garden/metricool-analytics-snapshot.json ]; then
-            jq --slurpfile analytics garden/metricool-analytics-snapshot.json '
-              . + {
-                audienceFeedback: {
-                  status: ($analytics[0].status // "unavailable"),
-                  checkedAt: ($analytics[0].checkedAt // null),
-                  matchedMetrics: (.copyText as $copy | [$analytics[0].posts[]? | select(.text == $copy)] | length),
-                  note: ($analytics[0].note // "No verified per-post engagement evidence")
-                }
-              }
-            ' garden/gerard-decision-explanation.json > /tmp/gerard-with-feedback.json
-          else
-            jq '. + {audienceFeedback:{status:"not-collected",matchedMetrics:0,note:"No Metricool analytics snapshot available; do not infer performance."}}' garden/gerard-decision-explanation.json > /tmp/gerard-with-feedback.json
-          fi
-          mv /tmp/gerard-with-feedback.json garden/gerard-decision-explanation.json
-          # A missing Metricool response is not a zero score. Expose a
-          # concrete next action and keep performance-based ranking disabled.
-          jq '
-            . + {
-              nextAction: (
-                if .publishedExactCopy then
-                  "Regenerate a different angle before any scheduling."
-                elif .audienceFeedback.status != "available" then
-                  "Keep editorial ranking; retry analytics collection later."
-                else
-                  "Compare verified engagement with other posts before adjusting ranking."
-                end
-              ),
-              performanceRankingEnabled: false
-            }
-          ' garden/gerard-decision-explanation.json > /tmp/gerard-action.json
-          mv /tmp/gerard-action.json garden/gerard-decision-explanation.json
-          # Explicit epistemic reasoning: separate evidence, hypotheses, unknowns,
-          # and the next falsifiable experiment. Publisher advice is a capability
-          # diagnostic, never proof of audience engagement.
-          if [ -f garden/gerard-publisher-advice.json ]; then
-            cp garden/gerard-publisher-advice.json /tmp/gerard-publisher-reasoning.json
-          else
-            echo '{"status":"not-yet-consulted"}' > /tmp/gerard-publisher-reasoning.json
-          fi
-          jq --slurpfile publisher /tmp/gerard-publisher-reasoning.json '
-            . as $d
-            | .reasoningModel = {
-                version:"evidence-hypothesis-experiment-v1",
-                known: ([
-                  (if $d.seedId != null then "Publisher selected seed: " + $d.seedId else empty end),
-                  (if $d.publishedExactCopy then "The same copy appears in verified publication history." else empty end),
-                  (if $d.repeatedSelection then "This seed was previously selected." else empty end)
-                ]),
-                hypothesis: (if $d.repeatedSelection then "A different subject or angle may broaden editorial coverage." else "This subject is worth an initial experiment." end),
-                unknown: (if ($d.audienceFeedback.matchedMetrics // 0) == 0 then ["Audience response is not yet measured for this copy."] else [] end),
-                publisherSignal: {status:($publisher[0].status // $publisher[0].response.status // "received"),capability:($publisher[0].capability // "analytics.read")},
-                experiment: (if $d.repeatedSelection then "Test a different angle or subject on the next cycle; compare only verified metrics." else "Publish when transport permits, then collect real outcome evidence." end),
-                confidence: (if ($d.audienceFeedback.matchedMetrics // 0) > 0 then "measured" else "tentative" end)
-              }
-            | .nextAction = .reasoningModel.experiment
-          ' garden/gerard-decision-explanation.json > /tmp/gerard-reasoning.json
-          mv /tmp/gerard-reasoning.json garden/gerard-decision-explanation.json
-          # Deliberation: generate alternatives, select a testable experiment,
-          # and retain the rationale. Publisher remains an adviser, not a judge.
-          jq --slurpfile history /tmp/gerard-decision-history-before.json '
-            . as $d
-            | ([ $history[0][]? | .seedId // empty ] | unique) as $explored
-            | .deliberation = {
-                version:"editorial-experiments-v1",
-                alternatives:[
-                  {id:"explore",hypothesis:"Another subject may improve editorial diversity.",test:"Ask Publisher for a different eligible seed next cycle.",priority:(if $d.previousSelectionsOfSameSeed >= 2 then 3 else 1 end)},
-                  {id:"new-angle",hypothesis:"A new creative angle may perform differently.",test:"Try new copy or media while retaining the subject.",priority:(if $d.previousSelectionsOfSameCopy > 0 then 3 else 2 end)},
-                  {id:"observe",hypothesis:"Measured results may distinguish creative approaches.",test:"Collect verified per-post analytics before claiming an improvement.",priority:(if ($d.audienceFeedback.matchedMetrics // 0) > 0 then 3 else 1 end)}
-                ],
-                previouslyExploredSeedCount:($explored | length),
-                evidencePolicy:"No metrics means unknown, not zero performance."
-              }
-            | .deliberation.chosen = (.deliberation.alternatives | sort_by(-.priority, .id) | .[0])
-            | .deliberation.reason = (if .deliberation.chosen.id == "explore" then "Repeated seed selections justify an exploration experiment."
-               elif .deliberation.chosen.id == "new-angle" then "Try a distinct creative treatment and compare outcomes later."
-               else "Verified analytics exist; assess them before drawing conclusions." end)
-            | .nextAction = .deliberation.chosen.test
-          ' garden/gerard-decision-explanation.json > /tmp/gerard-deliberation.json
-          mv /tmp/gerard-deliberation.json garden/gerard-decision-explanation.json
-          jq --slurpfile current garden/gerard-decision-explanation.json '
-            ((if type == "array" then . else [] end) + [$current[0]])[-100:]
-          ' /tmp/gerard-decision-history-before.json > garden/gerard-decision-history.json
-          jq '{seedId,reasoning,decision,repeatedSelection,previousSelectionsOfSameSeed,limits}' garden/gerard-decision-explanation.json
+        run: bash scripts/gerard-social-selection.sh
 
       - name: Reconnect Metricool handoff with publication safeguards
         working-directory: poulpe-fiction
@@ -740,138 +78,6 @@ jobs:
              delivery:(.delivery.status // null),
              existingBufferError:(.learning.bufferDraft // null)}
           ' garden/next-social-publication.json
-
-      - name: Check TERRA cover HTTP and image dimensions (read-only)
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          URL="$(jq -r 'select(.seedId == "terra") | .media.url // empty' garden/next-social-publication.json)"
-          if [ -z "$URL" ]; then
-            echo "TERRA cover check skipped: no TERRA media URL."
-            exit 0
-          fi
-          STATUS="$(curl --location --silent --show-error --output /tmp/terra-cover-check.jpg --write-out '%{http_code}' --max-time 25 --max-filesize 20000000 "$URL")" || STATUS="000"
-          echo "TERRA cover HTTP $STATUS"
-          if [ "$STATUS" = "200" ]; then
-            file /tmp/terra-cover-check.jpg
-            wc -c < /tmp/terra-cover-check.jpg | awk '{print "TERRA cover bytes: " $1}'
-            python3 - <<'PY'
-          import struct
-          path="/tmp/terra-cover-check.jpg"
-          with open(path,"rb") as f: data=f.read()
-          if data[:2]!=b"\\xff\\xd8":
-              print("TERRA image validation: not JPEG")
-          else:
-              p=2
-              while p+9<len(data):
-                  if data[p]!=255: p+=1;continue
-                  marker=data[p+1];p+=2
-                  if marker in (0xD8,0xD9): continue
-                  if p+2>len(data): break
-                  size=int.from_bytes(data[p:p+2],"big")
-                  if marker in (0xC0,0xC1,0xC2,0xC3) and p+7<len(data):
-                      h=int.from_bytes(data[p+3:p+5],"big");w=int.from_bytes(data[p+5:p+7],"big")
-                      print(f"TERRA image dimensions: {w}x{h}; aspect ratio: {w/h:.3f}; Instagram feed aspect valid: {0.8<=w/h<=1.91}")
-                      break
-                  p+=max(size,2)
-              else: print("TERRA image dimensions: unknown")
-          PY
-          fi
-
-      - name: Inspect selected book in Buffer before any write (read-only)
-        working-directory: poulpe-fiction
-        env:
-          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
-            echo "Buffer lookup unavailable: token missing."
-            exit 0
-          fi
-          if ! jq -e '.transport.provider == "buffer" and .harvestId != null' garden/next-social-publication.json >/dev/null; then
-            echo "Buffer lookup skipped: no selected book."
-            exit 0
-          fi
-          HARVEST_ID="$(jq -r '.harvestId' garden/next-social-publication.json)"
-          STATUS="$(curl --silent --show-error --get --output /tmp/buffer-book-lookup.json --write-out '%{http_code}' --max-time 35 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/buffer-lookup" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" --data-urlencode "harvestId=$HARVEST_ID")" || STATUS="000"
-          echo "Buffer selected-book lookup HTTP $STATUS"
-          if [ "$STATUS" = "200" ] && [ -s /tmp/buffer-book-lookup.json ]; then
-            jq -c '{status,channel,postsHttpStatus,postsInspected,hasNextPage,target:{harvestId:.target.harvestId,status:.target.status,copyVerified:.target.copyVerified,exactMatches:.target.exactMatches,complete:.target.complete,safeToAssumeNoPost:.target.safeToAssumeNoPost},errorMessages}' /tmp/buffer-book-lookup.json
-          else
-            echo "No verified Buffer lookup response; keeping existing reservations."
-          fi
-
-      - name: Check Buffer GraphQL draft schema (read-only)
-        if: ${{ github.event_name == 'push' }}
-        working-directory: poulpe-fiction
-        env:
-          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
-            echo "Schema inspection unavailable: token missing."
-            exit 0
-          fi
-          STATUS="$(curl --silent --show-error --output /tmp/buffer-schema-check.json --write-out '%{http_code}' --max-time 20 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/schema-check" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
-          echo "Buffer schema inspection HTTP $STATUS"
-          if [ -f /tmp/buffer-schema-check.json ]; then
-            jq -c '{status,bufferHttpStatus,createPostAvailable,createPostReturnType,inputTypeFound,createPostInputFields,createPostFieldTypes,assetInputFound,assetTypeName,assetsTypePath,assetInputFields,imageInputFields,postActionVariants,postActionFields,invalidInputErrorFields,channelInputFields,channelFields,readOnlyPostQueries,readOnlyLookupTypes,graphqlErrorCodes,reason}' /tmp/buffer-schema-check.json
-          fi
-
-      - name: Authorize one TERRA draft retry (explicit manual opt-in)
-        if: ${{ false }} # Disabled: TERRA retry authorization was already consumed; read-only diagnostics remain available
-        working-directory: poulpe-fiction
-        env:
-          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
-            echo "TERRA retry refused: token missing."
-            exit 1
-          fi
-          HARVEST_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
-          if [ "$HARVEST_ID" != "harvest_local_harvest_terra_1786215725146" ]; then
-            echo "TERRA retry refused: current harvest does not match."
-            exit 1
-          fi
-          STATUS="$(curl --silent --show-error --request POST --output /tmp/gerard-terra-release.json --write-out '%{http_code}' --max-time 15 "$PUBLISHER_URL/api/social/transports/buffer/book-draft/release-terra" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN")" || STATUS="000"
-          echo "TERRA retry release HTTP $STATUS"
-          if [ -f /tmp/gerard-terra-release.json ]; then
-            jq -c '{status,harvestId,changed,reason,publishingEnabled}' /tmp/gerard-terra-release.json || true
-          fi
-          if [ "$STATUS" != "200" ] || ! jq -e '(.status == "retry-authorized" and .changed == 1) or (.status == "no-change" and .changed == 0 and (.reservations | length == 1) and .reservations[0].status == "retry-authorized" and .reservations[0].post_id == null)' /tmp/gerard-terra-release.json >/dev/null; then
-            echo "TERRA retry release failed or already used; refusing write."
-            exit 1
-          fi
-
-      - name: Reconcile one proven Gérard Buffer validation rejection
-        working-directory: poulpe-fiction
-        env:
-          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          HARVEST_ID="$(jq -r '.harvestId // ""' garden/next-social-publication.json)"
-          if [ "$HARVEST_ID" != "neon_iter_iter_gerard-et-gerard_1786288530352" ] || [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
-            echo "Known invalid Buffer reservation not selected; no changes."
-            exit 0
-          fi
-          if ! jq -e '.status == "ready" and .transport.provider == "buffer" and .editorialQuality.status == "complete"' garden/next-social-publication.json >/dev/null; then
-            echo "Known book package incomplete; leaving reservation locked."
-            exit 0
-          fi
-          STATUS="$(curl --silent --show-error --output /tmp/gerard-known-recovery.json --write-out '%{http_code}' --max-time 40 -X POST "$PUBLISHER_URL/api/social/transports/buffer/book-draft/recover-gerard-invalid-input" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data '{"harvestId":"neon_iter_iter_gerard-et-gerard_1786288530352","intent":"recover-known-buffer-InvalidInputError"}')" || STATUS="000"
-          echo "Known Buffer validation reconciliation HTTP $STATUS"
-          if [ -s /tmp/gerard-known-recovery.json ]; then
-            jq -c '{status,harvestId,changed,postCreated,retryScope,freshProviderCheck,reason}' /tmp/gerard-known-recovery.json || true
-          fi
-          if [ "$STATUS" != "200" ]; then
-            echo "Provider evidence missing or incident already handled; no unlock."
-          fi
 
       - name: Inspect Buffer draft reservation (read-only)
         working-directory: poulpe-fiction
@@ -931,19 +137,6 @@ jobs:
             if jq -e '.status != "unavailable" and .status != "invalid"' /tmp/gerard-buffer-reconcile.json >/dev/null; then
               rm -f /tmp/gerard-buffer-write-blocked
               echo "Buffer verified: Publisher may evaluate this creative fingerprint."
-            fi
-            if [ "${{ inputs.retry_terra_draft }}" = "true" ] && [ "$HARVEST_ID" = "harvest_local_harvest_terra_1786215725146" ] && jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and (.reservations[0].status == "retry-authorized") and (.reservations[0].post_id == null)' /tmp/gerard-buffer-reconcile.json >/dev/null; then
-              rm -f /tmp/gerard-buffer-write-blocked
-              echo "One authorized TERRA draft attempt unlocked; no automatic publication."
-            fi
-            # Only after an authenticated, complete read-only Buffer check and
-            # a one-time database state transition. Never unblock on absence alone.
-            if [ "$HARVEST_ID" = "neon_iter_iter_gerard-et-gerard_1786288530352" ] &&
-               [ -s /tmp/gerard-known-recovery.json ] &&
-               jq -e '.status == "reconciled-known-invalid-input" and .changed == 1 and .postCreated == false and .retryScope == "draft-only" and .freshProviderCheck == true' /tmp/gerard-known-recovery.json >/dev/null 2>&1 &&
-               jq -e '.retryAllowed == true and .requiresManualConfirmation == false and (.reservations | length == 1) and .reservations[0].status == "validation-rejected" and .reservations[0].post_id == null' /tmp/gerard-buffer-reconcile.json >/dev/null 2>&1; then
-              rm -f /tmp/gerard-buffer-write-blocked
-              echo "One verified Gérard book draft attempt unlocked; no automatic publication."
             fi
           else
             echo "Reconciliation unavailable; Buffer write remains blocked."
@@ -1007,199 +200,56 @@ jobs:
           fi
           mv /tmp/gerard-buffer-result.json garden/next-social-publication.json
 
-      - name: Queue the confirmed existing Gerard Buffer draft once
-        if: ${{ github.event_name == 'push' }}
+      - name: Persist this tentacle’s changes
         working-directory: poulpe-fiction
-        env:
-          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${BUFFER_DRAFT_WRITE_TOKEN:-}" ]; then
-            echo "Existing Buffer draft scheduling unavailable: authenticated token missing."
-            exit 0
-          fi
-          ENDPOINT="$PUBLISHER_URL/api/social/transports/buffer/book-draft/queue-existing-gerard"
-          HARVEST_ID="neon_iter_iter_gerard-et-gerard_1786288530352"
-          POST_ID="6acfd4de0b61877d1315e86b"
-          REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,dryRun:true}')"
-          READ_STATUS="$(curl --silent --show-error --output /tmp/gerard-existing-buffer-check.json --write-out '%{http_code}' --max-time 35 -X POST "$ENDPOINT" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data "$REQUEST")" || READ_STATUS="000"
-          echo "Existing Gérard Buffer draft check HTTP $READ_STATUS"
-          if [ -s /tmp/gerard-existing-buffer-check.json ]; then
-            jq -c '{status,scheduled,postId,channelId,imageCount,providerStatus,dueAt,reason}' /tmp/gerard-existing-buffer-check.json || true
-          fi
-          if [ "$READ_STATUS" != "200" ]; then
-            echo "Provider did not verify the original draft: no scheduling attempted."
-            exit 0
-          fi
-          if jq -e '.status == "already-queued-or-sent" and .scheduled == true and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
-            cp /tmp/gerard-existing-buffer-check.json /tmp/gerard-existing-buffer-confirmation.json
-          elif jq -e '.status == "ready-to-queue-existing-draft" and .scheduled == false and .imageCount >= 1 and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-check.json >/dev/null; then
-            # Buffer explicitly rejected the first edit because its existing image
-            # was not resent. Permit ONE targeted recovery with the same cover.
-            if jq -e '.recoveryEligible == true' /tmp/gerard-existing-buffer-check.json >/dev/null 2>&1; then
-              QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"retry-once-with-confirmed-official-cover",priorRunId:38646496703}')"
-            else
-              QUEUE_REQUEST="$(jq -nc --arg harvestId "$HARVEST_ID" --arg postId "$POST_ID" '{harvestId:$harvestId,postId:$postId,intent:"schedule-existing-verified-gerard-draft"}')"
-            fi
-            QUEUE_HTTP="$(curl --silent --show-error --output /tmp/gerard-existing-buffer-confirmation.json --write-out '%{http_code}' --max-time 35 -X POST "$ENDPOINT" -H "Authorization: Bearer $BUFFER_DRAFT_WRITE_TOKEN" -H "Content-Type: application/json" --data "$QUEUE_REQUEST")" || QUEUE_HTTP="000"
-            echo "Existing Gérard Buffer draft scheduling HTTP $QUEUE_HTTP"
-            if [ -s /tmp/gerard-existing-buffer-confirmation.json ]; then
-              jq -c '{status,scheduled,postId,channelId,dueAt,providerStatus,providerError,providerResultType}' /tmp/gerard-existing-buffer-confirmation.json || true
-            fi
-            [ "$QUEUE_HTTP" = "200" ] || exit 0
-          else
-            echo "Draft check does not authorize an edit. No post created."
-            exit 0
-          fi
-          if jq -e '.scheduled == true and (.status == "confirmed-queued" or .status == "already-queued-or-sent") and .postId == "6acfd4de0b61877d1315e86b"' /tmp/gerard-existing-buffer-confirmation.json >/dev/null; then
-            jq -n --arg at "$(date -u +%FT%TZ)" --slurpfile confirmation /tmp/gerard-existing-buffer-confirmation.json '{
-              recordedAt:$at,source:"Buffer GraphQL provider confirmation",
-              contract:"gerard-existing-buffer-post-v1",
-              harvestId:"neon_iter_iter_gerard-et-gerard_1786288530352",
-              seedId:"gerard-et-gerard",
-              originalPostId:"6acfd4de0b61877d1315e86b",
-              status:$confirmation[0].status,
-              scheduled:$confirmation[0].scheduled,
-              channelId:($confirmation[0].channelId // "6ac8c8226a5c39ccb65fdbf6"),
-              scheduledAt:($confirmation[0].dueAt // null),
-              providerStatus:($confirmation[0].providerStatus // null),
-              duplicateCreated:false,
-              note:"Existing Buffer draft modified in place; no new Buffer post created."
-            }' > garden/buffer-book-publication.json
-            echo "Existing draft is confirmed scheduled by Buffer; provider ID preserved."
-          else
-            echo "Buffer scheduling was not confirmed. No success recorded."
-          fi
-
-      - name: Listen to Publisher analytics capability
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p garden
-          STATUS="$(curl --silent --show-error --max-time 18 --output /tmp/gerard-publisher-analytics.json --write-out '%{http_code}' "$PUBLISHER_URL/api/observatory/capability-gap?capability=analytics.read&mission=social%20media%20facebook%20instagram%20post%20engagement%20reach")" || STATUS="000"
-          if [ "$STATUS" = "200" ] && jq -e 'type == "object"' /tmp/gerard-publisher-analytics.json >/dev/null 2>&1; then
-            jq --arg observedAt "$(date -u +%FT%TZ)" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",response:.}' /tmp/gerard-publisher-analytics.json > garden/gerard-publisher-advice.json
-          else
-            jq -n --arg observedAt "$(date -u +%FT%TZ)" --arg http "$STATUS" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",status:"unavailable",httpStatus:$http}' > garden/gerard-publisher-advice.json
-          fi
-          jq -c '{source,capability,status:(.status // .response.status // "received")}' garden/gerard-publisher-advice.json
-
-      - name: Verify Metricool feedback memory safeguards
-        working-directory: poulpe-fiction
-        run: node --test tests/gerard-social-feedback.test.mjs tests/gerard-learning-cycle.test.mjs
-
-      - name: Update Gerard learning from verified outcomes
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p garden
-          test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
-          node scripts/gerard-learning-cycle.mjs
-          node scripts/gerard-social-feedback.mjs
-
-      - name: Validate real harvest result
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          node - <<'NODE'
-          const fs = require('fs');
-          const state = JSON.parse(fs.readFileSync('garden/gerard-state.json', 'utf8'));
-          const result = state.lastResult || {};
-          console.log(JSON.stringify({ mode: state.lastMode, status: result.status, httpStatus: result.httpStatus, harvestMode: result.harvestMode, verification: result.verification, payload: result.payload }, null, 2));
-          if (!['dream', 'cultivate', 'play', 'symbiosis', 'rest'].includes(state.lastMode)) throw new Error(`Unexpected Gerard mode: ${state.lastMode}`);
-          if (state.lastMode !== 'cultivate') { console.log(`Non-harvest cycle (${state.lastMode}); harvest validation skipped.`); process.exit(0); }
-          // A deferred garden bag is a valid no-harvest outcome, not an endpoint failure.
-          // Keep unexpected statuses and genuinely failed harvests fatal.
-          if (result.status === 'deferred' && result.harvestMode === 'garden-prepare-bag') {
-            console.log('Garden bag preparation deferred; no harvest to validate this cycle.');
-            process.exit(0);
-          }
-          if (result.status !== 'ok') throw new Error(`Harvest endpoint failed: ${result.status}`);
-          if (result.verification && result.verification.processed < 1) throw new Error('No tentacle was processed.');
-          NODE
-
-      - name: Persist private snapshots before publishing metadata
-        working-directory: poulpe-fiction
-        env:
-          GERARD_PUBLISHER_DB_PACKAGE: ${{ github.workspace }}/publisher/lib/db/package.json
         run: node scripts/gerard-private-runtime.mjs persist
 
-      - name: Commit updated Gerard state
-        working-directory: poulpe-fiction
-        run: |
-          set -euo pipefail
-          PUBLIC_STATE_FILES=()
-          mapfile -d '' PUBLIC_STATE_FILES < <(find garden -maxdepth 1 -type f -name '*.json' ! -name 'restart-seeds.json' ! -name 'publication-experiment-30d.json' ! -name 'gerard-owner-feedback.json' ! -name 'verified-external-publications.json' -print0)
-          STUDIO_FILES=()
-          if [ -d garden/studio ]; then mapfile -d '' STUDIO_FILES < <(find garden/studio -type f -print0); fi
-          if [ -n "$(git status --porcelain garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json garden/studio "${PUBLIC_STATE_FILES[@]}")" ]; then
-            git config user.name "gerard-runtime[bot]"
-            git config user.email "gerard-runtime@users.noreply.github.com"
-            # Stage only existing optional files, plus tracked deletions.
-            for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}" "${PUBLIC_STATE_FILES[@]}"; do
-              if [ -e "$file" ] || git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
-                git add -A -- "$file"
-              fi
-            done
-            git commit -m "chore(gerard): update autonomous cycle state"
-            # State snapshots are generated artifacts, not source code. If main
-            # advances, prefer the latest completed cycle snapshot instead of
-            # trying to line-merge independently generated JSON files.
-            # Never force-push or overwrite workflow/source files.
-            for attempt in 1 2 3; do
-              git fetch origin main
-              if git rebase origin/main; then
-                if git push origin HEAD:main; then
-                  echo "Gerard state synchronized (attempt $attempt)."
-                  break
-                fi
-              else
-                echo "Generated state conflicts with upstream; resolving snapshot files only."
-                for file in garden/community-radar.json garden/gerard-state.json garden/harvests.json garden/gerard-mail-outbox.json garden/gerard-personal-letters.json garden/gerard-gmail-test-ledger.json garden/symbiosis-report.json garden/article-candidate.json garden/daily-publication-coverage.json garden/next-social-publication.json garden/gerard-decision-explanation.json garden/gerard-decision-history.json garden/buffer-draft-ledger.json garden/gerard-learning.json garden/gerard-publisher-advice.json garden/compost-report.json garden/buffer-book-publication.json "${STUDIO_FILES[@]}" "${PUBLIC_STATE_FILES[@]}"; do
-                  if git ls-files -u -- "$file" | grep -q .; then
-                    if git cat-file -e REBASE_HEAD:"$file" 2>/dev/null; then
-                      git show REBASE_HEAD:"$file" > "$file"
-                      git add -- "$file"
-                    else
-                      git rm -f -- "$file"
-                    fi
-                  fi
-                done
-                if git ls-files -u | grep -q .; then
-                  echo "Non-state merge conflicts detected; refusing automatic resolution."
-                  exit 1
-                fi
-                GIT_EDITOR=true git rebase --continue
-                if git push origin HEAD:main; then
-                  echo "Gerard state synchronized after snapshot conflict resolution."
-                  break
-                fi
-              fi
-              if [ "$attempt" = 3 ]; then
-                echo "State sync failed after 3 attempts; preserving upstream without force push."
-                exit 1
-              fi
-            done
-          else
-            echo "Aucun changement d'état à committer."
-          fi
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v4
+  outreach:
+    if: github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '7 */3 * * *') || (github.event_name == 'workflow_dispatch' && inputs.tentacle == 'courrier'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    concurrency:
+      group: gerard-outreach
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GERARD_TENTACLE: outreach
+      GERARD_MAIL_AUTONOMY_ENABLED: "true"
+    steps:
+      - name: Checkout Poulpe Fiction
+        uses: actions/checkout@v4
         with:
-          name: gerard-runtime-logs
-          path: |
-            octopus.log
-            publisher.log
-            poulpe-fiction/garden/studio/**
-            publisher/data/studio/jobs/**
-          retention-days: 7
+          path: poulpe-fiction
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install snapshot database client
+        run: |
+          npm install --prefix "$RUNNER_TEMP/gerard-db" --no-audit --no-fund --ignore-scripts pg@8.22.0
+          echo "GERARD_PUBLISHER_DB_PACKAGE=$RUNNER_TEMP/gerard-db/package.json" >> "$GITHUB_ENV"
+
+      - name: Restore private state
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs hydrate
+
+      - name: Send at most three Gérard outreach messages with Benoît in CC
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-autonomous-mail.mjs
+
+      - name: Archive an occasional personal letter for the Banc (never send Gmail)
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-personal-letters.mjs
+
+      - name: Persist this tentacle’s changes
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs persist
 
   gerard_issue_diagnostic:
     name: Gerard mission intake (no publication)

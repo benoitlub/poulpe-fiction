@@ -294,6 +294,21 @@ async function proposeVisuals(seedId) {
 }
 
 const FALLBACK_LEDGER = new URL("../garden/gerard-metricool-fallback.json", import.meta.url);
+const PRODUCTION_LEDGER = new URL("../garden/gerard-metricool-production-history.json", import.meta.url);
+const PREPARED = new URL("../garden/gerard-metricool-prepared.json", import.meta.url);
+const RECEIPT = new URL("../garden/gerard-metricool-prepared-receipt.json", import.meta.url);
+
+async function readOptional(path, fallback = null) {
+  try { return JSON.parse(await readFile(path, "utf8")); }
+  catch (error) { if (error.code !== "ENOENT") throw error; return fallback; }
+}
+
+async function pendingPrepared() {
+  const [item, receipt] = await Promise.all([readOptional(PREPARED), readOptional(RECEIPT)]);
+  if (item?.candidate?.harvestId && receipt?.harvestId !== item.candidate.harvestId &&
+      Date.now() - Date.parse(item.preparedAt) < 24 * 60 * 60 * 1000) return item.candidate;
+  return null;
+}
 
 function copyKey(text) {
   return text.normalize("NFKC").toLocaleLowerCase("fr").replace(/\s+/g, " ").trim();
@@ -351,16 +366,13 @@ function makeFacebookCandidate(project, angle, text, strategy) {
   };
 }
 
-async function prepareMetricoolFallback() {
-  let ledger;
-  try { ledger = JSON.parse(await readFile(FALLBACK_LEDGER, "utf8")); }
-  catch (error) {
-    if (error.code !== "ENOENT") throw error;
-    ledger = { cursor: 0, history: [] };
-  }
+async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
+  const ledgerPath = prepareOnly ? PRODUCTION_LEDGER : FALLBACK_LEDGER;
+  const ledger = await readOptional(ledgerPath, { cursor: 0, history: [] });
+  const otherLedger = await readOptional(prepareOnly ? FALLBACK_LEDGER : PRODUCTION_LEDGER, { history: [] });
   const topics = EDITORIAL_ANGLES.flatMap(angle => FACEBOOK_PROJECTS.map(project => ({ project, angle })));
   const recent = ledger.history.slice(-200);
-  const seen = new Set(recent.filter(item => typeof item.text === "string").map(item => copyKey(item.text)));
+  const seen = new Set([...recent, ...otherLedger.history].filter(item => typeof item.text === "string").map(item => copyKey(item.text)));
   let publisherFailure = null;
   let candidate;
   for (let attempt = 0; attempt < topics.length; attempt++) {
@@ -368,7 +380,7 @@ async function prepareMetricoolFallback() {
     ledger.cursor = (ledger.cursor + 1) % topics.length;
     const [seedId, title, captions] = project;
     const [category] = angle;
-    if (attempt === 0) {
+    if (attempt === 0 && process.env.GERARD_METRICOOL_LOCAL_ONLY !== "true") {
       try {
         const previous = recent.filter(item => item.seedId === seedId && item.text).map(item => item.text);
         const text = await requestPublisherCaption(project, angle, previous);
@@ -379,6 +391,7 @@ async function prepareMetricoolFallback() {
         publisherFailure = error.name === "TimeoutError" ? "publisher-timeout" : error.message;
       }
     }
+    if (prepareOnly) break;
     const base = captions[EDITORIAL_ANGLES.indexOf(angle)];
     const text = LOCAL_FOLLOWUPS
       .map(followup => `${title} — ${base}${followup}`)
@@ -388,13 +401,20 @@ async function prepareMetricoolFallback() {
       break;
     }
   }
-  if (!candidate) return { status: "local-catalogue-exhausted", publisherFailure };
+  const save = () => writeFile(ledgerPath, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
+  if (!candidate) {
+    if (prepareOnly) await save();
+    return { status: prepareOnly ? "no-draft-prepared" : "local-catalogue-exhausted", publisherFailure };
+  }
   const { seedId, category, copy: { text, strategy } } = candidate;
   const visualProposals = await proposeVisuals(seedId);
   const entry = { at: new Date().toISOString(), seedId, category, text, strategy, publisherFailure, visualProposals, status: "prepared" };
   recent.push(entry);
-  const save = () => writeFile(FALLBACK_LEDGER, JSON.stringify({ cursor: ledger.cursor, history: recent.slice(-200) }) + "\n");
   await save();
+  if (prepareOnly) {
+    await writeFile(PREPARED, JSON.stringify({ preparedAt: entry.at, candidate }) + "\n");
+    return { seedId, category, strategy, status: "prepared-for-diffusion", visualProposalCount: visualProposals.length };
+  }
   const delivered = await handoffMetricoolByEmail(candidate);
   entry.status = delivered.metricoolHandoff?.status ?? "handoff-ineligible";
   entry.handoff = delivered.metricoolHandoff ?? null;
@@ -403,6 +423,11 @@ async function prepareMetricoolFallback() {
 }
 
 async function main() {
+  if (process.env.GERARD_METRICOOL_PREPARE_ONLY === "true") {
+    if (await pendingPrepared()) return;
+    console.log(JSON.stringify({ metricoolPreparation: await prepareMetricoolFallback({ prepareOnly: true }) }));
+    return;
+  }
   const path = "garden/next-social-publication.json";
   const candidate = JSON.parse(await readFile(path, "utf8"));
   if (process.env.GERARD_METRICOOL_EXECUTION_ENABLED !== "true") return;
@@ -411,6 +436,18 @@ async function main() {
     await writeFile(path, JSON.stringify(updated, null, 2) + "\n");
     console.log(JSON.stringify({ metricoolHandoff: updated.metricoolHandoff }));
     return;
+  }
+  const prepared = await pendingPrepared();
+  if (prepared) {
+    const delivered = await handoffMetricoolByEmail(prepared);
+    if (delivered.metricoolHandoff) {
+      await writeFile(RECEIPT, JSON.stringify({ harvestId: prepared.harvestId, ...delivered.metricoolHandoff }) + "\n");
+      if (candidate.transport?.provider !== "buffer") {
+        await writeFile(path, JSON.stringify(delivered, null, 2) + "\n");
+      }
+      console.log(JSON.stringify({ metricoolHandoff: delivered.metricoolHandoff, source: "production-tentacle" }));
+      return;
+    }
   }
   const fallback = await prepareMetricoolFallback();
   console.log(JSON.stringify({ metricoolHandoff: fallback.handoff ?? null, metricoolFallback: fallback }));
