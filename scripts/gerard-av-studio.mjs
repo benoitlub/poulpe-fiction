@@ -49,7 +49,7 @@ export function verifyStudioProbe(p, kind, expectedDuration) {
   if (kind === "audio" && a.codec_name !== "pcm_s16le")
     throw new Error("studio-local-audio-invalid");
 }
-export const studioOperationId = (seed, kind, creativeFeedback = []) =>
+export const studioOperationId = (seed, kind, creativeFeedback = [], benchmarks = []) =>
   "studio-" +
   sha(
     JSON.stringify({
@@ -60,6 +60,7 @@ export const studioOperationId = (seed, kind, creativeFeedback = []) =>
       templates: seed.templates,
       kind,
       creativeFeedback,
+      ...(benchmarks.length ? { benchmarks } : {}),
     }),
   );
 /**
@@ -101,6 +102,7 @@ export async function studioMission(
   kind = "video",
   operationId,
   creativeFeedback = [],
+  benchmarks = [],
 ) {
   if (!["image", "audio", "video"].includes(kind))
     throw new Error("unknown-studio-kind");
@@ -174,6 +176,7 @@ export async function studioMission(
       id: seed.parcelId,
       metadata: {
         seedId: seed.seedId,
+        ...(benchmarks.length ? { publisherCreativeBenchmarks: benchmarks } : {}),
         studioRequest: {
           version: "studio-v1",
           operationId,
@@ -226,6 +229,7 @@ export async function runParcelStudio(
     download,
     verifyFile,
     creativeFeedback = [],
+    benchmarks = [],
   } = {},
 ) {
   const mission = await studioMission(
@@ -233,6 +237,7 @@ export async function runParcelStudio(
     kind,
     operationId,
     creativeFeedback,
+    benchmarks,
   );
   if (!mission) return { status: "disabled" };
   if (!outputDir) throw new Error("studio-archive-required");

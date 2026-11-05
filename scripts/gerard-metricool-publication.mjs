@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { creativeBenchmarkPrompt, loadCreativeBenchmarks } from "./gerard-creative-benchmarks.mjs";
 
 export function metricoolMission(candidate, { execute = false, now = new Date() } = {}) {
   if (candidate?.status !== "ready" || candidate?.transport?.provider !== "metricool" ||
@@ -302,6 +303,7 @@ async function requestPublisherCaption(project, angle, oldCaptions) {
   const [seedId, title] = project;
   const [category, treatment] = angle;
   const objective = "Écrire un seul post Facebook en français pour la marque Pro.hibited.";
+  const benchmarks = await loadCreativeBenchmarks([seedId, title]);
   const response = await fetch(`${(process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "")}/mission`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -311,6 +313,7 @@ async function requestPublisherCaption(project, angle, oldCaptions) {
       title, objective, requiredCapabilities: ["content.social.write"], authorizedResources: [],
       prompt: [
         objective, `Sujet unique : ${title}.`, treatment,
+        ...creativeBenchmarkPrompt(benchmarks),
         "Dans le champ content, écris uniquement la légende prête à poster, en texte simple, 450 caractères maximum.",
         "Aucun lien, prix, disponibilité ou promesse. N'invente aucune règle du jeu, anecdote ni citation.",
         "Aucun scénario de tournage, commentaire interne, Markdown, second projet ou invitation à acheter une substance.",
