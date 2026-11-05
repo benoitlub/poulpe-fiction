@@ -154,12 +154,12 @@ const FACEBOOK_PROJECTS = [
     "Pour découvrir Pro.Hibited Online, tu voudrais voir un premier tour ou le moment où le plan déraille ?",
   ]],
   ["blacklace-dice", "Blacklace Dice", [
-    "Le dé tombe sous la table. Résultat annulé ou les enfers comptent comme surface de jeu ?",
+    "Tu hésites trop ? Quelle petite décision laisserais-tu volontiers à un dé ?",
     "Quel détail rend un lancer plus satisfaisant pour toi : le bruit, le suspense ou la réaction des autres ?",
     "Pour découvrir Blacklace Dice, tu commencerais par un lancer commenté ou un petit défi à tenter en groupe ?",
   ]],
   ["feuch-dice", "Feuch Dice", [
-    "Tu as droit à une formule ridicule pour porter chance à ton prochain lancer. Laquelle ?",
+    "Quel défi ferais-tu relever à un adversaire sûr de gagner ?",
     "Pour rendre un lancer mémorable, tu travaillerais d’abord le rythme ou la surprise ?",
     "Pour découvrir Feuch Dice, tu voterais pour un défi éclair ou une revanche en trois manches ?",
   ]],
@@ -189,6 +189,87 @@ const FACEBOOK_PROJECTS = [
     "Pour découvrir Feuch Game, tu préfères un défi à relever ensemble ou chacun son tour sous le regard des autres ?",
   ]],
 ];
+const NOTION_EDITORIAL_PROJECTS = [
+  {
+    "id": "feuch-dice",
+    "title": "Feuch Dice",
+    "source": "https://app.notion.com/p/3e539119725381709290c31c03db8223",
+    "fact": "Jeu d’affrontement humoristique où les joueurs se mettent au défi.",
+    "copy": "Quel défi ferais-tu relever à un adversaire sûr de gagner ?",
+    "format": "Filmer un vrai défi et la réaction de l’autre joueur."
+  },
+  {
+    "id": "feuch-lab",
+    "title": "Feuch Lab",
+    "source": "https://app.notion.com/p/3e5391197253817a91e0c078d0e8257a",
+    "fact": "Portail expérimental du Feuch Institute vers ses jeux et projets.",
+    "copy": "Tu pousses quelle porte du Feuch Lab en premier : un jeu ou une expérience ?",
+    "format": "Montrer le trajet réel depuis le portail."
+  },
+  {
+    "id": "blacklace-dice",
+    "title": "Blacklace Dice",
+    "source": "https://app.notion.com/p/387391197253810fb425f45d26d36679",
+    "fact": "Dé anti-procrastination absurde pour trancher ou relancer.",
+    "copy": "Tu hésites trop ? Quelle petite décision laisserais-tu volontiers à un dé ?",
+    "format": "Montrer une hésitation et le lancer qui la tranche."
+  },
+  {
+    "id": "prohibited-online",
+    "title": "Pro.Hibited Online",
+    "source": "https://app.notion.com/p/38739119725381a1b98de566990ee66b",
+    "fact": "Prototype d’adaptation web du jeu de cartes Pro.Hibited.",
+    "copy": "Qu’est-ce que Pro.Hibited devrait absolument garder du jeu de cartes en passant à l’écran ?",
+    "format": "Montrer la pioche ou la table si elle est visible dans le prototype."
+  },
+  {
+    "id": "blacklace-echo",
+    "title": "Blacklace Echo",
+    "source": "https://app.notion.com/p/38739119725381babc90eb8c551d1c2e",
+    "fact": "Carte narrative de Blacklace Island en construction, avec Rotas parmi ses lieux.",
+    "copy": "Sur la carte de Blacklace Island, Rotas prend forme. Quel détail te donnerait envie d’y faire escale ?",
+    "format": "Utiliser une capture réelle de la carte et présenter Rotas comme un lieu en développement."
+  },
+  {
+    "id": "bazar-du-feuch",
+    "title": "Bazar du Feuch",
+    "source": "https://app.notion.com/p/daaaed8135c143e1a1b60f2efa567642",
+    "fact": "Catalogue de livres, prototypes et jeux du Feuch Institute.",
+    "copy": "Livres, jeux, prototypes. Quel rayon du Bazar du Feuch fouillerais-tu en premier ?",
+    "format": "Faire défiler trois fiches réelles, une par rayon."
+  },
+  {
+    "id": "creature-sync",
+    "title": "Creature-Sync",
+    "source": "https://app.notion.com/p/38739119725381209beacacaa65ab7b3",
+    "fact": "Prototype qui propose des interprétations humoristiques de sons d’animaux.",
+    "copy": "Et si ce chant d’oiseau était une remarque sarcastique ?",
+    "format": "Associer un son utilisable et une capture réelle. Présenter le résultat comme ludique."
+  },
+  {
+    "id": "spectrl",
+    "title": "SpecTRL",
+    "source": "https://app.notion.com/p/3873911972538123a65af841639b3402",
+    "fact": "Prototype audiovisuel de scanner spectral fictif du Feuch Institute.",
+    "copy": "Le radar grésille, une forme apparaît. Tu l’inscris au journal ou tu lances un deuxième scan ?",
+    "format": "Montrer l’interface comme une fiction interactive."
+  }
+];
+const PROJECT_PROPOSALS = new URL("../garden/gerard-editorial-proposals.json", import.meta.url);
+
+async function refreshProjectProposals() {
+  const projects = NOTION_EDITORIAL_PROJECTS.map(({ fact, ...project }) => project);
+  const previous = await readOptional(PROJECT_PROPOSALS);
+  if (JSON.stringify(previous?.projects) !== JSON.stringify(projects)) {
+    await writeFile(PROJECT_PROPOSALS, JSON.stringify({ updatedAt: new Date().toISOString(), projects }, null, 2) + "\n");
+  }
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const lines = projects.map(project => "- [" + project.title + "](<" + project.source + ">) — " + project.copy + " **Format proposé :** " + project.format);
+    await appendFile(process.env.GITHUB_STEP_SUMMARY, "\n### Propositions éditoriales de Gérard\n\n" + lines.join("\n") + "\n");
+  }
+  console.log(JSON.stringify({ editorialProposals: projects.map(project => project.id) }));
+}
+
 const LOCAL_FOLLOWUPS = [
   "",
   " Et qu’est-ce qui te ferait changer d’avis ?",
@@ -323,6 +404,7 @@ async function requestPublisherCaption(project, angle, oldCaptions) {
   const [category, treatment] = angle;
   const objective = "Écrire un seul post Facebook en français pour la marque Pro.hibited.";
   const benchmarks = await loadCreativeBenchmarks([seedId, title]);
+  const projectSource = NOTION_EDITORIAL_PROJECTS.find(project => project.id === seedId);
   const response = await fetch(`${(process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "")}/mission`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -332,6 +414,7 @@ async function requestPublisherCaption(project, angle, oldCaptions) {
       title, objective, requiredCapabilities: ["content.social.write"], authorizedResources: [],
       prompt: [
         objective, `Sujet unique : ${title}.`, treatment,
+        ...(projectSource ? ["Fiche Notion du projet : " + projectSource.fact] : []),
         ...creativeBenchmarkPrompt(benchmarks),
         "Dans le champ content, écris uniquement la légende prête à poster, en texte simple, 450 caractères maximum.",
         "Aucun lien, prix, disponibilité ou promesse. N'invente aucune règle du jeu, anecdote ni citation.",
@@ -429,6 +512,7 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
 
 async function main() {
   if (process.env.GERARD_METRICOOL_PREPARE_ONLY === "true") {
+    await refreshProjectProposals();
     if (await pendingPrepared()) return;
     console.log(JSON.stringify({ metricoolPreparation: await prepareMetricoolFallback({ prepareOnly: true }) }));
     return;

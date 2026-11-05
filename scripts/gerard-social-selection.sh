@@ -50,8 +50,10 @@ if [ -f garden/gerard-learning.json ]; then
     echo "Applying previous experiment: explore beyond $PREVIOUS_SEED"
   fi
 fi
-# All seeds, including 420 Dice, are eligible again; normal repetition
-# checks and provider reservation fingerprints still apply.
+# 420 Dice remains in review. Filter its known seeds before ranking.
+if [ "${GERARD_TENTACLE:-}" = "delivery" ]; then
+  EXCLUDED_SEED_IDS="$EXCLUDED_SEED_IDS,420-dice,420-dice-game,420-dice-video-studio"
+fi
 # Keep the same exclusions on the initial and alternative requests,
 # without empty entries or duplicates from combined observations.
 EXCLUDED_SEED_IDS="$(printf '%s' "$EXCLUDED_SEED_IDS" | jq -sRr 'split(",") | map(select(length > 0)) | unique | join(",")')"
