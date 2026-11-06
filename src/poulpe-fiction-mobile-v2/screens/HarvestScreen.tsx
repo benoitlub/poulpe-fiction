@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FC, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FC } from "react";
 import "../styles/html-harvest.css";
 import { HarvestActions } from "../components/HarvestActions";
 import { ReadableHarvest, plainHarvestText } from "../components/ReadableHarvest";
@@ -131,61 +131,117 @@ const ArchiveByParcel: FC<{ groups: [string, HarvestBundle[]][] }> = ({ groups }
   );
 }
 
-function PrivateHarvests() {
-  const [items, setItems] = useState<ServerHarvest[] | null>(null);
-  const [status, setStatus] = useState("");
-  const [pending, setPending] = useState(false);
+type GoogleIdentity = {
+  initialize(options: { client_id: string; callback: (response: { credential: string }) => void; auto_select: boolean }): void;
+  renderButton(element: HTMLElement, options: { theme: "outline"; size: "large"; text: "signin_with"; locale: "fr" }): void;
+};
+const GOOGLE_CLIENT_ID = "692850297482-75umdcti8d45u0gr146h9egd1l7ah2uv.apps.googleusercontent.com";
+let googleIdentity: Promise<GoogleIdentity> | undefined;
+let receiveGoogleCredential: ((credential: string) => void) | undefined;
 
-  async function unlock(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const key = String(new FormData(form).get("harvestKey") ?? "").trim();
-    form.reset();
-    setPending(true);
-    setStatus("");
-    try {
-      const response = await fetch(SERVER_URL, {
-        headers: { Authorization: "Bearer " + key },
-        cache: "no-store",
-        redirect: "error",
-        signal: AbortSignal.timeout(15000),
-      });
-      if (response.status === 401) {
-        setStatus("Clé de lecture incorrecte.");
+function loadGoogleIdentity(): Promise<GoogleIdentity> {
+  googleIdentity ??= new Promise<GoogleIdentity>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.onload = () => {
+      const google = (window as Window & { google?: { accounts: { id: GoogleIdentity } } }).google;
+      const identity = google?.accounts.id;
+      if (!identity) {
+        reject(new Error("Google Sign-In indisponible"));
         return;
       }
-      if (!response.ok) throw new Error("Récoltes indisponibles");
-      setItems(validServerHarvests(await response.json()));
-    } catch {
-      setStatus("Lecture des récoltes indisponible. Réessaie dans un instant.");
-    } finally {
-      setPending(false);
-    }
-  }
+      try {
+        identity.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          auto_select: false,
+          callback: ({ credential }) => receiveGoogleCredential?.(credential),
+        });
+        resolve(identity);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    script.onerror = () => reject(new Error("Google Sign-In indisponible"));
+    document.head.appendChild(script);
+  });
+  return googleIdentity;
+}
 
+function PrivateHarvests() {
+  const [session, setSession] = useState<{ items: ServerHarvest[]; expiresAt: number } | null>(null);
+  const [status, setStatus] = useState("");
+  const [pending, setPending] = useState(false);
+  const button = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (session) {
+      const timer = setTimeout(() => setSession(null), Math.max(0, session.expiresAt - Date.now()));
+      return () => clearTimeout(timer);
+    }
+
+    const controller = new AbortController();
+    receiveGoogleCredential = async (credential) => {
+      setPending(true);
+      setStatus("");
+      try {
+        const response = await fetch(SERVER_URL, {
+          headers: { Authorization: "Bearer " + credential },
+          cache: "no-store",
+          redirect: "error",
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
+        });
+        if (controller.signal.aborted) return;
+        if (response.status === 401) {
+          setStatus("Choisis ton compte Google propriétaire de Poulpe Fiction.");
+          return;
+        }
+        if (!response.ok) throw new Error("Récoltes indisponibles");
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        if (!Number.isSafeInteger(data.expiresAt) || data.expiresAt <= Date.now()) {
+          throw new Error("Session expirée");
+        }
+        setSession({ items: validServerHarvests(data), expiresAt: data.expiresAt });
+      } catch {
+        if (!controller.signal.aborted) setStatus("Lecture indisponible. Réessaie dans un instant.");
+      } finally {
+        if (!controller.signal.aborted) setPending(false);
+      }
+    };
+    void loadGoogleIdentity().then(identity => {
+      if (!controller.signal.aborted && button.current) {
+        identity.renderButton(button.current, { theme: "outline", size: "large", text: "signin_with", locale: "fr" });
+      }
+    }).catch(() => {
+      if (!controller.signal.aborted) setStatus("Connexion Google indisponible. Recharge la page pour réessayer.");
+    });
+    return () => {
+      controller.abort();
+      receiveGoogleCredential = undefined;
+    };
+  }, [session]);
+
+  const items = session?.items ?? null;
   return (
     <section className="pf-card" aria-label="Récoltes privées du serveur">
       <h2 className="pf-harvest-title">Récoltes privées du serveur</h2>
       {items === null ? (
-        <form onSubmit={unlock}>
-          <label htmlFor="pf-harvest-key">Clé de lecture des récoltes</label>
-          <input id="pf-harvest-key" name="harvestKey" type="password" autoComplete="off" pattern="[a-fA-F0-9]{64}" required />
-          <button className="pf-btn pf-btn-primary" type="submit" disabled={pending}>
-            {pending ? "Chargement…" : "Afficher les récoltes"}
-          </button>
+        <>
+          <div ref={button} hidden={pending} />
+          {pending && <p className="pf-meta" role="status">Chargement des récoltes…</p>}
           {status && <p className="pf-meta" role="status">{status}</p>}
-        </form>
+        </>
       ) : (
         <>
           <p className="pf-meta">{items.length} récolte(s) récente(s) du serveur</p>
-          <button className="pf-btn" type="button" onClick={() => setItems(null)}>Verrouiller les récoltes</button>
+          <button className="pf-btn" type="button" onClick={() => setSession(null)}>Fermer l’accès aux récoltes</button>
           {items.map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
             <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
             <ReadableHarvest content={item.content} />
             {/\[(?:[^\]]*à confirmer|URL[^\]]*)\]|\[lien[^\]]*\]/i.test(item.content) ? <p className="pf-meta" role="note">⚠️ Ce document contient encore des liens ou informations à compléter avant utilisation.</p> : null}
             <HarvestActions actions={[{ label: "Copier le texte propre", onClick: () => copy(plainHarvestText(item.content)) }, { label: "Télécharger .md", onClick: () => download("recolte.md", item.content, "text/markdown;charset=utf-8") }]} />
           </details>)}
-
         </>
       )}
     </section>
