@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FC } from "react";
+import { useEffect, useMemo, useState, type FC, type FormEvent } from "react";
 import "../styles/html-harvest.css";
 import { HarvestActions } from "../components/HarvestActions";
 import { ReadableHarvest, plainHarvestText } from "../components/ReadableHarvest";
@@ -25,7 +25,7 @@ const PARCEL_PAGE_SIZE = 15;
 const LATEST_LIMIT = 12;
 const GERARD_LIMIT = 8;
 type ServerHarvest = { harvestId: string; parcelId: string; title: string; content: string; harvestedAt: string; state: string };
-const SERVER_URL = "https://raw.githubusercontent.com/benoitlub/poulpe-fiction/main/garden/harvests.json";
+const SERVER_URL = "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/garden/v1/private-harvests";
 function validServerHarvests(data: any): ServerHarvest[] {
   if (!Array.isArray(data?.harvests)) return [];
   return data.harvests.filter((h: any) =>
@@ -131,23 +131,80 @@ const ArchiveByParcel: FC<{ groups: [string, HarvestBundle[]][] }> = ({ groups }
   );
 }
 
+function PrivateHarvests() {
+  const [items, setItems] = useState<ServerHarvest[] | null>(null);
+  const [status, setStatus] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function unlock(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const key = String(new FormData(form).get("harvestKey") ?? "").trim();
+    form.reset();
+    setPending(true);
+    setStatus("");
+    try {
+      const response = await fetch(SERVER_URL, {
+        headers: { Authorization: "Bearer " + key },
+        cache: "no-store",
+        redirect: "error",
+        signal: AbortSignal.timeout(15000),
+      });
+      if (response.status === 401) {
+        setStatus("Clé de lecture incorrecte.");
+        return;
+      }
+      if (!response.ok) throw new Error("Récoltes indisponibles");
+      setItems(validServerHarvests(await response.json()));
+    } catch {
+      setStatus("Lecture des récoltes indisponible. Réessaie dans un instant.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <section className="pf-card" aria-label="Récoltes privées du serveur">
+      <h2 className="pf-harvest-title">Récoltes privées du serveur</h2>
+      {items === null ? (
+        <form onSubmit={unlock}>
+          <label htmlFor="pf-harvest-key">Clé de lecture des récoltes</label>
+          <input id="pf-harvest-key" name="harvestKey" type="password" autoComplete="off" pattern="[a-fA-F0-9]{64}" required />
+          <button className="pf-btn pf-btn-primary" type="submit" disabled={pending}>
+            {pending ? "Chargement…" : "Afficher les récoltes"}
+          </button>
+          {status && <p className="pf-meta" role="status">{status}</p>}
+        </form>
+      ) : (
+        <>
+          <p className="pf-meta">{items.length} récolte(s) récente(s) du serveur</p>
+          <button className="pf-btn" type="button" onClick={() => setItems(null)}>Verrouiller les récoltes</button>
+          {items.map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
+            <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
+            <ReadableHarvest content={item.content} />
+            {/\[(?:[^\]]*à confirmer|URL[^\]]*)\]|\[lien[^\]]*\]/i.test(item.content) ? <p className="pf-meta" role="note">⚠️ Ce document contient encore des liens ou informations à compléter avant utilisation.</p> : null}
+            <HarvestActions actions={[{ label: "Copier le texte propre", onClick: () => copy(plainHarvestText(item.content)) }, { label: "Télécharger .md", onClick: () => download("recolte.md", item.content, "text/markdown;charset=utf-8") }]} />
+          </details>)}
+
+        </>
+      )}
+    </section>
+  );
+}
+
 export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundle | null; onBackToGerard: () => void }) {
-  const visibleParcelId = (() => { const access = window.PoulpeAccess?.snapshot?.() as Record<string, unknown> | undefined; return typeof access?.parcelId === "string" ? access.parcelId.trim() : ""; })();
+  const readAccess = () => window.PoulpeAccess?.snapshot?.();
+  const [access, setAccess] = useState(readAccess);
+  const ownerView = access?.mode === "owner";
+  const visibleParcelId = typeof access?.parcelId === "string" ? access.parcelId.trim() : "";
   const visibleHarvests = () => restoreAllGardenHarvests().filter((item) => !visibleParcelId || item.intent.parcelId === visibleParcelId);
   const [stored, setStored] = useState<HarvestBundle[]>(visibleHarvests);
   const [view, setView] = useState<"recent" | "projects" | "archive">("recent");
-  const [remote, setRemote] = useState<ServerHarvest[]>([]);
-  const [remoteStatus, setRemoteStatus] = useState("Chargement des récoltes serveur…");
   useEffect(() => {
-    let cancelled = false;
-    void fetch(SERVER_URL, { cache: "no-store" })
-      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then((data) => { if (!cancelled) { setRemote(validServerHarvests(data)); setRemoteStatus(""); } })
-      .catch(() => { if (!cancelled) setRemoteStatus("Journal serveur momentanément indisponible."); });
-    return () => { cancelled = true; };
+    const refresh = () => setAccess(readAccess());
+    window.addEventListener("poulpe-access-changed", refresh);
+    return () => window.removeEventListener("poulpe-access-changed", refresh);
   }, []);
-  const serverItems = remote.filter((h) => !visibleParcelId || h.parcelId === visibleParcelId);
-
 
   useEffect(() => {
     const refresh = () => setStored(visibleHarvests());
@@ -158,11 +215,12 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
       window.removeEventListener("poulpe-github-harvest", refresh);
       window.removeEventListener("poulpe-garden-changed", refresh);
     };
-  }, []);
+  }, [visibleParcelId]);
 
   const harvests = useMemo(() => {
     const scopedBundle = bundle && (!visibleParcelId || bundle.intent.parcelId === visibleParcelId) ? bundle : null;
-    const all = scopedBundle ? [scopedBundle, ...stored] : stored;
+    const scopedStored = stored.filter((item) => !visibleParcelId || item.intent.parcelId === visibleParcelId);
+    const all = scopedBundle ? [scopedBundle, ...scopedStored] : scopedStored;
     const seen = new Set<string>();
     const unique = all.filter((item) => {
       if (!item || seen.has(item.missionId)) return false;
@@ -170,7 +228,7 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
       return true;
     });
     return unique.sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
-  }, [bundle, stored]);
+  }, [bundle, stored, visibleParcelId]);
 
   const groups = useMemo(() => {
     const byParcel = new Map<string, HarvestBundle[]>();
@@ -187,22 +245,13 @@ export function HarvestScreen({ bundle, onBackToGerard }: { bundle: HarvestBundl
   const projectLatest = useMemo(() => groups.map(([parcelId, items]) => [parcelId, items[0]] as const).filter((entry) => Boolean(entry[1])).sort((left, right) => new Date(right[1].createdAt).getTime() - new Date(left[1].createdAt).getTime()), [groups]);
   const latestHarvests = useMemo(() => harvests.slice(0, LATEST_LIMIT), [harvests]);
 
-  if (!harvests.length && !serverItems.length && !remoteStatus) {
+  if (!harvests.length && !ownerView) {
     return <section className="pf-card"><div className="pf-empty"><h2>Pas encore de récolte</h2><p>Gérard n’affiche rien de fictif. Les vraies récoltes apparaîtront ici lorsqu’elles seront prêtes.</p><button className="pf-btn pf-btn-primary" onClick={onBackToGerard}>Confier une culture</button></div></section>;
   }
 
   return (
     <section className="pf-harvest-library" aria-label="Bibliothèque des récoltes">
-      <section className="pf-card" aria-label="Récoltes du serveur">
-        <h2 className="pf-harvest-title">Récoltes du serveur GitHub</h2>
-        <p className="pf-meta">{remoteStatus || `${serverItems.length} récolte(s) conservée(s) — simulations et compost exclus`}</p>
-        {serverItems.slice(0, 20).map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
-          <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
-          <ReadableHarvest content={item.content} />
-          {/\[(?:[^\]]*à confirmer|URL[^\]]*)\]|\[lien[^\]]*\]/i.test(item.content) ? <p className="pf-meta" role="note">⚠️ Ce document contient encore des liens ou informations à compléter avant utilisation.</p> : null}
-          <HarvestActions actions={[{ label: "Copier le texte propre", onClick: () => copy(plainHarvestText(item.content)) }, { label: "Télécharger .md", onClick: () => download("recolte.md", item.content, "text/markdown;charset=utf-8") }]} />
-        </details>)}
-      </section>
+      {ownerView && <PrivateHarvests />}
       <div className="pf-library-summary"><strong>{harvests.length}</strong><span>récoltes</span><i /> <strong>{groups.length}</strong><span>projets</span></div>
       <nav className="pf-library-tabs" aria-label="Vues des récoltes">
         <button type="button" data-active={view === "recent"} onClick={() => setView("recent")}>Récentes</button>
