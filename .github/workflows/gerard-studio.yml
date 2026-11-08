@@ -151,10 +151,24 @@ jobs:
             -H "Content-Type: application/json" \
             --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate","image.studio","audio.studio","video.studio"],executeUrl:$executeUrl}')"
 
+      - name: Restore Studio files and submission checkpoints
+        uses: actions/cache/restore@v4
+        with:
+          path: poulpe-fiction/garden/studio
+          key: gerard-studio-files-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: gerard-studio-files-v1-
+
       - name: Run Gerard cycle
         id: studio_cycle
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
+
+      - name: Preserve Studio files and submission checkpoints
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@v4
+        with:
+          path: poulpe-fiction/garden/studio
+          key: gerard-studio-files-v1-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Persist private studio snapshots
         if: ${{ !cancelled() && (steps.studio_cycle.outcome == 'success' || steps.studio_cycle.outcome == 'failure') }}

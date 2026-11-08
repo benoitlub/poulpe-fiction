@@ -6,12 +6,12 @@ const scalars = new Set([
   "source", "route", "reason", "at", "createdAt", "updatedAt", "harvestedAt",
   "retryAt", "completed", "verified", "simulated", "processed", "contentLength",
   "itemCount", "connected", "totalItems", "matchedItems", "discoveredItems",
-  "isMock", "mock", "isDemo", "provenance", "producer",
+  "reused", "fileVerified", "missionAccepted", "artifactDeclared", "imageRetrieved", "readyForReview", "readyForDiffusion", "code", "isMock", "mock", "isDemo", "provenance", "producer",
   "digestedItems", "published", "contacted", "verifiedContacts", "researchRequired",
 ]);
 const objects = new Set([
   "knowledge", "octopus", "harvest", "persistedHarvest", "verification", "payload",
-  "output", "resourceResult", "diagnostics", "lifecycle", "deferred", "delivery",
+  "studio", "report", "evidence", "output", "resourceResult", "diagnostics", "lifecycle", "deferred", "delivery",
 ]);
 const identifier = /^[A-Za-z0-9_.:>\/-]{1,160}$/;
 

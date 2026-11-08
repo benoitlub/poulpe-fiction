@@ -4,6 +4,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { providerRetry } from "./gerard-provider-retry.mjs";
 const exec = promisify(execFile);
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 export function studioImagePrompt(config) {
@@ -215,7 +216,12 @@ export async function submitStudioMission(
     body: JSON.stringify(mission),
     signal: AbortSignal.timeout(300000),
   });
-  if (!response.ok) throw new Error("studio-mission-http-" + response.status);
+  if (!response.ok) {
+    const error = new Error("studio-mission-http-" + response.status);
+    error.httpStatus = response.status;
+    error.retryAfter = response.headers.get("retry-after");
+    throw error;
+  }
   return response.json();
 }
 export async function runParcelStudio(
@@ -230,6 +236,7 @@ export async function runParcelStudio(
     verifyFile,
     creativeFeedback = [],
     benchmarks = [],
+    now = Date.now,
   } = {},
 ) {
   const mission = await studioMission(
@@ -263,7 +270,37 @@ export async function runParcelStudio(
   } catch {
     /* No validated local archive yet. */
   }
-  result ??= await submit(mission);
+  await mkdir(dir, { recursive: true });
+  const checkpointPath = path.join(dir, "submission.json");
+  const fingerprint = sha(JSON.stringify(mission));
+  let checkpoint;
+  try { checkpoint = JSON.parse(await readFile(checkpointPath, "utf8")); } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  if (!result && checkpoint?.fingerprint === fingerprint) {
+    if (checkpoint.retry && now() < Date.parse(checkpoint.retry.retryAt)) return checkpoint.retry;
+    result = checkpoint.result;
+  }
+  if (!result) {
+    try { result = await submit(mission); }
+    catch (error) {
+      const retry = providerRetry(error, now());
+      if (!retry) throw error;
+      await writeFile(checkpointPath, JSON.stringify({ fingerprint, retry }, null, 2) + "\n");
+      return retry;
+    }
+    // Keep the remote result before any download: retrying a download must not
+    // trigger another paid generation. Unconfirmed missions are never success.
+    if (result?.status === "completed" && result.output?.status === "ready-for-review")
+      await writeFile(checkpointPath, JSON.stringify({ fingerprint, result }, null, 2) + "\n");
+    else {
+      const retry = providerRetry(result?.output, now());
+      if (retry) {
+        await writeFile(checkpointPath, JSON.stringify({ fingerprint, retry }, null, 2) + "\n");
+        return retry;
+      }
+    }
+  }
   const r = result?.output;
   if (result?.status !== "completed" || r?.status !== "ready-for-review")
     return {
@@ -368,6 +405,7 @@ export async function runParcelStudio(
         ])
       ).stdout,
     );
+    await exec("ffmpeg", ["-v", "error", "-xerror", "-nostdin", "-i", path.join(dir, filename), "-f", "null", "-"], { timeout: 30000 });
     verifyStudioProbe(
       p,
       kind,
@@ -392,6 +430,8 @@ export async function runParcelStudio(
     report: r,
     published: false,
     reused: cached,
+    evidence: { missionAccepted: true, artifactDeclared: true, imageRetrieved: kind === "image",
+      fileVerified: true, readyForReview: true, readyForDiffusion: false, published: false },
   };
 }
 if (
