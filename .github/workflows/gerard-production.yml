@@ -166,13 +166,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git add -- garden/gerard-state.json garden/harvests.json
-          git diff --cached --quiet && exit 0
-          git -c user.name=gerard-runtime[bot] -c user.email=gerard-runtime@users.noreply.github.com commit -m "chore(gerard): refresh public production state"
+          # The runtime checkout contains private snapshots and other local changes.
+          # Commit only the public projection from a clean worktree.
+          projection_dir=$(mktemp -d)
+          trap 'git worktree remove --force "$projection_dir"' EXIT
+          git worktree add --detach "$projection_dir" HEAD
+          cp -- garden/gerard-state.json garden/harvests.json "$projection_dir/garden/"
+          git -C "$projection_dir" add -- garden/gerard-state.json garden/harvests.json
+          git -C "$projection_dir" diff --cached --quiet && exit 0
+          git -C "$projection_dir" -c user.name=gerard-runtime[bot] -c user.email=gerard-runtime@users.noreply.github.com commit -m "chore(gerard): refresh public production state"
           for attempt in 1 2 3; do
-            git fetch origin main
-            git rebase origin/main
-            if git push origin HEAD:main; then exit 0; fi
+            git -C "$projection_dir" fetch origin main
+            git -C "$projection_dir" -c user.name=gerard-runtime[bot] -c user.email=gerard-runtime@users.noreply.github.com rebase FETCH_HEAD
+            if git -C "$projection_dir" push origin HEAD:main; then exit 0; fi
           done
           exit 1
 
