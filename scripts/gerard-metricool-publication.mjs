@@ -61,6 +61,23 @@ export function bufferMission(candidate, { execute = false, now = new Date() } =
 async function submitPublication(candidate, mission, handoffKey, options) {
   if (!mission) return candidate;
   let outcome;
+  const publication = mission.context.metadata.socialPublication;
+  if (options.execute === true && publication.media.length) {
+    try {
+      for (const url of publication.media) {
+        if (new URL(url).protocol !== "https:") throw new Error("invalid-media-url");
+        const response = await (options.fetchImpl ?? fetch)(url, {
+          method: "HEAD", redirect: "error", signal: AbortSignal.timeout(30000),
+        });
+        if (!response.ok || !/^(image|video)\//i.test(response.headers.get("content-type") || "") ||
+            response.headers.get("content-length") === "0") throw new Error("media-unavailable");
+      }
+    } catch {
+      return { ...candidate, [handoffKey]: { status: "blocked", stage: "media-check",
+        reason: "PUBLICATION_MEDIA_UNAVAILABLE", operationId: publication.operationId, scheduled: false, published: false },
+        delivery: { status: "blocked", stage: "media-check", reason: "PUBLICATION_MEDIA_UNAVAILABLE", publishingEnabled: false } };
+    }
+  }
   try {
     const response = await (options.fetchImpl ?? fetch)(`${(options.octopusUrl ?? "http://127.0.0.1:3000").replace(/\/$/, "")}/mission`, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mission), signal: AbortSignal.timeout(120000),

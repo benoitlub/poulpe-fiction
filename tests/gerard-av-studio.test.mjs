@@ -200,7 +200,7 @@ test("downloads and hashes actual bytes, rejects tampering, and preserves a veri
     },
   });
   assert.equal(b.reused, true);
-  assert.equal(calls, 2);
+  assert.equal(calls, 1, "download retries must reuse the remote result");
 });
 test("the main artifact descriptor must agree with the manifest before any download", async (t) => {
   const dir = await mkdtemp(path.join(tmpdir(), "studio-descriptor-"));

@@ -90,10 +90,18 @@ jobs:
           with urllib.request.urlopen(download,timeout=90) as response:
               content=response.read()
           if len(content)<1000: raise SystemExit("Downloaded image too small")
-          pathlib.Path("output/420-dice-ai-image.png").write_bytes(content)
+          import io, hashlib
+          from PIL import Image
+          with Image.open(io.BytesIO(content)) as image:
+              image.verify()
+          with Image.open(io.BytesIO(content)) as image:
+              image.load()
+              image.save("output/420-dice-ai-image.png", format="PNG")
+          data["retrieval"]={"fileId":file_id,"sourceBytes":len(content),"sourceSha256":hashlib.sha256(content).hexdigest(),"verifiedFile":True,"published":False}
+          pathlib.Path("output/ai-result.json").write_text(json.dumps(data,ensure_ascii=False,indent=2))
           PY
       - name: Upload AI result for autonomous learning
-        if: ${{ inputs.generate_ai_image == true }}
+        if: ${{ always() && inputs.generate_ai_image == true }}
         uses: actions/upload-artifact@v4
         with:
           name: gerard-420-dice-mistral-attempt

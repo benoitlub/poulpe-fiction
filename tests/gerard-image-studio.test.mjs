@@ -142,7 +142,9 @@ test("the real cycle never turns an explicit image spending refusal into permiss
   );
 });
 
-test("the historical callback path also honors the template spending refusal", async () => {
+test("the historical callback path also honors the template spending refusal", async (t) => {
+  const outputDir=await mkdtemp(path.join(tmpdir(),"image-permission-"));
+  t.after(()=>rm(outputDir,{recursive:true,force:true}));
   let called = false;
   const r = await runImageStudio(
     {
@@ -160,7 +162,7 @@ test("the historical callback path also honors the template spending refusal", a
         throw new Error("must not execute provider");
       },
       download: async () => Buffer.alloc(0),
-      outputDir: "/unused",
+      outputDir,
     },
   );
   assert.equal(r.status, "blocked");
@@ -181,7 +183,7 @@ test("the historical callback path also honors the template spending refusal", a
         return { status: "failed" };
       },
       download: async () => Buffer.alloc(0),
-      outputDir: "/unused",
+      outputDir,
     },
   );
   assert.equal(called, true);

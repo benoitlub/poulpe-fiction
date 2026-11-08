@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
 import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
 import { runCommunityRadar } from "./gerard-community-radar.mjs";
+import { providerRetry } from "./gerard-provider-retry.mjs";
 import { runImageStudio } from "./gerard-image-studio.mjs";
 import { runParcelStudio, studioOperationId, studioFeedbackForParcel, submitStudioMission } from "./gerard-av-studio.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
@@ -45,8 +46,7 @@ function decideMode(state = {}, inventory = {}) {
   const recent = history.slice(-8);
   const lastMode = history.at(-1)?.mode;
   const cooldownUntil = Date.parse(state.aiCooldownUntil || "");
-  // Publisher now retries alternate Mistral models on 429. Keep only a short
-  // circuit breaker so one quota error cannot suspend production for six hours.
+  // This cooldown concerns text harvesting, not proof of image generation.
   const boundedCooldownUntil = cooldownUntil;
   if (Number.isFinite(boundedCooldownUntil) && Date.now() < boundedCooldownUntil) return { mode: "symbiosis", reason: "ai-rate-limit-cooldown", retryAt: new Date(boundedCooldownUntil).toISOString() };
   const backlog = inventory.activeHarvests ?? 0;
@@ -398,7 +398,7 @@ async function main() {
           const studioId=studioOperationId(selectedSeed,kind,creativeFeedback,benchmarks);
           const outputDir = new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`, import.meta.url);
           const studio = await runParcelStudio(selectedSeed,{kind,operationId:studioId,outputDir,creativeFeedback,benchmarks});
-          result = { status:studio.status === "ready-for-review" ? "ok" : "failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId,
+          result = { status:studio.status === "ready-for-review" ? "ok" : studio.status === "deferred" ? "deferred" : "failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId,
             decision:studio.status === "ready-for-review" ? "studio-files-ready-for-review" : "studio-production-blocked", studio, published:false };
         } catch (error) {
           result = {status:"failed",operationId,seedId:selectedSeed.seedId,parcelId:selectedSeed.parcelId,decision:"studio-production-failed",error:String(error).slice(0,180),published:false};
@@ -554,8 +554,12 @@ async function main() {
           // Keep the run alive: record the unavailable provider, do not store fake content.
           state.aiConsecutiveRateLimits = rateLimited ? Math.min(10, (state.aiConsecutiveRateLimits || 0) + 1) : 0;
           const cooldownMinutes = rateLimited ? Math.min(1440, 15 * 2 ** Math.min(state.aiConsecutiveRateLimits - 1, 7)) : 30;
-          state.aiCooldownUntil = new Date(Date.now() + cooldownMinutes * 60_000).toISOString();
-          result.status = "ok";
+          const output = harvest.payload?.output ?? {};
+          const retryAfter = output.retryAfter ?? /retry-after=(\d+)(?:\s|\)|$)/i.exec(String(output.fallbackReason || ""))?.[1];
+          const upstreamRetry = providerRetry({ httpStatus: output.httpStatus ?? (/\b429\b/.test(String(output.fallbackReason || "")) ? 429 : undefined), retryAfter });
+          state.aiCooldownUntil = new Date(Math.max(Date.now() + cooldownMinutes * 60_000,
+            upstreamRetry ? Date.parse(upstreamRetry.retryAt) : 0)).toISOString();
+          result.status = "deferred";
           result.decision = rateLimited ? "ai-rate-limited-deferred" : "mock-rejected-deferred";
           result.deferred = { reason: harvest.payload?.output?.fallbackReason || "provider-unavailable", retryAt: state.aiCooldownUntil };
         } else if (harvest.status === "deferred") {

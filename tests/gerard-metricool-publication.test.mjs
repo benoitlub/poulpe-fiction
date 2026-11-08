@@ -58,6 +58,7 @@ test("Buffer requires Gerard's exact channel, image and single Instagram destina
   assert.equal(mission.context.metadata.socialPublication.dryRun, true);
   for (const invalid of [{ ...book, transport: { provider: "buffer" } }, { ...book, media: null }, { ...book, compatibleNetworks: ["facebook", "instagram"] }]) assert.equal(bufferMission(invalid), null);
   const out = await submitBufferPublication(book, { execute: true, fetchImpl: async (_url, init) => {
+    if (init.method === "HEAD") return new Response(null, { headers: { "content-type": "image/jpeg", "content-length": "2048" } });
     const publication = JSON.parse(init.body).context.metadata.socialPublication;
     assert.equal(publication.text, book.copy.text); assert.deepEqual(publication.media, [book.media.url]);
     return Response.json({ status: "completed", output: { status: "confirmed-scheduled", scheduled: true, postId: "buffer-simulated" } });
@@ -77,4 +78,16 @@ test("Blacklace TikTok MP4 can be handed off but wrong brand, image and mixed ne
     { ...video, transport: { provider: "metricool", brandId: "3350145" } },
     { ...video, compatibleNetworks: ["tiktok", "facebook"] },
   ]) assert.equal(metricoolMission(invalid), null);
+});
+
+test("nonexistent or non-media URLs cannot trigger publication", async () => {
+  for (const response of [new Response(null,{status:404}),new Response(null,{headers:{"content-type":"text/html"}})]) {
+    const calls=[];
+    const out=await submitMetricoolPublication({...candidate,media:{url:"https://example.org/missing.png"}}, {
+      execute:true,fetchImpl:async(url,init)=>{calls.push(init.method);return response;}
+    });
+    assert.deepEqual(calls,["HEAD"]);assert.equal(out.delivery.publishingEnabled,false);
+    assert.equal(out.metricoolHandoff.reason,"PUBLICATION_MEDIA_UNAVAILABLE");
+    assert.equal(out.metricoolHandoff.published,false);
+  }
 });

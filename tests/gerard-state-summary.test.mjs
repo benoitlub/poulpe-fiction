@@ -58,3 +58,11 @@ test("summary is idempotent and preserves rotation, cooldown and learning memory
   assert.doesNotMatch(JSON.stringify(summary), /PRIVATE_SOURCE_SENTINEL/);
   assert.deepEqual(summarizeCycleResult(null), {});
 });
+
+test("Studio failure codes and retrieval evidence survive public summaries without prompts", () => {
+  const summary=summarizeCycleResult({status:"failed",studio:{status:"blocked",reason:"MISTRAL_IMAGE_UNCONFIRMED",report:{code:"MISTRAL_IMAGE_UNCONFIRMED",prompt:"PRIVATE"},evidence:{fileVerified:false,published:false}}});
+  assert.equal(summary.studio.reason,"MISTRAL_IMAGE_UNCONFIRMED");
+  assert.equal(summary.studio.report.code,"MISTRAL_IMAGE_UNCONFIRMED");
+  assert.deepEqual(summary.studio.evidence,{fileVerified:false,published:false});
+  assert.doesNotMatch(JSON.stringify(summary),/PRIVATE/);
+});
