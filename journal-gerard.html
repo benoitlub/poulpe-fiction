@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Journal de bord — Gérard & les Gégé</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#eaf4f0;background:#071c26;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:clamp(16px,4vw,36px)}
+a{color:#9ce5da}h1{font-size:clamp(26px,4vw,42px);margin:4px 0}h2{font-size:19px}
+p{line-height:1.5}.muted{color:#aac3c3}.tiny{font-size:12px}.top{display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.panel,.event{background:#102e37;border:1px solid #28545c;border-radius:16px;padding:17px;margin:14px 0}
+.sources{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:8px}.source{background:#173b43;border-radius:10px;padding:10px;font-size:13px}
+nav,.filters{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+button,select{border:1px solid #4b797e;background:#173b43;color:#ecffff;border-radius:12px;padding:11px 15px;font:inherit;cursor:pointer}
+button[aria-pressed=true]{background:#c4eee4;color:#13323b;font-weight:750}
+button:focus-visible,select:focus-visible{outline:3px solid #f9d27a}
+.status{display:inline-block;font-size:12px;padding:4px 8px;border-radius:8px;background:#27515a}
+.event{border-left:4px solid #7fd1bd}.event[data-type=failed],.event[data-type=blocked]{border-left-color:#f1b26b}
+.event h3{margin:9px 0 4px;font-size:17px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.4}.notice{border-left:3px solid #edc482;padding:8px 13px;background:#22373d}
+.empty{padding:20px;border:1px dashed #557980;border-radius:12px;color:#bdd4d0}
+.sr{position:absolute;left:-9999px}
+</style></head><body><main>
+<header class="top"><div><div class="muted">Poulpe Fiction · Observatoire</div><h1>🐙 Journal de bord des Gégé 🐹</h1><p class="muted">Ce qui a été fait, ce qui est vraiment en cours, ce qui est prévu — uniquement avec des preuves.</p></div><a href="./jardin-gege/">Retour au Jardin</a></header>
+<section class="panel" aria-label="État des sources"><div class="row"><h2>Sources vérifiables</h2><button id="refresh" type="button">Actualiser</button></div><div id="sources" class="sources"><span class="muted">Lecture en cours…</span></div><p class="tiny muted" id="checked"></p><p class="notice tiny">Une exécution « OK » n'est pas une publication. Un cron programmé n'est pas une tâche en cours. Les données peuvent être partielles ou anciennes.</p></section>
+<section class="panel"><div class="row"><div><h2>Récoltes privées de Gérard</h2><p class="muted tiny">Accès réservé au propriétaire par Google. Identifiant de connexion jamais stocké.</p></div><div id="google-button"></div></div><p id="auth-status" class="muted tiny">Connecte-toi pour voir les récoltes privées.</p></section>
+<div class="filters"><label for="actor">Personnage : </label><select id="actor"><option value="all">Tous — Gérard et Gégé</option><option value="gerard">🐙 Gérard</option><option value="cueilleur">🐹 Cueilleur</option><option value="tresseur">🐹 Tresseur</option><option value="enlumineur">🐹 Enlumineur</option><option value="passeur">🐹 Passeur</option><option value="greffeur">🐹 Greffeur</option><option value="jardinier">🐹 Jardinier</option><option value="semeur">🐹 Semeur</option></select></div>
+<nav aria-label="Période"><button data-tab="done" aria-pressed="true">✓ Fait</button><button data-tab="active" aria-pressed="false">◉ En cours</button><button data-tab="planned" aria-pressed="false">◷ Prévu</button></nav>
+<p id="overview" class="muted" aria-live="polite"></p><section id="events" aria-live="polite"></section>
+<footer><p class="muted tiny">Sources : snapshot public du Jardin (partiel), récoltes privées authentifiées. Aucun événement fictif. Horaires Europe/Paris. Pas de publication ni de commande envoyée depuis cette page.</p></footer>
+</main><script>
+(()=>{'use strict';
+const WORKER='https://blacklace-publisher-worker.benoitlubert.workers.dev';
+const CLIENT_ID='692850297482-75umdcti8d45u0gr146h9egd1l7ah2uv.apps.googleusercontent.com';
+const roles=new Set(['cueilleur','tresseur','enlumineur','passeur','greffeur','jardinier','semeur']);
+const state={events:[],tab:'done',actor:'all',sources:[],harvests:[],checked:null,publicError:null,privateError:null};
+const $=id=>document.getElementById(id);
+const format=t=>{const n=Date.parse(t);return Number.isFinite(n)?new Date(n).toLocaleString('fr-FR',{timeZone:'Europe/Paris',dateStyle:'medium',timeStyle:'short'}):'Date inconnue'};
+const safeUrl=u=>{try{const x=new URL(u);return ['https:'].includes(x.protocol)?x.href:null}catch{return null}};
+const clear=e=>e.replaceChildren();
+const node=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=String(txt);return e};
+const setStatus=(id,value)=>{$(id).textContent=value};
+const roleName=r=>r==='gerard'?'🐙 Gérard':'🐹 '+r.charAt(0).toUpperCase()+r.slice(1);
+const recent=t=>Number.isFinite(Date.parse(t))&&Date.now()-Date.parse(t)<30*60*1000&&Date.parse(t)<=Date.now()+60000;
+function categorize(e){
+ if(['completed','failed','blocked'].includes(e.status))return'done';
+ if(['running','retrying'].includes(e.status)&&recent(e.timestamp))return'active';
+ if(e.status==='queued'&&recent(e.timestamp))return'planned';
+ return'stale';
+}
+function collectPublic(data){
+ if(!data||data.mode!=='real'||!Array.isArray(data.events))throw new Error('Contrat public invalide ou mode démo');
+ state.events=data.events.filter(e=>e&&e.provenance==='real'&&typeof e.id==='string'&&roles.has(e.agentRole)&&typeof e.timestamp==='string'&&typeof e.status==='string').map(e=>({...e,actor:e.agentRole,origin:'Jardin public'}));
+ state.sources=Array.isArray(data.sources)?data.sources:[];
+ state.snapshotAt=data.generatedAt;
+}
+async function load(){
+ state.checked=new Date().toISOString();state.publicError=null;
+ try{
+ const response=await fetch(WORKER+'/api/garden/v1/snapshot',{cache:'no-store'});
+ if(!response.ok)throw new Error('HTTP '+response.status);
+ collectPublic(await response.json());
+ }catch(e){state.publicError=String(e.message||e);state.events=[];state.sources=[];}
+ render();
+}
+function renderSources(){
+ const host=$('sources');clear(host);
+ const items=[{id:'Jardin · événements',ok:!state.publicError,last:state.snapshotAt,detail:state.publicError||'Projection partielle'},
+ {id:'Récoltes privées',ok:state.harvests.length>0&&!state.privateError,last:state.harvests[0]?.harvestedAt,detail:state.privateError||(!state.harvests.length?'Connexion ou résultat indisponible':state.harvests.length+' récoltes lisibles')}];
+ for(const s of state.sources)items.push({id:s.id,ok:s.state==='available',last:s.lastEventAt||s.observedAt,detail:s.state});
+ for(const s of items){let el=node('div','source');el.append(node('strong','',s.id),node('div','',s.ok?'● Source accessible':'○ Source limitée / indisponible'),node('div','muted tiny',s.detail));if(s.last)el.append(node('div','tiny','Dernière trace : '+format(s.last)));host.append(el)}
+ setStatus('checked','Dernier contrôle de cette page : '+format(state.checked)+'. Une source accessible ne garantit pas une activité récente.');
+}
+function render(){
+ renderSources();const host=$('events');clear(host);
+ const all=[...state.events,...state.harvests.map(h=>({id:'private:'+h.harvestId,actor:'gerard',agentRole:'gerard',timestamp:h.harvestedAt,status:'completed',resultKind:'harvest',title:h.title||'Récolte privée',sourceSystem:'Publisher · propriétaire',sourceEventId:h.harvestId,privateContent:h.content,origin:'Récolte privée'}))];
+ const dedup=new Set();
+ const selected=all.filter(e=>{if(state.actor!=='all'&&e.actor!==state.actor)return false;const key=e.sourceEventId||e.id;if(dedup.has(key))return false;dedup.add(key);return categorize(e)===state.tab}).sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp))).slice(0,150);
+ const totals={done:all.filter(e=>categorize(e)==='done').length,active:all.filter(e=>categorize(e)==='active').length,planned:all.filter(e=>categorize(e)==='planned').length,stale:all.filter(e=>categorize(e)==='stale').length};
+ setStatus('overview',selected.length+' trace(s) affichée(s) · '+totals.done+' terminées/échouées · '+totals.active+' en cours confirmées récemment · '+totals.planned+' planifiées récemment · '+totals.stale+' anciennes ou non classables. État partiel.');
+ if(!selected.length){host.append(node('p','empty',state.tab==='done'?'Aucune trace disponible pour ce filtre. Cela ne prouve pas une absence de travail.':state.tab==='active'?'Aucune activité en cours confirmée par une trace récente. Activité réelle inconnue.':'Aucune tâche future explicite et récente dans les sources accessibles. Le cron ne constitue pas un plan.'));return}
+ for(const e of selected){
+ const card=node('article','event');card.dataset.type=e.status;
+ const top=node('div','row');top.append(node('strong','',roleName(e.actor)),node('span','status',e.status));card.append(top);
+ card.append(node('h3','',e.title||e.type||'Activité non décrite'));
+ card.append(node('div','muted tiny',format(e.timestamp)+' · '+(e.sourceSystem||e.origin||'Source non indiquée')));
+ if(e.resultKind)card.append(node('p','tiny','Nature du résultat : '+({harvest:'récolte',publication:'publication identifiée', 'internal-cycle':'cycle interne'}[e.resultKind]||e.resultKind)));
+ if(e.errorMessage)card.append(node('p','notice',e.errorMessage));
+ if(e.sourceEventId)card.append(node('div','tiny muted','Preuve / identifiant : '+e.sourceEventId));
+ if(e.privateContent){const details=node('details');details.append(node('summary','','Lire la récolte privée'),node('pre','',e.privateContent));card.append(details)}
+ const link=safeUrl(e.resultUrl);if(link){const a=node('a','','Ouvrir la preuve');a.href=link;a.target='_blank';a.rel='noopener noreferrer';card.append(a)}
+ host.append(card);
+ }
+}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{state.tab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render()}));
+$('actor').addEventListener('change',e=>{state.actor=e.target.value;render()});
+$('refresh').addEventListener('click',load);
+window.receiveGerardToken=async token=>{
+ setStatus('auth-status','Lecture des récoltes privées…');state.privateError=null;
+ try{const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),15000);
+ try{const r=await fetch(WORKER+'/api/garden/v1/private-harvests',{headers:{Authorization:'Bearer '+token},cache:'no-store',signal:controller.signal});
+ if(!r.ok)throw new Error(r.status===401?'Compte Google non reconnu comme propriétaire':'HTTP '+r.status);
+ const payload=await r.json();
+ state.harvests=Array.isArray(payload.harvests)?payload.harvests.filter(h=>h&&typeof h.harvestId==='string'&&typeof h.content==='string'&&typeof h.harvestedAt==='string').sort((a,b)=>b.harvestedAt.localeCompare(a.harvestedAt)):[];
+ setStatus('auth-status',state.harvests.length+' récoltes privées accessibles. Limite de l’API : 20 dernières.');
+ }finally{clearTimeout(timeout)}}
+ catch(e){state.privateError=e.message;setStatus('auth-status','Lecture privée impossible : '+e.message)}
+ render();
+};
+function google(){
+ const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;
+ s.onload=()=>{if(!window.google?.accounts?.id)return;window.google.accounts.id.initialize({client_id:CLIENT_ID,auto_select:false,callback:r=>window.receiveGerardToken(r.credential)});window.google.accounts.id.renderButton($('google-button'),{theme:'outline',size:'large',text:'signin_with',locale:'fr'})};
+ s.onerror=()=>setStatus('auth-status','Connexion Google indisponible. Le journal public reste consultable.');
+ document.head.append(s);
+}
+load();google();
+})();
+</script></body></html>
