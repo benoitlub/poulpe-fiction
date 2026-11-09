@@ -27,6 +27,16 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Prepare image validation tools
+        timeout-minutes: 5
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq -o Acquire::Retries=1 -o Acquire::http::Timeout=30
+            sudo apt-get install -y --no-install-recommends -o Acquire::Retries=1 -o Acquire::http::Timeout=30 ffmpeg
+          fi
+          ffmpeg -version
+          ffprobe -version
+
       - name: Test
         run: npm test
 
