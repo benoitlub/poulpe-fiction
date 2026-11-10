@@ -24,8 +24,8 @@ function openHtml(content: string) {
 const PARCEL_PAGE_SIZE = 15;
 const LATEST_LIMIT = 12;
 const GERARD_LIMIT = 8;
-type ServerHarvest = { harvestId: string; parcelId: string; title: string; content: string; harvestedAt: string; state: string; capability?: string };
-const SERVER_URL = "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/garden/v1/private-harvests";
+type ServerHarvest = { harvestId: string; parcelId: string; title: string; content: string; harvestedAt: string; state: string; capability?: string; mailStatus?: string; mailSentAt?: string; mailRecipient?: string };
+const PRIVATE_GARDEN_API = "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/garden/v1";
 function validServerHarvests(data: any): ServerHarvest[] {
   if (!Array.isArray(data?.harvests)) return [];
   return data.harvests.filter((h: any) =>
@@ -168,8 +168,95 @@ function loadGoogleIdentity(): Promise<GoogleIdentity> {
   return googleIdentity;
 }
 
+const CandidatureCard: FC<{ item: ServerHarvest; credential: string }> = ({ item, credential }) => {
+  const [offer, draft] = item.content.split("\n### Brouillon de candidature\n");
+  const subject = /^Objet : ([^\r\n]+)\n/.exec(draft || "")?.[1];
+  const verifiedAddress = /^- Destinataire vérifié dans l’annonce : ([^\r\n]+)$/m.exec(offer)?.[1];
+  const [address, setAddress] = useState("");
+  const [mailStatus, setMailStatus] = useState(item.mailStatus || "");
+  const [sentAt, setSentAt] = useState(item.mailSentAt || "");
+  const [sentTo, setSentTo] = useState(item.mailRecipient || "");
+  const [note, setNote] = useState("");
+  const busy = useRef(false);
+  const recipient = verifiedAddress || address.trim();
+  const reserved = ["sent", "sending", "unknown"].includes(mailStatus);
+
+  async function approve() {
+    if (busy.current || reserved || !subject || !/^[^@\s,;<>]+@[^@\s,;<>]+\.[^@\s,;<>]+$/.test(recipient)) return;
+    const approval = `Envoyer ce brouillon via le Gmail de Gérard ?\n\nÀ : ${recipient}\nObjet : ${subject}\nPièce jointe : aucune`;
+    if (!window.confirm(approval)) return;
+    busy.current = true;
+    setMailStatus("sending");
+    setNote("Envoi en cours…");
+    try {
+      const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(item.content)));
+      const revision = Array.from(hash, byte => byte.toString(16).padStart(2, "0")).join("");
+      const response = await fetch(`${PRIVATE_GARDEN_API}/candidatures/${encodeURIComponent(item.harvestId)}/send`, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + credential, "Content-Type": "application/json" },
+        body: JSON.stringify({ revision, recipient }),
+        redirect: "error",
+        signal: AbortSignal.timeout(55000),
+      });
+      const result = await response.json();
+      if (response.ok && result.status === "sent") {
+        setMailStatus("sent");
+        setSentAt(typeof result.sentAt === "string" ? result.sentAt : "");
+        setSentTo(typeof result.recipient === "string" ? result.recipient : "");
+        setNote("");
+        return;
+      }
+      if (["unknown", "check-delivery"].includes(result.status)) {
+        setMailStatus("unknown");
+        setNote("");
+        return;
+      }
+      if (["unauthorized", "draft-changed", "invalid-approval", "gmail-unavailable", "unavailable"].includes(result.status)) {
+        setMailStatus("");
+        setNote({
+          unauthorized: "Reconnecte-toi avec ton compte Google pour valider l’envoi.",
+          "draft-changed": "Le brouillon a changé. Rouvre Récoltes et relis la nouvelle version.",
+          "invalid-approval": "Vérifie le destinataire et le brouillon avant de réessayer.",
+          "gmail-unavailable": "Le compte Gmail de Gérard est indisponible. Le brouillon peut être validé à nouveau.",
+          unavailable: "La validation est indisponible. Rouvre Récoltes pour vérifier l’état.",
+        }[result.status as string] ?? "");
+        return;
+      }
+      throw new Error("Résultat Gmail inconnu");
+    } catch {
+      setMailStatus("unknown");
+      setNote("");
+    } finally {
+      busy.current = false;
+    }
+  }
+
+  return <details className="pf-card" style={{ marginTop: 8 }}>
+    <summary><strong>{item.title}</strong>{mailStatus === "sent" && " · Envoyé"}</summary>
+    <ReadableHarvest content={offer} />
+    {draft && <>
+      <h4>Brouillon de candidature</h4>
+      <div className="pf-caption" style={{ whiteSpace: "pre-wrap" }}>{draft}</div>
+      <HarvestActions actions={[{ label: "Copier le brouillon", onClick: () => copy(draft) }]} />
+      {subject && !reserved && <div>
+        {!verifiedAddress && <label>Adresse de recrutement que tu as vérifiée
+          <input type="email" value={address} onChange={event => setAddress(event.target.value)} autoComplete="off" />
+        </label>}
+        <p className="pf-meta">L’envoi via Gmail contient le texte ci-dessus. Les pièces jointes se gèrent séparément.</p>
+        <button type="button" className="pf-btn pf-btn-primary" disabled={!recipient} onClick={() => void approve()}>
+          Valider et envoyer via Gmail
+        </button>
+      </div>}
+      {mailStatus === "sent" && <p role="status">Envoyé via Gmail{sentTo ? " à " + sentTo : ""}{sentAt ? " le " + new Date(sentAt).toLocaleString("fr-FR") : ""}.</p>}
+      {mailStatus === "unknown" && <p role="status">Envoi à vérifier dans les messages envoyés de Gmail. Aucun renvoi automatique.</p>}
+      {mailStatus === "sending" && !note && <p role="status">Envoi en cours ou à vérifier dans Gmail.</p>}
+      {note && <p role="status">{note}</p>}
+    </>}
+  </details>;
+};
+
 function PrivateHarvests() {
-  const [session, setSession] = useState<{ items: ServerHarvest[]; expiresAt: number } | null>(null);
+  const [session, setSession] = useState<{ items: ServerHarvest[]; expiresAt: number; credential: string } | null>(null);
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
   const button = useRef<HTMLDivElement>(null);
@@ -185,7 +272,7 @@ function PrivateHarvests() {
       setPending(true);
       setStatus("");
       try {
-        const response = await fetch(SERVER_URL, {
+        const response = await fetch(`${PRIVATE_GARDEN_API}/private-harvests`, {
           headers: { Authorization: "Bearer " + credential },
           cache: "no-store",
           redirect: "error",
@@ -202,7 +289,7 @@ function PrivateHarvests() {
         if (!Number.isSafeInteger(data.expiresAt) || data.expiresAt <= Date.now()) {
           throw new Error("Session expirée");
         }
-        setSession({ items: validServerHarvests(data), expiresAt: data.expiresAt });
+        setSession({ items: validServerHarvests(data), expiresAt: data.expiresAt, credential });
       } catch {
         if (!controller.signal.aborted) setStatus("Lecture indisponible. Réessaie dans un instant.");
       } finally {
@@ -240,20 +327,9 @@ function PrivateHarvests() {
           <button className="pf-btn" type="button" onClick={() => setSession(null)}>Fermer l’accès aux récoltes</button>
           <section className="pf-card" aria-label="Parcelle Candidatures" style={{ marginTop: 8 }}>
             <h3 className="pf-harvest-title">Candidatures</h3>
-            <p className="pf-meta">Brouillons à relire · Mode Agent inactif</p>
+            <p className="pf-meta">Brouillons à relire · Envoi après validation</p>
             {candidatures.length === 0 && <p>Aucun brouillon issu d’une offre vérifiée pour le moment.</p>}
-            {candidatures.map(item => {
-              const [offer, draft] = item.content.split("\n### Brouillon de candidature\n");
-              return <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
-                <summary><strong>{item.title}</strong></summary>
-                <ReadableHarvest content={offer} />
-                {draft && <>
-                  <h4>Brouillon de candidature</h4>
-                  <div className="pf-caption" style={{ whiteSpace: "pre-wrap" }}>{draft}</div>
-                  <HarvestActions actions={[{ label: "Copier le brouillon", onClick: () => copy(draft) }]} />
-                </>}
-              </details>;
-            })}
+            {session && candidatures.map(item => <CandidatureCard key={item.harvestId} item={item} credential={session.credential} />)}
           </section>
           {items.map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
             <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
