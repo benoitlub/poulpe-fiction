@@ -24,15 +24,16 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/candidature-db" --ignore-scripts --no-audit --no-fund pg@8.22.0
       - name: Record the confirmed outcomes
         env:
-          UPDATES: ${{ inputs.updates }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           node --input-type=commonjs <<'NODE'
+          const { readFileSync } = require("node:fs");
           const { Pool } = require(process.env.RUNNER_TEMP + "/candidature-db/node_modules/pg");
           const allowed = new Set(["applied-externally", "closed"]);
 
           async function main() {
-            const updates = JSON.parse(process.env.UPDATES);
+            const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+            const updates = JSON.parse(event.inputs?.updates ?? "null");
             if (!Array.isArray(updates) || !updates.length || updates.length > 10 ||
                 updates.some(item => !item || typeof item.offerId !== "string" ||
                   !/^\d{6,12}$/.test(item.offerId) || !allowed.has(item.status)) ||
@@ -72,11 +73,7 @@ jobs:
                 }
               }
               await client.query("COMMIT");
-              console.log(JSON.stringify({
-                saved: updates.length,
-                applied: updates.filter(item => item.status === "applied-externally").length,
-                closed: updates.filter(item => item.status === "closed").length,
-              }));
+              console.log("Private candidature statuses committed.");
             } catch (error) {
               await client.query("ROLLBACK").catch(() => {});
               throw error;
