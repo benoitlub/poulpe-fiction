@@ -1,11 +1,10 @@
-/** Include the verified, isolated preview in Pages without changing the existing home. */
-import { cp, readFile, rm } from "node:fs/promises";
-import { parseSnapshot } from "../src/garden-gege/core.mjs";
+/** Stage the Lovable garden as a static GitHub Pages subroute; preserve Poulpe home. */
+import { cp, readFile, rename, rm } from "node:fs/promises";
 
 const source = new URL("../dist-gege/", import.meta.url);
 const target = new URL("../dist/jardin-gege/", import.meta.url);
-await readFile(new URL("index.html", source), "utf8");
-parseSnapshot(JSON.parse(await readFile(new URL("snapshot.json", source), "utf8")), "real");
+await readFile(new URL("static.html", source), "utf8");
 await rm(target, { recursive: true, force: true });
 await cp(source, target, { recursive: true });
-console.log("Aperçu ajouté à dist/jardin-gege/ ; home existante conservée.");
+await rename(new URL("static.html", target), new URL("index.html", target));
+console.log("Jardin Lovable staged at dist/jardin-gege/; Poulpe home preserved.");
