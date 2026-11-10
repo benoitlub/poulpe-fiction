@@ -17,7 +17,7 @@ export function StatusPill({ status }: { status: MissionStatus }) {
 
 function Sheet({ title, kicker, onClose, children }: { title: string; kicker?: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <section className="garden-sheet glass-panel pointer-events-auto flex max-h-full flex-col overflow-hidden" aria-label={title}>
+    <section className="garden-sheet glass-panel pointer-events-auto flex h-full min-h-0 max-h-full flex-col overflow-hidden" aria-label={title}>
       <header className="flex items-start justify-between gap-3 border-b px-5 pt-4 pb-3">
         <div>
           {kicker && <p className="text-[0.7rem] font-semibold tracking-widest text-lagoon uppercase">{kicker}</p>}
@@ -25,7 +25,7 @@ function Sheet({ title, kicker, onClose, children }: { title: string; kicker?: s
         </div>
         <button className="garden-icon-btn !h-9 !w-9" onClick={onClose} aria-label="Fermer"><X size={16} /></button>
       </header>
-      <div className="overflow-y-auto px-5 py-4">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }} onTouchMove={(event) => event.stopPropagation()}>{children}</div>
     </section>
   );
 }
