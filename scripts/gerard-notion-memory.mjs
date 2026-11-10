@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -21,7 +22,7 @@ async function notion(path, token, init = {}) {
   return response.json();
 }
 
-function retainedObservation(observation) {
+export function retainedObservation(observation) {
   if (observation?.kind === "metricool-post-measurement" && observation.source === "metricool-connected-analytics") {
     let url;
     try { url = new URL(observation.postUrl); } catch { return null; }
@@ -47,6 +48,7 @@ function retainedObservation(observation) {
   if (observation?.kind !== "gerard-experiment-cycle" || !confirmed.has(delivery?.status) || !post) return null;
   const seed = safeId(observation.seedId);
   const published = ["confirmed-published", "published", "sent"].includes(delivery.status);
+  if (published && (observation.outcome !== "transport-accepted" || !(delivery.published === true || ["published","sent"].includes(delivery.providerStatus)))) return null;
   return {
     key: ["publication", post, delivery.status],
     text: (published ? "Publication confirmée" : "Programmation confirmée") + (seed ? " · " + seed : "") +
@@ -111,4 +113,4 @@ async function main() {
   }
 }
 
-await main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) await main();

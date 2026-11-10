@@ -34,10 +34,10 @@ test('existing unsent drafts gain the real sender without changing their reviewe
   assert.deepEqual(mergeMailDrafts([sent], [draft]), [sent]);
 });
 
-test('published contact becomes an autonomous draft without human approval', () => {
+test('published contact remains a draft requiring human approval', () => {
   const [draft] = createMailDrafts([{ ...source, contactEmail: 'contact@example.org' }]);
   assert.equal(draft.recipientEmail, 'contact@example.org');
-  assert.equal(draft.status, 'ready-for-autonomous-send');
+  assert.equal(draft.status, 'awaiting-human-approval');
   assert.equal(draft.contacted, false);
 });
 

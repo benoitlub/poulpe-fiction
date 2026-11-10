@@ -26,7 +26,7 @@ export function planBusinessResearch(candidates, memory = {}, now = new Date()) 
 }
 
 function assessmentSignature(source) {
-  return JSON.stringify([source.verification, source.qualification, source.fitScore, source.signals, source.evidence]);
+  return JSON.stringify([source.verification, source.qualification, source.fitScore, source.signals, source.evidence, source.contactEmail]);
 }
 
 export function rememberBusinessResearch(memory = {}, examined = [], now = new Date()) {
@@ -36,8 +36,8 @@ export function rememberBusinessResearch(memory = {}, examined = [], now = new D
     const key = businessSourceKey(source.url);
     if (!key) continue;
     const previous = next[key];
-    const { title, url, snippet, verification, qualification, fitScore, signals, evidence, nextAction, contacted } = source;
-    const assessment = { title, url, snippet, verification, qualification, fitScore, signals, evidence, nextAction, contacted: false };
+    const { title, url, snippet, verification, qualification, fitScore, signals, evidence, nextAction, contactEmail, contacted } = source;
+    const assessment = { title, url, snippet, verification, qualification, fitScore, signals, evidence, nextAction, contactEmail: contactEmail ?? null, contacted: false };
     if (!previous || assessmentSignature(previous.assessment) !== assessmentSignature(assessment)) changed.push(source);
     next[key] = { examinedAt: now.toISOString(), assessment };
   }

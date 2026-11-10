@@ -19,7 +19,7 @@ export function createMailDrafts(sources, { parcelId = 'benoit-business-growth' 
         subject: 'Une proposition de collaboration autour de jeux originaux',
         body: `Bonjour,\n\nJe suis Gérard, assistant commercial numérique de Pro.Hibited, mandaté par Benoît Lubert.\n\nNous développons des jeux de cartes et des expériences ludiques. Votre activité pourrait offrir un terrain de collaboration intéressant. Seriez-vous la bonne personne pour discuter de la présentation de nos jeux, ou pourriez-vous m’indiquer votre procédure de soumission ?\n\nMerci pour votre attention,\nGérard\nPour Benoît Lubert — Pro.Hibited`,
         evidence: String(source.evidence || '').slice(0, 280),
-        status: source.contactEmail ? 'ready-for-autonomous-send' : 'awaiting-published-recipient', sentAt: null, contacted: false,
+        status: source.contactEmail ? 'awaiting-human-approval' : 'awaiting-published-recipient', sentAt: null, contacted: false,
       };
     });
 }
@@ -33,7 +33,7 @@ export function mergeMailDrafts(previous = [], incoming = []) {
       byId.set(item.id, { ...existing, senderEmail: GERARD_SENDER_EMAIL });
     else if (existing && !existing.sentAt && !existing.contacted && !existing.recipientEmail && item.recipientEmail &&
       !["sending", "unknown", "sent"].includes(existing.status))
-      byId.set(item.id, { ...existing, recipientEmail: item.recipientEmail, status: "ready-for-autonomous-send" });
+      byId.set(item.id, { ...existing, recipientEmail: item.recipientEmail, status: "awaiting-human-approval" });
     else if (!existing) byId.set(item.id, item);
   }
   return [...byId.values()].slice(-100);

@@ -47,3 +47,10 @@ test('generated file is recovered and decoded; interrupted retrieval does not ge
  assert.equal(result.published,false);assert.equal(result.evidence.readyForDiffusion,false);
  assert.equal((await readFile(path.join(outputDir,result.filename))).length,bytes.length);
 });
+test('uncertain provider outcome cannot silently become an automatic paid retry',async t=>{
+ const outputDir=await mkdtemp(path.join(tmpdir(),'gerard-uncertain-'));t.after(()=>rm(outputDir,{recursive:true,force:true}));
+ let calls=0;
+ const opts={outputDir,operationId:'op',kind:'image',submit:async()=>{calls++;return {status:'needs-input',output:{status:'failed',code:'MISTRAL_IMAGE_NETWORK_FAILED',httpStatus:429,providerOutcomeMayBeUnknown:true,retryAllowed:false}};}};
+ assert.equal((await runParcelStudio(seed,opts)).status,'blocked');
+ assert.equal((await runParcelStudio(seed,opts)).status,'blocked');assert.equal(calls,1);
+});

@@ -50,6 +50,10 @@ if [ -f garden/gerard-learning.json ]; then
     echo "Applying previous experiment: explore beyond $PREVIOUS_SEED"
   fi
 fi
+# Apply actual previous outcomes, scoped to exact harvests with expiring retries.
+node scripts/gerard-learning-cycle.mjs --selection-policy > /tmp/gerard-memory-selection.json
+MEMORY_IDS="$(jq -r '.excludeHarvestIds | join(",")' /tmp/gerard-memory-selection.json)"
+EXCLUDED_IDS="$EXCLUDED_IDS,$MEMORY_IDS"
 # 420 Dice remains in review. Filter its known seeds before ranking.
 if [ "${GERARD_TENTACLE:-}" = "delivery" ]; then
   EXCLUDED_SEED_IDS="$EXCLUDED_SEED_IDS,420-dice,420-dice-game,420-dice-video-studio"
@@ -102,6 +106,7 @@ if [ "$HTTP_STATUS" = "200" ]; then
     contract,
     harvestId,
     seedId,
+    parcelId,
     title,
     score,
     copy,
@@ -246,6 +251,7 @@ mkdir -p garden
 jq '{
   explainedAt: (now | todateiso8601),
   harvestId: (.harvestId // null),
+  parcelId: (.parcelId // .seedId // null),
   seedId: (.seedId // null),
   subject: (.title // null),
   copyText: (.copy.text // null),
@@ -270,6 +276,8 @@ jq '{
   end),
   limits: ["Les autres candidats et leurs scores ne sont pas fournis par ce sélecteur.", "Aucune comparaison des statistiques Metricool n’est établie ici.", "Une répétition de texte déjà publié n’est pas automatiquement exclue."]
 }' garden/next-social-publication.json > garden/gerard-decision-explanation.json
+jq --slurpfile memory /tmp/gerard-memory-selection.json '. + {memoryAdaptation:$memory[0]}' garden/gerard-decision-explanation.json > /tmp/gerard-memory-explanation.json
+mv /tmp/gerard-memory-explanation.json garden/gerard-decision-explanation.json
 # Compare this selection with earlier recorded choices. This is
 # operational history, not an invented Metricool performance score.
 if [ -f garden/gerard-decision-history.json ]; then

@@ -93,7 +93,7 @@ async function submitPublication(candidate, mission, handoffKey, options) {
       status: scheduled ? "confirmed-scheduled" : published ? "confirmed-published" : String(output.status ?? body.status ?? "unconfirmed"),
       stage: output.stage ?? "octopus", reason: output.reason ?? null,
       operationId: mission.context.metadata.socialPublication.operationId, missionId: mission.operationId,
-      postId: output.postId ?? null, publicationDate: output.publicationDate ?? null,
+      postId: output.postId ?? null, providerStatus: output.providerStatus ?? null, publicationDate: output.publicationDate ?? null,
       retryAfterSeconds: output.retryAfterSeconds ?? null, budget: output.budget ?? null, scheduled, published,
     };
   } catch {
@@ -101,7 +101,7 @@ async function submitPublication(candidate, mission, handoffKey, options) {
       operationId: mission.context.metadata.socialPublication.operationId, missionId: mission.operationId, scheduled: false, published: false };
   }
   return { ...candidate, [handoffKey]: outcome,
-    delivery: { status: outcome.status, publishingEnabled: outcome.scheduled || outcome.published, stage: outcome.stage, reason: outcome.reason } };
+    delivery: { status: outcome.status, postId: outcome.postId, providerStatus: outcome.providerStatus, scheduled: outcome.scheduled, published: outcome.published, publishingEnabled: outcome.scheduled || outcome.published, stage: outcome.stage, reason: outcome.reason } };
 }
 
 export async function submitMetricoolPublication(candidate, options = {}) {

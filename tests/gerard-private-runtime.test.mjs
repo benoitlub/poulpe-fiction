@@ -44,3 +44,11 @@ test("restore rejects traversal, empty snapshots and public projections", async 
     await assert.rejects(hydrateGarden("/tmp/never-written", { schema: "gerard-private-runtime-v1", files }), /private-state-invalid/);
   }
 });
+
+test('hydration cannot overwrite newer reviewed source configuration',async t=>{
+ const dir=await mkdtemp(join(tmpdir(),'gerard-config-'));t.after(()=>rm(dir,{recursive:true,force:true}));
+ await writeFile(join(dir,'restart-seeds.json'),JSON.stringify({seeds:[{seedId:'new-reviewed'}]}));
+ await hydrateGarden(dir,{schema:'gerard-private-runtime-v1',files:{'restart-seeds.json':{seeds:[{seedId:'obsolete'}]},'gerard-learning.json':{observations:[{kind:'retain'}]}}});
+ assert.equal(JSON.parse(await readFile(join(dir,'restart-seeds.json'))).seeds[0].seedId,'new-reviewed');
+ assert.equal(JSON.parse(await readFile(join(dir,'gerard-learning.json'))).observations[0].kind,'retain');
+});

@@ -38,6 +38,7 @@ jobs:
           echo "GERARD_PUBLISHER_DB_PACKAGE=$RUNNER_TEMP/gerard-db/package.json" >> "$GITHUB_ENV"
 
       - name: Restore private state
+        id: restore_private
         working-directory: poulpe-fiction
         run: node scripts/gerard-private-runtime.mjs hydrate
 
@@ -70,5 +71,6 @@ jobs:
         run: node scripts/gerard-notion-memory.mjs
 
       - name: Persist this tentacle’s changes
+        if: ${{ !cancelled() && steps.restore_private.outcome == 'success' }}
         working-directory: poulpe-fiction
         run: node scripts/gerard-private-runtime.mjs persist
