@@ -24,7 +24,7 @@ function openHtml(content: string) {
 const PARCEL_PAGE_SIZE = 15;
 const LATEST_LIMIT = 12;
 const GERARD_LIMIT = 8;
-type ServerHarvest = { harvestId: string; parcelId: string; title: string; content: string; harvestedAt: string; state: string };
+type ServerHarvest = { harvestId: string; parcelId: string; title: string; content: string; harvestedAt: string; state: string; capability?: string };
 const SERVER_URL = "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/garden/v1/private-harvests";
 function validServerHarvests(data: any): ServerHarvest[] {
   if (!Array.isArray(data?.harvests)) return [];
@@ -222,10 +222,12 @@ function PrivateHarvests() {
     };
   }, [session]);
 
-  const items = session?.items ?? null;
+  const items = session?.items.filter(item => item.capability !== "candidature.draft") ?? null;
+  const candidatures = session?.items.filter(item => item.capability === "candidature.draft" && item.parcelId === "benoit-career") ?? [];
   return (
     <section className="pf-card" aria-label="Récoltes privées du serveur">
       <h2 className="pf-harvest-title">Récoltes privées du serveur</h2>
+      {items === null && <p className="pf-meta">Connecte-toi pour ouvrir tes récoltes et la parcelle Candidatures.</p>}
       {items === null ? (
         <>
           <div ref={button} hidden={pending} />
@@ -236,6 +238,23 @@ function PrivateHarvests() {
         <>
           <p className="pf-meta">{items.length} récolte(s) récente(s) du serveur</p>
           <button className="pf-btn" type="button" onClick={() => setSession(null)}>Fermer l’accès aux récoltes</button>
+          <section className="pf-card" aria-label="Parcelle Candidatures" style={{ marginTop: 8 }}>
+            <h3 className="pf-harvest-title">Candidatures</h3>
+            <p className="pf-meta">Brouillons à relire · Mode Agent inactif</p>
+            {candidatures.length === 0 && <p>Aucun brouillon issu d’une offre vérifiée pour le moment.</p>}
+            {candidatures.map(item => {
+              const [offer, draft] = item.content.split("\n### Brouillon de candidature\n");
+              return <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
+                <summary><strong>{item.title}</strong></summary>
+                <ReadableHarvest content={offer} />
+                {draft && <>
+                  <h4>Brouillon de candidature</h4>
+                  <div className="pf-caption" style={{ whiteSpace: "pre-wrap" }}>{draft}</div>
+                  <HarvestActions actions={[{ label: "Copier le brouillon", onClick: () => copy(draft) }]} />
+                </>}
+              </details>;
+            })}
+          </section>
           {items.map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
             <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
             <ReadableHarvest content={item.content} />
