@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
   component: Jardin,
 });
 
-function Jardin() {
+export function Jardin() {
   // Real data is the default; ?source=demo explicitly enables fictional data.
   const [wantReal, setWantReal] = useState(true);
   useEffect(() => setWantReal(new URLSearchParams(location.search).get("source") !== "demo"), []);
