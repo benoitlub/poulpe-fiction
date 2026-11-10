@@ -33,8 +33,11 @@ jobs:
       - name: Install FFmpeg for existing media tests
         run: |
           if ! command -v ffmpeg >/dev/null; then
-            sudo apt-get update -qq
-            sudo apt-get install -y --no-install-recommends ffmpeg
+            . /etc/os-release
+            printf 'deb https://archive.ubuntu.com/ubuntu %s main universe\n' "$VERSION_CODENAME" > "$RUNNER_TEMP/poulpe-apt.list"
+            apt_options=(-o Dir::Etc::sourcelist="$RUNNER_TEMP/poulpe-apt.list" -o Dir::Etc::sourceparts=- -o Acquire::Retries=1 -o Acquire::https::Timeout=20)
+            sudo apt-get "${apt_options[@]}" update -qq
+            sudo apt-get "${apt_options[@]}" install -y --no-install-recommends ffmpeg
           fi
 
       - name: Test before publishing
