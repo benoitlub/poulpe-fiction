@@ -19,10 +19,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Enable pnpm via Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.24.0 --activate
       - name: Install Lovable dependencies
-        run: npm install --prefix src/jardin-gege-lovable --ignore-scripts --no-audit --no-fund
+        run: corepack pnpm --dir src/jardin-gege-lovable install --no-frozen-lockfile
       - name: Build static garden
-        run: npm run build:pages --prefix src/jardin-gege-lovable
+        run: corepack pnpm --dir src/jardin-gege-lovable build:pages
       - name: Stage garden at its existing URL
         run: |
           mkdir -p dist
