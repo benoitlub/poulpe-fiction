@@ -80,16 +80,16 @@ export function Jardin() {
       </div>
 
       {/* header */}
-      <header className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2 md:p-5">
+      <header className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2 md:p-5 landscape:py-1 landscape:px-3">
         <div className="min-w-0 flex-1 md:flex-none">
-          <div className="glass-panel pointer-events-auto inline-block px-3 py-2 md:px-4 md:py-2.5">
+          <div className="glass-panel pointer-events-auto inline-block px-3 py-2 md:px-4 md:py-2.5 landscape:py-1">
             <h1 className="font-display text-base leading-tight font-extrabold md:text-xl">
               Le Jardin des <span className="text-gold-shine">Gégé</span>
             </h1>
             {isDemo ? <span className="demo-badge mt-1">Démonstration · données fictives</span>
               : <span className="garden-chip mt-1">Instantané réel</span>}
           </div>
-          <div className="garden-filters pointer-events-auto mt-2 flex gap-1.5 overflow-x-auto" role="group" aria-label="Filtrer les Gégé">
+          <div className="garden-filters pointer-events-auto mt-2 flex gap-1.5 overflow-x-auto landscape:mt-1" role="group" aria-label="Filtrer les Gégé">
             {([["all", `Tous · ${garden.missions.length}`], ["active", `En cours · ${active}`], ["attention", `À voir · ${errors}`]] as const).map(([k, label]) => (
               <button key={k} className="garden-chip glass-panel shrink-0 !py-1.5" aria-pressed={filter === k} onClick={() => setFilter(k)}
                 style={filter === k ? { background: "var(--g-lagoon)", color: "var(--g-abyss)" } : undefined}>
@@ -115,7 +115,7 @@ export function Jardin() {
         </section>
       )}
       {garden.connection !== "snapshot" && (
-        <div className="glass-panel absolute top-28 left-1/2 -translate-x-1/2 px-4 py-2 text-sm">
+        <div className="glass-panel pointer-events-none absolute top-32 left-1/2 z-10 max-w-[min(90vw,340px)] -translate-x-1/2 px-3 py-1.5 text-center text-xs md:top-24 md:text-sm landscape:top-16">
           {garden.connection === "loading" ? "Le jardin se réveille…" : garden.error}
         </div>
       )}
