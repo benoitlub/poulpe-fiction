@@ -1005,33 +1005,33 @@
       "privateContent": true
     },
     {
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
       "harvestId": "candidature-06434b5b1fecba8411e4",
+      "capability": "candidature.draft",
       "harvestedAt": "2026-11-10T11:19:22.808Z",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
-      "capability": "candidature.draft",
-      "route": "publisher->poulpe-fiction",
-      "state": "ready-to-review",
       "privateContent": true
     },
     {
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
       "harvestId": "candidature-343d483ea93966911715",
-      "harvestedAt": "2026-11-10T11:19:22.824Z",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
       "capability": "candidature.draft",
-      "route": "publisher->poulpe-fiction",
-      "state": "ready-to-review",
+      "harvestedAt": "2026-11-10T11:19:22.824Z",
       "privateContent": true
     },
     {
-      "harvestId": "candidature-95b2a16e455ec8781328",
-      "harvestedAt": "2026-11-10T11:19:22.829Z",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
-      "capability": "candidature.draft",
       "route": "publisher->poulpe-fiction",
       "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "harvestId": "candidature-95b2a16e455ec8781328",
+      "capability": "candidature.draft",
+      "harvestedAt": "2026-11-10T11:19:22.829Z",
       "privateContent": true
     }
   ]

@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-10T11:19:22.833Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-10T14:52:57.531Z",
   "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-05T14:26:44.344Z",
-      "mode": "cultivate",
-      "result": "deferred",
-      "operationId": "gerard-cultivate-1793888800327"
-    },
     {
       "at": "2026-11-05T14:31:41.247Z",
       "mode": "symbiosis",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-10T11:19:22.833Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1794309560539",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1794309560539"
+    },
+    {
+      "at": "2026-11-10T14:52:57.531Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1794322376905",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-02T22:57:47.737Z",
-      "mode": "cultivate",
-      "seedId": "benoit-client-acquisition",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "parcelId": "benoit-business-growth",
-      "operationId": "gerard-cultivate-1793660250546"
-    },
     {
       "at": "2026-11-02T22:59:26.814Z",
       "mode": "symbiosis",
@@ -500,21 +491,23 @@
     },
     {
       "at": "2026-11-10T11:19:22.832Z",
-      "operationId": "gerard-cultivate-1794309560539",
       "mode": "cultivate",
+      "seedId": "benoit-job-search",
       "outcome": "ok",
       "decision": "candidatures-ready-to-review",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career"
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794309560539"
+    },
+    {
+      "at": "2026-11-10T14:52:57.531Z",
+      "operationId": "gerard-symbiosis-1794322376905",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "decision": "candidatures-ready-to-review",
-    "parcelId": "benoit-career",
-    "seedId": "benoit-job-search",
-    "operationId": "gerard-cultivate-1794309560539",
-    "itemCount": 3,
-    "contacted": false
+    "at": "2026-11-10T14:52:57.530Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
