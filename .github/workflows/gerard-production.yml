@@ -145,6 +145,8 @@ jobs:
 
       - name: Run Gerard cycle
         working-directory: poulpe-fiction
+        env:
+          PUBLISHER_JOB_SCRIPTS_DIR: ${{ github.workspace }}/publisher/scripts
         run: node scripts/gerard-cycle.mjs
 
       - name: Compost freshly produced local harvests
