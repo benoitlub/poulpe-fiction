@@ -37,7 +37,7 @@ export async function hydrateGarden(dir, payload) {
   const entries = Object.entries(payload.files);
   if (!entries.length || entries.some(([name, value]) => !safeName(name) || !value || typeof value !== "object" || value.publicProjection === true)) throw new Error("private-state-invalid");
   await mkdir(dir, { recursive: true });
-  for (const [name, value] of entries) await writeFile(join(dir, name), JSON.stringify(value, null, 2) + "\n");
+  for (const [name, value] of entries.filter(([name]) => !sourceConfiguration.has(name))) await writeFile(join(dir, name), JSON.stringify(value, null, 2) + "\n");
 }
 export async function ensureStore(pool) {
   await pool.query(`CREATE TABLE IF NOT EXISTS gerard_private_runtime (

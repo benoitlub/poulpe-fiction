@@ -1,0 +1,294 @@
+{
+  "status": "drafts-only-not-sent",
+  "source": "official-public-pages-read-2026-11-10",
+  "note": "Vérifications publiques réelles ; scoring automatique indicatif ; aucune soumission, réponse ou vente. Les propriétés produit restent à confirmer par Benoît/Notion.",
+  "sources": [
+    {
+      "url": "https://www.dontpanicgames.com/fr/contact/",
+      "sha256": "6dfb2abfdbef01708da3271e601fac8c24b11c0038be373c177780155b23f22a",
+      "verification": "page-read"
+    },
+    {
+      "url": "https://www.gigamic.com/contact",
+      "sha256": "d912f3f25b55b5fbaead5c96d67eeaae9ea286c2fc11e5a881383b009cb659d9",
+      "verification": "page-read"
+    },
+    {
+      "url": "https://iello.fr/contact-s-a-v/",
+      "sha256": "ac3dafee337446491b5b4528a21dbf39cf48c53b1df1e6d0d21a6a87c56694ba",
+      "verification": "page-read"
+    }
+  ],
+  "dossiers": [
+    {
+      "id": "benoit-lubert:benoit-business-growth:www.dontpanicgames.com",
+      "parcelId": "benoit-business-growth",
+      "clientId": "benoit-lubert",
+      "brandId": "pro-hibited",
+      "organization": "Don’t Panic Games",
+      "sourceUrl": "https://www.dontpanicgames.com/fr/contact/",
+      "channelUrl": "https://www.dontpanicgames.com/fr/contact/",
+      "recipientEmail": null,
+      "organizationVerified": true,
+      "sourceEvidence": "Contact - Don&#039;t Panic Games Search for: Accueil Nos jeux Accessoires Évènements Contact Search for: 0 Panier Accueil Nos jeux Accessoires Évènements Contact Search for: Contact Accueil » Contact Un petit débrief ludique ? Contactez-nous ici ! DON&rsquo;T PANIC GAMES 38, rue ",
+      "checkedAt": "2026-11-10T19:07:37.413113+00:00",
+      "dossierCompleteness": "product-facts-incomplete",
+      "reviewScope": "Validation d’une demande de procédure ; pas une offre commerciale complète.",
+      "submissionPolicy": "requires-confirmation",
+      "productSheets": [
+        {
+          "name": "Pro.Hibited",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        },
+        {
+          "name": "Prout.Hibited",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        },
+        {
+          "name": "Jointed",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        }
+      ],
+      "hypothesis": "Votre positionnement dans les jeux de société motive cette prise de renseignements ; l’adéquation de chaque jeu à votre catalogue reste à évaluer.",
+      "subject": "Proposition de présentation de jeux — Don’t Panic Games",
+      "body": "Bonjour,\n\nJe suis Gérard, assistant numérique de Benoît Lubert. Nous souhaitons vérifier la possibilité de vous présenter Pro.Hibited, Prout.Hibited et Jointed pour une éventuelle édition ou distribution.\n\nVotre positionnement dans les jeux de société motive cette prise de renseignements ; l’adéquation de chaque jeu à votre catalogue reste à évaluer.\n\nAcceptez-vous actuellement des propositions de jeux et, si oui, quelle procédure et quels éléments souhaitez-vous recevoir ? Après validation de Benoît et finalisation des fiches, nous pourrons convenir d'une présentation ou démonstration.\n\nMerci,\nGérard, pour Benoît Lubert",
+      "status": "awaiting-human-approval",
+      "pipelineStage": "prêt à valider",
+      "nextAction": {
+        "dueAt": "2026-11-11T19:07:37.413113+00:00",
+        "action": "Benoît : relire le dossier, compléter les fiches puis valider le canal et le message exact."
+      },
+      "missing": [
+        "acceptation actuelle des soumissions",
+        "Pro.Hibited: règles",
+        "Pro.Hibited: joueurs/âge/durée",
+        "Pro.Hibited: état du prototype",
+        "Pro.Hibited: droits",
+        "Pro.Hibited: conditions commerciales",
+        "Prout.Hibited: règles",
+        "Prout.Hibited: joueurs/âge/durée",
+        "Prout.Hibited: état du prototype",
+        "Prout.Hibited: droits",
+        "Prout.Hibited: conditions commerciales",
+        "Jointed: règles",
+        "Jointed: joueurs/âge/durée",
+        "Jointed: état du prototype",
+        "Jointed: droits",
+        "Jointed: conditions commerciales"
+      ],
+      "sentAt": null,
+      "contacted": false,
+      "response": null,
+      "followUp": "Aucune relance avant envoi autorisé et vérifié.",
+      "outcome": "insufficient-data",
+      "lesson": "Un dossier ou un canal public ne prouve ni intérêt commercial, ni vente."
+    },
+    {
+      "id": "benoit-lubert:benoit-business-growth:www.gigamic.com",
+      "parcelId": "benoit-business-growth",
+      "clientId": "benoit-lubert",
+      "brandId": "pro-hibited",
+      "organization": "Gigamic",
+      "sourceUrl": "https://www.gigamic.com/contact",
+      "channelUrl": "https://www.gigamic.com/contact",
+      "recipientEmail": null,
+      "organizationVerified": true,
+      "sourceEvidence": "Questions fréquentes Accès pro Mon compte Déconnexion FR FR EN Menu Back Nouveautés Jeux Star Jeux Junior & Famille Jeux pédagogiques Jeux de Société pour Enfants Jeux de Société à Thèmes Jeux de dextérité Jeux de Société Mémoire Voir tous les produits Jeux d'ambiance Jouer nombr",
+      "checkedAt": "2026-11-10T19:07:37.413113+00:00",
+      "dossierCompleteness": "product-facts-incomplete",
+      "reviewScope": "Validation d’une demande de procédure ; pas une offre commerciale complète.",
+      "submissionPolicy": "requires-confirmation",
+      "productSheets": [
+        {
+          "name": "Pro.Hibited",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        },
+        {
+          "name": "Prout.Hibited",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        },
+        {
+          "name": "Jointed",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        }
+      ],
+      "hypothesis": "Votre page officielle propose un parcours « Auteur de jeux ». Nous souhaitons suivre votre procédure plutôt qu’envoyer un prototype non sollicité.",
+      "subject": "Proposition de présentation de jeux — Gigamic",
+      "body": "Bonjour,\n\nJe suis Gérard, assistant numérique de Benoît Lubert. Nous souhaitons vérifier la possibilité de vous présenter Pro.Hibited, Prout.Hibited et Jointed pour une éventuelle édition ou distribution.\n\nVotre page officielle propose un parcours « Auteur de jeux ». Nous souhaitons suivre votre procédure plutôt qu’envoyer un prototype non sollicité.\n\nAcceptez-vous actuellement des propositions de jeux et, si oui, quelle procédure et quels éléments souhaitez-vous recevoir ? Après validation de Benoît et finalisation des fiches, nous pourrons convenir d'une présentation ou démonstration.\n\nMerci,\nGérard, pour Benoît Lubert",
+      "status": "awaiting-human-approval",
+      "pipelineStage": "prêt à valider",
+      "nextAction": {
+        "dueAt": "2026-11-11T19:07:37.413113+00:00",
+        "action": "Benoît : relire le dossier, compléter les fiches puis valider le canal et le message exact."
+      },
+      "missing": [
+        "acceptation actuelle des soumissions",
+        "Pro.Hibited: règles",
+        "Pro.Hibited: joueurs/âge/durée",
+        "Pro.Hibited: état du prototype",
+        "Pro.Hibited: droits",
+        "Pro.Hibited: conditions commerciales",
+        "Prout.Hibited: règles",
+        "Prout.Hibited: joueurs/âge/durée",
+        "Prout.Hibited: état du prototype",
+        "Prout.Hibited: droits",
+        "Prout.Hibited: conditions commerciales",
+        "Jointed: règles",
+        "Jointed: joueurs/âge/durée",
+        "Jointed: état du prototype",
+        "Jointed: droits",
+        "Jointed: conditions commerciales"
+      ],
+      "sentAt": null,
+      "contacted": false,
+      "response": null,
+      "followUp": "Aucune relance avant envoi autorisé et vérifié.",
+      "outcome": "insufficient-data",
+      "lesson": "Un dossier ou un canal public ne prouve ni intérêt commercial, ni vente."
+    },
+    {
+      "id": "benoit-lubert:benoit-business-growth:iello.fr",
+      "parcelId": "benoit-business-growth",
+      "clientId": "benoit-lubert",
+      "brandId": "pro-hibited",
+      "organization": "IELLO",
+      "sourceUrl": "https://iello.fr/contact-s-a-v/",
+      "channelUrl": "https://iello.fr/contact-s-a-v/",
+      "recipientEmail": null,
+      "organizationVerified": true,
+      "sourceEvidence": "Contact S.A.V. - IELLO L’actu IELLO ! Événements Jeux Sorties Contact IELLO IELLO Shop IELLO Games Vous cherchez… Des infos sur un jeu ? La liste des nouvelles sorties ? Les prochains titres Expert ? Vos amis débarquent pour l’apéro et vous voulez une idée pour jouer ? Vous scrut",
+      "checkedAt": "2026-11-10T19:07:37.413113+00:00",
+      "dossierCompleteness": "product-facts-incomplete",
+      "reviewScope": "Validation d’une demande de procédure ; pas une offre commerciale complète.",
+      "submissionPolicy": "requires-confirmation",
+      "productSheets": [
+        {
+          "name": "Pro.Hibited",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        },
+        {
+          "name": "Prout.Hibited",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        },
+        {
+          "name": "Jointed",
+          "verifiedFacts": [
+            "Nom fourni par Benoît"
+          ],
+          "missing": [
+            "règles",
+            "joueurs/âge/durée",
+            "état du prototype",
+            "droits",
+            "conditions commerciales"
+          ]
+        }
+      ],
+      "hypothesis": "Votre formulaire officiel distingue les demandes des auteurs. Nous souhaitons vérifier le bon canal pour présenter nos projets, sans utiliser le service après-vente.",
+      "subject": "Proposition de présentation de jeux — IELLO",
+      "body": "Bonjour,\n\nJe suis Gérard, assistant numérique de Benoît Lubert. Nous souhaitons vérifier la possibilité de vous présenter Pro.Hibited, Prout.Hibited et Jointed pour une éventuelle édition ou distribution.\n\nVotre formulaire officiel distingue les demandes des auteurs. Nous souhaitons vérifier le bon canal pour présenter nos projets, sans utiliser le service après-vente.\n\nAcceptez-vous actuellement des propositions de jeux et, si oui, quelle procédure et quels éléments souhaitez-vous recevoir ? Après validation de Benoît et finalisation des fiches, nous pourrons convenir d'une présentation ou démonstration.\n\nMerci,\nGérard, pour Benoît Lubert",
+      "status": "awaiting-human-approval",
+      "pipelineStage": "prêt à valider",
+      "nextAction": {
+        "dueAt": "2026-11-11T19:07:37.413113+00:00",
+        "action": "Benoît : relire le dossier, compléter les fiches puis valider le canal et le message exact."
+      },
+      "missing": [
+        "acceptation actuelle des soumissions",
+        "Pro.Hibited: règles",
+        "Pro.Hibited: joueurs/âge/durée",
+        "Pro.Hibited: état du prototype",
+        "Pro.Hibited: droits",
+        "Pro.Hibited: conditions commerciales",
+        "Prout.Hibited: règles",
+        "Prout.Hibited: joueurs/âge/durée",
+        "Prout.Hibited: état du prototype",
+        "Prout.Hibited: droits",
+        "Prout.Hibited: conditions commerciales",
+        "Jointed: règles",
+        "Jointed: joueurs/âge/durée",
+        "Jointed: état du prototype",
+        "Jointed: droits",
+        "Jointed: conditions commerciales"
+      ],
+      "sentAt": null,
+      "contacted": false,
+      "response": null,
+      "followUp": "Aucune relance avant envoi autorisé et vérifié.",
+      "outcome": "insufficient-data",
+      "lesson": "Un dossier ou un canal public ne prouve ni intérêt commercial, ni vente."
+    }
+  ]
+}

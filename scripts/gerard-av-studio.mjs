@@ -294,6 +294,8 @@ export async function runParcelStudio(
     if (result?.status === "completed" && result.output?.status === "ready-for-review")
       await writeFile(checkpointPath, JSON.stringify({ fingerprint, result }, null, 2) + "\n");
     else {
+      if (result?.output?.providerOutcomeMayBeUnknown === true && result.output.retryAllowed === false)
+        await writeFile(checkpointPath, JSON.stringify({ fingerprint, result }, null, 2) + "\n");
       const retry = providerRetry(result?.output, now());
       if (retry) {
         await writeFile(checkpointPath, JSON.stringify({ fingerprint, retry }, null, 2) + "\n");

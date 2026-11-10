@@ -26,7 +26,7 @@
       "parcelId": "benoit-business-growth",
       "title": "Benoît · Partenaires, distributeurs et acheteurs B2B",
       "objective": "Priorité commerciale : identifier des acheteurs professionnels, distributeurs, partenaires de marques, organisateurs de salons et investisseurs pertinents pour les créations originales de Benoît : Pro.Hibited, Prout.Hibited, Jointed, 420 Dice, Blacklace Dice, Feuch Dice, Feuch Game, ses livres, Blacklace Island et Onlyfeuch. Prospection d'entreprises réelles du secteur cannabis légal, accessoires, divertissement, édition et événements, selon les lois locales. Exclure les missions freelance de graphisme/web/formation et la vente de temps, ainsi que les personas fictifs. Rechercher des signaux publics vérifiables (catalogue, politique distributeurs, appel à partenaires, exposants, programme investisseurs), documenter les URL et les canaux B2B autorisés. Favoriser les précommandes, accords de distribution, coéditions, licences et partenariats financés sans frais initiaux ni publicité payante. Ne pas inventer de commandes, revenus, engagements ou conformité. Ne pas envoyer de messages commerciaux sans autorisation. Mesurer contacts, réponses, commandes et euros réellement encaissés.",
-      "firstHarvest": "Livrer 10 organisations nominatives et sourcées, dont 3 contacts B2B exploitables avec approche personnalisée : distribution de jeux physiques, animation événementielle et coédition/partenariat de marque. Pour chaque cible : site, preuve de pertinence, contact professionnel public, proposition adaptée, prochaine action, date de vérification et statut réel. Si la recherche externe est indisponible, l'indiquer explicitement, ne pas remplacer les prospects par des profils fictifs. Aucune dépense ni nouvelle architecture.",
+      "firstHarvest": "Priorité issues #210 et #211 : trois dossiers maximum pour édition/distribution des jeux Pro.Hibited, Prout.Hibited et Jointed, dont Don’t Panic Games. Vérifier entreprise et canal officiel ; préparer proposition personnalisée, fiches produit et brouillon soumis à validation humaine, prochaine action datée et suivi des réponses. Les règles, prix, volumes et prototypes non vérifiés restent explicitement manquants. Aucun envoi ni dépense.",
       "knowledgeSlug": "benoit-lubert-professional",
       "delivery": {
         "recipient": "Benoît",
@@ -68,7 +68,29 @@
               "max": 1000,
               "currency": "EUR"
             },
-            "automaticOutreach": false
+            "automaticOutreach": false,
+            "products": [
+              "Pro.Hibited",
+              "Prout.Hibited",
+              "Jointed"
+            ],
+            "targets": [
+              {
+                "organization": "Don’t Panic Games",
+                "url": "https://www.dontpanicgames.com/fr/contact/",
+                "approach": "Votre positionnement dans les jeux de société motive cette prise de renseignements ; l’adéquation de chaque jeu à votre catalogue reste à évaluer."
+              },
+              {
+                "organization": "Gigamic",
+                "url": "https://www.gigamic.com/contact",
+                "approach": "Votre page officielle propose un parcours « Auteur de jeux ». Nous souhaitons suivre votre procédure plutôt qu’envoyer un prototype non sollicité."
+              },
+              {
+                "organization": "IELLO",
+                "url": "https://iello.fr/contact-s-a-v/",
+                "approach": "Votre formulaire officiel distingue les demandes des auteurs. Nous souhaitons vérifier le bon canal pour présenter nos projets, sans utiliser le service après-vente."
+              }
+            ]
           }
         },
         {
@@ -121,7 +143,12 @@
         "mode": "review-only",
         "harvestState": "ready-to-review"
       },
-      "templates": [{ "id": "job-search", "enabled": true }]
+      "templates": [
+        {
+          "id": "job-search",
+          "enabled": true
+        }
+      ]
     },
     {
       "seedId": "420-dice-video-studio",

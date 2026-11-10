@@ -86,8 +86,7 @@ export function applyMetricoolFeedback(learning, snapshot, { now = new Date().to
     };
   }
   const previousMetrics = Array.isArray(old.observations) ? old.observations : [];
-  const recorded = new Set(previousMetrics
-    .filter(item => item?.kind === "metricool-post-measurement")
+  const recorded = new Set([...previousMetrics.filter(item => item?.kind === "metricool-post-measurement"), ...(prior?.posts ?? [])]
     .map(item => JSON.stringify([item.network, item.postUrl, item.metrics])));
   const fresh = posts.filter(item => !recorded.has(JSON.stringify([item.network, item.postUrl, item.metrics])));
   const updatedObservations = [...previousMetrics, ...fresh].slice(-150);
@@ -98,10 +97,14 @@ export function applyMetricoolFeedback(learning, snapshot, { now = new Date().to
   const attributed = snapshot.posts.filter(post => post?.verified === true &&
     typeof post.harvestId === "string" && post.harvestId &&
     typeof post.url === "string" && /^https:\/\//.test(post.url) &&
-    Object.values(post.metrics ?? {}).some(v => nonnegativeMetric(v) !== null));
+    verified.has(`${post.network}|${post.url}`) && !isTestPost(post.text));
   const completed = [];
   const remaining = pending.filter(experiment => {
-    const matching = attributed.filter(post => post.harvestId === experiment.harvestId);
+    const matching = attributed.filter(post => post.harvestId === experiment.harvestId &&
+      (!post.seedId || post.seedId === experiment.seedId) &&
+      (post.parcelId || post.seedId || new Set(pending.filter(e=>e.harvestId === post.harvestId).map(e=>e.parcelId ?? e.seedId)).size <= 1) &&
+      (!post.parcelId || post.parcelId === experiment.parcelId) &&
+      (!experiment.networks?.length || experiment.networks.includes(post.network)));
     if (!matching.length) return true;
     completed.push({ ...experiment, assessment: "verified-provider-observation",
       assessedAt: now, observedPostUrls: matching.map(p => p.url),
@@ -114,6 +117,8 @@ export function applyMetricoolFeedback(learning, snapshot, { now = new Date().to
     snapshotCheckedAt: snapshot.checkedAt ?? null,
     snapshotPeriod: snapshot.period ?? null,
     completeness: "partial-provider-response",
+    freshness: { ageDays: Number.isFinite(Date.parse(snapshot.checkedAt)) ? Math.max(0,Math.floor((Date.parse(now)-Date.parse(snapshot.checkedAt))/86400000)) : null,
+      note: "Snapshot date is provider evidence time, not the time of this integration." },
     measuredPostCount: posts.length,
     technicalTestPostCount: posts.filter(p => p.postPurpose === "technical-test").length,
     networks,

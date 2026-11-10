@@ -94,6 +94,10 @@ jobs:
         working-directory: publisher
         run: pnpm --filter @workspace/api-server run build
 
+      - name: Identify selected Studio dependencies without provider calls
+        working-directory: poulpe-fiction
+        run: echo "GERARD_SELECTED_STUDIO_KIND=$(node scripts/gerard-cycle.mjs --studio-kind)" >> "$GITHUB_ENV"
+
       - name: Prepare local audiovisual tools only when explicitly enabled
         if: env.GERARD_AV_STUDIO_ENABLED == 'true' || env.GERARD_IMAGE_STUDIO_ENABLED == 'true'
         working-directory: publisher
@@ -103,7 +107,7 @@ jobs:
           fi
           sudo apt-get update -qq -o Acquire::Retries=1 -o Acquire::http::Timeout=30
           sudo apt-get install -y --no-install-recommends -o Acquire::Retries=1 -o Acquire::http::Timeout=30 ffmpeg fonts-dejavu-core
-          if [ "$GERARD_AV_STUDIO_ENABLED" = "true" ]; then
+          if [ "$GERARD_SELECTED_STUDIO_KIND" = "audio" ] || [ "$GERARD_SELECTED_STUDIO_KIND" = "video" ]; then
             python3 -m venv .studio-venv
             .studio-venv/bin/pip install 'piper-tts==1.8.0'
             python3 scripts/setup-studio-voice.py
@@ -154,9 +158,11 @@ jobs:
       - name: Restore Studio files and submission checkpoints
         uses: actions/cache/restore@v4
         with:
-          path: poulpe-fiction/garden/studio
-          key: gerard-studio-files-v1-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: gerard-studio-files-v1-
+          path: |
+            poulpe-fiction/garden/studio
+            publisher/data/studio/jobs
+          key: gerard-studio-files-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: gerard-studio-files-v2-
 
       - name: Run Gerard cycle
         id: studio_cycle
@@ -167,8 +173,10 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/cache/save@v4
         with:
-          path: poulpe-fiction/garden/studio
-          key: gerard-studio-files-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            poulpe-fiction/garden/studio
+            publisher/data/studio/jobs
+          key: gerard-studio-files-v2-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Persist private studio snapshots
         if: ${{ !cancelled() && (steps.studio_cycle.outcome == 'success' || steps.studio_cycle.outcome == 'failure') }}

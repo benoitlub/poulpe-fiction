@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, cpSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -17,6 +17,7 @@ function runSelection(t, files = {}, empty = false) {
   const root = mkdtempSync(join(tmpdir(), "gerard-seed-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, "garden"));
+  cpSync(new URL("../scripts/", import.meta.url),join(root,"scripts"),{recursive:true});
   mkdirSync(join(root, "bin"));
   for (const [name, value] of Object.entries(files)) {
     writeFileSync(join(root, "garden", name), JSON.stringify(value));

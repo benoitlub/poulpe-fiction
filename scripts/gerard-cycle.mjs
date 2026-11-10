@@ -10,7 +10,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { creativeBenchmarkPrompt, loadCreativeBenchmarks } from "./gerard-creative-benchmarks.mjs";
 import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
 import { searchBusinessSources, searchPublisherJobPages } from "./gerard-b2b-bridge.mjs";
 import { runCommunityRadar } from "./gerard-community-radar.mjs";
@@ -18,7 +18,7 @@ import { providerRetry } from "./gerard-provider-retry.mjs";
 import { runImageStudio } from "./gerard-image-studio.mjs";
 import { runParcelStudio, studioOperationId, studioFeedbackForParcel, submitStudioMission } from "./gerard-av-studio.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
-import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from "./gerard-client-acquisition.mjs";
+import { getAcquisitionConfig, acquisitionDossiers, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from "./gerard-client-acquisition.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
 import { rankJobCandidates, jobSearchQueries } from "./gerard-job-radar.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
@@ -110,7 +110,7 @@ async function loadState() {
   catch (_) { return { history: [] }; }
 }
 
-async function loadSeeds() {
+export async function loadSeeds() {
   // A manual 420 Dice preview uses only its reviewed demo seed; regular
   // enabled studio seeds also remain eligible in the autonomous rotation.
   if (process.env.GERARD_STUDIO_PREVIEW_SEED === "420-dice" &&
@@ -125,7 +125,7 @@ async function loadSeeds() {
     const studio = seed.templates?.some(t => ["image-studio", "audio-studio", "video-studio"].includes(t.id) && t.enabled !== false);
     if (process.env.GERARD_TENTACLE === "studio") return studio;
     if (seed.imageStudioOnly === true) return false;
-    if (process.env.GERARD_TENTACLE === "production") return !studio && seed.knowledgeSlug;
+    if (process.env.GERARD_TENTACLE === "production") return !seed.templates?.some(t => ["audio-studio", "video-studio"].includes(t.id) && t.enabled !== false) && seed.knowledgeSlug;
     return studio || seed.knowledgeSlug;
   });
 }
@@ -143,7 +143,7 @@ async function inspectUnfinishedParcel(parcelId) {
   }
 }
 
-function selectSeedForRotation(seeds, state) {
+export function selectSeedForRotation(seeds, state) {
   if (!seeds.length) return null;
   const jobSearchSeed = seeds.find(isJobSearchSeed);
   if (JOB_SEARCH_ONLY) return jobSearchSeed ?? null;
@@ -490,7 +490,11 @@ async function main() {
       const acquisition = getAcquisitionConfig(selectedSeed);
       if (acquisition || selectedSeed.seedId === "benoit-client-acquisition") {
         try {
-          const lookup = await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
+          const lookup = acquisition?.targets?.length ? {candidates:[],status:"curated-official-sources"} : await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
+          if (acquisition?.targets?.length) {
+            lookup.candidates = acquisition.targets.slice(0,3).map(target => ({title:target.organization,url:target.url,verification:'unverified'}));
+            lookup.status = 'curated-official-sources';
+          }
           const parcel = selectedSeed.parcelId;
           const memoryKey = acquisition ? `${acquisition.clientId}:${parcel}` : parcel;
           const prior = state.businessSourceMemory?.[memoryKey] || {};
@@ -505,6 +509,11 @@ async function main() {
           // The template only creates a reviewable research package.
           const newDrafts = acquisition ? 0 : await saveMailDrafts(businessSources, parcel);
           if (acquisition) {
+            const outbox = await readFile(MAIL_OUTBOX_PATH,'utf8').then(JSON.parse).catch(error => { if(error.code !== 'ENOENT') throw error; return {drafts:[]}; });
+            const learnedChoices = await readFile(new URL("../garden/gerard-learning.json",import.meta.url),"utf8").then(JSON.parse).catch(error=>{if(error.code !== "ENOENT")throw error;return {};});
+            const dossiers = acquisitionDossiers(businessSources,acquisition,outbox.drafts ?? [],new Date(),learnedChoices);
+            const ids = new Set(dossiers.map(item=>item.id));
+            await writeFile(MAIL_OUTBOX_PATH,JSON.stringify({...outbox,drafts:[...(outbox.drafts ?? []).filter(item=>!ids.has(item.id)),...dossiers]},null,2)+'\n');
             const notion = await handoffAcquisitionReviews(businessSources, acquisition, {
               publisherUrl: PUBLISHER_URL,
               token: process.env.PUBLISHER_NOTION_WRITE_TOKEN,
@@ -652,5 +661,15 @@ async function main() {
   if (!["ok", "deferred"].includes(result.status)) process.exitCode = 1;
 }
 
-await main();
+export function selectedStudioKind(seed) {
+  if (!seed) return "none";
+  if (seed.imageStudioOnly === true) return "image";
+  if (seed.templates?.some(t => t.id === "video-studio" && t.enabled !== false)) return "video";
+  if (seed.templates?.some(t => t.id === "audio-studio" && t.enabled !== false)) return "audio";
+  return "image";
+}
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  if (process.argv[2] === "--studio-kind") console.log(selectedStudioKind(selectSeedForRotation(await loadSeeds(), await loadState())));
+  else await main();
+}
 

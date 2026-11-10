@@ -54,3 +54,57 @@ export async function handoffAcquisitionReviews(sources, config, { publisherUrl,
   }
   return { status: failed ? 'partial' : 'completed', attempted: eligible.length, created, failed };
 }
+
+/** Assemble reviewed prospect dossiers in the existing outbox; never send. */
+export function acquisitionDossiers(sources, config, previous = [], now = new Date(), learning = {}) {
+  const targets = (config.targets ?? []).slice(0, 3);
+  return targets.map(target => {
+    const id = `${config.clientId}:${config.parcelId}:${new URL(target.url).hostname}`;
+    const old = previous.find(item => item.id === id && item.parcelId === config.parcelId);
+    const past = learning?.guidance?.acquisitionOutcomes?.[id];
+    if (past?.clientId === config.clientId && past.parcelId === config.parcelId && past.outcome === 'refused')
+      return {...(old ?? {id,clientId:config.clientId,parcelId:config.parcelId,organization:target.organization}), ...past, status:'refused'};
+    const source = sources.find(item => item.url === target.url && item.verification === 'page-read');
+    // A sent/replied/refused record is historical evidence, never a fresh draft.
+    if (old && (old.sentAt || old.contacted || ['sending', 'unknown', 'sent', 'reply', 'refused', 'agreement'].includes(old.status))) return {...old,...acquisitionNextAction(old,now)};
+    if (old?.response?.verified === true) return {...old,...acquisitionNextAction(old,now)};
+    if (old?.status === 'human-approved') return old;
+    const products = (config.products ?? []).map(name => ({ name, verifiedFacts: ['Nom fourni par Benoît'], missing: ['règles', 'joueurs/âge/durée', 'état du prototype', 'droits', 'conditions commerciales'] }));
+    const body = `Bonjour,\n\nJe suis Gérard, assistant numérique de Benoît Lubert. Nous souhaitons vérifier la possibilité de vous présenter Pro.Hibited, Prout.Hibited et Jointed pour une éventuelle édition ou distribution.\n\n${target.approach}\n\nAcceptez-vous actuellement des propositions de jeux et, si oui, quelle procédure et quels éléments souhaitez-vous recevoir ? Après validation de Benoît et finalisation des fiches, nous pourrons convenir d'une présentation ou démonstration.\n\nMerci,\nGérard, pour Benoît Lubert`;
+    return { id, parcelId: config.parcelId, clientId: config.clientId, brandId: 'pro-hibited',
+      organization: target.organization, sourceUrl: target.url, channelUrl: target.url,
+      recipientEmail: source?.contactEmail && !/^(sav|support|noreply|no-reply)@/i.test(source.contactEmail) ? source.contactEmail : null, organizationVerified: Boolean(source),
+      sourceEvidence: source?.evidence ?? null, checkedAt: source?.examinedAt ?? now.toISOString(),
+      dossierCompleteness: 'product-facts-incomplete', reviewScope: 'Validation d’une demande de procédure ; pas une offre commerciale complète.',
+      submissionPolicy: 'requires-confirmation', productSheets: products,
+      hypothesis: target.approach, subject: `Proposition de présentation de jeux — ${target.organization}`,
+      body, status: source ? 'awaiting-human-approval' : 'research-only',
+      pipelineStage: source ? 'prêt à valider' : 'à vérifier',
+      nextAction: old?.nextAction ?? { dueAt: new Date(now.getTime() + 86400000).toISOString(), action: source ? 'Benoît : relire le dossier, compléter les fiches puis valider le canal et le message exact.' : 'Vérifier le canal officiel avant toute demande de contact.' },
+      missing: ['acceptation actuelle des soumissions', ...products.flatMap(p => p.missing.map(f => `${p.name}: ${f}`))],
+      sentAt: null, contacted: false, response: null, followUp: 'Aucune relance avant envoi autorisé et vérifié.',
+      outcome: 'insufficient-data', lesson: 'Un dossier ou un canal public ne prouve ni intérêt commercial, ni vente.' };
+  });
+}
+
+export function acquisitionNextAction(draft, now = new Date()) {
+  const response = draft.response;
+  const verified = response?.verified === true && typeof response.evidenceUrl === 'string' && /^https:\/\//.test(response.evidenceUrl);
+  if (verified && ['refused','interested','agreement'].includes(response.outcome)) {
+    const outcome=response.outcome;
+    return { outcome, pipelineStage: outcome === 'refused' ? 'refus' : outcome === 'agreement' ? 'accord' : 'réponse',
+      nextAction: {dueAt:now.toISOString(),action:outcome === 'refused' ? 'Ne pas relancer cette proposition ; revoir l’adéquation avant toute nouvelle approche.' : 'Benoît : examiner la réponse et valider la suite avant tout envoi ou engagement.'},
+      lesson: outcome === 'refused' ? 'Le destinataire a refusé cette proposition : ne pas réutiliser le même contact comme une nouvelle piste.' : 'Une réponse vérifiée justifie une revue humaine ; aucun revenu ne peut être déduit.' };
+  }
+  if (draft.sentAt && draft.contacted) return {outcome:'awaiting-response',pipelineStage:'envoyé',
+    nextAction:{dueAt:new Date(Date.parse(draft.sentAt)+7*86400000).toISOString(),action:'Vérifier une éventuelle réponse ; préparer une relance uniquement après validation humaine.'},
+    lesson:'Envoi déclaré par le transport, pas de réponse ou de vente démontrée.'};
+  return {outcome:'insufficient-data',pipelineStage:draft.organizationVerified ? 'prêt à valider':'à vérifier',nextAction:draft.nextAction,
+    lesson:'Un dossier préparé ne prouve ni contact effectué ni intérêt commercial.'};
+}
+
+export function integrateAcquisitionFeedback(learning, outbox, now = new Date()) {
+  const drafts=(outbox?.drafts ?? []).filter(d=>d.clientId && d.parcelId);
+  const outcomes=Object.fromEntries(drafts.map(d=>[d.id,{clientId:d.clientId,parcelId:d.parcelId,...acquisitionNextAction(d,now)}]));
+  return {...learning,guidance:{...(learning.guidance ?? {}),acquisitionOutcomes:{...(learning.guidance?.acquisitionOutcomes ?? {}),...outcomes}}};
+}
