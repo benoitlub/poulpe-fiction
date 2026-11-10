@@ -122,7 +122,7 @@ export function Jardin() {
 
       {/* panels: right card on desktop, bottom sheet on mobile */}
       {(selection || supervision) && (
-        <div className="pointer-events-none absolute inset-x-2 bottom-2 max-h-[62vh] md:inset-x-auto md:top-24 md:right-5 md:bottom-5 md:max-h-none md:w-[380px]">
+        <div className="pointer-events-none absolute inset-x-2 bottom-2 h-[min(70dvh,680px)] min-h-0 md:inset-x-auto md:top-24 md:right-5 md:bottom-5 md:h-auto md:w-[380px]">
           {supervision ? (
             <Supervision missions={garden.missions} events={garden.events} onClose={() => setSupervision(false)} onPickRole={(role) => select({ kind: "role", role })} />
           ) : selection ? (
