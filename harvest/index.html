@@ -8,11 +8,19 @@
   <style>
     :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark}
     body{margin:0;background:#0b1024;color:#f6f0dc}
-    main{max-width:860px;margin:auto;padding:28px 16px 70px}
+    main{max-width:1100px;margin:auto;padding:20px 14px 60px}
     header{margin-bottom:28px}.brand{font-family:Georgia,serif;color:#f5ddb0;font-size:2rem;margin:0}.muted{color:#aab4cc}
-    article{background:#11182d;border:1px solid #2b3552;border-radius:22px;padding:24px;margin:18px 0;box-shadow:0 20px 70px rgba(0,0,0,.25)}
-    h1,h2,h3{font-family:Georgia,serif;color:#f5ddb0}.status{display:inline-block;padding:.35rem .7rem;border-radius:999px;background:#202944;margin-bottom:10px}
-    .content{white-space:pre-wrap;line-height:1.65}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    article{background:transparent;border:0;border-bottom:1px solid #34405f;border-radius:0;padding:18px 0;margin:0;box-shadow:none}
+    h1,h2,h3{font-family:Georgia,serif;color:#f5ddb0}.status{display:inline-block;padding:.35rem .7rem;border-radius:0;background:transparent;margin-bottom:6px}
+    .content{white-space:pre-wrap;line-height:1.55;overflow-wrap:anywhere}
+.prospect-list{list-style:none;margin:12px 0;padding:0}
+.prospect-row{border:0;border-top:1px solid #34405f;padding:12px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px}
+.prospect-row a{padding:0;border-radius:0;color:#9ce9d9;text-decoration:underline;text-underline-offset:3px}
+.prospect-row .note{grid-column:1/-1;color:#aab4cc;font-size:.9rem}
+.prospect-row .action{white-space:nowrap;align-self:start}
+.prospect-row .action button{border-radius:4px;padding:.4rem .65rem;background:#202944;color:#f6f0dc}
+@media(max-width:600px){.prospect-row{grid-template-columns:1fr}.prospect-row .action{grid-row:3}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
     a,button{border:0;border-radius:999px;padding:.7rem 1rem;text-decoration:none;font:inherit;cursor:pointer}.primary{background:#7ee0cf;color:#08121b}.ghost{background:#202944;color:#f6f0dc}
     .empty{padding:50px 20px;text-align:center;border:1px dashed #34405f;border-radius:22px}
   </style>
@@ -39,11 +47,40 @@
     const built=content?window.PoulpeHarvestHtml?.artifact?.({title,content,operationId:entry.operationId,createdAt:entry.completedAt}):null;
     return {title,content,url:text(item.url)||text(item.downloadUrl)||text(result.url)||built?.url||'',downloadUrl:text(item.downloadUrl)||built?.downloadUrl||''};
   }
+  function prospectView(content){
+    if(!/Prospection|investigate-contact|score probant/i.test(content))return '';
+    const lines=content.split(/\r?\n/),prospects=[];
+    for(let i=0;i<lines.length;i++){
+      const m=lines[i].match(/^\s*\d+\.\s+(.+)$/);
+      if(!m)continue;
+      const section=lines.slice(i+1).findIndex(x=>/^\s*\d+\.\s+/.test(x));
+      const part=lines.slice(i+1,section<0?undefined:i+1+section).join('\n');
+      const url=part.match(/URL\s*:\s*(https?:\/\/[^\s]+)/i)?.[1];
+      if(!url)continue;
+      const status=part.match(/Statut\s*:\s*([^;\n]+)/i)?.[1]||'à examiner';
+      const score=part.match(/score probant\s*(\d+)\s*\/\s*100/i)?.[1];
+      let host;try{host=new URL(url).hostname}catch{continue}
+      prospects.push({name:m[1],url,host,status,score});
+      i+=section<0?lines.length:section;
+    }
+    if(!prospects.length)return '';
+    const rows=prospects.map(p=>{
+      const data=encodeURIComponent([p.name,p.url,p.status].join(' | '));
+      return '<li class="prospect-row"><div><strong>'+esc(p.name)+'</strong><div><a href="'+esc(p.url)+'" target="_blank" rel="noopener">'+esc(p.host)+'</a></div></div><div class="action"><button type="button" data-prospect="'+data+'">Préparer une proposition</button></div><div class="note">Piste non qualifiée · '+esc(p.status)+(p.score?' · Indice '+esc(p.score)+'/100':'')+' · Contact et budget non vérifiés</div></li>';
+    }).join('');
+    return '<p class="muted">Sources publiques, pas de prospect qualifié ni de revenu confirmé. Sélectionne une piste pour préparer un message à valider.</p><ul class="prospect-list">'+rows+'</ul>';
+  }
+  root.addEventListener('click',event=>{
+    const button=event.target.closest('[data-prospect]');if(!button)return;
+    const [name,url,status]=decodeURIComponent(button.dataset.prospect).split(' | ');
+    const prompt='Prépare une proposition commerciale personnalisée pour '+name+' ('+url+'), concernant Pro.Hibited, Jointed et 420 Dice. Vérifie le bon contact professionnel et l\'adéquation commerciale ; n\'invente ni décideur, ni budget, ni intérêt confirmé. Prépare un brouillon à me faire valider, sans envoyer.';
+    navigator.clipboard?.writeText(prompt).then(()=>{button.textContent='Consigne copiée'}).catch(()=>{window.prompt('Copier cette consigne :',prompt)});
+  });
   function render(feed){
     const entries=Array.isArray(feed.harvests)?feed.harvests:[];
     const usable=entries.map(e=>({entry:e,artifact:artifact(e)})).filter(x=>x.artifact.content||x.artifact.url);
     if(!usable.length){root.className='empty';root.innerHTML='<h2>Pas encore de récolte exploitable</h2><p>Le feed existe, mais aucun contenu ou artefact HTML n\'y est publié.</p>';return;}
-    root.className='';root.innerHTML=usable.map(({entry,artifact:a})=>`<article><span class="status">${esc(entry.status||'ready')}</span><h2>${esc(a.title)}</h2><p class="muted">${esc(entry.parcelId||'poulpe-fiction')} · ${esc(entry.completedAt||feed.generatedAt||'')}</p><div class="content">${esc(a.content).slice(0,5000)}</div><div class="actions">${a.url?`<a class="primary" href="${esc(a.url)}" target="_blank" rel="noopener">Ouvrir l’artefact HTML</a>`:''}${a.downloadUrl?`<a class="ghost" href="${esc(a.downloadUrl)}" download>Télécharger HTML</a>`:''}</div></article>`).join('');
+    root.className='';root.innerHTML=usable.map(({entry,artifact:a})=>`<article><span class="status">${esc(entry.status||'ready')}</span><h2>${esc(a.title)}</h2><p class="muted">${esc(entry.parcelId||'poulpe-fiction')} · ${esc(entry.completedAt||feed.generatedAt||'')}</p><div class="content">${prospectView(a.content)||esc(a.content).slice(0,5000)}</div><div class="actions">${a.url?`<a class="primary" href="${esc(a.url)}" target="_blank" rel="noopener">Ouvrir l’artefact HTML</a>`:''}${a.downloadUrl?`<a class="ghost" href="${esc(a.downloadUrl)}" download>Télécharger HTML</a>`:''}</div></article>`).join('');
   }
   fetch(FEED+'?t='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(render).catch(err=>{root.className='empty';root.innerHTML='<h2>Récolte indisponible</h2><p>'+esc(err.message)+'</p>'});
 })();
