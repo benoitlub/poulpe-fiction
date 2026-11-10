@@ -1,0 +1,33 @@
+name: Import Jardin des Gégé Rotas assets
+
+on:
+  push:
+    branches:
+      - assets/jardin-gege-rotas-binary-import
+    paths:
+      - assets-import/jardin_gege_rotas_assets.zip
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Verify and unpack uploaded asset bundle
+        run: python3 scripts/import-gege-rotas-assets.py assets-import/jardin_gege_rotas_assets.zip
+      - name: Commit validated image assets to this feature branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/jardin-gege-lovable/public/assets/gege-rotas/
+          git rm assets-import/jardin_gege_rotas_assets.zip
+          git diff --cached --quiet && exit 0
+          git commit -m "Import 98 verified Gégé PNG frames and diorama backgrounds"
+          git push
