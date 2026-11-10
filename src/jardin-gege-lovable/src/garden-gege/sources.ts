@@ -35,8 +35,9 @@ export function createSnapshotSource(url: string): GardenSource {
   };
 }
 
-/** Real source only when explicitly configured; otherwise null (never a silent demo fallback). */
+/** Use the documented public read-only Publisher feed unless explicitly overridden. */
 export function configuredRealSource(): GardenSource | null {
-  const url = import.meta.env["VITE_GARDEN_SNAPSHOT_URL"] as string | undefined;
-  return url ? createSnapshotSource(url) : null;
+  const url = (import.meta.env["VITE_GARDEN_SNAPSHOT_URL"] as string | undefined)
+    || "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/garden/v1/snapshot";
+  return createSnapshotSource(url);
 }
