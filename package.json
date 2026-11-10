@@ -5,7 +5,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
-    "build:gege": "npm install --prefix src/jardin-gege-lovable --ignore-scripts --no-audit --no-fund && npm run build:pages --prefix src/jardin-gege-lovable && node scripts/stage-gege.mjs"
+    "build:gege": "corepack pnpm --dir src/jardin-gege-lovable install --no-frozen-lockfile && corepack pnpm --dir src/jardin-gege-lovable build:pages && node scripts/stage-gege.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "6.1.2",
