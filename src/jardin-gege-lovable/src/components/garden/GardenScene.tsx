@@ -202,8 +202,23 @@ function Sprite({ name, frame, x, y, width, height }: {
   const count = name === "gerard" ? 14 : 12;
   const index = (Math.floor(frame / 3) % count) + 1;
   const filename = `${name}_${String(index).padStart(2, "0")}.png`;
-  return <image href={assetPath(filename)} x={x} y={y} width={width} height={height}
-    preserveAspectRatio="xMidYMid meet" pointerEvents="none" />;
+  // Gérard's generated poses contain disconnected fragments on their left edge.
+  // Clip that margin consistently across all poses, without moving the image
+  // viewport (which would make the octopus jump between frames).
+  const gerard = name === "gerard";
+  return (
+    <svg x={x} y={y} width={width} height={height} viewBox="0 0 100 100"
+      overflow="hidden" pointerEvents="none" aria-hidden="true">
+      <defs>
+        {gerard && <clipPath id="g-gerard-clean-crop">
+          <rect x="24" y="0" width="76" height="100" />
+        </clipPath>}
+      </defs>
+      <image href={assetPath(filename)} x="0" y="0" width="100" height="100"
+        preserveAspectRatio="xMidYMid meet"
+        clipPath={gerard ? "url(#g-gerard-clean-crop)" : undefined} />
+    </svg>
+  );
 }
 
 function MapLabel({ x, y, text, kicker, tone = "var(--g-cream)" }: { x: number; y: number; text: string; kicker?: string; tone?: string }) {
