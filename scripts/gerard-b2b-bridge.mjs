@@ -1,3 +1,6 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
 /**
  * The runtime's local Express Publisher adapter does not expose
  * business.sources.search. The deployed Publisher Worker does.
@@ -62,4 +65,29 @@ export async function searchBusinessSources({ publisherUrl, operationId, seed, c
     body: JSON.stringify({ contract: 'octopus-adapter-execution-v1', adapterId: 'publisher', mission }),
   });
   return parseBusinessSourceResponse(response, { jobPostings });
+}
+
+
+export async function searchPublisherJobPages(query, directory) {
+  const program = `
+    import { searchPublicJobPages } from "../publisher-worker/src/job-postings.ts";
+    process.stdout.write(JSON.stringify(await searchPublicJobPages(process.argv[1])));
+  `;
+  try {
+    const { stdout } = await promisify(execFile)(process.execPath,
+      ["--import", "tsx", "--input-type=module", "-e", program, query],
+      { cwd: directory, timeout: 25000, maxBuffer: 256 * 1024 });
+    const result = JSON.parse(stdout);
+    if (!Number.isInteger(result?.opened) || result.opened < 1 || !Array.isArray(result.jobs)) {
+      return { executed: false, candidates: [] };
+    }
+    return parseBusinessSourceResponse({
+      status: "ok", payload: { status: "completed", output: {
+        capability: "business.sources.search", executed: true, candidates: result.jobs,
+        status: result.jobs.length ? "sources-found" : "no-sources",
+      } },
+    }, { jobPostings: true });
+  } catch {
+    return { executed: false, candidates: [] };
+  }
 }

@@ -12,7 +12,7 @@ import { creativeBenchmarkPrompt, loadCreativeBenchmarks } from "./gerard-creati
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarvest } from "./gerard-compost.mjs";
-import { searchBusinessSources } from "./gerard-b2b-bridge.mjs";
+import { searchBusinessSources, searchPublisherJobPages } from "./gerard-b2b-bridge.mjs";
 import { runCommunityRadar } from "./gerard-community-radar.mjs";
 import { providerRetry } from "./gerard-provider-retry.mjs";
 import { runImageStudio } from "./gerard-image-studio.mjs";
@@ -225,12 +225,18 @@ async function saveHarvest(selectedSeed, harvest, operationId, { harvestId, rout
 }
 
 async function runCandidatures(seed, state, operationId) {
-  const lookups = await Promise.allSettled(jobSearchQueries.map((query, index) => searchBusinessSources({
-    publisherUrl: PUBLISHER_URL,
-    operationId: `${operationId}-job-${index}`,
-    seed: { ...seed, businessSearchQuery: query },
-    call: callJson,
-  })));
+  const lookups = await Promise.allSettled(jobSearchQueries.map(async (query, index) => {
+    if (process.env.PUBLISHER_JOB_SCRIPTS_DIR) {
+      const direct = await searchPublisherJobPages(query, process.env.PUBLISHER_JOB_SCRIPTS_DIR);
+      if (direct.executed) return direct;
+    }
+    return searchBusinessSources({
+      publisherUrl: PUBLISHER_URL,
+      operationId: `${operationId}-job-${index}`,
+      seed: { ...seed, businessSearchQuery: query },
+      call: callJson,
+    });
+  }));
   const reads = lookups.flatMap(outcome => outcome.status === "fulfilled" && outcome.value.executed ? [outcome.value] : []);
   const seen = new Set(state.candidatureIds ?? []);
   const ranked = rankJobCandidates(reads.flatMap(read => read.candidates), Infinity);
