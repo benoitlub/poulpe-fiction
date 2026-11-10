@@ -74,11 +74,11 @@ export async function searchPublisherJobPages(query, directory) {
     const { promisify } = require("node:util");
     const { searchPublicJobPages } = require("../publisher-worker/src/job-postings.ts");
     const curl = promisify(execFile);
-    const fetchPage = async (url, { signal }) => {
+    const fetchPage = async url => {
       const { stdout } = await curl("curl", [
-        "--silent", "--show-error", "--proto", "=https", "--max-time", "6", "--max-filesize", "2000000",
+        "--silent", "--show-error", "--proto", "=https", "--max-time", "12", "--max-filesize", "2000000",
         "--write-out", "\n%{response_code}\t%{content_type}", url,
-      ], { signal, maxBuffer: 2100000 });
+      ], { maxBuffer: 2100000 });
       const divider = stdout.lastIndexOf("\n");
       const [status, mime] = stdout.slice(divider + 1).split("\t");
       const body = Number(status) === 200 ? stdout.slice(0, divider) : null;
@@ -91,7 +91,7 @@ export async function searchPublisherJobPages(query, directory) {
   try {
     const { stdout } = await promisify(execFile)(process.execPath,
       ["--import", "tsx", "--input-type=commonjs", "-e", program, query],
-      { cwd: directory, timeout: 25000, maxBuffer: 256 * 1024 });
+      { cwd: directory, timeout: 35000, maxBuffer: 256 * 1024 });
     const result = JSON.parse(stdout);
     if (!Number.isInteger(result?.opened) || result.opened < 1 || !Array.isArray(result.jobs)) {
       return { executed: false, reason: "publisher-job-pages-unavailable", candidates: [] };
