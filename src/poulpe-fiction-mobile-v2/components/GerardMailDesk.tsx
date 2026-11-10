@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const GERARD_SENDER_EMAIL = "gerard.poulpe-fiction@gmail.com";
+const GERARD_SENDER_EMAIL = "gerardpoulpefiction@gmail.com";
 const MAIL_WORKFLOW_URL = "https://github.com/benoitlub/poulpe-fiction/actions/workflows/gerard-runtime.yml";
 
 export function GerardMailDesk() {

@@ -9,7 +9,7 @@ test('drafts are honest, unsent and have no invented email addresses', () => {
   const [draft] = createMailDrafts([source]);
   assert.equal(draft.recipientEmail, null);
   assert.equal(draft.senderEmail, GERARD_SENDER_EMAIL);
-  assert.equal(draft.senderEmail, 'gerard.poulpe-fiction@gmail.com');
+  assert.equal(draft.senderEmail, 'gerardpoulpefiction@gmail.com');
   assert.equal(draft.contacted, false);
   assert.equal(draft.sentAt, null);
   assert.match(draft.body, /assistant commercial numérique/);
@@ -30,7 +30,9 @@ test('existing unsent drafts gain the real sender without changing their reviewe
   const [draft] = createMailDrafts([source]);
   const previous = { ...draft, senderEmail: null, status: 'human-approved' };
   assert.deepEqual(mergeMailDrafts([previous], [draft]), [{ ...previous, senderEmail: GERARD_SENDER_EMAIL }]);
-  const sent = { ...previous, sentAt: '2026-10-01T00:00:00Z', contacted: true };
+  const legacy = {...previous,senderEmail:'gerard.poulpe-fiction@gmail.com'};
+  assert.equal(mergeMailDrafts([legacy],[draft])[0].senderEmail,GERARD_SENDER_EMAIL);
+  const sent = { ...legacy, sentAt: '2026-10-01T00:00:00Z', contacted: true };
   assert.deepEqual(mergeMailDrafts([sent], [draft]), [sent]);
 });
 
@@ -46,4 +48,17 @@ test('rediscovery adds a published contact but never requeues contacted mail', (
   const [ready] = createMailDrafts([{ ...source, contactEmail: 'contact@example.org' }]);
   assert.equal(mergeMailDrafts([original], [ready])[0].recipientEmail, 'contact@example.org');
   assert.equal(mergeMailDrafts([{ ...original, sentAt: '2026-10-28T00:00:00Z', contacted: true }], [ready])[0].recipientEmail, null);
+});
+
+
+// Restoring the Gmail identity must not activate unapproved commercial drafts.
+test('outreach requires owner approval bound to the exact recipient and content', async () => {
+  const {pendingMailDrafts,mailOperationId}=await import('../scripts/gerard-autonomous-mail.mjs');
+  const [draft]=createMailDrafts([{...source,contactEmail:'contact@example.org'}]);
+  assert.equal(pendingMailDrafts({drafts:[draft]}).length,0);
+  const reviewed={...draft,status:'human-approved',approval:{ownerGitHub:'benoitlub',approvedAt:'2026-11-10T20:00:00Z',operationId:mailOperationId(draft)}};
+  assert.equal(pendingMailDrafts({drafts:[reviewed]}).length,1);
+  assert.equal(pendingMailDrafts({drafts:[reviewed],sendingEnabled:false}).length,0);
+  assert.equal(pendingMailDrafts({drafts:[{...reviewed,body:'changed'}]}).length,0);
+  assert.equal(pendingMailDrafts({drafts:[{...reviewed,recipientEmail:'other@example.org'}]}).length,0);
 });

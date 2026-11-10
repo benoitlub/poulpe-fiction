@@ -1,4 +1,4 @@
-export const GERARD_SENDER_EMAIL = "gerard.poulpe-fiction@gmail.com";
+export const GERARD_SENDER_EMAIL = "gerardpoulpefiction@gmail.com";
 
 export const MAIL_BRANDS = Object.freeze({
   'poulpe-fiction': 'Poulpe Fiction',
@@ -29,7 +29,7 @@ export function mergeMailDrafts(previous = [], incoming = []) {
   for (const item of incoming) {
     const existing = byId.get(item.id);
     // Preserve any sent or attempted draft; fill missing verified recipient and sender only on pending drafts.
-    if (existing && !existing.sentAt && !existing.contacted && !existing.senderEmail)
+    if (existing && !existing.sentAt && !existing.contacted && (!existing.senderEmail || existing.senderEmail === "gerard.poulpe-fiction@gmail.com"))
       byId.set(item.id, { ...existing, senderEmail: GERARD_SENDER_EMAIL });
     else if (existing && !existing.sentAt && !existing.contacted && !existing.recipientEmail && item.recipientEmail &&
       !["sending", "unknown", "sent"].includes(existing.status))
