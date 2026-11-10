@@ -25,9 +25,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Jardin() {
-  // Real source only via ?source=real + configured URL; demo otherwise.
-  const [wantReal, setWantReal] = useState(false);
-  useEffect(() => setWantReal(new URLSearchParams(location.search).get("source") === "real"), []);
+  // Real data is the default; ?source=demo explicitly enables fictional data.
+  const [wantReal, setWantReal] = useState(true);
+  useEffect(() => setWantReal(new URLSearchParams(location.search).get("source") !== "demo"), []);
   const source = useMemo(() => (wantReal ? configuredRealSource() : demoSource), [wantReal]);
   const garden = useGarden(source);
   const cam = useCamera();
