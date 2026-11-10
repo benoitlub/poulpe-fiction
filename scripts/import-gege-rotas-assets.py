@@ -32,7 +32,7 @@ def main(source):
         raise ValueError("Missing assets: " + ", ".join(missing))
     for name in names:
         data = (source / name).read_bytes()
-        if name.endswith(".png") and not data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+        if name.endswith(".png") and not data.startswith(bytes.fromhex("89504e470d0a1a0a")):
             raise ValueError(f"Invalid PNG: {name}")
         if name.endswith(".webp") and not (data[:4] == b"RIFF" and data[8:12] == b"WEBP"):
             raise ValueError(f"Invalid WebP: {name}")
