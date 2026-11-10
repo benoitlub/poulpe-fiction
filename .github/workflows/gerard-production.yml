@@ -169,10 +169,16 @@ jobs:
           git add -- garden/gerard-state.json garden/harvests.json
           git diff --cached --quiet && exit 0
           git -c user.name=gerard-runtime[bot] -c user.email=gerard-runtime@users.noreply.github.com commit -m "chore(gerard): refresh public production state"
+          # Hydration also updates private-runtime projections outside the two
+          # staged files. Rebase the committed projection in a clean worktree.
+          projection_dir="$(mktemp -d)"
+          git worktree add --detach "$projection_dir" HEAD
+          trap 'git worktree remove --force "$projection_dir"' EXIT
           for attempt in 1 2 3; do
-            git fetch origin main
-            git rebase origin/main
-            if git push origin HEAD:main; then exit 0; fi
+            git -C "$projection_dir" fetch origin main
+            git -C "$projection_dir" -c user.name=gerard-runtime[bot] \
+              -c user.email=gerard-runtime@users.noreply.github.com rebase origin/main
+            if git -C "$projection_dir" push origin HEAD:main; then exit 0; fi
           done
           exit 1
 
