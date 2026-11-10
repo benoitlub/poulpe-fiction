@@ -37,10 +37,21 @@ const TIMEOUT_MS = 60_000;
 
 function nowIso() { return new Date().toISOString(); }
 
+const isJobSearchSeed = seed => seed.templates?.some(t => t.id === "job-search" && t.enabled !== false);
+
+function jobSearchDue(state) {
+  const lastSearch = Date.parse(state?.lastJobSearchAt || "");
+  const interval = ["sources-found", "no-sources"].includes(state?.lastJobSearchStatus) ? 24 : 3;
+  return !Number.isFinite(lastSearch) || Date.now() - lastSearch >= interval * 60 * 60 * 1000;
+}
+
 function decideMode(state = {}, inventory = {}) {
   const forced = process.env.GERARD_MODE?.trim();
   if (forced && ["dream", "cultivate", "play", "symbiosis", "rest"].includes(forced)) {
     return { mode: forced, reason: "manual-override" };
+  }
+  if (process.env.GERARD_TENTACLE === "production" && inventory.jobSearch && jobSearchDue(state)) {
+    return { mode: "cultivate", reason: "candidatures-check-due" };
   }
   const history = Array.isArray(state.history) ? state.history : [];
   const recent = history.slice(-8);
@@ -73,15 +84,15 @@ function decideMode(state = {}, inventory = {}) {
 }
 
 async function loadInventory() {
-  let seedCount = 0;
+  let seeds = [];
   let activeHarvests = 0;
-  try { seedCount = (await loadSeeds()).length; } catch (_) {}
+  try { seeds = await loadSeeds(); } catch (_) {}
   try {
     const data = JSON.parse(await readFile(HARVESTS_PATH, "utf8"));
     activeHarvests = (Array.isArray(data.harvests) ? data.harvests : [])
       .filter(x => x?.state !== "archived" && x?.state !== "composted" && x?.capability !== "candidature.draft" && typeof x?.content === "string" && x.content.trim()).length;
   } catch (_) {}
-  return { seedCount, activeHarvests };
+  return { seedCount: seeds.length, jobSearch: seeds.some(isJobSearchSeed), activeHarvests };
 }
 
 const MODE_INTENTS = {
@@ -132,11 +143,8 @@ async function inspectUnfinishedParcel(parcelId) {
 
 function selectSeedForRotation(seeds, state) {
   if (!seeds.length) return null;
-  const jobSearchSeed = seeds.find(seed => seed.templates?.some(t => t.id === "job-search" && t.enabled !== false));
-  const lastJobSearchAt = Date.parse(state?.lastJobSearchAt || "");
-  const successfulJobSearch = ["sources-found", "no-sources"].includes(state?.lastJobSearchStatus);
-  const jobSearchInterval = successfulJobSearch ? 24 * 60 * 60 * 1000 : 3 * 60 * 60 * 1000;
-  if (jobSearchSeed && (!Number.isFinite(lastJobSearchAt) || Date.now() - lastJobSearchAt >= jobSearchInterval)) return jobSearchSeed;
+  const jobSearchSeed = seeds.find(isJobSearchSeed);
+  if (jobSearchSeed && jobSearchDue(state)) return jobSearchSeed;
   const lastSeedId = state?.lastSeedId ?? null;
   const index = Math.max(-1, seeds.findIndex((seed) => seed.seedId === lastSeedId));
   const rotated = [...seeds.slice(index + 1), ...seeds.slice(0, index + 1)].filter(seed => seed !== jobSearchSeed);
@@ -207,7 +215,12 @@ async function saveHarvest(selectedSeed, harvest, operationId, { harvestId, rout
     state: selectedSeed.delivery?.harvestState ?? "harvested",
   };
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
-  await writeFile(HARVESTS_PATH, JSON.stringify({ harvests: [...harvests.slice(-99), item] }, null, 2) + "\n", "utf8");
+  const updated = [...harvests.filter(entry => entry.harvestId !== item.harvestId), item];
+  const retained = new Set([
+    ...updated.filter(entry => entry.capability === "candidature.draft").slice(-20),
+    ...updated.filter(entry => entry.capability !== "candidature.draft").slice(-100),
+  ]);
+  await writeFile(HARVESTS_PATH, JSON.stringify({ harvests: updated.filter(entry => retained.has(entry)) }, null, 2) + "\n", "utf8");
   return item;
 }
 
@@ -405,7 +418,7 @@ async function main() {
     }
     if (!selectedSeed) {
       result = { status: "failed", operationId, decision: "no-active-seed" };
-    } else if (selectedSeed.templates?.some(t => t.id === "job-search" && t.enabled !== false)) {
+    } else if (isJobSearchSeed(selectedSeed)) {
       result = await runCandidatures(selectedSeed, state, operationId);
       state.lastSeedId = selectedSeed.seedId;
     } else if (selectedSeed.imageStudioOnly === true ||
