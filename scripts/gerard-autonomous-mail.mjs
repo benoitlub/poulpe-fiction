@@ -26,9 +26,12 @@ export function mailOperationId(draft) {
 }
 
 export function pendingMailDrafts(outbox) {
-  if (!Array.isArray(outbox?.drafts)) return [];
+  if (outbox?.sendingEnabled === false || !Array.isArray(outbox?.drafts)) return [];
   return outbox.drafts.filter(draft =>
-    draft.status === "ready-for-autonomous-send" && !draft.sentAt && !draft.contacted &&
+    draft.status === "human-approved" &&
+    draft.approval?.ownerGitHub === "benoitlub" &&
+    Number.isFinite(Date.parse(draft.approval?.approvedAt)) &&
+    draft.approval?.operationId === mailOperationId(draft) && !draft.sentAt && !draft.contacted &&
     typeof draft.recipientEmail === "string" && /^[^@\s<>]+@[^@\s<>]+\.[a-z]{2,}$/i.test(draft.recipientEmail) &&
     typeof draft.subject === "string" && typeof draft.body === "string").slice(0, 3);
 }
