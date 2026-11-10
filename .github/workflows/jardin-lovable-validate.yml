@@ -34,5 +34,11 @@ jobs:
           test -s dist/jardin-gege/index.html
           test -d dist/jardin-gege/assets
           ! grep -q 'src/static-main.tsx' dist/jardin-gege/index.html
+      - name: Upload isolated garden preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: jardin-gege-lovable-preview
+          path: dist/jardin-gege/
+          retention-days: 14
       - name: Confirm no deployment performed
         run: echo "Build validation only; no publishing credentials or deploy action."
