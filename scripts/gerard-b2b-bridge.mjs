@@ -4,7 +4,7 @@
  * Only this read-only lookup goes directly to the Worker; all other Gérard
  * missions continue through the locally registered Octopus adapter.
  */
-export function parseBusinessSourceResponse(response) {
+export function parseBusinessSourceResponse(response, { jobPostings = false } = {}) {
   const payload = response?.payload ?? {};
   const output = payload?.output ?? {};
   const valid = response?.status === 'ok' && payload?.status === 'completed' &&
@@ -26,6 +26,16 @@ export function parseBusinessSourceResponse(response) {
     const key = url.origin + url.pathname.replace(/\/$/, '');
     if (seen.has(key)) return [];
     seen.add(key);
+    if (jobPostings) {
+      if (url.protocol !== 'https:' || item.verification !== 'source-opened') return [];
+      return [{
+        title: String(item.title ?? '').slice(0, 200), url: url.href,
+        employer: String(item.employer ?? '').slice(0, 200), location: String(item.location ?? '').slice(0, 300),
+        employmentType: String(item.employmentType ?? '').slice(0, 100), remote: item.remote === true,
+        salary: String(item.salary ?? '').slice(0, 100), hours: String(item.hours ?? '').slice(0, 100), applicationEmail: item.applicationEmail,
+        snippet: String(item.snippet ?? '').slice(0, 12000), verification: 'source-opened',
+      }];
+    }
     return [{ title: String(item.title ?? 'Sans titre').slice(0, 200), url: url.href,
       snippet: String(item.snippet ?? '').slice(0, 500), verification: 'search-result-only' }];
   }).slice(0, 10);
@@ -38,17 +48,18 @@ export async function searchBusinessSources({ publisherUrl, operationId, seed, c
     ...(acquisition.targetSectors || []), ...(acquisition.keywords || []),
     ...(acquisition.geographies || []), 'partenaires professionnels contact B2B',
   ].filter(Boolean).join(' ') : null;
+  const jobPostings = seed.templates?.some(t => t.id === 'job-search' && t.enabled !== false);
   const mission = {
     operationId: `${operationId}-business-sources`,
-    title: acquisition ? `Recherche B2B · ${acquisition.clientId}` : 'Recherche de distributeurs et partenaires B2B',
+    title: jobPostings ? 'Veille des offres d’emploi publiques' : acquisition ? `Recherche B2B · ${acquisition.clientId}` : 'Recherche de distributeurs et partenaires B2B',
     objective: seed.objective,
     prompt: seed.businessSearchQuery || query || seed.objective || 'Sources professionnelles B2B publiques et vérifiables',
     requiredCapabilities: ['business.sources.search'], authorizedResources: ['tools.read'],
-    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, clientId: acquisition?.clientId ?? null, source: 'gerard-cycle', sourceType: seed.templates?.some(t => t.id === 'job-search' && t.enabled !== false) ? 'job-search' : 'business', location: seed.templates?.find(t => t.id === 'job-search')?.config?.location ?? 'France', toolRequest: { dryRun: false } } },
+    context: { id: seed.parcelId, metadata: { seedId: seed.seedId, clientId: acquisition?.clientId ?? null, source: 'gerard-cycle', sourceType: jobPostings ? 'job-postings' : 'business', toolRequest: { dryRun: false } } },
   };
   const response = await call(`${publisherUrl}/api/octopus-adapter/execute`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contract: 'octopus-adapter-execution-v1', adapterId: 'publisher', mission }),
   });
-  return parseBusinessSourceResponse(response);
+  return parseBusinessSourceResponse(response, { jobPostings });
 }

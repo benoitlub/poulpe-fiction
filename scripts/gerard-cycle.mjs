@@ -20,7 +20,7 @@ import { runParcelStudio, studioOperationId, studioFeedbackForParcel, submitStud
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
 import { getAcquisitionConfig, assessAcquisitionCandidate, formatAcquisitionReview, handoffAcquisitionReviews } from "./gerard-client-acquisition.mjs";
 import { planBusinessResearch, rememberBusinessResearch } from "./gerard-b2b-memory.mjs";
-import { rankJobCandidates, formatJobSearchContext } from "./gerard-job-radar.mjs";
+import { rankJobCandidates, jobSearchQueries } from "./gerard-job-radar.mjs";
 import { createMailDrafts, mergeMailDrafts } from "./gerard-mail-outbox.mjs";
 import { summarizeCycleResult, summarizeStateResult } from "./gerard-state-summary.mjs";
 
@@ -79,7 +79,7 @@ async function loadInventory() {
   try {
     const data = JSON.parse(await readFile(HARVESTS_PATH, "utf8"));
     activeHarvests = (Array.isArray(data.harvests) ? data.harvests : [])
-      .filter(x => x?.state !== "archived" && x?.state !== "composted" && typeof x?.content === "string" && x.content.trim()).length;
+      .filter(x => x?.state !== "archived" && x?.state !== "composted" && x?.capability !== "candidature.draft" && typeof x?.content === "string" && x.content.trim()).length;
   } catch (_) {}
   return { seedCount, activeHarvests };
 }
@@ -135,11 +135,11 @@ function selectSeedForRotation(seeds, state) {
   const jobSearchSeed = seeds.find(seed => seed.templates?.some(t => t.id === "job-search" && t.enabled !== false));
   const lastJobSearchAt = Date.parse(state?.lastJobSearchAt || "");
   const successfulJobSearch = ["sources-found", "no-sources"].includes(state?.lastJobSearchStatus);
-  const jobSearchInterval = successfulJobSearch ? 7 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000;
+  const jobSearchInterval = successfulJobSearch ? 24 * 60 * 60 * 1000 : 3 * 60 * 60 * 1000;
   if (jobSearchSeed && (!Number.isFinite(lastJobSearchAt) || Date.now() - lastJobSearchAt >= jobSearchInterval)) return jobSearchSeed;
   const lastSeedId = state?.lastSeedId ?? null;
   const index = Math.max(-1, seeds.findIndex((seed) => seed.seedId === lastSeedId));
-  const rotated = [...seeds.slice(index + 1), ...seeds.slice(0, index + 1)];
+  const rotated = [...seeds.slice(index + 1), ...seeds.slice(0, index + 1)].filter(seed => seed !== jobSearchSeed);
   // Learn from recent operational failures: temporarily try another seed
   // rather than blindly retrying the same failing parcel on each cycle.
   // A single failure is enough for one rotation, not a permanent blacklist.
@@ -170,7 +170,7 @@ async function saveMailDrafts(sources, parcelId) {
   return drafts.length - previous.length;
 }
 
-async function saveHarvest(selectedSeed, harvest, operationId) {
+async function saveHarvest(selectedSeed, harvest, operationId, { harvestId, route } = {}) {
   const output = harvest?.payload?.output ?? {};
   const text = typeof output?.text === "string" ? output.text.trim() : "";
   if (harvest?.status !== "ok" || !text) return null;
@@ -194,7 +194,7 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
   try { existing = JSON.parse(await readFile(HARVESTS_PATH, "utf8")); } catch (_) {}
   const harvests = Array.isArray(existing?.harvests) ? existing.harvests : [];
   const item = {
-    harvestId: operationId + "-harvest",
+    harvestId: harvestId ?? operationId + "-harvest",
     harvestedAt: nowIso(),
     seedId: selectedSeed.seedId,
     parcelId: selectedSeed.parcelId,
@@ -202,13 +202,42 @@ async function saveHarvest(selectedSeed, harvest, operationId) {
     content: text,
     capability: output.capability ?? "content.generate",
     producer: output.producer ?? null,
-    route: "octopus->publisher-adapter",
+    route: route ?? "octopus->publisher-adapter",
     delivery: selectedSeed.delivery ?? null,
     state: selectedSeed.delivery?.harvestState ?? "harvested",
   };
   await mkdir(new URL("../garden/", import.meta.url), { recursive: true });
   await writeFile(HARVESTS_PATH, JSON.stringify({ harvests: [...harvests.slice(-99), item] }, null, 2) + "\n", "utf8");
   return item;
+}
+
+async function runCandidatures(seed, state, operationId) {
+  const lookups = await Promise.allSettled(jobSearchQueries.map((query, index) => searchBusinessSources({
+    publisherUrl: PUBLISHER_URL,
+    operationId: `${operationId}-job-${index}`,
+    seed: { ...seed, businessSearchQuery: query },
+    call: callJson,
+  })));
+  const reads = lookups.flatMap(outcome => outcome.status === "fulfilled" && outcome.value.executed ? [outcome.value] : []);
+  const seen = new Set(state.candidatureIds ?? []);
+  const ranked = rankJobCandidates(reads.flatMap(read => read.candidates), Infinity);
+  const selected = ranked.filter(job => !seen.has(job.id)).slice(0, 3);
+  for (const job of selected) {
+    await saveHarvest({ ...seed, title: job.title }, {
+      status: "ok",
+      payload: { output: { capability: "candidature.draft", producer: "poulpe-fiction", text: job.content } },
+    }, operationId, { harvestId: job.id, route: "publisher->poulpe-fiction" });
+    seen.add(job.id);
+  }
+  state.candidatureIds = [...seen].slice(-500);
+  state.lastJobSearchAt = nowIso();
+  state.lastJobSearchStatus = reads.length !== lookups.length ? "unavailable" : ranked.length ? "sources-found" : "no-sources";
+  return {
+    status: reads.length ? "ok" : "deferred",
+    decision: selected.length ? "candidatures-ready-to-review" : reads.length === lookups.length
+      ? "candidatures-no-new-verified-offers" : "candidatures-search-unavailable",
+    parcelId: seed.parcelId, seedId: seed.seedId, operationId, itemCount: selected.length, contacted: false,
+  };
 }
 
 async function runSymbiosis(state) {
@@ -376,6 +405,9 @@ async function main() {
     }
     if (!selectedSeed) {
       result = { status: "failed", operationId, decision: "no-active-seed" };
+    } else if (selectedSeed.templates?.some(t => t.id === "job-search" && t.enabled !== false)) {
+      result = await runCandidatures(selectedSeed, state, operationId);
+      state.lastSeedId = selectedSeed.seedId;
     } else if (selectedSeed.imageStudioOnly === true ||
         selectedSeed.templates?.some(t => ["audio-studio", "video-studio"].includes(t.id) && t.enabled !== false)) {
       let kind = "audio";
@@ -433,15 +465,14 @@ async function main() {
       let businessSourceState = null;
       let businessSourceChanges = null;
       const acquisition = getAcquisitionConfig(selectedSeed);
-      const jobSearch = selectedSeed.templates?.some(t => t.id === "job-search" && t.enabled !== false) === true;
-      if (acquisition || selectedSeed.seedId === "benoit-client-acquisition" || jobSearch) {
+      if (acquisition || selectedSeed.seedId === "benoit-client-acquisition") {
         try {
           const lookup = await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
           const parcel = selectedSeed.parcelId;
           const memoryKey = acquisition ? `${acquisition.clientId}:${parcel}` : parcel;
           const prior = state.businessSourceMemory?.[memoryKey] || {};
           const plan = planBusinessResearch(lookup.candidates, prior);
-          const examined = plan.fresh.length ? (jobSearch ? rankJobCandidates(plan.fresh) : await qualifyBusinessSources(plan.fresh)) : [];
+          const examined = plan.fresh.length ? await qualifyBusinessSources(plan.fresh) : [];
           const learned = rememberBusinessResearch(prior, examined);
           state.businessSourceMemory = { ...(state.businessSourceMemory || {}), [memoryKey]: learned.memory };
           businessSourceChanges = learned.changed;
@@ -449,7 +480,7 @@ async function main() {
             .sort((a, b) => (b.acquisitionScore ?? b.fitScore ?? -1) - (a.acquisitionScore ?? a.fitScore ?? -1));
           // Old Pro.Hibited mail drafts are not reusable for other clients.
           // The template only creates a reviewable research package.
-          const newDrafts = acquisition || jobSearch ? 0 : await saveMailDrafts(businessSources, parcel);
+          const newDrafts = acquisition ? 0 : await saveMailDrafts(businessSources, parcel);
           if (acquisition) {
             const notion = await handoffAcquisitionReviews(businessSources, acquisition, {
               publisherUrl: PUBLISHER_URL,
@@ -458,7 +489,7 @@ async function main() {
             console.log(JSON.stringify({ event: 'gerard-client-acquisition-notion', clientId: acquisition.clientId, ...notion }));
           }
           businessSourceState = lookup.status;
-          console.log(JSON.stringify({ event: jobSearch ? "gerard-job-search" : "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, newMailDrafts: newDrafts, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
+          console.log(JSON.stringify({ event: "gerard-b2b-sources", count: businessSources.length, examined: examined.length, reused: plan.reused.length, changed: learned.changed.length, priorities: businessSources.filter(s => s.qualification === 'priority-review').length, newMailDrafts: newDrafts, status: lookup.status, route: "publisher-worker-direct-read-only", reason: lookup.reason }));
         } catch (error) {
           businessSources = [];
           businessSourceState = "unavailable";
@@ -528,9 +559,7 @@ async function main() {
         // generative model to invent company names or imply outreach happened.
         const sourcedKnowledge = businessSources !== null ? {
           ...knowledgeOutput,
-          context: jobSearch
-            ? formatJobSearchContext(businessSources) + "\n\nContexte biographique autorisé : " + String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0]
-            : "Données internes sur les créations (hors anciennes offres freelance) :\n" +
+          context: "Données internes sur les créations (hors anciennes offres freelance) :\n" +
               String(knowledgeOutput.context || knowledgeOutput.text || "").split("SOURCE NOTION AUTORISÉE 2:")[0] +
               "\n\nSources B2B candidates : " + JSON.stringify(businessSources),
         } : knowledgeOutput;
@@ -539,9 +568,7 @@ async function main() {
             ? { status: "deferred", verification: { reason: businessSourceState === "no-sources" ? "b2b-no-qualified-search-results" : "b2b-external-sources-unavailable", seedId: selectedSeed.seedId } }
             : businessSourceChanges?.length === 0
             ? { status: "deferred", verification: { reason: "b2b-no-new-evidence", seedId: selectedSeed.seedId } }
-            : jobSearch
-              ? await runRealHarvest(selectedSeed, sourcedKnowledge, operationId)
-              : { status: "ok", payload: { output: {
+            : { status: "ok", payload: { output: {
                   capability: "business.sources.search", producer: "composio-web-search",
                   text: acquisition ? formatAcquisitionReview(businessSources, acquisition) : formatQualifiedSources(businessSources),
                 } }, verification: { completed: true, verifiedContacts: 0, contacted: false } }
@@ -577,10 +604,6 @@ async function main() {
             ? (selectedSeed.delivery?.harvestState === "ready-to-offer" ? "harvest-ready-to-offer" : "harvest-produced")
             : "harvest-failed";
         }
-      }
-      if (jobSearch) {
-        state.lastJobSearchAt = nowIso();
-        state.lastJobSearchStatus = businessSourceState || "unavailable";
       }
       state.lastSeedId = selectedSeed.seedId;
     }
