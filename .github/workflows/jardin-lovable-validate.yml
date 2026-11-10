@@ -1,0 +1,44 @@
+name: Validate Lovable Jardin
+on:
+  push:
+    branches:
+      - lovable/jardin-gege-visual
+  pull_request:
+    paths:
+      - 'src/jardin-gege-lovable/**'
+      - 'scripts/stage-gege.mjs'
+      - 'package.json'
+      - '.github/workflows/jardin-lovable-validate.yml'
+permissions:
+  contents: read
+jobs:
+  static-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Enable pnpm via Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.24.0 --activate
+      - name: Install Lovable dependencies
+        run: corepack pnpm --dir src/jardin-gege-lovable install --no-frozen-lockfile
+      - name: Build static garden
+        run: corepack pnpm --dir src/jardin-gege-lovable build:pages
+      - name: Stage garden at its existing URL
+        run: |
+          mkdir -p dist
+          node scripts/stage-gege.mjs
+          test -s dist/jardin-gege/index.html
+          test -d dist/jardin-gege/assets
+          ! grep -q 'src/static-main.tsx' dist/jardin-gege/index.html
+      - name: Upload isolated garden preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: jardin-gege-lovable-preview
+          path: dist/jardin-gege/
+          retention-days: 14
+      - name: Confirm no deployment performed
+        run: echo "Build validation only; no publishing credentials or deploy action."

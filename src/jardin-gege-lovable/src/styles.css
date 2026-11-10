@@ -1,0 +1,378 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Le Jardin des Gégé — design system.
+ * Family with Feuch Lab (orchid accent, golden shine, glass cards,
+ * fireflies, night-first, reduced-motion) but softer and aquatic.
+ * Garden-specific tokens are prefixed --g-* so nothing leaks into Feuch Lab.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-lagoon: var(--g-lagoon);
+  --color-moss: var(--g-moss);
+  --color-sand: var(--g-sand);
+  --color-copper: var(--g-copper);
+  --color-orchid: var(--g-orchid);
+  --color-abyss: var(--g-abyss);
+  --color-glass: var(--g-glass);
+  --color-status-queued: var(--g-status-queued);
+  --color-status-running: var(--g-status-running);
+  --color-status-completed: var(--g-status-completed);
+  --color-status-blocked: var(--g-status-blocked);
+  --color-status-failed: var(--g-status-failed);
+  --color-status-retrying: var(--g-status-retrying);
+
+  --font-display: "Syne", ui-sans-serif, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 1.1rem;
+
+  /* Garden palette — "Bassin nocturne" */
+  --g-abyss: oklch(0.2 0.04 240);
+  --g-night: oklch(0.24 0.04 240);
+  --g-deep: oklch(0.32 0.06 225);
+  --g-water: oklch(0.48 0.09 205);
+  --g-lagoon: oklch(0.79 0.13 185);
+  --g-lagoon-soft: oklch(0.79 0.13 185 / 0.35);
+  --g-moss: oklch(0.6 0.09 130);
+  --g-moss-deep: oklch(0.45 0.08 135);
+  --g-moss-light: oklch(0.72 0.1 128);
+  --g-sand: oklch(0.79 0.1 85);
+  --g-copper: oklch(0.62 0.11 50);
+  --g-copper-deep: oklch(0.48 0.09 45);
+  --g-orchid: oklch(0.66 0.2 355);
+  --g-periwinkle: oklch(0.72 0.09 265);
+  --g-glass: oklch(0.26 0.05 230 / 0.72);
+  --g-glass-strong: oklch(0.22 0.045 235 / 0.92);
+
+  /* Hamster anatomy */
+  --g-fur: oklch(0.76 0.11 68);
+  --g-fur-shade: oklch(0.64 0.11 58);
+  --g-cream: oklch(0.95 0.03 85);
+  --g-pink: oklch(0.78 0.09 12);
+  --g-ink: oklch(0.2 0.03 250);
+  /* Gérard the octopus */
+  --g-octo: oklch(0.6 0.12 25);
+  --g-octo-light: oklch(0.78 0.08 40);
+
+  /* Mission states (shared with Feuch Lab status badges) */
+  --g-status-queued: var(--g-sand);
+  --g-status-running: var(--g-lagoon);
+  --g-status-completed: var(--g-moss-light);
+  --g-status-blocked: var(--g-copper);
+  --g-status-failed: var(--g-orchid);
+  --g-status-retrying: oklch(0.85 0.12 195);
+
+  --gradient-gold: linear-gradient(120deg, var(--g-copper), var(--g-sand), var(--g-copper));
+  --gradient-abyss: radial-gradient(ellipse at 50% 45%, var(--g-deep), var(--g-night) 60%, var(--g-abyss));
+  --shadow-glass: 0 18px 50px -18px oklch(0.1 0.03 240 / 0.8), inset 0 1px 0 oklch(1 0 0 / 0.07);
+  --shadow-glow: 0 0 24px -4px var(--g-lagoon-soft);
+  --ease-water: cubic-bezier(0.3, 0.7, 0.2, 1);
+
+  /* shadcn mapping — night-first */
+  --background: var(--g-night);
+  --foreground: oklch(0.95 0.03 90);
+  --card: var(--g-glass);
+  --card-foreground: oklch(0.95 0.03 90);
+  --popover: var(--g-glass-strong);
+  --popover-foreground: oklch(0.95 0.03 90);
+  --primary: var(--g-lagoon);
+  --primary-foreground: var(--g-abyss);
+  --secondary: oklch(0.32 0.05 225);
+  --secondary-foreground: oklch(0.92 0.05 85);
+  --muted: oklch(0.3 0.04 230);
+  --muted-foreground: oklch(0.76 0.04 200);
+  --accent: var(--g-orchid);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: var(--g-orchid);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.79 0.1 85 / 0.18);
+  --input: oklch(0.79 0.1 85 / 0.25);
+  --ring: var(--g-lagoon);
+  --chart-1: var(--g-lagoon);
+  --chart-2: var(--g-moss);
+  --chart-3: var(--g-sand);
+  --chart-4: var(--g-copper);
+  --chart-5: var(--g-orchid);
+  --sidebar: var(--g-glass-strong);
+  --sidebar-foreground: oklch(0.95 0.03 90);
+  --sidebar-primary: var(--g-lagoon);
+  --sidebar-primary-foreground: var(--g-abyss);
+  --sidebar-accent: oklch(0.32 0.05 225);
+  --sidebar-accent-foreground: oklch(0.95 0.03 90);
+  --sidebar-border: oklch(0.79 0.1 85 / 0.18);
+  --sidebar-ring: var(--g-lagoon);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html, body {
+    height: 100%;
+  }
+  body {
+    background: var(--gradient-abyss);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--g-lagoon);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- Shared components (Feuch family) ---------- */
+@utility glass-panel {
+  background: var(--g-glass);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-glass);
+  border-radius: var(--radius-2xl);
+}
+@utility text-gold-shine {
+  background: var(--gradient-gold);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: g-shine 8s linear infinite;
+}
+@utility garden-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  background: oklch(1 0 0 / 0.05);
+  border: 1px solid var(--color-border);
+  transition: background 0.25s var(--ease-water), transform 0.2s var(--ease-water), border-color 0.25s;
+  &:hover { background: oklch(1 0 0 / 0.1); border-color: var(--g-lagoon-soft); }
+  &:active { transform: scale(0.96); }
+  &[aria-pressed="true"] { background: var(--g-lagoon); color: var(--g-abyss); border-color: transparent; box-shadow: var(--shadow-glow); }
+}
+@utility garden-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  background: var(--g-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+  color: var(--color-foreground);
+  transition: background 0.2s;
+  &:hover { background: oklch(0.32 0.05 225 / 0.9); }
+}
+@utility garden-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: oklch(1 0 0 / 0.06);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+@utility demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--g-abyss);
+  background: var(--g-orchid);
+}
+@utility status-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+/* Sheets: right card on desktop, bottom sheet on mobile */
+.garden-sheet {
+  animation: g-sheet-in 0.45s var(--ease-water) both;
+}
+@media (max-width: 767px) {
+  .garden-sheet { animation-name: g-sheet-up; }
+}
+
+/* ---------- Scene ---------- */
+.garden-stage { touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.garden-stage.is-panning { cursor: grabbing; }
+.garden-hit { cursor: pointer; }
+.garden-hit:focus-visible { outline: none; }
+.garden-hit:focus-visible .g-select-ring,
+.garden-hit.is-selected .g-select-ring { opacity: 1; }
+.g-select-ring { opacity: 0; transition: opacity 0.3s; }
+
+.g-anim, .g-anim * { transform-box: fill-box; }
+.g-water-shimmer { animation: g-drift 14s ease-in-out infinite; }
+.g-lily { animation: g-bob 7s ease-in-out infinite; transform-origin: center; }
+.g-lantern { animation: g-twinkle 4s ease-in-out infinite; }
+.g-ripple { animation: g-ripple 5s ease-out infinite; transform-origin: center; }
+.g-canal-flow { stroke-dasharray: 10 14; animation: g-flow 1.6s linear infinite; }
+.g-canal-still { stroke-dasharray: 10 14; }
+.g-canal-appear { animation: g-canal-grow 1.2s var(--ease-water) both; }
+.g-pad-appear { animation: g-pad-pop 0.8s var(--ease-water) both; transform-origin: center; }
+.g-flower-open .g-petal { animation: g-petal 1.4s var(--ease-water) both; transform-origin: bottom center; }
+.g-valve-turn { animation: g-turn 3s ease-in-out infinite; transform-origin: center; }
+.g-compost-glow { animation: g-breathe-glow 6s ease-in-out infinite; }
+.g-sprout { animation: g-sway 6s ease-in-out infinite; transform-origin: bottom center; }
+
+/* ---------- Hamster gestures (animal first) ---------- */
+.hamster .h-body { animation: h-breathe 3.2s ease-in-out infinite; transform-origin: bottom center; }
+.hamster .h-nose { animation: h-nose 1.1s ease-in-out infinite; transform-origin: center; }
+.hamster .h-whiskers { animation: h-whisk 1.1s ease-in-out infinite; transform-origin: center; }
+.hamster .h-ear-l { animation: h-ear 7s ease-in-out infinite; transform-origin: bottom right; }
+.hamster .h-ear-r { animation: h-ear 7s ease-in-out 2.3s infinite; transform-origin: bottom left; }
+.hamster .h-lid { transform: scaleY(0); animation: h-blink 5.5s infinite; transform-origin: center; }
+.hamster .h-paws { transform-origin: center; }
+
+/* idle: grooming face with both paws, every few seconds */
+.hamster.pose-idle .h-paws { animation: h-groom 9s ease-in-out infinite; }
+.hamster.pose-idle .h-head { animation: h-head-groom 9s ease-in-out infinite; transform-origin: bottom center; }
+/* waiting: sits up tall and sniffs the air */
+.hamster.pose-wait .h-whole { animation: h-sit-up 4s ease-in-out infinite; transform-origin: bottom center; }
+.hamster.pose-wait .h-nose { animation-duration: 0.45s; }
+/* puzzled: scratches snout, head tilted, ears back */
+.hamster.pose-puzzled .h-head { transform: rotate(-9deg); transform-origin: bottom center; }
+.hamster.pose-puzzled .h-ear-l, .hamster.pose-puzzled .h-ear-r { animation: none; transform: scale(0.85) translateY(2px); }
+.hamster.pose-puzzled .h-paw-r { animation: h-scratch 1.4s ease-in-out infinite; transform-origin: bottom left; }
+.hamster.pose-puzzled .h-ponder { opacity: 1; animation: g-twinkle 2.4s ease-in-out infinite; }
+/* working */
+.hamster.pose-work.role-cueilleur .h-cheek { animation: h-puff 2.2s ease-in-out infinite; transform-origin: center; }
+.hamster.pose-work.role-cueilleur .h-paws { animation: h-stuff 2.2s ease-in-out infinite; }
+.hamster.pose-work.role-cueilleur .h-head { animation: h-nibble 2.2s ease-in-out infinite; transform-origin: bottom center; }
+.hamster.pose-work.role-greffeur .h-paws { animation: h-tap 0.9s ease-in-out infinite; }
+.hamster.pose-work.role-greffeur .h-tool { animation: h-wrench 0.9s ease-in-out infinite; transform-origin: 20% 80%; }
+.hamster.pose-scurry .h-whole { animation: h-scurry 0.32s ease-in-out infinite; transform-origin: bottom center; }
+.hamster.pose-scurry .h-feet { animation: h-feet 0.32s steps(2) infinite; }
+.hamster.pose-retry .h-whole { animation: h-hop 1.2s var(--ease-water) infinite; transform-origin: bottom center; }
+.hamster.pose-happy .h-whole { animation: h-hop 2.6s var(--ease-water) 2; transform-origin: bottom center; }
+.hamster.static * { animation: none !important; }
+.h-ponder { opacity: 0; }
+
+/* ---------- Gérard the octopus (mood from observed data) ---------- */
+.octopus .o-mantle { animation: h-breathe 4s ease-in-out infinite; transform-origin: bottom center; transform-box: fill-box; }
+.octopus .o-arm { animation: o-curl 5s ease-in-out infinite; transform-origin: top center; transform-box: fill-box; }
+.octopus.mood-busy .o-arm { animation-duration: 1.8s; }
+.octopus.mood-busy .o-pupil { animation: o-look 3s ease-in-out infinite; }
+.octopus .o-lid { transform: scaleY(0); animation: h-blink 6s infinite; transform-origin: center; transform-box: fill-box; }
+.octopus.mood-concerned .o-arm { animation-duration: 7s; }
+.octopus .o-arm-lantern { animation: o-sway 6s ease-in-out infinite; transform-origin: left bottom; transform-box: fill-box; }
+.octopus.static * { animation: none !important; }
+.g-wheel-turn { animation: g-spin 6s linear infinite; transform-origin: center; transform-box: fill-box; }
+.g-lock-gate { transition: y 0.8s var(--ease-water); }
+@keyframes o-curl { 0%, 100% { transform: rotate(0) scaleY(1); } 50% { transform: rotate(6deg) scaleY(0.92); } }
+@keyframes o-look { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-2px); } 70% { transform: translateX(2px); } }
+@keyframes o-sway { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-6deg); } }
+@keyframes g-spin { to { transform: rotate(360deg); } }
+
+/* Filter strip: scrolls sideways, never pushes the map */
+.garden-filters { scrollbar-width: none; }
+.garden-filters::-webkit-scrollbar { display: none; }
+
+.garden-paused *, .garden-paused *::before, .garden-paused *::after { animation-play-state: paused !important; }
+
+@keyframes g-shine { to { background-position: 200% center; } }
+@keyframes g-sheet-in { from { opacity: 0; transform: translateX(24px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes g-sheet-up { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes g-drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(18px, -6px); } }
+@keyframes g-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(2deg); } }
+@keyframes g-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes g-ripple { 0% { transform: scale(0.3); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes g-flow { to { stroke-dashoffset: -48; } }
+@keyframes g-canal-grow { from { stroke-dashoffset: 600; opacity: 0; } to { stroke-dashoffset: 0; opacity: 1; } }
+@keyframes g-pad-pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes g-petal { from { transform: scaleY(0.1) rotate(0); } to { transform: scaleY(1); } }
+@keyframes g-turn { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(40deg); } }
+@keyframes g-breathe-glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }
+@keyframes g-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+
+@keyframes h-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.025, 0.975); } }
+@keyframes h-nose { 0%, 100% { transform: translateY(0) scale(1); } 30% { transform: translateY(-0.6px) scale(1.15, 0.9); } 60% { transform: translateY(0.3px) scale(0.95, 1.08); } }
+@keyframes h-whisk { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(3deg); } 60% { transform: rotate(-2deg); } }
+@keyframes h-ear { 0%, 88%, 100% { transform: rotate(0); } 91% { transform: rotate(-14deg); } 94% { transform: rotate(6deg); } }
+@keyframes h-blink { 0%, 94%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
+@keyframes h-groom { 0%, 55%, 100% { transform: translateY(0); } 62%, 66%, 70%, 74% { transform: translateY(-13px); } 64%, 68%, 72% { transform: translateY(-9px); } }
+@keyframes h-head-groom { 0%, 55%, 80%, 100% { transform: rotate(0); } 64% { transform: rotate(-6deg); } 72% { transform: rotate(5deg); } }
+@keyframes h-sit-up { 0%, 100% { transform: scaleY(1); } 40%, 70% { transform: scale(0.96, 1.08); } }
+@keyframes h-scratch { 0%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-3px, -14px) rotate(-20deg); } 50% { transform: translate(-4px, -12px) rotate(-10deg); } 75% { transform: translate(-3px, -14px) rotate(-20deg); } }
+@keyframes h-puff { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes h-stuff { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } }
+@keyframes h-nibble { 0%, 100% { transform: rotate(0) translateY(0); } 40% { transform: rotate(4deg) translateY(2px); } }
+@keyframes h-tap { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px) translateY(-2px); } }
+@keyframes h-wrench { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-28deg); } }
+@keyframes h-scurry { 0%, 100% { transform: translateY(0) scale(1.04, 0.96); } 50% { transform: translateY(-4px) scale(0.97, 1.03); } }
+@keyframes h-feet { 0% { transform: translateX(-1.5px); } 100% { transform: translateX(1.5px); } }
+@keyframes h-hop { 0%, 60%, 100% { transform: translateY(0) scale(1); } 20% { transform: translateY(0) scale(1.08, 0.9); } 35% { transform: translateY(-14px) scale(0.95, 1.06); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
