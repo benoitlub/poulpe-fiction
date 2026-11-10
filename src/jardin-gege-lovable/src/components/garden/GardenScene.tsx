@@ -71,13 +71,33 @@ export function GardenScene({ missions, projects, selection, onSelect, reducedMo
           <stop offset="0%" stopColor="var(--g-orchid)" stopOpacity="0.55" />
           <stop offset="100%" stopColor="var(--g-orchid)" stopOpacity="0" />
         </radialGradient>
+        <linearGradient id="diorama-earth" x1="0" y1="0" x2="0.15" y2="1">
+          <stop offset="0%" stopColor="#7e9667" />
+          <stop offset="38%" stopColor="#425d49" />
+          <stop offset="100%" stopColor="#172e34" />
+        </linearGradient>
+        <radialGradient id="diorama-grass" cx="42%" cy="24%" r="80%">
+          <stop offset="0%" stopColor="#a2bd7d" />
+          <stop offset="60%" stopColor="#648d67" />
+          <stop offset="100%" stopColor="#365b55" />
+        </radialGradient>
+        <linearGradient id="diorama-water" x1="0" y1="0" x2="0.8" y2="1">
+          <stop offset="0%" stopColor="#124854" />
+          <stop offset="55%" stopColor="#092e43" />
+          <stop offset="100%" stopColor="#061d30" />
+        </linearGradient>
+        <filter id="diorama-shadow" x="-40%" y="-70%" width="180%" height="240%">
+          <feGaussianBlur stdDeviation="13" />
+        </filter>
         <filter id="g-soft-glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="4" />
         </filter>
       </defs>
 
       {/* deep water ring + ambient shimmer */}
-      <ellipse cx="500" cy="360" rx="490" ry="330" fill="var(--g-deep)" opacity="0.55" />
+      <ellipse cx="500" cy="385" rx="490" ry="315" fill="#000d1d" opacity="0.65" filter="url(#diorama-shadow)" />
+      <ellipse cx="500" cy="360" rx="490" ry="330" fill="url(#diorama-water)" />
+      <ellipse cx="500" cy="355" rx="480" ry="319" fill="none" stroke="#8bd2c4" strokeOpacity="0.15" strokeWidth="3" />
       <g className="g-water-shimmer" opacity="0.16" fill="var(--g-lagoon)">
         <ellipse cx="120" cy="120" rx="80" ry="10" />
         <ellipse cx="880" cy="110" rx="90" ry="10" />
@@ -89,8 +109,12 @@ export function GardenScene({ missions, projects, selection, onSelect, reducedMo
       {ROLE_ORDER.map((r) => {
         const h = ROLE_VISUALS[r].home;
         return (
-          <line key={`b-${r}`} x1={NOYAU.x} y1={NOYAU.y} x2={h.x} y2={h.y}
-            stroke="var(--g-sand)" strokeOpacity="0.55" strokeWidth="9" strokeDasharray="5 4" strokeLinecap="round" />
+          <g key={`b-${r}`}>
+            <line x1={NOYAU.x + 2} y1={NOYAU.y + 8} x2={h.x + 2} y2={h.y + 8} stroke="#051b22" strokeWidth="17" opacity="0.6" />
+            <line x1={NOYAU.x} y1={NOYAU.y} x2={h.x} y2={h.y} stroke="#694b38" strokeWidth="15" strokeLinecap="round" />
+            <line x1={NOYAU.x} y1={NOYAU.y - 2} x2={h.x} y2={h.y - 2} stroke="#c3a47a" strokeWidth="10" strokeDasharray="13 3" strokeLinecap="round" />
+            <line x1={NOYAU.x} y1={NOYAU.y - 3} x2={h.x} y2={h.y - 3} stroke="#e8d2a0" strokeWidth="2" strokeOpacity="0.65" strokeDasharray="13 3" />
+          </g>
         );
       })}
 
@@ -166,21 +190,6 @@ export function GardenScene({ missions, projects, selection, onSelect, reducedMo
         <MapLabel x={NOYAU.x} y={NOYAU.y + 92} text="Le Noyau · Gérard" tone="var(--g-sand)" />
       </g>
 
-      {/* Ambient life is decorative, never a claim that a mission is running. */}
-      {!reducedMotion && ROLE_ORDER.map((role, i) => {
-        const home = ROLE_VISUALS[role].home;
-        const active = ["running", "retrying"].includes(byRole[role]?.status ?? "");
-        if (active) return null;
-        return (
-          <g key={`ambient-${role}`} opacity="0.75" pointerEvents="none">
-            <g transform={`translate(${home.x - 35} ${home.y + 18})`}>
-              <animateTransform attributeName="transform" type="translate" additive="sum"
-                values="0 0; 20 -5; 44 2; 20 -5; 0 0" dur={`${11 + i * 2}s`} begin={`-${i * 2}s`} repeatCount="indefinite" />
-              <Hamster role={role} pose="scurry" tone={ROLE_VISUALS[role].tone} scale={0.22} />
-            </g>
-          </g>
-        );
-      })}
       {/* the colony */}
       {ROLE_ORDER.map((role) => (
         <Gege key={role} role={role} mission={byRole[role]} reducedMotion={reducedMotion}
@@ -208,9 +217,10 @@ function Island({ role }: { role: AgentRole }) {
   const { x, y } = v.home;
   return (
     <g>
-      <ellipse cx={x} cy={y + 8} rx="74" ry="40" fill="var(--g-moss-deep)" />
-      <ellipse cx={x} cy={y} rx="70" ry="36" fill="var(--g-moss)" />
-      <ellipse cx={x} cy={y} rx="70" ry="36" fill="none" stroke={v.tone} strokeOpacity="0.55" strokeWidth="2" />
+      <ellipse cx={x + 8} cy={y + 30} rx="83" ry="38" fill="#001824" opacity="0.7" filter="url(#diorama-shadow)" />
+      <path d={`M${x-75} ${y+3} Q${x-79} ${y+27} ${x-47} ${y+39} Q${x} ${y+63} ${x+53} ${y+37} Q${x+83} ${y+24} ${x+75} ${y+3} Z`} fill="url(#diorama-earth)" stroke="#233d39" strokeWidth="2" />
+      <ellipse cx={x} cy={y} rx="76" ry="37" fill="url(#diorama-grass)" stroke="#b3c99b" strokeOpacity="0.65" strokeWidth="2" />
+      <ellipse cx={x-19} cy={y-12} rx="42" ry="12" fill="#d5e4a7" opacity="0.11" />
       <Building role={role} x={x} y={y} />
       {/* aquatic plants on the shore */}
       <path d={`M${x - 60} ${y + 18} q-2 -14 4 -20 M${x - 54} ${y + 22} q0 -12 6 -16`} stroke="var(--g-moss-light)" strokeWidth="2.2" fill="none" strokeLinecap="round" className="g-sprout" />
@@ -312,11 +322,13 @@ function Gege({ role, mission, reducedMotion, hit, dimmed }: { role: AgentRole; 
       {/* large invisible tap target for fingers */}
       <circle cx={v.home.x} cy={v.home.y - 20} r="38" fill="transparent" />
       <g transform={travelling && !reducedMotion ? undefined : `translate(${v.home.x - 8} ${v.home.y + 6})`}>
+        {!travelling && !reducedMotion && <animateTransform attributeName="transform" type="translate" additive="sum"
+          values="0 0; 10 -3; 17 1; 5 -2; 0 0" dur="12s" begin={`-${ROLE_ORDER.indexOf(role) * 1.7}s`} repeatCount="indefinite" />}
         {travelling && !reducedMotion && (
           <animateMotion dur="8s" repeatCount="indefinite" path={path} keyPoints="1;0.35;1" keyTimes="0;0.5;1" calcMode="linear" />
         )}
         <ellipse className="g-select-ring" cx="0" cy="0" rx="26" ry="9" fill="none" stroke={v.tone} strokeWidth="2.5" />
-        <Hamster role={role} pose={pose} tone={v.tone} scale={s} still={!v.animated || reducedMotion} />
+        <Hamster role={role} pose={pose} tone={v.tone} scale={s} still={reducedMotion} />
         {mission?.status === "completed" && (
           <g className="g-flower-open" transform="translate(22 -4)">
             {[0, 72, 144, 216, 288].map((a) => (
