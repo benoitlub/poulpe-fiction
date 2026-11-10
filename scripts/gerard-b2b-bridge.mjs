@@ -69,9 +69,22 @@ export async function searchBusinessSources({ publisherUrl, operationId, seed, c
 
 
 export async function searchPublisherJobPages(query, directory) {
-  const program = `
+  const program = String.raw`
+    const { execFile } = require("node:child_process");
+    const { promisify } = require("node:util");
     const { searchPublicJobPages } = require("../publisher-worker/src/job-postings.ts");
-    searchPublicJobPages(process.argv[1]).then(result => {
+    const curl = promisify(execFile);
+    const fetchPage = async (url, { signal }) => {
+      const { stdout } = await curl("curl", [
+        "--silent", "--show-error", "--proto", "=https", "--max-time", "6", "--max-filesize", "2000000",
+        "--write-out", "\n%{response_code}\t%{content_type}", url,
+      ], { signal, maxBuffer: 2100000 });
+      const divider = stdout.lastIndexOf("\n");
+      const [status, mime] = stdout.slice(divider + 1).split("\t");
+      const body = Number(status) === 200 ? stdout.slice(0, divider) : null;
+      return new Response(body, { status: Number(status), headers: { "content-type": mime || "" } });
+    };
+    searchPublicJobPages(process.argv[1], fetchPage).then(result => {
       process.stdout.write(JSON.stringify(result), () => process.exit(0));
     });
   `;
