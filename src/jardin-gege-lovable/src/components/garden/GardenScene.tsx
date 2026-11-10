@@ -1,9 +1,7 @@
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { AgentRole, GardenMission } from "@/garden-gege/contracts";
 import { NOYAU, ROLE_ORDER, ROLE_VISUALS } from "@/garden-gege/roles";
-import { Hamster } from "./Hamster";
-import { Octopus } from "./Octopus";
-import { gerardMood, latestByRole, poseFor, routeFor, type Selection } from "./scene-model";
+import { latestByRole, poseFor, routeFor, type Selection } from "./scene-model";
 
 export type SceneFilter = "all" | "active" | "attention";
 
@@ -32,12 +30,17 @@ function matches(m: GardenMission | undefined, f: SceneFilter) {
 
 export function GardenScene({ missions, projects, selection, onSelect, reducedMotion, paused, filter = "all" }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [spriteTick, setSpriteTick] = useState(0);
+  useEffect(() => {
+    if (paused || reducedMotion) return;
+    const timer = window.setInterval(() => setSpriteTick(t => (t + 1) % 168), 240);
+    return () => window.clearInterval(timer);
+  }, [paused, reducedMotion]);
   const byRole = latestByRole(missions);
   const passeur = routeFor(byRole.passeur);
   const greffeur = routeFor(byRole.greffeur);
   const failedCount = missions.filter((m) => m.status === "failed").length;
   const parcel = projects[0];
-  const mood = gerardMood(missions);
 
   useEffect(() => {
     const s = svgRef.current;
@@ -76,8 +79,11 @@ export function GardenScene({ missions, projects, selection, onSelect, reducedMo
         </filter>
       </defs>
 
+      {/* Rotas diorama: one background, no baked-in Gérard or duplicate Gégé. */}
+      <image href={assetPath("background.webp")} x="0" y="0" width="1000" height="700"
+        preserveAspectRatio="xMidYMid slice" opacity="0.9" pointerEvents="none" />
       {/* deep water ring + ambient shimmer */}
-      <ellipse cx="500" cy="360" rx="490" ry="330" fill="var(--g-deep)" opacity="0.55" />
+      <ellipse cx="500" cy="360" rx="490" ry="330" fill="var(--g-deep)" opacity="0.12" />
       <g className="g-water-shimmer" opacity="0.16" fill="var(--g-lagoon)">
         <ellipse cx="120" cy="120" rx="80" ry="10" />
         <ellipse cx="880" cy="110" rx="90" ry="10" />
@@ -161,34 +167,43 @@ export function GardenScene({ missions, projects, selection, onSelect, reducedMo
         <circle className="g-select-ring" cx={NOYAU.x} cy={NOYAU.y - 4} r="122" fill="none" stroke="var(--g-sand)" strokeWidth="2" strokeDasharray="6 6" />
         <g transform={`translate(${NOYAU.x} ${NOYAU.y + 40})`}>
           {!reducedMotion && <animateTransform attributeName="transform" type="translate" additive="sum" values="0 0; 0 -7; 0 0" dur="5s" repeatCount="indefinite" />}
-          <Octopus mood={mood} scale={1.15} still={reducedMotion} />
+          <Sprite name="gerard" frame={spriteTick} width={145} height={145} x={-72} y={-119} />
         </g>
         <MapLabel x={NOYAU.x} y={NOYAU.y + 92} text="Le Noyau · Gérard" tone="var(--g-sand)" />
       </g>
 
-      {/* Ambient life is decorative, never a claim that a mission is running. */}
-      {!reducedMotion && ROLE_ORDER.map((role, i) => {
-        const home = ROLE_VISUALS[role].home;
-        const active = ["running", "retrying"].includes(byRole[role]?.status ?? "");
-        if (active) return null;
-        return (
-          <g key={`ambient-${role}`} opacity="0.75" pointerEvents="none">
-            <g transform={`translate(${home.x - 35} ${home.y + 18})`}>
-              <animateTransform attributeName="transform" type="translate" additive="sum"
-                values="0 0; 20 -5; 44 2; 20 -5; 0 0" dur={`${11 + i * 2}s`} begin={`-${i * 2}s`} repeatCount="indefinite" />
-              <Hamster role={role} pose="scurry" tone={ROLE_VISUALS[role].tone} scale={0.22} />
-            </g>
-          </g>
-        );
-      })}
       {/* the colony */}
       {ROLE_ORDER.map((role) => (
-        <Gege key={role} role={role} mission={byRole[role]} reducedMotion={reducedMotion}
+        <Gege key={role} role={role} mission={byRole[role]} reducedMotion={reducedMotion} spriteTick={spriteTick}
           dimmed={!matches(byRole[role], filter)}
           hit={hit({ kind: "role", role }, `${ROLE_VISUALS[role].label} — ${ROLE_VISUALS[role].place}`)} />
       ))}
     </svg>
   );
+}
+
+
+// Visual asset labels differ from the seven operational trades.
+// These are explicit temporary artistic correspondences, not new agents.
+const SPRITE_BY_ROLE: Record<AgentRole, string> = {
+  cueilleur: "cueilleur",
+  tresseur: "batisseur",
+  enlumineur: "alchimiste",
+  semeur: "jardinier",
+  greffeur: "mineur",
+  jardinier: "archiviste",
+  passeur: "passeur",
+};
+const assetPath = (filename: string) => `${import.meta.env.BASE_URL}assets/gege-rotas/${filename}`;
+
+function Sprite({ name, frame, x, y, width, height }: {
+  name: string; frame: number; x: number; y: number; width: number; height: number;
+}) {
+  const count = name === "gerard" ? 14 : 12;
+  const index = (Math.floor(frame / 3) % count) + 1;
+  const filename = `${name}_${String(index).padStart(2, "0")}.png`;
+  return <image href={assetPath(filename)} x={x} y={y} width={width} height={height}
+    preserveAspectRatio="xMidYMid meet" pointerEvents="none" />;
 }
 
 function MapLabel({ x, y, text, kicker, tone = "var(--g-cream)" }: { x: number; y: number; text: string; kicker?: string; tone?: string }) {
@@ -301,22 +316,24 @@ function Lock({ x, y, open, blocked }: { x: number; y: number; open: boolean; bl
   );
 }
 
-function Gege({ role, mission, reducedMotion, hit, dimmed }: { role: AgentRole; mission: GardenMission | undefined; reducedMotion: boolean; hit: object; dimmed: boolean }) {
+function Gege({ role, mission, reducedMotion, spriteTick, hit, dimmed }: { role: AgentRole; mission: GardenMission | undefined; reducedMotion: boolean; spriteTick: number; hit: object; dimmed: boolean }) {
   const v = ROLE_VISUALS[role];
   const pose = poseFor(mission, role);
   const travelling = role === "passeur" && pose === "scurry";
   const path = canalPath(v.home);
-  const s = v.animated ? 0.6 : 0.5;
   return (
     <g {...hit} opacity={dimmed ? 0.35 : 1}>
       {/* large invisible tap target for fingers */}
       <circle cx={v.home.x} cy={v.home.y - 20} r="38" fill="transparent" />
       <g transform={travelling && !reducedMotion ? undefined : `translate(${v.home.x - 8} ${v.home.y + 6})`}>
+        {!travelling && !reducedMotion && <animateTransform attributeName="transform" type="translate" additive="sum"
+          values="0 0; 9 -2; 16 0; 5 -2; 0 0" dur="14s" begin={`-${ROLE_ORDER.indexOf(role) * 2}s`} repeatCount="indefinite" />}
         {travelling && !reducedMotion && (
           <animateMotion dur="8s" repeatCount="indefinite" path={path} keyPoints="1;0.35;1" keyTimes="0;0.5;1" calcMode="linear" />
         )}
         <ellipse className="g-select-ring" cx="0" cy="0" rx="26" ry="9" fill="none" stroke={v.tone} strokeWidth="2.5" />
-        <Hamster role={role} pose={pose} tone={v.tone} scale={s} still={!v.animated || reducedMotion} />
+        <Sprite name={SPRITE_BY_ROLE[role]} frame={spriteTick + ROLE_ORDER.indexOf(role) * 3}
+          width={66} height={66} x={-33} y={-59} />
         {mission?.status === "completed" && (
           <g className="g-flower-open" transform="translate(22 -4)">
             {[0, 72, 144, 216, 288].map((a) => (
