@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { LayoutList, Maximize2, Minus, Pause, Play, Plus } from "lucide-react";
+import { LayoutList, Maximize2, Minus, Pause, Play, Plus, Settings2 } from "lucide-react";
 import { GardenScene, type SceneFilter } from "@/components/garden/GardenScene";
 import { Inspector, Supervision } from "@/components/garden/Panels";
 import { useCamera } from "@/components/garden/useCamera";
@@ -34,6 +34,7 @@ export function Jardin() {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [supervision, setSupervision] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [filter, setFilter] = useState<SceneFilter>("all");
 
@@ -56,7 +57,7 @@ export function Jardin() {
   const isDemo = source?.kind === "demo";
 
   return (
-    <main className={`fixed inset-0 overflow-hidden ${paused ? "garden-paused" : ""}`}>
+    <main className={`fixed inset-0 overflow-hidden ${paused || reduced ? "garden-paused" : ""}`}>
       <div
         ref={cam.ref}
         className={`garden-stage absolute inset-0 ${cam.panning ? "is-panning" : ""}`}
@@ -101,12 +102,18 @@ export function Jardin() {
           <button className="garden-btn glass-panel" aria-pressed={supervision} onClick={() => { setSupervision((v) => !v); setSelection(null); }}>
             <LayoutList size={16} /> <span className="hidden sm:inline">Superviser</span>
           </button>
-          <button className="garden-icon-btn" onClick={() => setPaused((p) => !p)} aria-label={paused ? "Reprendre les animations" : "Mettre en pause les animations"}>
-            {paused ? <Play size={16} /> : <Pause size={16} />}
-          </button>
+          <button className="garden-icon-btn" aria-label="Réglages du jardin" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(v => !v)}><Settings2 size={18} /></button>
         </div>
       </header>
 
+      {settingsOpen && (
+        <section className="glass-panel pointer-events-auto absolute right-2 top-20 z-30 w-64 space-y-3 p-4 text-sm md:right-5 md:top-24" aria-label="Réglages du jardin">
+          <div className="flex items-center justify-between"><strong>Réglages</strong><button aria-label="Fermer les réglages" onClick={() => setSettingsOpen(false)}>×</button></div>
+          <button className="garden-btn w-full justify-center" onClick={() => setPaused(v => !v)}>{paused ? <Play size={16} /> : <Pause size={16} />}{paused ? "Reprendre la vie du jardin" : "Mettre les animations en pause"}</button>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={reduced} onChange={e => setReduced(e.target.checked)} /> Réduire les animations</label>
+          <p className="text-xs text-muted-foreground">La vie quotidienne est décorative ; les missions affichées restent fondées sur les événements réels.</p>
+        </section>
+      )}
       {garden.connection !== "snapshot" && (
         <div className="glass-panel absolute top-28 left-1/2 -translate-x-1/2 px-4 py-2 text-sm">
           {garden.connection === "loading" ? "Le jardin se réveille…" : garden.error}

@@ -159,10 +159,28 @@ export function GardenScene({ missions, projects, selection, onSelect, reducedMo
           </g>
         ))}
         <circle className="g-select-ring" cx={NOYAU.x} cy={NOYAU.y - 4} r="122" fill="none" stroke="var(--g-sand)" strokeWidth="2" strokeDasharray="6 6" />
-        <g transform={`translate(${NOYAU.x} ${NOYAU.y + 40})`}><Octopus mood={mood} scale={1.15} still={reducedMotion} /></g>
+        <g transform={`translate(${NOYAU.x} ${NOYAU.y + 40})`}>
+          {!reducedMotion && <animateTransform attributeName="transform" type="translate" additive="sum" values="0 0; 0 -7; 0 0" dur="5s" repeatCount="indefinite" />}
+          <Octopus mood={mood} scale={1.15} still={reducedMotion} />
+        </g>
         <MapLabel x={NOYAU.x} y={NOYAU.y + 92} text="Le Noyau · Gérard" tone="var(--g-sand)" />
       </g>
 
+      {/* Ambient life is decorative, never a claim that a mission is running. */}
+      {!reducedMotion && ROLE_ORDER.map((role, i) => {
+        const home = ROLE_VISUALS[role].home;
+        const active = ["running", "retrying"].includes(byRole[role]?.status ?? "");
+        if (active) return null;
+        return (
+          <g key={`ambient-${role}`} opacity="0.75" pointerEvents="none">
+            <g transform={`translate(${home.x - 35} ${home.y + 18})`}>
+              <animateTransform attributeName="transform" type="translate" additive="sum"
+                values="0 0; 20 -5; 44 2; 20 -5; 0 0" dur={`${11 + i * 2}s`} begin={`-${i * 2}s`} repeatCount="indefinite" />
+              <Hamster role={role} pose="scurry" tone={ROLE_VISUALS[role].tone} scale={0.22} />
+            </g>
+          </g>
+        );
+      })}
       {/* the colony */}
       {ROLE_ORDER.map((role) => (
         <Gege key={role} role={role} mission={byRole[role]} reducedMotion={reducedMotion}
