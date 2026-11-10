@@ -20,28 +20,61 @@ export function useGarden(source: GardenSource | null): GardenState {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const ctrl = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let failures = 0;
+
     if (!source) {
       setConnection("offline");
       setError("Aucune source réelle n'est configurée.");
-      return;
+      return () => ctrl.abort();
     }
-    const ctrl = new AbortController();
+
+    // A new source must not inherit missions or traces from the previous mode.
+    setSnapshot(null);
+    setEvents([]);
     setConnection("loading");
-    source
-      .load(ctrl.signal)
-      .then((s) => {
+    setError(null);
+
+    const refresh = async () => {
+      if (ctrl.signal.aborted) return;
+      if (typeof document !== "undefined" && document.hidden && source.kind === "real") {
+        timer = setTimeout(refresh, 60_000);
+        return;
+      }
+      try {
+        const s = await source.load(ctrl.signal);
+        if (ctrl.signal.aborted) return;
         setSnapshot(s);
-        // Keep history across reloads of a snapshot (session only).
         setEvents((prev) => mergeEvents(prev, s.events, s.mode).events);
         setConnection("snapshot");
         setError(null);
-      })
-      .catch((e: unknown) => {
+        failures = 0;
+      } catch (e: unknown) {
         if (ctrl.signal.aborted) return;
         setConnection(e instanceof Error && e.message.includes("invalide") ? "invalid" : "offline");
         setError(e instanceof Error ? e.message : "Source indisponible");
-      });
-    return () => ctrl.abort();
+        failures++;
+      }
+      if (!ctrl.signal.aborted && source.kind === "real") {
+        timer = setTimeout(refresh, Math.min(300_000, 60_000 * 2 ** Math.min(failures, 3)));
+      }
+    };
+
+    const onVisible = () => {
+      if (!document.hidden && source.kind === "real") {
+        if (timer) clearTimeout(timer);
+        timer = undefined;
+        void refresh();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    void refresh();
+    return () => {
+      ctrl.abort();
+      if (timer) clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [source]);
 
   const mode = snapshot?.mode ?? "demo";
