@@ -179,7 +179,9 @@ const CandidatureCard: FC<{ item: ServerHarvest; credential: string }> = ({ item
   const [note, setNote] = useState("");
   const busy = useRef(false);
   const recipient = verifiedAddress || address.trim();
-  const reserved = ["sent", "sending", "unknown"].includes(mailStatus);
+  const externalOutcome = mailStatus === "applied-externally" ? "Déposée via HelloWork" :
+    mailStatus === "closed" ? "Offre fermée" : "";
+  const reserved = Boolean(externalOutcome) || ["sent", "sending", "unknown"].includes(mailStatus);
 
   async function approve() {
     if (busy.current || reserved || !subject || !/^[^@\s,;<>]+@[^@\s,;<>]+\.[^@\s,;<>]+$/.test(recipient)) return;
@@ -232,7 +234,7 @@ const CandidatureCard: FC<{ item: ServerHarvest; credential: string }> = ({ item
   }
 
   return <details className="pf-card" style={{ marginTop: 8 }}>
-    <summary><strong>{item.title}</strong>{mailStatus === "sent" && " · Envoyé"}</summary>
+    <summary><strong>{item.title}</strong>{externalOutcome ? ` · ${externalOutcome}` : mailStatus === "sent" ? " · Envoyé" : ""}</summary>
     <ReadableHarvest content={offer} />
     {draft && <>
       <h4>Brouillon de candidature</h4>

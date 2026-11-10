@@ -1,0 +1,94 @@
+name: Candidatures · enregistrer les statuts
+
+on:
+  workflow_dispatch:
+    inputs:
+      updates:
+        description: "Tableau JSON d’annonces HelloWork avec offerId et status (applied-externally ou closed)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install database client
+        run: npm install --prefix "$RUNNER_TEMP/candidature-db" --ignore-scripts --no-audit --no-fund pg@8.22.0
+      - name: Record the confirmed outcomes
+        env:
+          UPDATES: ${{ inputs.updates }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          node --input-type=commonjs <<'NODE'
+          const { Pool } = require(process.env.RUNNER_TEMP + "/candidature-db/node_modules/pg");
+          const allowed = new Set(["applied-externally", "closed"]);
+
+          async function main() {
+            const updates = JSON.parse(process.env.UPDATES);
+            if (!Array.isArray(updates) || !updates.length || updates.length > 10 ||
+                updates.some(item => !item || typeof item.offerId !== "string" ||
+                  !/^\d{6,12}$/.test(item.offerId) || !allowed.has(item.status)) ||
+                new Set(updates.map(item => item.offerId)).size !== updates.length) {
+              throw new Error("invalid-updates");
+            }
+            if (!process.env.DATABASE_URL) throw new Error("private-database-unconfigured");
+            const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+            const client = await pool.connect();
+            try {
+              await client.query("BEGIN");
+              for (const { offerId, status } of updates) {
+                const source = "](https://www.hellowork.com/fr-fr/emplois/" + offerId + ".html)";
+                const { rows } = await client.query(`
+                  SELECT h->>'harvestId' AS id
+                  FROM gerard_private_runtime
+                  CROSS JOIN LATERAL jsonb_array_elements(payload #> '{files,harvests.json,harvests}') AS item(h)
+                  WHERE snapshot_key='poulpe-fiction' AND h->>'parcelId'='benoit-career'
+                    AND h->>'capability'='candidature.draft' AND strpos(h->>'content', $1) > 0
+                `, [source]);
+                if (rows.length !== 1 || !/^candidature-[a-f0-9]{20}$/.test(rows[0].id)) {
+                  throw new Error("offer-match-not-unique");
+                }
+                const id = rows[0].id;
+                const value = { status, channel: "hellowork" };
+                const inserted = await client.query(`
+                  INSERT INTO publisher_global_state (namespace,key,value,version,updated_at)
+                  VALUES ('gerard-candidature-mail',$1,$2::jsonb,1,NOW())
+                  ON CONFLICT (namespace,key) DO NOTHING
+                `, [id, JSON.stringify(value)]);
+                if (!inserted.rowCount) {
+                  const previous = await client.query(`
+                    SELECT value->>'status' AS status FROM publisher_global_state
+                    WHERE namespace='gerard-candidature-mail' AND key=$1
+                  `, [id]);
+                  if (previous.rows[0]?.status !== status) throw new Error("existing-delivery-conflict");
+                }
+              }
+              await client.query("COMMIT");
+              console.log(JSON.stringify({
+                saved: updates.length,
+                applied: updates.filter(item => item.status === "applied-externally").length,
+                closed: updates.filter(item => item.status === "closed").length,
+              }));
+            } catch (error) {
+              await client.query("ROLLBACK").catch(() => {});
+              throw error;
+            } finally {
+              client.release();
+              await pool.end();
+            }
+          }
+
+          main().catch(error => {
+            const known = ["invalid-updates", "private-database-unconfigured", "offer-match-not-unique", "existing-delivery-conflict"];
+            console.error(known.includes(error.message) ? error.message : "private-status-update-failed");
+            process.exitCode = 1;
+          });
+          NODE
