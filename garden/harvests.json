@@ -9,26 +9,6 @@
       "state": "composted",
       "seedId": "gerard-restart-2026-10-04",
       "parcelId": "poulpe-fiction",
-      "harvestId": "gerard-cultivate-1791456174892-harvest",
-      "capability": "content.generate",
-      "harvestedAt": "2026-10-08T10:42:59.452Z",
-      "privateContent": true
-    },
-    {
-      "route": "octopus->publisher-adapter",
-      "state": "composted",
-      "seedId": "yael-prospection",
-      "parcelId": "project-yael-prospection",
-      "harvestId": "gerard-cultivate-1791470859848-harvest",
-      "capability": "content.generate",
-      "harvestedAt": "2026-10-08T14:47:59.259Z",
-      "privateContent": true
-    },
-    {
-      "route": "octopus->publisher-adapter",
-      "state": "composted",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
       "harvestId": "gerard-cultivate-1791546414654-harvest",
       "capability": "content.generate",
       "harvestedAt": "2026-10-09T11:46:59.971Z",
@@ -1002,6 +982,26 @@
       "harvestId": "gerard-cultivate-1793817684951-harvest",
       "capability": "business.sources.search",
       "harvestedAt": "2026-11-04T18:41:42.958Z",
+      "privateContent": true
+    },
+    {
+      "route": "octopus->publisher-adapter",
+      "state": "ready-to-offer",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "harvestId": "gerard-cultivate-1793921804558-harvest",
+      "capability": "business.sources.search",
+      "harvestedAt": "2026-11-05T23:37:12.886Z",
+      "privateContent": true
+    },
+    {
+      "route": "octopus->publisher-adapter",
+      "state": "ready-to-offer",
+      "seedId": "benoit-client-acquisition",
+      "parcelId": "benoit-business-growth",
+      "harvestId": "gerard-cultivate-1794099267713-harvest",
+      "capability": "business.sources.search",
+      "harvestedAt": "2026-11-08T00:54:53.503Z",
       "privateContent": true
     }
   ]

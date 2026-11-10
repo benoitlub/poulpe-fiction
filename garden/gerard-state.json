@@ -3,100 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-05T15:39:24.135Z",
-  "lastSeedId": "420-dice-video-studio",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-10T11:14:10.751Z",
+  "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-04T01:27:41.488Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793755647438"
-    },
-    {
-      "at": "2026-11-04T10:03:06.363Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793786585988"
-    },
-    {
-      "at": "2026-11-04T11:06:49.357Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793790377463"
-    },
-    {
-      "at": "2026-11-04T12:36:33.763Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793795793499"
-    },
-    {
-      "at": "2026-11-04T18:41:42.961Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793817684951"
-    },
-    {
-      "at": "2026-11-04T18:44:07.623Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793817846940"
-    },
-    {
-      "at": "2026-11-04T18:46:45.964Z",
-      "mode": "cultivate",
-      "result": "deferred",
-      "operationId": "gerard-cultivate-1793818000972"
-    },
-    {
-      "at": "2026-11-04T18:54:07.409Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793818446541"
-    },
-    {
-      "at": "2026-11-04T18:57:27.245Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793818612512"
-    },
-    {
-      "at": "2026-11-04T19:52:16.840Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793821935768"
-    },
-    {
-      "at": "2026-11-05T01:31:03.056Z",
-      "mode": "cultivate",
-      "result": "deferred",
-      "operationId": "gerard-cultivate-1793842259210"
-    },
-    {
-      "at": "2026-11-05T11:07:10.177Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793876829424"
-    },
-    {
-      "at": "2026-11-05T13:15:28.353Z",
-      "mode": "cultivate",
-      "result": "deferred",
-      "operationId": "gerard-cultivate-1793884523810"
-    },
-    {
-      "at": "2026-11-05T13:27:32.965Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1793885252048"
-    },
-    {
-      "at": "2026-11-05T13:47:59.479Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1793886445428"
-    },
     {
       "at": "2026-11-05T13:51:15.888Z",
       "mode": "symbiosis",
@@ -124,125 +34,101 @@
     {
       "at": "2026-11-05T15:39:24.135Z",
       "mode": "symbiosis",
-      "operationId": "gerard-symbiosis-1793893163278",
-      "result": "ok"
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1793893163278"
+    },
+    {
+      "at": "2026-11-05T23:38:54.907Z",
+      "mode": "cultivate",
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1793921931682"
+    },
+    {
+      "at": "2026-11-06T06:43:49.328Z",
+      "mode": "symbiosis",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1793947428800"
+    },
+    {
+      "at": "2026-11-06T16:46:19.756Z",
+      "mode": "cultivate",
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1793983575012"
+    },
+    {
+      "at": "2026-11-06T23:08:38.650Z",
+      "mode": "symbiosis",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1794006517813"
+    },
+    {
+      "at": "2026-11-07T05:58:19.856Z",
+      "mode": "cultivate",
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1794031096062"
+    },
+    {
+      "at": "2026-11-07T13:00:00.167Z",
+      "mode": "symbiosis",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1794056399574"
+    },
+    {
+      "at": "2026-11-07T19:26:23.226Z",
+      "mode": "cultivate",
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1794079579158"
+    },
+    {
+      "at": "2026-11-08T00:35:55.729Z",
+      "mode": "symbiosis",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1794098154951"
+    },
+    {
+      "at": "2026-11-08T10:22:19.141Z",
+      "mode": "cultivate",
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1794133335259"
+    },
+    {
+      "at": "2026-11-08T17:56:29.269Z",
+      "mode": "symbiosis",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1794160588833"
+    },
+    {
+      "at": "2026-11-08T22:04:57.336Z",
+      "mode": "cultivate",
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1794175492466"
+    },
+    {
+      "at": "2026-11-09T06:26:59.827Z",
+      "mode": "symbiosis",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1794205618739"
+    },
+    {
+      "at": "2026-11-09T19:50:11.726Z",
+      "mode": "cultivate",
+      "result": "deferred",
+      "operationId": "gerard-cultivate-1794253807465"
+    },
+    {
+      "at": "2026-11-10T03:34:45.700Z",
+      "mode": "symbiosis",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1794281685262"
+    },
+    {
+      "at": "2026-11-10T11:14:10.751Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1794309248516",
+      "result": "deferred"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-10-30T22:27:43.737Z",
-      "mode": "cultivate",
-      "seedId": "gerard-restart-2026-10-04",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "parcelId": "poulpe-fiction",
-      "operationId": "gerard-cultivate-1793399238705"
-    },
-    {
-      "at": "2026-10-31T05:53:56.510Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793426036196"
-    },
-    {
-      "at": "2026-10-31T12:43:56.702Z",
-      "mode": "cultivate",
-      "seedId": "yael-prospection",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "parcelId": "project-yael-prospection",
-      "operationId": "gerard-cultivate-1793450616700"
-    },
-    {
-      "at": "2026-10-31T19:21:57.084Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793474516145"
-    },
-    {
-      "at": "2026-11-01T00:11:51.501Z",
-      "mode": "cultivate",
-      "seedId": "benoit-client-acquisition",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "parcelId": "benoit-business-growth",
-      "operationId": "gerard-cultivate-1793491893236"
-    },
-    {
-      "at": "2026-11-01T06:18:34.076Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793513913749"
-    },
-    {
-      "at": "2026-11-01T15:42:45.777Z",
-      "mode": "cultivate",
-      "seedId": "gerard-restart-2026-10-04",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "parcelId": "poulpe-fiction",
-      "operationId": "gerard-cultivate-1793547754930"
-    },
-    {
-      "at": "2026-11-01T16:06:35.919Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793549195493"
-    },
-    {
-      "at": "2026-11-01T22:09:03.334Z",
-      "mode": "cultivate",
-      "seedId": "yael-prospection",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "parcelId": "project-yael-prospection",
-      "operationId": "gerard-cultivate-1793570920923"
-    },
-    {
-      "at": "2026-11-02T00:42:36.316Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793580155385"
-    },
-    {
-      "at": "2026-11-02T00:53:08.322Z",
-      "mode": "cultivate",
-      "seedId": "benoit-client-acquisition",
-      "outcome": "deferred",
-      "decision": "b2b-sources-deferred",
-      "parcelId": "benoit-business-growth",
-      "operationId": "gerard-cultivate-1793580768963"
-    },
-    {
-      "at": "2026-11-02T01:05:09.394Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793581508632"
-    },
-    {
-      "at": "2026-11-02T01:17:58.970Z",
-      "mode": "cultivate",
-      "seedId": "gerard-restart-2026-10-04",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "parcelId": "poulpe-fiction",
-      "operationId": "gerard-cultivate-1793582256631"
-    },
-    {
-      "at": "2026-11-02T01:25:21.222Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793582720583"
-    },
-    {
-      "at": "2026-11-02T06:20:30.595Z",
-      "mode": "cultivate",
-      "seedId": "yael-prospection",
-      "outcome": "ok",
-      "decision": "harvest-ready-to-offer",
-      "parcelId": "project-yael-prospection",
-      "operationId": "gerard-cultivate-1793600394773"
-    },
     {
       "at": "2026-11-02T19:34:18.134Z",
       "mode": "symbiosis",
@@ -500,14 +386,132 @@
     },
     {
       "at": "2026-11-05T15:39:24.135Z",
-      "operationId": "gerard-symbiosis-1793893163278",
       "mode": "symbiosis",
-      "outcome": "ok"
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1793893163278"
+    },
+    {
+      "at": "2026-11-05T23:38:54.907Z",
+      "mode": "cultivate",
+      "seedId": "benoit-job-search",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1793921931682"
+    },
+    {
+      "at": "2026-11-06T06:43:49.328Z",
+      "mode": "symbiosis",
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1793947428800"
+    },
+    {
+      "at": "2026-11-06T16:46:19.756Z",
+      "mode": "cultivate",
+      "seedId": "benoit-job-search",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1793983575012"
+    },
+    {
+      "at": "2026-11-06T23:08:38.650Z",
+      "mode": "symbiosis",
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1794006517813"
+    },
+    {
+      "at": "2026-11-07T05:58:19.856Z",
+      "mode": "cultivate",
+      "seedId": "benoit-job-search",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794031096062"
+    },
+    {
+      "at": "2026-11-07T13:00:00.167Z",
+      "mode": "symbiosis",
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1794056399574"
+    },
+    {
+      "at": "2026-11-07T19:26:23.226Z",
+      "mode": "cultivate",
+      "seedId": "benoit-job-search",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794079579158"
+    },
+    {
+      "at": "2026-11-08T00:35:55.729Z",
+      "mode": "symbiosis",
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1794098154951"
+    },
+    {
+      "at": "2026-11-08T10:22:19.141Z",
+      "mode": "cultivate",
+      "seedId": "benoit-job-search",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794133335259"
+    },
+    {
+      "at": "2026-11-08T17:56:29.269Z",
+      "mode": "symbiosis",
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1794160588833"
+    },
+    {
+      "at": "2026-11-08T22:04:57.336Z",
+      "mode": "cultivate",
+      "seedId": "benoit-job-search",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794175492466"
+    },
+    {
+      "at": "2026-11-09T06:26:59.827Z",
+      "mode": "symbiosis",
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1794205618739"
+    },
+    {
+      "at": "2026-11-09T19:50:11.726Z",
+      "mode": "cultivate",
+      "seedId": "benoit-job-search",
+      "outcome": "deferred",
+      "decision": "b2b-sources-deferred",
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794253807465"
+    },
+    {
+      "at": "2026-11-10T03:34:45.700Z",
+      "mode": "symbiosis",
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1794281685262"
+    },
+    {
+      "at": "2026-11-10T11:14:10.751Z",
+      "operationId": "gerard-cultivate-1794309248516",
+      "mode": "cultivate",
+      "outcome": "deferred",
+      "decision": "candidatures-search-unavailable",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career"
     }
   ],
   "lastResult": {
-    "at": "2026-11-05T15:39:24.133Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "deferred",
+    "decision": "candidatures-search-unavailable",
+    "parcelId": "benoit-career",
+    "seedId": "benoit-job-search",
+    "operationId": "gerard-cultivate-1794309248516",
+    "itemCount": 0,
+    "contacted": false
   }
 }
