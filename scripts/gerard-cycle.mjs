@@ -428,6 +428,15 @@ async function main() {
     }
     if (!selectedSeed) {
       result = { status: "failed", operationId, decision: "no-active-seed" };
+    } else if (selectedSeed.seedId === "yael-prospection" && (await readFile(HARVESTS_PATH, "utf8").then(JSON.parse).catch(() => ({ harvests: [] }))).harvests?.some(h => h.seedId === selectedSeed.seedId && h.state === "ready-to-offer")) {
+      // Do not pay for another generic sales kit while an existing one awaits review.
+      // Private harvest contents remain in Publisher's existing private runtime.
+      result = { status: "deferred", operationId, seedId: selectedSeed.seedId,
+        parcelId: selectedSeed.parcelId, decision: "yaebali-awaiting-owner-review",
+        nextAction: "review-existing-harvest", published: false };
+      state.lastSeedId = selectedSeed.seedId;
+      console.log(JSON.stringify({ event: "gerard.harvest.awaiting-review",
+        seedId: selectedSeed.seedId, parcelId: selectedSeed.parcelId }));
     } else if (isJobSearchSeed(selectedSeed)) {
       result = await runCandidatures(selectedSeed, state, operationId);
       state.lastSeedId = selectedSeed.seedId;
