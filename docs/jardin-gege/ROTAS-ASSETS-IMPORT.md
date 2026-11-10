@@ -15,7 +15,15 @@ Contains:
 - Seven other character sets, 12 RGBA PNGs each (98 frames total)
 - `manifest.json` with every filename and SHA-256 for integrity
 
-## Import, after ZIP has been downloaded
+## Upload with GitHub web UI (one manual file transfer)
+1. Download `jardin_gege_rotas_assets.zip` from the ChatGPT conversation.
+2. In GitHub, select branch `assets/jardin-gege-rotas-binary-import` (PR #207).
+3. Choose **Add file → Upload files**, drag the ZIP, and ensure its final repository path is `assets-import/jardin_gege_rotas_assets.zip`. Commit to the same branch.
+4. The dedicated `Import Jardin des Gégé Rotas assets` Action runs on that push. It verifies every SHA-256 and commits the extracted 98 PNG frames and background assets to the branch. It removes the temporary ZIP from the branch tip.
+
+If the repository's `GITHUB_TOKEN` lacks **contents: write** permission, the extraction may pass while the final push is blocked; that must be reviewed in Actions.
+
+## Optional local import
 ```bash
 python3 scripts/import-gege-rotas-assets.py jardin_gege_rotas_assets.zip
 git add src/jardin-gege-lovable/public/assets/gege-rotas/
