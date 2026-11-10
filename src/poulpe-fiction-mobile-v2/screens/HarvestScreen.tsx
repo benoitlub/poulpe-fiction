@@ -257,6 +257,54 @@ const CandidatureCard: FC<{ item: ServerHarvest; credential: string }> = ({ item
   </details>;
 };
 
+type ProspectStage = "explore" | "contact" | "discussion";
+function extractProspects(content: string): { name: string; url: string; score: number | null }[] {
+  const matches = [...content.matchAll(/^\s*\d+\.\s+([^\n]+)\n([\s\S]*?)(?=^\s*\d+\.\s+|$(?![\s\S]))/gm)];
+  return matches.flatMap((match) => {
+    const url = /^\s*URL\s*:\s*(https?:\/\/\S+)/mi.exec(match[2])?.[1];
+    if (!url) return [];
+    try { new URL(url); } catch { return []; }
+    const score = /score probant\s*(\d+)\/100/i.exec(match[2])?.[1];
+    return [{ name: match[1].trim(), url, score: score ? Number(score) : null }];
+  });
+}
+const ProspectHarvest: FC<{ item: ServerHarvest }> = ({ item }) => {
+  const prospects = useMemo(() => extractProspects(item.content), [item.content]);
+  const [stages, setStages] = useState<Record<string, ProspectStage>>({});
+  const [selected, setSelected] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const [recipient, setRecipient] = useState("");
+  if (!prospects.length) return null;
+  const current = prospects.find((prospect) => prospect.url === selected);
+  const stage = (url: string): ProspectStage => stages[url] || "explore";
+  const stageLabel: Record<ProspectStage, string> = { explore: "À explorer", contact: "À contacter", discussion: "En discussion" };
+  const compose = (name: string) => "Bonjour,\n\nJe suis créateur de jeux indépendants, notamment Pro.Hibited, Jointed et 420 Dice. Je souhaiterais savoir si vos activités pourraient accueillir une collaboration de distribution, coédition ou partenariat rémunéré.\n\nPourriez-vous m’indiquer si cette proposition correspond à votre activité et, le cas échéant, à qui présenter les jeux ?\n\nBien cordialement";
+  return <div className="pf-prospect-list">
+    <p className="pf-meta">Pistes issues de sources publiques, non qualifiées. Aucun contact ni budget confirmé.</p>
+    {prospects.map((prospect) => <div key={prospect.url} className="pf-prospect-line">
+      <div><strong>{prospect.name}</strong><div><a href={prospect.url} target="_blank" rel="noopener noreferrer">Voir la source</a> · {stageLabel[stage(prospect.url)]}{prospect.score !== null ? " · Indice " + prospect.score + "/100" : ""}</div></div>
+      <div className="pf-prospect-controls">
+        <button type="button" className="pf-btn" onClick={() => { setSelected(prospect.url); setDraft(compose(prospect.name)); setRecipient(""); }}>Préparer une proposition</button>
+        <select aria-label={"Étape pour " + prospect.name} value={stage(prospect.url)} onChange={(event) => setStages((prev) => ({ ...prev, [prospect.url]: event.target.value as ProspectStage }))}>
+          <option value="explore">À explorer</option><option value="contact">À contacter</option><option value="discussion">En discussion</option>
+        </select>
+      </div>
+    </div>)}
+    {current && <section className="pf-prospect-editor" aria-label="Proposition commerciale">
+      <h4>Proposition pour {current.name}</h4>
+      <p className="pf-meta">Brouillon local non enregistré sur le serveur. Vérifie le destinataire et personnalise le texte avant tout envoi.</p>
+      <label>Adresse professionnelle vérifiée <input type="email" value={recipient} onChange={(event) => setRecipient(event.target.value)} placeholder="contact@entreprise.fr" /></label>
+      <label>Message <textarea rows={9} value={draft} onChange={(event) => setDraft(event.target.value)} /></label>
+      <HarvestActions actions={[{ label: "Copier le brouillon", onClick: () => copy(draft) }]} />
+      <button className="pf-btn pf-btn-primary" type="button" disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recipient)} onClick={() => {
+        const subject = "Proposition de partenariat — jeux indépendants";
+        window.location.href = "mailto:" + encodeURIComponent(recipient) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(draft);
+      }}>Ouvrir le mail pour validation</button>
+      <p className="pf-meta">L’envoi Gmail automatique n’est pas connecté à cette parcelle. Ouvrir le mail ne confirme aucun envoi.</p>
+    </section>}
+  </div>;
+};
+
 function PrivateHarvests() {
   const [session, setSession] = useState<{ items: ServerHarvest[]; expiresAt: number; credential: string } | null>(null);
   const [status, setStatus] = useState("");
@@ -335,7 +383,7 @@ function PrivateHarvests() {
           </section>
           {items.map((item) => <details key={item.harvestId} className="pf-card" style={{ marginTop: 8 }}>
             <summary style={{ cursor: "pointer" }}><strong>{item.title}</strong><p className="pf-meta">{item.harvestedAt ? new Date(item.harvestedAt).toLocaleString("fr-FR") : ""} · {parcelLabel(item.parcelId)} · {item.state}</p></summary>
-            <ReadableHarvest content={item.content} />
+            {/(?:prospection|investigate-contact|score probant)/i.test(item.content) && extractProspects(item.content).length ? <ProspectHarvest item={item} /> : <ReadableHarvest content={item.content} />}
             {/\[(?:[^\]]*à confirmer|URL[^\]]*)\]|\[lien[^\]]*\]/i.test(item.content) ? <p className="pf-meta" role="note">⚠️ Ce document contient encore des liens ou informations à compléter avant utilisation.</p> : null}
             <HarvestActions actions={[{ label: "Copier le texte propre", onClick: () => copy(plainHarvestText(item.content)) }, { label: "Télécharger .md", onClick: () => download("recolte.md", item.content, "text/markdown;charset=utf-8") }]} />
           </details>)}
