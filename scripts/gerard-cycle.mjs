@@ -37,6 +37,7 @@ const TIMEOUT_MS = 60_000;
 
 function nowIso() { return new Date().toISOString(); }
 
+const JOB_SEARCH_ONLY = process.env.GERARD_JOB_SEARCH_ONLY === "true";
 const isJobSearchSeed = seed => seed.templates?.some(t => t.id === "job-search" && t.enabled !== false);
 
 function jobSearchDue(state) {
@@ -46,6 +47,7 @@ function jobSearchDue(state) {
 }
 
 function decideMode(state = {}, inventory = {}) {
+  if (JOB_SEARCH_ONLY) return { mode: "cultivate", reason: "candidatures-manual-check" };
   const forced = process.env.GERARD_MODE?.trim();
   if (forced && ["dream", "cultivate", "play", "symbiosis", "rest"].includes(forced)) {
     return { mode: forced, reason: "manual-override" };
@@ -144,6 +146,7 @@ async function inspectUnfinishedParcel(parcelId) {
 function selectSeedForRotation(seeds, state) {
   if (!seeds.length) return null;
   const jobSearchSeed = seeds.find(isJobSearchSeed);
+  if (JOB_SEARCH_ONLY) return jobSearchSeed ?? null;
   if (jobSearchSeed && jobSearchDue(state)) return jobSearchSeed;
   const lastSeedId = state?.lastSeedId ?? null;
   const index = Math.max(-1, seeds.findIndex((seed) => seed.seedId === lastSeedId));
@@ -229,6 +232,7 @@ async function runCandidatures(seed, state, operationId) {
     if (process.env.PUBLISHER_JOB_SCRIPTS_DIR) {
       const direct = await searchPublisherJobPages(query, process.env.PUBLISHER_JOB_SCRIPTS_DIR);
       if (direct.executed) return direct;
+      console.log(JSON.stringify({ event: "candidatures.publisher-read-unavailable", searchIndex: index, reason: direct.reason }));
     }
     return searchBusinessSources({
       publisherUrl: PUBLISHER_URL,

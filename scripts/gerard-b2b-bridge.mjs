@@ -70,16 +70,18 @@ export async function searchBusinessSources({ publisherUrl, operationId, seed, c
 
 export async function searchPublisherJobPages(query, directory) {
   const program = `
-    import { searchPublicJobPages } from "../publisher-worker/src/job-postings.ts";
-    process.stdout.write(JSON.stringify(await searchPublicJobPages(process.argv[1])));
+    const { searchPublicJobPages } = require("../publisher-worker/src/job-postings.ts");
+    searchPublicJobPages(process.argv[1]).then(result => {
+      process.stdout.write(JSON.stringify(result), () => process.exit(0));
+    });
   `;
   try {
     const { stdout } = await promisify(execFile)(process.execPath,
-      ["--import", "tsx", "--input-type=module", "-e", program, query],
+      ["--import", "tsx", "--input-type=commonjs", "-e", program, query],
       { cwd: directory, timeout: 25000, maxBuffer: 256 * 1024 });
     const result = JSON.parse(stdout);
     if (!Number.isInteger(result?.opened) || result.opened < 1 || !Array.isArray(result.jobs)) {
-      return { executed: false, candidates: [] };
+      return { executed: false, reason: "publisher-job-pages-unavailable", candidates: [] };
     }
     return parseBusinessSourceResponse({
       status: "ok", payload: { status: "completed", output: {
@@ -88,6 +90,6 @@ export async function searchPublisherJobPages(query, directory) {
       } },
     }, { jobPostings: true });
   } catch {
-    return { executed: false, candidates: [] };
+    return { executed: false, reason: "publisher-job-reader-failed", candidates: [] };
   }
 }

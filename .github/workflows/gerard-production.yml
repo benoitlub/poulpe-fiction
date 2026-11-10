@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '17 */3 * * *'
   workflow_dispatch:
+    inputs:
+      candidatures_only:
+        description: "Vérifier les offres et préparer uniquement les brouillons de candidature"
+        type: boolean
+        default: false
 
 jobs:
   production:
@@ -147,6 +152,7 @@ jobs:
         working-directory: poulpe-fiction
         env:
           PUBLISHER_JOB_SCRIPTS_DIR: ${{ github.workspace }}/publisher/scripts
+          GERARD_JOB_SEARCH_ONLY: ${{ inputs.candidatures_only }}
         run: node scripts/gerard-cycle.mjs
 
       - name: Compost freshly produced local harvests
@@ -154,6 +160,7 @@ jobs:
         run: node scripts/gerard-compost.mjs
 
       - name: Prepare a social draft for the diffusion tentacle
+        if: inputs.candidatures_only != true
         working-directory: poulpe-fiction
         run: node scripts/gerard-metricool-publication.mjs
 
