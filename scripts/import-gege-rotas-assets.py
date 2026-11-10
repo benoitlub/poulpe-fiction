@@ -30,12 +30,12 @@ def main(archive):
             contents = bundle.read(name)
             if hashlib.sha256(contents).hexdigest() != hashes[name]:
                 raise ValueError("SHA-256 mismatch: " + name)
-            if name.endswith(".png") and not contents.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+            if name.endswith(".png") and not contents.startswith(b"\x89PNG\r\n\x1a\n"):
                 raise ValueError("Invalid PNG: " + name)
             target = DEST / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(contents)
-        (DEST / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+        (DEST / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Imported 98 PNG character frames and 3 source/background files to {DEST}")
 
 if __name__ == "__main__":
