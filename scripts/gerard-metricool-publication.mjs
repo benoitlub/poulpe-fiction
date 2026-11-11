@@ -467,7 +467,9 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
         publisherFailure = error.name === "TimeoutError" ? "publisher-timeout" : error.message;
       }
     }
-    if (prepareOnly) break;
+    // In preparation mode, a Publisher outage must not prevent using a
+    // grounded, non-duplicated local editorial candidate. The same delivery
+    // eligibility and provider-confirmation checks still apply downstream.
     const local = localEditorialCandidate(seedId, category);
     if (local && !seen.has(copyKey(local.copy.text))) {
       candidate = local;
