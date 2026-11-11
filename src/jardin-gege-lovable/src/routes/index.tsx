@@ -8,6 +8,7 @@ import { ROLE_VISUALS } from "@/garden-gege/roles";
 import type { Selection } from "@/components/garden/scene-model";
 import { configuredRealSource, demoSource } from "@/garden-gege/sources";
 import { useGarden } from "@/garden-gege/useGarden";
+import { useTentacleRuns } from "@/garden-gege/useTentacleRuns";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,6 +31,7 @@ export function Jardin() {
   useEffect(() => setWantReal(new URLSearchParams(location.search).get("source") !== "demo"), []);
   const source = useMemo(() => (wantReal ? configuredRealSource() : demoSource), [wantReal]);
   const garden = useGarden(source);
+  const tentacles = useTentacleRuns(wantReal);
   const cam = useCamera();
   const [selection, setSelection] = useState<Selection | null>(null);
   const [supervision, setSupervision] = useState(false);
@@ -55,6 +57,15 @@ export function Jardin() {
   const active = garden.missions.filter((m) => ["running", "retrying"].includes(m.status)).length;
   const errors = garden.missions.filter((m) => ["failed", "blocked"].includes(m.status)).length;
   const isDemo = source?.kind === "demo";
+  // Read-only visibility: never turn an old completed cycle into a live worker.
+  const lastEvent = garden.events.at(-1);
+  const lastPublication = [...garden.events].reverse().find(
+    (event) => event.status === "completed" && event.resultKind === "publication",
+  );
+  const eventTime = (at?: string) => at
+    ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" }).format(new Date(at))
+    : "aucune trace";
+
 
   return (
     <main className={`fixed inset-0 overflow-hidden ${paused || reduced ? "garden-paused" : ""}`}>
@@ -89,6 +100,35 @@ export function Jardin() {
             {isDemo ? <span className="demo-badge mt-1">Démonstration · données fictives</span>
               : <span className="garden-chip mt-1">Instantané réel</span>}
           </div>
+          <div className="glass-panel pointer-events-auto mt-2 max-w-[min(92vw,340px)] px-3 py-2 text-xs leading-relaxed" aria-label="Dernières traces du jardin">
+            <div className="font-semibold">Activité observée</div>
+            <div>Dernière trace : {eventTime(lastEvent?.timestamp)}</div>
+            <div>Dernière publication confirmée dans ce flux : {eventTime(lastPublication?.timestamp)}</div>
+            <div className="text-muted-foreground">Source partielle · actualisation périodique · ne couvre pas tous les tentacules</div>
+          </div>
+          {!isDemo && (
+            <div className="glass-panel pointer-events-auto mt-2 max-w-[min(92vw,340px)] px-3 py-2 text-xs leading-relaxed" aria-label="Exécutions GitHub des tentacules">
+              <div className="font-semibold">Tentacules · GitHub Actions</div>
+              {tentacles.length === 0 && <div>Lecture des exécutions…</div>}
+              {tentacles.map((run) => (
+                <div key={run.name} className="flex items-center justify-between gap-2 py-0.5">
+                  <span>{run.name}</span>
+                  <span className="text-right">
+                    {run.status === "unavailable" ? "Indisponible" :
+                      run.status === "idle" ? "Aucune exécution" :
+                      run.status === "in_progress" ? "En cours" :
+                      run.status === "queued" ? "En attente" :
+                      run.conclusion === "success" ? "Terminé ✓" :
+                      run.conclusion === "failure" ? "Échec" :
+                      run.conclusion === "cancelled" ? "Annulé" : "Terminé"}
+                    {run.at ? ` · ${eventTime(run.at)}` : ""}
+                    {run.url && <a href={run.url} target="_blank" rel="noopener noreferrer" className="ml-1 underline" aria-label={`Voir le run ${run.name}`}>Voir</a>}
+                  </span>
+                </div>
+              ))}
+              <div className="text-muted-foreground">Exécution réussie ≠ publication confirmée. Source publique GitHub, rafraîchie chaque minute.</div>
+            </div>
+          )}
           <div className="garden-filters pointer-events-auto mt-2 flex gap-1.5 overflow-x-auto" role="group" aria-label="Filtrer les Gégé">
             {([["all", `Tous · ${garden.missions.length}`], ["active", `En cours · ${active}`], ["attention", `À voir · ${errors}`]] as const).map(([k, label]) => (
               <button key={k} className="garden-chip glass-panel shrink-0 !py-1.5" aria-pressed={filter === k} onClick={() => setFilter(k)}
