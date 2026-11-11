@@ -3,6 +3,12 @@ import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { creativeBenchmarkPrompt, loadCreativeBenchmarks } from "./gerard-creative-benchmarks.mjs";
 
+export const directMetricoolEnabled = value => typeof value === "string" && value.trim().toLowerCase() === "true";
+export function consumedDirectReceipt(receipt) {
+  return Boolean(receipt && ((receipt.postId && (receipt.scheduled === true || receipt.published === true)) ||
+    ["confirmed-scheduled","confirmed-published","confirmation-required","pending","unknown"].includes(receipt.status)));
+}
+
 export function metricoolMission(candidate, { execute = false, now = new Date() } = {}) {
   if (candidate?.status !== "ready" || candidate?.transport?.provider !== "metricool" ||
       candidate?.editorialRoute?.destination?.preferredProvider !== "metricool" ||
@@ -93,7 +99,7 @@ async function submitPublication(candidate, mission, handoffKey, options) {
       status: scheduled ? "confirmed-scheduled" : published ? "confirmed-published" : String(output.status ?? body.status ?? "unconfirmed"),
       stage: output.stage ?? "octopus", reason: output.reason ?? null,
       operationId: mission.context.metadata.socialPublication.operationId, missionId: mission.operationId,
-      postId: output.postId ?? null, publicationDate: output.publicationDate ?? null,
+      postId: output.postId ?? null, providerStatus: output.providerStatus ?? null, publicationDate: output.publicationDate ?? null,
       retryAfterSeconds: output.retryAfterSeconds ?? null, budget: output.budget ?? null, scheduled, published,
     };
   } catch {
@@ -101,7 +107,7 @@ async function submitPublication(candidate, mission, handoffKey, options) {
       operationId: mission.context.metadata.socialPublication.operationId, missionId: mission.operationId, scheduled: false, published: false };
   }
   return { ...candidate, [handoffKey]: outcome,
-    delivery: { status: outcome.status, publishingEnabled: outcome.scheduled || outcome.published, stage: outcome.stage, reason: outcome.reason } };
+    delivery: { status: outcome.status, postId: outcome.postId, providerStatus: outcome.providerStatus, publicationDate: outcome.publicationDate, scheduled: outcome.scheduled, published: outcome.published, publishingEnabled: outcome.scheduled || outcome.published, stage: outcome.stage, reason: outcome.reason } };
 }
 
 export async function submitMetricoolPublication(candidate, options = {}) {
@@ -382,10 +388,10 @@ async function readOptional(path, fallback = null) {
   catch (error) { if (error.code !== "ENOENT") throw error; return fallback; }
 }
 
-async function pendingPrepared() {
+async function pendingPrepared({direct = false} = {}) {
   const [item, receipt] = await Promise.all([readOptional(PREPARED), readOptional(RECEIPT)]);
-  if (item?.candidate?.harvestId && !legacyLocalDraft(item.candidate) && !requires420Review(item.candidate.seedId, item.candidate.title) &&
-      receipt?.harvestId !== item.candidate.harvestId &&
+  if (item?.candidate?.harvestId && !(direct && item.candidate.harvestId.startsWith("gerard-facebook-") && item.candidate.copy?.strategy !== "local-editorial-sourced") && !legacyLocalDraft(item.candidate) && !requires420Review(item.candidate.seedId, item.candidate.title) &&
+      (receipt?.harvestId !== item.candidate.harvestId || (direct && !consumedDirectReceipt(receipt))) &&
       Date.now() - Date.parse(item.preparedAt) < 24 * 60 * 60 * 1000) return item.candidate;
   return null;
 }
@@ -454,7 +460,10 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
   const otherLedger = await readOptional(prepareOnly ? FALLBACK_LEDGER : PRODUCTION_LEDGER, { history: [] });
   const topics = EDITORIAL_ANGLES.flatMap(angle => FACEBOOK_PROJECTS.map(project => ({ project, angle })));
   const recent = ledger.history.slice(-200);
-  const seen = new Set([...recent, ...otherLedger.history].filter(item => typeof item.text === "string").map(item => copyKey(item.text)));
+  const direct = prepareOnly && directMetricoolEnabled(process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED);
+  // A review mail is not a publication. In direct mode its copy remains eligible.
+  const otherHistory = (otherLedger.history ?? []).filter(entry => !direct || !["mail-sent","mail-unconfirmed","mail-already-reserved"].includes(entry.status));
+  const seen = new Set([...recent, ...otherHistory].filter(item => typeof item.text === "string").map(item => copyKey(item.text)));
   let publisherFailure = null;
   let candidate;
   for (let attempt = 0; attempt < topics.length; attempt++) {
@@ -507,13 +516,17 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
 async function main() {
   if (process.env.GERARD_METRICOOL_PREPARE_ONLY === "true") {
     await refreshProjectProposals();
-    if (await pendingPrepared()) return;
+    if (await pendingPrepared({direct:directMetricoolEnabled(process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED)})) return;
     console.log(JSON.stringify({ metricoolPreparation: await prepareMetricoolFallback({ prepareOnly: true }) }));
     return;
   }
   const path = "garden/next-social-publication.json";
   const candidate = JSON.parse(await readFile(path, "utf8"));
   if (process.env.GERARD_METRICOOL_EXECUTION_ENABLED !== "true") return;
+  if (directMetricoolEnabled(process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED)) {
+    console.log(JSON.stringify({metricoolTransport:{owner:"production",mode:"direct",status:"provider-result-required"}}));
+    return; // A Gmail proposal must not replace or duplicate the direct scheduler.
+  }
   const updated = await handoffMetricoolByEmail(candidate);
   if (updated.metricoolHandoff) {
     await writeFile(path, JSON.stringify(updated, null, 2) + "\n");

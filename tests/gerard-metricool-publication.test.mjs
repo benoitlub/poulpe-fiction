@@ -103,7 +103,16 @@ test('local fallback includes a project fact and source instead of a bare recycl
  assert.equal(c.media,undefined);
  assert.equal(localEditorialCandidate('jointed'),null,'no local invention of card mechanics without a source summary');
  assert.equal(localEditorialCandidate('unknown'),null);
- assert.equal(localEditorialCandidate('blacklace-dice','promotion').copy.text,c.copy.text,'a category change cannot disguise the same caption as new content');
+ const variants=['entertainment','behind-the-scenes','promotion'].map(category=>localEditorialCandidate('blacklace-dice',category));
+ assert.equal(new Set(variants.map(item=>item.copy.text)).size,3,'the grounded angles added in #231 retain distinct text');
+ assert.equal(new Set(variants.map(item=>item.harvestId)).size,3);
+ for(const item of variants) {
+  assert.deepEqual(item.editorialEvidence,c.editorialEvidence,'changing the angle must preserve the verified project source');
+  assert.ok(item.copy.text.includes(c.editorialEvidence.fact));
+ }
+ const promotion=variants[2],alias=localEditorialCandidate('blacklace-dice','unrecognized-angle');
+ assert.equal(alias.copy.text,promotion.copy.text);
+ assert.equal(alias.harvestId,promotion.harvestId,'a category label cannot disguise identical text as new content');
 });
 
 test('owner relay opts into readable review while preserving the canonical v1 JSON and stable operation id',async()=>{
