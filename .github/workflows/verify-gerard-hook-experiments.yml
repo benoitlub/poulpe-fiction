@@ -1,0 +1,21 @@
+name: Verify Gérard Hook Experiments
+on:
+  pull_request:
+    paths:
+      - 'scripts/gerard-hook-experiments.mjs'
+      - 'scripts/gerard-hook-experiment-run.mjs'
+      - 'tests/gerard-hook-experiments.test.mjs'
+      - '.github/workflows/verify-gerard-hook-experiments.yml'
+  workflow_dispatch:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --test tests/gerard-hook-experiments.test.mjs
+      - run: node --check scripts/gerard-hook-experiment-run.mjs
