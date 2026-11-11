@@ -1,57 +1,85 @@
-// Explicitly gated direct publishing path on the Production runner, where Octopus
-// and Publisher actually exist. This script never runs an implicit live publish.
-import { readFile, writeFile } from "node:fs/promises";
-import { submitMetricoolPublication } from "./gerard-metricool-publication.mjs";
-
-const PREPARED = new URL("../garden/gerard-metricool-prepared.json", import.meta.url);
-const RECEIPT = new URL("../garden/gerard-metricool-prepared-receipt.json", import.meta.url);
-const readOptional = async (url) => {
-  try { return JSON.parse(await readFile(url, "utf8")); }
-  catch (error) { if (error.code === "ENOENT") return null; throw error; }
+// Reuse Production's existing local Octopus -> Publisher -> Metricool route.
+// No new provider, secret, queue or publication date is introduced here.
+import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { submitMetricoolPublication, metricoolMission, localEditorialCandidate,
+  directMetricoolEnabled, consumedDirectReceipt } from './gerard-metricool-publication.mjs';
+const PREPARED = new URL('../garden/gerard-metricool-prepared.json', import.meta.url);
+const RECEIPT = new URL('../garden/gerard-metricool-prepared-receipt.json', import.meta.url);
+const readOptional = async url => {
+  try { return JSON.parse(await readFile(url,'utf8')); }
+  catch(error) { if(error.code === 'ENOENT')return null; throw error; }
 };
 
-const execute = process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED === "true";
-if (!execute) {
-  console.log(JSON.stringify({ status: "direct-publishing-disabled", executed: false }));
-  process.exit(0);
+export async function registerPreparedSource(candidate, {fetchImpl = fetch,
+  publisherUrl = process.env.PUBLISHER_URL, preparedAt} = {}) {
+  if (!candidate.harvestId.startsWith('gerard-facebook-')) return; // Already registered by Publisher.
+  const local = localEditorialCandidate(candidate.seedId, candidate.category);
+  // Only our exact sourced local draft can be registered by this fallback.
+  // Never register arbitrary text, a foreign parcel, media or private prospect data.
+  if (!local || local.harvestId !== candidate.harvestId || local.copy.text !== candidate.copy?.text ||
+      candidate.copy.strategy !== 'local-editorial-sourced' || (candidate.parcelId && candidate.parcelId !== local.seedId) || candidate.media?.url)
+    throw new Error('PREPARED_SOURCE_NOT_VERIFIABLE');
+  const response = await fetchImpl(`${String(publisherUrl).replace(/\/$/,'')}/api/garden/harvests/sync`, {
+    method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(30000),
+    body:JSON.stringify({harvests:[{id:local.harvestId,parcelId:local.seedId,seedId:local.seedId,
+      title:local.title,content:local.copy.text,url:local.editorialEvidence.source,
+      type:'text',status:'ready',createdAt:preparedAt}]})
+  });
+  const result = await response.json();
+  if (!response.ok || result.status !== 'ok' || result.synced !== 1)
+    throw new Error('PREPARED_SOURCE_SYNC_UNCONFIRMED');
 }
-const prepared = await readOptional(PREPARED);
-const candidate = prepared?.candidate;
-const age = Date.now() - Date.parse(prepared?.preparedAt);
-if (!candidate?.harvestId || !Number.isFinite(age) || age < 0 || age >= 86400000 ||
-    candidate.copy?.strategy === "local-editorial" ||
-    /420[^a-z0-9]*dice/i.test([candidate.seedId, candidate.title].join(" "))) {
-  console.log(JSON.stringify({ status: "not-eligible", executed: false }));
-  process.exit(0);
+
+export async function runDirectMetricoolDelivery(prepared, receipt, {
+  enabled = process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED,
+  tokenPresent = Boolean(process.env.METRICOOL_EXECUTION_TOKEN || (process.env.ACTIONS_ID_TOKEN_REQUEST_URL && process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN)), now = Date.now(),
+  submit = submitMetricoolPublication, register = registerPreparedSource,
+  persist = async value => writeFile(RECEIPT,JSON.stringify(value,null,2)+'\n'),
+} = {}) {
+  if (!directMetricoolEnabled(enabled)) return {status:'direct-publishing-disabled',attempted:false};
+  const candidate = prepared?.candidate;
+  const age = now-Date.parse(prepared?.preparedAt);
+  if (!candidate?.harvestId || !Number.isFinite(age) || age<0 || age>=86400000 ||
+      candidate.copy?.strategy === 'local-editorial' ||
+      /420[^a-z0-9]*dice/i.test([candidate.seedId,candidate.title].join(' ')) || !metricoolMission(candidate))
+    return {status:'not-eligible',attempted:false};
+  if (receipt?.harvestId === candidate.harvestId) {
+    if (consumedDirectReceipt(receipt)) return {status:'already-handed-off',attempted:false,confirmationRequired:receipt.status === 'confirmation-required'};
+    if (now<Date.parse(receipt.retryAt)) return {status:'deferred',reason:receipt.reason,retryAt:receipt.retryAt,attempted:false};
+  }
+  let handoff, attempted=false;
+  if (!tokenPresent) handoff={status:'blocked',stage:'authorization',reason:'METRICOOL_EXECUTION_TOKEN_MISSING'};
+  else {
+    try { await register(candidate,{preparedAt:prepared.preparedAt}); }
+    catch(error) { handoff={status:'blocked',stage:'provenance',reason:['PREPARED_SOURCE_NOT_VERIFIABLE','PREPARED_SOURCE_SYNC_UNCONFIRMED'].includes(error.message)?error.message:'PREPARED_SOURCE_SYNC_UNCONFIRMED'}; }
+    if (!handoff) {
+      attempted=true;
+      // On an ambiguous external write, preserve the stable operation and stop.
+      try { handoff=(await submit(candidate,{execute:true,octopusUrl:process.env.OCTOPUS_URL || 'http://127.0.0.1:3000'})).metricoolHandoff; }
+      catch { handoff={status:'confirmation-required',stage:'transport',reason:'PUBLISHER_RESPONSE_UNCONFIRMED'}; }
+      handoff ??= {status:'confirmation-required',stage:'transport',reason:'PUBLISHER_RESPONSE_UNCONFIRMED'};
+    }
+  }
+  const saved={harvestId:candidate.harvestId,operationId:handoff.operationId ?? null,status:handoff.status,
+    postId:handoff.postId ?? null,publicationDate:handoff.publicationDate ?? null,
+    scheduled:handoff.scheduled === true,published:handoff.published === true,
+    stage:handoff.stage ?? null,reason:handoff.reason ?? null,attemptedAt:new Date(now).toISOString()};
+  // An ID/accepted mission alone is not confirmation. Match the builder's contract.
+  saved.scheduled= saved.scheduled && handoff.status === 'confirmed-scheduled' && Boolean(saved.postId);
+  saved.published= saved.published && handoff.status === 'confirmed-published' && Boolean(saved.postId);
+  if (['confirmed-scheduled','confirmed-published'].includes(saved.status) && !saved.scheduled && !saved.published)
+    saved.status='confirmation-required';
+  if (!saved.scheduled && !saved.published && !['blocked','rejected','deferred'].includes(saved.status)) saved.status='confirmation-required';
+  saved.confirmationRequired=['confirmation-required','pending','unknown'].includes(saved.status);
+  if (Number.isFinite(handoff.retryAfterSeconds) && handoff.retryAfterSeconds>0)
+    saved.retryAt=new Date(now+handoff.retryAfterSeconds*1000).toISOString();
+  await persist(saved);
+  return {...saved,attempted};
 }
-const receipt = await readOptional(RECEIPT);
-if (receipt?.harvestId === candidate.harvestId) {
-  console.log(JSON.stringify({ status: "already-handed-off", executed: false }));
-  process.exit(0);
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const result = await runDirectMetricoolDelivery(await readOptional(PREPARED),await readOptional(RECEIPT));
+  console.log(JSON.stringify(result));
+  if (!['confirmed-scheduled','confirmed-published','already-handed-off','direct-publishing-disabled','not-eligible'].includes(result.status)) process.exitCode=1;
 }
-// Stable operation ID is derived by the legacy mission builder; provider must
-// enforce idempotency. Ambiguous responses must never trigger an automatic retry.
-const result = await submitMetricoolPublication(candidate, {
-  execute: true,
-  octopusUrl: process.env.OCTOPUS_URL || "http://127.0.0.1:3000",
-});
-const handoff = result.metricoolHandoff;
-if (!handoff) {
-  console.log(JSON.stringify({ status: "ineligible-mission", executed: false }));
-  process.exit(0);
-}
-await writeFile(RECEIPT, JSON.stringify({
-  harvestId: candidate.harvestId,
-  operationId: handoff.operationId ?? null,
-  status: handoff.status,
-  postId: handoff.postId ?? null,
-  scheduled: handoff.scheduled === true,
-  published: handoff.published === true,
-  // Receipt also prevents Gmail relay of the same candidate on later cycles.
-  confirmationRequired: handoff.scheduled !== true && handoff.published !== true,
-}) + "\n");
-console.log(JSON.stringify({
-  status: handoff.status, scheduled: handoff.scheduled === true,
-  published: handoff.published === true,
-  confirmationRequired: handoff.scheduled !== true && handoff.published !== true,
-}));
