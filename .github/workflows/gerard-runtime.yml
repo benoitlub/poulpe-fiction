@@ -201,6 +201,13 @@ jobs:
           fi
           mv /tmp/gerard-buffer-result.json garden/next-social-publication.json
 
+      - name: Diagnose publication and relay outcomes (read-only)
+        if: always()
+        working-directory: poulpe-fiction
+        env:
+          BUFFER_DRAFT_WRITE_TOKEN: ${{ secrets.BUFFER_DRAFT_WRITE_TOKEN }}
+        run: node scripts/gerard-publication-diagnostics-run.mjs
+
       - name: Persist this tentacle’s changes
         working-directory: poulpe-fiction
         run: node scripts/gerard-private-runtime.mjs persist
