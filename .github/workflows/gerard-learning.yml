@@ -43,19 +43,9 @@ jobs:
         working-directory: poulpe-fiction
         run: node scripts/gerard-private-runtime.mjs hydrate
 
-      - name: Listen to Publisher analytics capability
+      - name: Read Publisher analytics with bounded retry
         working-directory: poulpe-fiction
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p garden
-          STATUS="$(curl --silent --show-error --max-time 18 --output /tmp/gerard-publisher-analytics.json --write-out '%{http_code}' "$PUBLISHER_URL/api/observatory/capability-gap?capability=analytics.read&mission=social%20media%20facebook%20instagram%20post%20engagement%20reach")" || STATUS="000"
-          if [ "$STATUS" = "200" ] && jq -e 'type == "object"' /tmp/gerard-publisher-analytics.json >/dev/null 2>&1; then
-            jq --arg observedAt "$(date -u +%FT%TZ)" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",response:.}' /tmp/gerard-publisher-analytics.json > garden/gerard-publisher-advice.json
-          else
-            jq -n --arg observedAt "$(date -u +%FT%TZ)" --arg http "$STATUS" '{observedAt:$observedAt,source:"publisher",capability:"analytics.read",status:"unavailable",httpStatus:$http}' > garden/gerard-publisher-advice.json
-          fi
-          jq -c '{source,capability,status:(.status // .response.status // "received")}' garden/gerard-publisher-advice.json
+        run: node scripts/gerard-publisher-analytics.mjs
 
       - name: Update Gerard learning from verified outcomes
         working-directory: poulpe-fiction
@@ -66,6 +56,7 @@ jobs:
           test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
           node scripts/gerard-learning-cycle.mjs
           node scripts/gerard-social-feedback.mjs
+          node scripts/gerard-publication-diagnostics-run.mjs
 
       - name: Retain confirmed outcomes in Notion
         working-directory: poulpe-fiction
