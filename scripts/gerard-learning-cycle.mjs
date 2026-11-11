@@ -3,6 +3,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { recordEvent, adviseNextDecision } from './gerard-adaptive-hooks.mjs';
+import { observeDiffusionMission } from './ploustroid-observer.mjs';
 import { integrateOwnerFeedback } from './gerard-owner-feedback.mjs';
 import { editorialMix, suggestEditorialCategory } from './gerard-editorial-mix.mjs';
 
@@ -130,6 +131,11 @@ async function main() {
       adviceAction: evidence.advice?.action ?? null,
       evidenceCount: evidence.advice?.evidenceIds?.length ?? 0,
     }));
+  }
+  if (process.env.PLOUSTROID_OBSERVATION_ENABLED === 'true') {
+    const observation = observeDiffusionMission(result.ploustroidSquadrons, result.adaptiveEvidence);
+    result.ploustroidSquadrons = observation.state;
+    console.log(JSON.stringify({ event: 'ploustroid.diffusion-observation', ...observation.summary }));
   }
   await writeFile(new URL('gerard-learning.json', garden), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ status: 'integrated', pendingExperiments: result.pendingExperiments.length,
