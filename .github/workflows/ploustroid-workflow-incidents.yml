@@ -1,0 +1,42 @@
+name: Ploustroïdes · Journal des incidents
+on:
+  workflow_run:
+    workflows:
+      - 'Gérard · Production'
+      - 'Gérard · Apprentissage et mémoire'
+      - 'Gérard · Studio'
+      - 'Gérard · Runtime'
+    types: [completed]
+jobs:
+  collect:
+    if: github.event.workflow_run.head_branch == 'main' && (github.event.workflow_run.event == 'schedule' || github.event.workflow_run.event == 'workflow_dispatch' || github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    concurrency:
+      group: ploustroid-workflow-incidents
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GERARD_TENTACLE: incidents
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: poulpe-fiction
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install existing database client
+        run: |
+          npm install --prefix "$RUNNER_TEMP/gerard-db" --no-audit --no-fund --ignore-scripts pg@8.22.0
+          echo "GERARD_PUBLISHER_DB_PACKAGE=$RUNNER_TEMP/gerard-db/package.json" >> "$GITHUB_ENV"
+      - name: Restore private state
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs hydrate
+      - name: Reconcile completed workflow run
+        working-directory: poulpe-fiction
+        run: node scripts/ploustroid-workflow-errors.mjs
+      - name: Persist incident register
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs persist
