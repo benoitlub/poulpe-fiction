@@ -173,6 +173,14 @@ jobs:
           GERARD_METRICOOL_EXECUTION_ENABLED: "false"
         run: node scripts/gerard-direct-metricool-rehearsal.mjs
 
+      - name: Direct Metricool delivery through local Octopus (explicit opt-in)
+        if: vars.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED == 'true'
+        working-directory: poulpe-fiction
+        env:
+          GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED: ${{ vars.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED }}
+          OCTOPUS_URL: http://127.0.0.1:3000
+        run: node scripts/gerard-direct-metricool-delivery.mjs
+
       - name: Persist private snapshots before publishing metadata
         working-directory: poulpe-fiction
         env:
