@@ -65,6 +65,7 @@ jobs:
           mkdir -p garden
           test -f garden/gerard-learning.json || echo '{"observations":[]}' > garden/gerard-learning.json
           node scripts/gerard-learning-cycle.mjs
+          node scripts/gerard-hook-experiment-run.mjs
           node scripts/gerard-social-feedback.mjs
 
       - name: Retain confirmed outcomes in Notion
