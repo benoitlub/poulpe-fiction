@@ -242,7 +242,14 @@ const FACEBOOK_PROJECTS = NOTION_EDITORIAL_PROJECTS.map(project =>
 export function localEditorialCandidate(seedId, category = "entertainment") {
   const project = NOTION_EDITORIAL_PROJECTS.find(item => item.id === seedId);
   if (!project?.fact || !project.copy) return null;
-  const text = `${project.title}\n\n${project.fact}\n\n${project.copy}`;
+  // Rotate distinct, grounded angles so a provider outage cannot exhaust the
+  // entire local catalogue after a single post per project.
+  const endings = {
+    entertainment: `Question aux joueurs : quel type de défi aimeriez-vous tenter ?\n\n${project.copy}`,
+    "behind-the-scenes": `Côté création : quel détail compte le plus pour vous dans un jeu ?\n\n${project.copy}`,
+    promotion: project.copy,
+  };
+  const text = `${project.title}\n\n${project.fact}\n\n${endings[category] ?? endings.promotion}`;
   return { ...makeFacebookCandidate([project.id, project.title], [category], text, "local-editorial-sourced"),
     editorialEvidence: { source: project.source, fact: project.fact, type: "project-summary" },
     mediaStatus: "not-produced" };
