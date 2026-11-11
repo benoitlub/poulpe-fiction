@@ -1,0 +1,25 @@
+name: Verify Gérard Publication Breakpoints
+on:
+  pull_request:
+    paths:
+      - 'scripts/gerard-publication-diagnostics*.mjs'
+      - 'scripts/gerard-publisher-analytics.mjs'
+      - 'tests/gerard-publication-diagnostics.test.mjs'
+      - 'tests/gerard-publisher-analytics.test.mjs'
+      - '.github/workflows/gerard-learning.yml'
+      - '.github/workflows/gerard-runtime.yml'
+      - '.github/workflows/verify-publication-breakpoints.yml'
+  workflow_dispatch:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check scripts/gerard-publication-diagnostics-run.mjs
+      - run: node --check scripts/gerard-publisher-analytics.mjs
+      - run: node --test tests/gerard-publication-diagnostics.test.mjs tests/gerard-publisher-analytics.test.mjs
