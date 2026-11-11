@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-11T11:57:45.821Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-11T13:08:22.489Z",
   "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-05T23:38:54.907Z",
-      "mode": "cultivate",
-      "result": "deferred",
-      "operationId": "gerard-cultivate-1793921931682"
-    },
     {
       "at": "2026-11-06T06:43:49.328Z",
       "mode": "symbiosis",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-11T11:57:45.821Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1794398264041",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1794398264041"
+    },
+    {
+      "at": "2026-11-11T13:08:22.489Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1794402502021",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-03T10:09:25.459Z",
-      "mode": "cultivate",
-      "seedId": "420-dice-short-demo",
-      "outcome": "ok",
-      "decision": "studio-files-ready-for-review",
-      "parcelId": "420-dice",
-      "operationId": "gerard-cultivate-1793700531971"
-    },
     {
       "at": "2026-11-03T10:59:30.970Z",
       "mode": "symbiosis",
@@ -500,21 +491,23 @@
     },
     {
       "at": "2026-11-11T11:57:45.821Z",
-      "operationId": "gerard-cultivate-1794398264041",
       "mode": "cultivate",
+      "seedId": "benoit-job-search",
       "outcome": "ok",
       "decision": "candidatures-ready-to-review",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career"
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794398264041"
+    },
+    {
+      "at": "2026-11-11T13:08:22.489Z",
+      "operationId": "gerard-symbiosis-1794402502021",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "decision": "candidatures-ready-to-review",
-    "parcelId": "benoit-career",
-    "seedId": "benoit-job-search",
-    "operationId": "gerard-cultivate-1794398264041",
-    "itemCount": 1,
-    "contacted": false
+    "at": "2026-11-11T13:08:22.488Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
