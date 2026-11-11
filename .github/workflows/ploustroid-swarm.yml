@@ -1,0 +1,36 @@
+name: Ploustroïdes · Essaim Diffusion
+on:
+  workflow_dispatch:
+jobs:
+  swarm:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    concurrency:
+      group: ploustroid-swarm-diffusion
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GERARD_TENTACLE: swarm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: poulpe-fiction
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install existing database client
+        run: |
+          npm install --prefix "$RUNNER_TEMP/gerard-db" --no-audit --no-fund --ignore-scripts pg@8.22.0
+          echo "GERARD_PUBLISHER_DB_PACKAGE=$RUNNER_TEMP/gerard-db/package.json" >> "$GITHUB_ENV"
+      - name: Restore private state
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs hydrate
+      - name: Run parallel Gégé checks
+        working-directory: poulpe-fiction
+        run: node scripts/ploustroid-swarm-run.mjs
+      - name: Persist verified observations
+        working-directory: poulpe-fiction
+        run: node scripts/gerard-private-runtime.mjs persist

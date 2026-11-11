@@ -1,0 +1,22 @@
+name: Verify Ploustroïdes Swarm
+on:
+  pull_request:
+    paths:
+      - 'scripts/ploustroid-swarm.mjs'
+      - 'scripts/ploustroid-swarm-run.mjs'
+      - 'tests/ploustroid-swarm.test.mjs'
+      - '.github/workflows/ploustroid-swarm.yml'
+      - '.github/workflows/verify-ploustroid-swarm.yml'
+  workflow_dispatch:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --test tests/ploustroid-swarm.test.mjs
+      - run: node --check scripts/ploustroid-swarm-run.mjs
