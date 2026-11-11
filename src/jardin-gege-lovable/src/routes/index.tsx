@@ -55,6 +55,15 @@ export function Jardin() {
   const active = garden.missions.filter((m) => ["running", "retrying"].includes(m.status)).length;
   const errors = garden.missions.filter((m) => ["failed", "blocked"].includes(m.status)).length;
   const isDemo = source?.kind === "demo";
+  // Read-only visibility: never turn an old completed cycle into a live worker.
+  const lastEvent = garden.events.at(-1);
+  const lastPublication = [...garden.events].reverse().find(
+    (event) => event.status === "completed" && event.resultKind === "publication",
+  );
+  const eventTime = (at?: string) => at
+    ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" }).format(new Date(at))
+    : "aucune trace";
+
 
   return (
     <main className={`fixed inset-0 overflow-hidden ${paused || reduced ? "garden-paused" : ""}`}>
@@ -88,6 +97,12 @@ export function Jardin() {
             </h1>
             {isDemo ? <span className="demo-badge mt-1">Démonstration · données fictives</span>
               : <span className="garden-chip mt-1">Instantané réel</span>}
+          </div>
+          <div className="glass-panel pointer-events-auto mt-2 max-w-[min(92vw,340px)] px-3 py-2 text-xs leading-relaxed" aria-label="Dernières traces du jardin">
+            <div className="font-semibold">Activité observée</div>
+            <div>Dernière trace : {eventTime(lastEvent?.timestamp)}</div>
+            <div>Dernière publication confirmée dans ce flux : {eventTime(lastPublication?.timestamp)}</div>
+            <div className="text-muted-foreground">Source partielle · actualisation périodique · ne couvre pas tous les tentacules</div>
           </div>
           <div className="garden-filters pointer-events-auto mt-2 flex gap-1.5 overflow-x-auto" role="group" aria-label="Filtrer les Gégé">
             {([["all", `Tous · ${garden.missions.length}`], ["active", `En cours · ${active}`], ["attention", `À voir · ${errors}`]] as const).map(([k, label]) => (
