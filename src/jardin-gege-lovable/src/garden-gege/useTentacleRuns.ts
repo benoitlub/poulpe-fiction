@@ -32,12 +32,34 @@ export function useTentacleRuns(enabled: boolean) {
           if (!response.ok) throw new Error(`GitHub ${response.status}`);
           const body = await response.json() as { workflow_runs?: Array<{
             status?: string; conclusion?: string | null; created_at?: string;
-            updated_at?: string; html_url?: string; run_attempt?: number;
+            updated_at?: string; html_url?: string; id?: number; run_attempt?: number;
           }> };
-          // Diffusion shares a workflow with courrier; run-level metadata alone
-          // cannot distinguish jobs. Do not mislabel a courrier run as diffusion.
-          if ("job" in item) return { name: item.name, status: "unavailable", conclusion: null, at: null, url: null };
-          const run = body.workflow_runs?.[0];
+          // Diffusion shares a workflow with courrier. Inspect the job name,
+          // not the workflow run, so a mail run never looks like a diffusion run.
+          let run = body.workflow_runs?.[0];
+          if ("job" in item) {
+            run = undefined;
+            for (const candidate of body.workflow_runs ?? []) {
+              if (!candidate.id) continue;
+              const jobsResponse = await fetch(
+                `https://api.github.com/repos/benoitlub/poulpe-fiction/actions/runs/${candidate.id}/jobs?per_page=30`,
+                { signal: controller.signal, headers: { Accept: "application/vnd.github+json" } },
+              );
+              if (!jobsResponse.ok) throw new Error(`GitHub jobs ${jobsResponse.status}`);
+              const jobs = await jobsResponse.json() as { jobs?: Array<{
+                name?: string; status?: string; conclusion?: string | null;
+                started_at?: string; completed_at?: string; html_url?: string;
+              }> };
+              const job = jobs.jobs?.find((entry) => /diffusion/i.test(entry.name ?? ""));
+              if (job) return {
+                name: item.name,
+                status: job.status === "completed" || job.status === "in_progress" || job.status === "queued" ? job.status : "unavailable",
+                conclusion: job.conclusion ?? null,
+                at: job.completed_at ?? job.started_at ?? candidate.created_at ?? null,
+                url: job.html_url ?? candidate.html_url ?? null,
+              };
+            }
+          }
           if (!run) return { name: item.name, status: "idle", conclusion: null, at: null, url: null };
           const status = run.status === "in_progress" || run.status === "queued" || run.status === "completed"
             ? run.status : "unavailable";
