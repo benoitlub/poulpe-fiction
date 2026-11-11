@@ -23,7 +23,7 @@ if (!Number.isFinite(ageMs) || ageMs < 0 || ageMs >= 24 * 60 * 60 * 1000) {
 }
 let receipt = null;
 try {
-  receipt = JSON.parse(await readFile(new URL("../garden/gerard-metricool-receipt.json", import.meta.url), "utf8"));
+  receipt = JSON.parse(await readFile(new URL("../garden/gerard-metricool-prepared-receipt.json", import.meta.url), "utf8"));
 } catch (error) {
   if (error.code !== "ENOENT") throw error;
 }
