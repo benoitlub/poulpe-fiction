@@ -91,3 +91,55 @@ test("nonexistent or non-media URLs cannot trigger publication", async () => {
     assert.equal(out.metricoolHandoff.published,false);
   }
 });
+
+test('local fallback includes a project fact and source instead of a bare recycled question',async()=>{
+ const {localEditorialCandidate}=await import('../scripts/gerard-metricool-publication.mjs');
+ const c=localEditorialCandidate('blacklace-dice');
+ assert.match(c.copy.text,/Dé anti-procrastination absurde/);
+ assert.match(c.copy.text,/petite décision/);
+ assert.equal(c.copy.strategy,'local-editorial-sourced');
+ assert.match(c.editorialEvidence.source,/notion/);
+ assert.equal(c.mediaStatus,'not-produced');
+ assert.equal(c.media,undefined);
+ assert.equal(localEditorialCandidate('jointed'),null,'no local invention of card mechanics without a source summary');
+ assert.equal(localEditorialCandidate('unknown'),null);
+ assert.equal(localEditorialCandidate('blacklace-dice','promotion').copy.text,c.copy.text,'a category change cannot disguise the same caption as new content');
+});
+
+test('owner relay opts into readable review while preserving the canonical v1 JSON and stable operation id',async()=>{
+ const {handoffMetricoolByEmail}=await import('../scripts/gerard-metricool-publication.mjs');
+ const before=process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
+ process.env.ACTIONS_ID_TOKEN_REQUEST_URL='https://oidc.example/token';
+ let posted,calls=0;
+ try {
+  const out=await handoffMetricoolByEmail({...candidate,title:'Blacklace Dice'},{fetchImpl:async(url,init)=>{
+   calls++;
+   if(new URL(url).hostname==='oidc.example')return Response.json({value:'fixture-token'});
+   posted=JSON.parse(init.body);return Response.json({status:'sent'});
+  }});
+  assert.equal(calls,2);assert.equal(posted.presentation,'editorial-review-v1');
+  const old=await handoffMetricoolByEmail({...candidate,harvestId:'gerard-facebook-fixture',copy:{text:'Ancienne question générique',strategy:'local-editorial'}},{fetchImpl:async()=>{throw Error('must not send legacy draft');}});
+  assert.equal(old.metricoolHandoff,undefined);
+  assert.ok(posted.subject.length<100);assert.ok(!posted.subject.includes('gerard-metricool-'));
+  const relay=JSON.parse(posted.body);
+  assert.equal(relay.contract,'gerard-metricool-mail-v1');assert.equal(relay.text,candidate.copy.text);
+  assert.equal(posted.operationId,'gerard-mail-'+relay.operationId.slice('gerard-metricool-'.length));
+  assert.equal(out.delivery.status,'mail-sent');assert.equal(out.delivery.publishingEnabled,false);
+ } finally {if(before===undefined)delete process.env.ACTIONS_ID_TOKEN_REQUEST_URL;else process.env.ACTIONS_ID_TOKEN_REQUEST_URL=before;}
+});
+
+test('machine mode preserves the legacy subject and exact v1 body for an external consumer',async()=>{
+ const {handoffMetricoolByEmail}=await import('../scripts/gerard-metricool-publication.mjs');
+ const before=process.env.ACTIONS_ID_TOKEN_REQUEST_URL;process.env.ACTIONS_ID_TOKEN_REQUEST_URL='https://oidc.example/token';
+ let posted;
+ try {
+  await handoffMetricoolByEmail(candidate,{presentation:'machine',fetchImpl:async(url,init)=>{
+   if(new URL(url).hostname==='oidc.example')return Response.json({value:'fixture-token'});
+   posted=JSON.parse(init.body);return Response.json({status:'sent'});
+  }});
+  const relay=JSON.parse(posted.body);
+  assert.equal(posted.subject,'[Gerard Metricool v1] '+relay.operationId);
+  assert.equal(posted.presentation,undefined);
+  assert.deepEqual(Object.keys(relay),['contract','operationId','harvestId','seedId','brandId','networks','text','media']);
+ } finally {if(before===undefined)delete process.env.ACTIONS_ID_TOKEN_REQUEST_URL;else process.env.ACTIONS_ID_TOKEN_REQUEST_URL=before;}
+});
