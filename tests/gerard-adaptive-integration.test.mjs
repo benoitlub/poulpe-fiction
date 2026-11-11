@@ -10,7 +10,7 @@ test('opt-in adapter preserves evidence between cycles and changes advice', () =
     { delivery: { status: 'not-attempted' } }, '2026-11-11T10:05:00Z');
   assert.equal(second.adaptiveEvents.events.length, 2);
   assert.deepEqual(second.adaptiveEvents.events.map(e => e.cycleId), ['cycle-1', 'cycle-2']);
-  assert.equal(second.adaptiveEvidence.advice.action, 'verify-delivery');
+  assert.equal(second.adaptiveEvidence.advice.action, 'diagnose-transport');
   const repeated = integrateAdaptiveEvidence(first, { parcelId: 'benoit', operationId: 'cycle-1' },
     { delivery: { status: 'blocked' } }, '2026-11-11T11:00:00Z');
   assert.equal(repeated.adaptiveEvents.events.length, 1);
