@@ -18,7 +18,8 @@ export function adviseNextDecision(state, parcelId) {
   if (!parcelId) throw new TypeError('parcelId required');
   const events = (state?.events ?? []).filter(e => e.parcelId === parcelId);
   const deliveries = events.filter(e => e.kind === 'delivery');
-  const latest = deliveries.at(-1);
+  // Ignore no-op cycles when deciding whether a previously failed channel is repaired.
+  const latest = [...deliveries].reverse().find(e => e.payload.status !== 'not-attempted') ?? deliveries.at(-1);
   if (!latest) return { action: 'proceed-with-existing-policy', evidenceIds: [], reason: 'No delivery observation' };
   const status = latest.payload.status;
   if (['blocked', 'failed', 'error', 'rejected'].includes(status)) {
