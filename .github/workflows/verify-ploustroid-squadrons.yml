@@ -3,7 +3,11 @@ on:
   pull_request:
     paths:
       - 'scripts/ploustroid-squadrons.mjs'
+      - 'scripts/ploustroid-observer.mjs'
+      - 'scripts/gerard-learning-cycle.mjs'
+      - '.github/workflows/gerard-learning.yml'
       - 'tests/ploustroid-squadrons.test.mjs'
+      - 'tests/ploustroid-observer.test.mjs'
       - '.github/workflows/verify-ploustroid-squadrons.yml'
   workflow_dispatch:
 jobs:
@@ -17,4 +21,6 @@ jobs:
         with:
           node-version: 22
       - run: node --check scripts/ploustroid-squadrons.mjs
-      - run: node --test tests/ploustroid-squadrons.test.mjs
+      - run: node --check scripts/ploustroid-observer.mjs
+      - run: node --check scripts/gerard-learning-cycle.mjs
+      - run: node --test tests/ploustroid-squadrons.test.mjs tests/ploustroid-observer.test.mjs tests/gerard-adaptive-integration.test.mjs
