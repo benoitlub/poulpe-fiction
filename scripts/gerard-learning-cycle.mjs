@@ -2,6 +2,7 @@
 /** Retain a traceable experiment across cycles; provider analytics are reconciled separately. */
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { recordEvent, adviseNextDecision } from './gerard-adaptive-hooks.mjs';
 import { integrateOwnerFeedback } from './gerard-owner-feedback.mjs';
 import { editorialMix, suggestEditorialCategory } from './gerard-editorial-mix.mjs';
 
@@ -79,6 +80,29 @@ export function integrateLearningCycle(previous, decision, publication, analytic
   };
 }
 
+// Opt-in adapter: stores only minimal operational evidence inside the existing
+// private learning document, which is already restored/persisted by the runtime.
+// No publication, scheduling, or network side effects.
+export function integrateAdaptiveEvidence(learning, decision, publication, now = new Date().toISOString()) {
+  const parcelId = typeof decision?.parcelId === 'string' ? decision.parcelId.trim() : '';
+  const cycleId = String(decision?.operationId ?? decision?.cycleId ?? '').trim();
+  const status = publication?.delivery?.status;
+  if (!parcelId || !cycleId || typeof status !== 'string' || !status.trim()) {
+    return { ...learning, adaptiveEvidence: { ...(learning?.adaptiveEvidence ?? {}), status: 'insufficient-evidence' } };
+  }
+  const prior = learning?.adaptiveEvents ?? { events: [] };
+  const eventId = `delivery:${parcelId}:${cycleId}`;
+  const existing = prior.events?.find(e => e.eventId === eventId);
+  const event = existing ?? {
+    eventId, cycleId, parcelId, kind: 'delivery', at: now,
+    payload: { status, providerStatus: publication.delivery?.providerStatus ?? null },
+  };
+  const next = recordEvent(prior, event);
+  const advice = adviseNextDecision(next, parcelId);
+  return { ...learning, adaptiveEvents: { events: next.events.slice(-150) },
+    adaptiveEvidence: { status: 'observed', parcelId, cycleId, advice, updatedAt: now } };
+}
+
 async function main() {
   const garden = new URL('../garden/', import.meta.url);
   const read = async (filename, fallback = {}) => {
@@ -89,7 +113,11 @@ async function main() {
     await read('gerard-learning.json'), await read('gerard-decision-explanation.json'),
     await read('next-social-publication.json'), await read('metricool-analytics-snapshot.json'),
     await read('gerard-publisher-advice.json'));
-  const result = integrateOwnerFeedback(cycleResult, await read('gerard-owner-feedback.json', { feedback: [] }));
+  const ownerResult = integrateOwnerFeedback(cycleResult, await read('gerard-owner-feedback.json', { feedback: [] }));
+  // Disabled by default until runtime integration and production validation.
+  const result = process.env.GERARD_ADAPTIVE_HOOKS_ENABLED === 'true'
+    ? integrateAdaptiveEvidence(ownerResult, await read('gerard-decision-explanation.json'),
+        await read('next-social-publication.json')) : ownerResult;
   await writeFile(new URL('gerard-learning.json', garden), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ status: 'integrated', pendingExperiments: result.pendingExperiments.length,
     nextExperiment: result.guidance.nextExperiment }));

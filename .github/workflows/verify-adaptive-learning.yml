@@ -1,0 +1,25 @@
+name: Verify adaptive learning
+on:
+  pull_request:
+    paths:
+      - 'scripts/gerard-adaptive-hooks.mjs'
+      - 'scripts/gerard-learning-cycle.mjs'
+      - 'tests/gerard-adaptive-*.test.mjs'
+      - '.github/workflows/verify-adaptive-learning.yml'
+  workflow_dispatch:
+jobs:
+  adaptive-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate syntax
+        run: |
+          node --check scripts/gerard-adaptive-hooks.mjs
+          node --check scripts/gerard-learning-cycle.mjs
+      - name: Run adaptive unit and integration tests
+        run: node --test tests/gerard-adaptive-hooks.test.mjs tests/gerard-adaptive-integration.test.mjs
