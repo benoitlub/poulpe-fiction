@@ -32,6 +32,7 @@ jobs:
       GERARD_TENTACLE: delivery
       GERARD_BUFFER_AUTO_PUBLISH_ENABLED: "true"
       GERARD_METRICOOL_EXECUTION_ENABLED: "true"
+      GERARD_METRICOOL_MAIL_PRESENTATION: ${{ vars.GERARD_METRICOOL_MAIL_PRESENTATION || 'editorial-review-v1' }}
       GERARD_METRICOOL_LOCAL_ONLY: "true"
     steps:
       - name: Checkout Poulpe Fiction

@@ -120,7 +120,12 @@ function requires420Review(...parts) {
   return /420[^a-z0-9]*dice/i.test(parts.join(" "));
 }
 
-async function handoffMetricoolByEmail(candidate) {
+function legacyLocalDraft(candidate) {
+  return candidate?.harvestId?.startsWith("gerard-facebook-") && candidate?.copy?.strategy === "local-editorial";
+}
+
+export async function handoffMetricoolByEmail(candidate, {fetchImpl = fetch, presentation = process.env.GERARD_METRICOOL_MAIL_PRESENTATION || "editorial-review-v1"} = {}) {
+  if (legacyLocalDraft(candidate)) return candidate;
   const mission = metricoolMission(candidate);
   if (!mission) return candidate;
   const { operationId, harvestId, seedId, text, media, networks } = mission.context.metadata.socialPublication;
@@ -128,13 +133,14 @@ async function handoffMetricoolByEmail(candidate) {
   const brandId = networks.includes("tiktok") ? "7653100" : "3350145";
   if (candidate.transport.brandId && String(candidate.transport.brandId) !== brandId) return candidate;
   if (requires420Review(seedId, candidate.title, ...media)) return candidate;
-  const subject = MAIL_SUBJECT + " " + operationId;
-  const body = JSON.stringify({ contract: "gerard-metricool-mail-v1", operationId, harvestId, seedId, brandId, networks, text, media });
+  const readable = presentation === "editorial-review-v1";
+  const subject = readable ? `${MAIL_SUBJECT} ${candidate.title || seedId} · ${networks.join(", ")}`.slice(0, 200) : MAIL_SUBJECT + " " + operationId;
+  const body = JSON.stringify({ contract: "gerard-metricool-mail-v1", operationId, harvestId, seedId, brandId, networks, text, media, ...(readable ? {title: candidate.title || seedId} : {}) });
   let outcome = { status: "mail-unconfirmed", operationId };
   try {
     const url = new URL(process.env.ACTIONS_ID_TOKEN_REQUEST_URL);
     url.searchParams.set("audience", "blacklace-publisher-gerard-owner-test");
-    const tokenResponse = await fetch(url, {
+    const tokenResponse = await fetchImpl(url, {
       headers: { Authorization: "Bearer " + process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN },
       signal: AbortSignal.timeout(10000),
     });
@@ -142,12 +148,12 @@ async function handoffMetricoolByEmail(candidate) {
     const { value } = await tokenResponse.json();
     if (!value) throw new Error("github-oidc-empty");
     const publisher = (process.env.PUBLISHER_URL || "https://blacklace-publisher-worker.benoitlubert.workers.dev").replace(/\/$/, "");
-    const response = await fetch(publisher + "/api/gerard/gmail/send", {
+    const response = await fetchImpl(publisher + "/api/gerard/gmail/send", {
       method: "POST",
       headers: { Authorization: "Bearer " + value, "Content-Type": "application/json" },
       body: JSON.stringify({
         operationId: "gerard-mail-" + operationId.slice("gerard-metricool-".length),
-        recipientEmail: MAIL_RECIPIENT, subject, body,
+        recipientEmail: MAIL_RECIPIENT, subject, body, ...(readable ? {presentation} : {}),
       }),
       signal: AbortSignal.timeout(90000),
     });
@@ -162,50 +168,8 @@ async function handoffMetricoolByEmail(candidate) {
     delivery: { status: outcome.status, publishingEnabled: false, stage: "gmail-relay", reason: outcome.reason ?? null } };
 }
 
-// Local captions are deliberately phrased as prompts to the community.
-// They require no provider, media, or unverified claims about the project.
-const FACEBOOK_PROJECTS = [
-  ["prohibited-online", "Pro.Hibited Online", [
-    "Si tu pouvais saboter ton propre plan pour faire rire la table, tu le ferais ?",
-    "Dans un jeu en ligne, tu préfères une revanche immédiate ou le temps de refaire la partie avec les autres ?",
-    "Pour découvrir Pro.Hibited Online, tu voudrais voir un premier tour ou le moment où le plan déraille ?",
-  ]],
-  ["blacklace-dice", "Blacklace Dice", [
-    "Tu hésites trop ? Quelle petite décision laisserais-tu volontiers à un dé ?",
-    "Quel détail rend un lancer plus satisfaisant pour toi : le bruit, le suspense ou la réaction des autres ?",
-    "Pour découvrir Blacklace Dice, tu commencerais par un lancer commenté ou un petit défi à tenter en groupe ?",
-  ]],
-  ["feuch-dice", "Feuch Dice", [
-    "Quel défi ferais-tu relever à un adversaire sûr de gagner ?",
-    "Pour rendre un lancer mémorable, tu travaillerais d’abord le rythme ou la surprise ?",
-    "Pour découvrir Feuch Dice, tu voterais pour un défi éclair ou une revanche en trois manches ?",
-  ]],
-  ["prout-hibited", "Prout.Hibited", [
-    "Concours de poker face : qui dans ta bande craquerait en premier si le jeu avait ce nom ?",
-    "Où placerais-tu le curseur de l’absurde : dans le titre, dans la situation ou dans la chute ?",
-    "Pour présenter Prout.Hibited en dix secondes, tu tenterais le pitch très sérieux ou la bande-annonce complètement absurde ?",
-  ]],
-  ["jointed", "Jointed", [
-    "Imagine deux cartes adversaires condamnées à faire équipe. Quels noms donnerais-tu à ce duo improbable ?",
-    "Pour une combinaison de cartes, tu préfères comprendre l’idée tout de suite ou la découvrir en jouant ?",
-    "Pour découvrir Jointed, tu regarderais d’abord une association de cartes ou le dilemme qui force à choisir ?",
-  ]],
-  ["420-dice", "420 Dice Game", [
-    "Quand un lancer ne te donne rien, tu accuses le hasard, la gravité ou ton dé porte-malheur ?",
-    "Dans une séquence de dés, tu couperais l’image sur le lancer ou sur la tête du joueur juste après ?",
-    "Pour découvrir 420 Dice Game, tu veux voir le lancer le plus chanceux ou celui que personne ne voudrait assumer ?",
-  ]],
-  ["blacklace-island", "Blacklace Island", [
-    "Tu débarques sur une île au crépuscule. Tu suis les lucioles ou tu cherches d’abord un abri ?",
-    "Sur une carte d’île, quel premier repère te donne envie d’explorer : une lumière au loin ou un chemin qui disparaît ?",
-    "Pour découvrir Blacklace Island, tu ferais le tour de la côte ou tu irais droit vers le point le plus mystérieux ?",
-  ]],
-  ["feuch-game", "Feuch Game", [
-    "Quel est le pire superpouvoir à avoir un soir de jeu ? Le mien serait de deviner le résultat juste après le lancer.",
-    "Qu’est-ce qui fait un bon premier tour : un choix évident pour se lancer ou un dilemme qui donne tout de suite le ton ?",
-    "Pour découvrir Feuch Game, tu préfères un défi à relever ensemble ou chacun son tour sous le regard des autres ?",
-  ]],
-];
+// Local fallback is grounded in the existing per-project Notion summaries.
+// A question alone is not a verified product description.
 const NOTION_EDITORIAL_PROJECTS = [
   {
     "id": "feuch-dice",
@@ -272,6 +236,18 @@ const NOTION_EDITORIAL_PROJECTS = [
     "format": "Montrer l’interface comme une fiction interactive."
   }
 ];
+const FACEBOOK_PROJECTS = NOTION_EDITORIAL_PROJECTS.map(project =>
+  [project.id, project.title, [project.copy, project.copy, project.copy]]);
+
+export function localEditorialCandidate(seedId, category = "entertainment") {
+  const project = NOTION_EDITORIAL_PROJECTS.find(item => item.id === seedId);
+  if (!project?.fact || !project.copy) return null;
+  const text = `${project.title}\n\n${project.fact}\n\n${project.copy}`;
+  return { ...makeFacebookCandidate([project.id, project.title], [category], text, "local-editorial-sourced"),
+    editorialEvidence: { source: project.source, fact: project.fact, type: "project-summary" },
+    mediaStatus: "not-produced" };
+}
+
 const PROJECT_PROPOSALS = new URL("../garden/gerard-editorial-proposals.json", import.meta.url);
 
 async function refreshProjectProposals() {
@@ -287,11 +263,6 @@ async function refreshProjectProposals() {
   console.log(JSON.stringify({ editorialProposals: projects.map(project => project.id) }));
 }
 
-const LOCAL_FOLLOWUPS = [
-  "",
-  " Et qu’est-ce qui te ferait changer d’avis ?",
-  " Demande à la personne avec qui tu joues le plus : elle choisirait comme toi ?",
-];
 const EDITORIAL_ANGLES = [
   ["entertainment", "Une question amusante ou un mini-défi imaginaire pour les joueurs."],
   ["behind-the-scenes", "Une question de conception concrète, formulée comme un choix ouvert."],
@@ -406,7 +377,7 @@ async function readOptional(path, fallback = null) {
 
 async function pendingPrepared() {
   const [item, receipt] = await Promise.all([readOptional(PREPARED), readOptional(RECEIPT)]);
-  if (item?.candidate?.harvestId && !requires420Review(item.candidate.seedId, item.candidate.title) &&
+  if (item?.candidate?.harvestId && !legacyLocalDraft(item.candidate) && !requires420Review(item.candidate.seedId, item.candidate.title) &&
       receipt?.harvestId !== item.candidate.harvestId &&
       Date.now() - Date.parse(item.preparedAt) < 24 * 60 * 60 * 1000) return item.candidate;
   return null;
@@ -482,7 +453,7 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
   for (let attempt = 0; attempt < topics.length; attempt++) {
     const { project, angle } = topics[ledger.cursor % topics.length];
     ledger.cursor = (ledger.cursor + 1) % topics.length;
-    const [seedId, title, captions] = project;
+    const [seedId, title] = project;
     if (requires420Review(seedId, title)) continue;
     const [category] = angle;
     if (attempt === 0 && process.env.GERARD_METRICOOL_LOCAL_ONLY !== "true") {
@@ -497,12 +468,9 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
       }
     }
     if (prepareOnly) break;
-    const base = captions[EDITORIAL_ANGLES.indexOf(angle)];
-    const text = LOCAL_FOLLOWUPS
-      .map(followup => `${title} — ${base}${followup}`)
-      .find(caption => !seen.has(copyKey(caption)));
-    if (text) {
-      candidate = makeFacebookCandidate(project, angle, text, "local-editorial");
+    const local = localEditorialCandidate(seedId, category);
+    if (local && !seen.has(copyKey(local.copy.text))) {
+      candidate = local;
       break;
     }
   }
