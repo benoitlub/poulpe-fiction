@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-11T16:02:13.820Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-11T16:06:15.633Z",
   "lastSeedId": "gerard-restart-2026-10-04",
   "history": [
-    {
-      "at": "2026-11-06T16:46:19.756Z",
-      "mode": "cultivate",
-      "result": "deferred",
-      "operationId": "gerard-cultivate-1793983575012"
-    },
     {
       "at": "2026-11-06T23:08:38.650Z",
       "mode": "symbiosis",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-11T16:02:13.820Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1794412910820",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1794412910820"
+    },
+    {
+      "at": "2026-11-11T16:06:15.633Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1794413175248",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-03T11:29:48.589Z",
-      "mode": "cultivate",
-      "seedId": "420-dice-short-demo",
-      "outcome": "ok",
-      "decision": "studio-files-ready-for-review",
-      "parcelId": "420-dice",
-      "operationId": "gerard-cultivate-1793705388416"
-    },
     {
       "at": "2026-11-03T11:53:51.876Z",
       "mode": "symbiosis",
@@ -500,101 +491,23 @@
     },
     {
       "at": "2026-11-11T16:02:13.820Z",
-      "operationId": "gerard-cultivate-1794412910820",
       "mode": "cultivate",
+      "seedId": "gerard-restart-2026-10-04",
       "outcome": "ok",
       "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction"
+      "parcelId": "poulpe-fiction",
+      "operationId": "gerard-cultivate-1794412910820"
+    },
+    {
+      "at": "2026-11-11T16:06:15.633Z",
+      "operationId": "gerard-symbiosis-1794413175248",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1794412910820",
-    "seedId": "gerard-restart-2026-10-04",
-    "parcelId": "poulpe-fiction",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "poulpe-fiction",
-      "source": "notion"
-    },
-    "decision": "harvest-produced",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1794412910820-knowledge",
-        "status": "completed",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "poulpe-fiction",
-          "source": "notion",
-          "verified": true,
-          "itemCount": 4,
-          "diagnostics": {
-            "connected": true,
-            "totalItems": 5,
-            "matchedItems": 4,
-            "discoveredItems": 4,
-            "digestedItems": 4
-          }
-        },
-        "missionId": "gerard-cultivate-1794412910820-knowledge",
-        "contextId": "poulpe-fiction",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1794412910820-knowledge",
-          "state": "completed",
-          "createdAt": "2026-11-11T16:01:50.842Z",
-          "updatedAt": "2026-11-11T16:01:55.418Z"
-        }
-      }
-    },
-    "harvest": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1794412910820-harvest",
-        "missionId": "gerard-cultivate-1794412910820-harvest",
-        "status": "completed",
-        "contextId": "poulpe-fiction",
-        "tentacleId": "octopus-core",
-        "executorId": "octopus-core",
-        "resourceResult": {
-          "resourceId": "mistral",
-          "status": "success",
-          "output": {}
-        },
-        "output": {},
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1794412910820-harvest",
-          "state": "completed",
-          "createdAt": "2026-11-11T16:01:55.856Z",
-          "updatedAt": "2026-11-11T16:02:13.797Z"
-        }
-      },
-      "verification": {
-        "seedId": "gerard-restart-2026-10-04",
-        "parcelId": "poulpe-fiction",
-        "operationId": "gerard-cultivate-1794412910820-harvest",
-        "capability": "content.generate",
-        "completed": true,
-        "simulated": false,
-        "contentLength": 4331,
-        "route": "octopus->publisher-adapter"
-      }
-    },
-    "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1794412910820-harvest",
-      "harvestedAt": "2026-11-11T16:02:13.801Z",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "capability": "content.generate",
-      "route": "octopus->publisher-adapter",
-      "state": "harvested"
-    }
+    "at": "2026-11-11T16:06:15.632Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
