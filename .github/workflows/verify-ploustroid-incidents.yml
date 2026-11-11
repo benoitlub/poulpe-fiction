@@ -1,0 +1,19 @@
+name: Verify Ploustroid Incident Digest
+on:
+  pull_request:
+    paths:
+      - 'scripts/ploustroid-incident-digest.mjs'
+      - 'tests/ploustroid-incident-digest.test.mjs'
+      - '.github/workflows/verify-ploustroid-incidents.yml'
+  workflow_dispatch:
+jobs:
+  incident-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/ploustroid-incident-digest.test.mjs
