@@ -5,7 +5,7 @@ on:
       - 'Gérard · Production'
       - 'Gérard · Apprentissage et mémoire'
       - 'Gérard · Studio'
-      - 'Gérard · Runtime'
+      - 'Gérard · Diffusion et courrier'
     types: [completed]
 jobs:
   collect:
