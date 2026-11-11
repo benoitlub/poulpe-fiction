@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { LayoutList, Maximize2, Minus, Pause, Play, Plus, Settings2 } from "lucide-react";
+import { Activity, LayoutList, Maximize2, Minus, Pause, Play, Plus, Settings2 } from "lucide-react";
 import { GardenScene, type SceneFilter } from "@/components/garden/GardenScene";
 import { Inspector, Supervision } from "@/components/garden/Panels";
 import { useCamera } from "@/components/garden/useCamera";
@@ -37,6 +37,7 @@ export function Jardin() {
   const [supervision, setSupervision] = useState(false);
   const [paused, setPaused] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [filter, setFilter] = useState<SceneFilter>("all");
 
@@ -100,35 +101,6 @@ export function Jardin() {
             {isDemo ? <span className="demo-badge mt-1">Démonstration · données fictives</span>
               : <span className="garden-chip mt-1">Instantané réel</span>}
           </div>
-          <div className="glass-panel pointer-events-auto mt-2 max-w-[min(92vw,340px)] px-3 py-2 text-xs leading-relaxed" aria-label="Dernières traces du jardin">
-            <div className="font-semibold">Activité observée</div>
-            <div>Dernière trace : {eventTime(lastEvent?.timestamp)}</div>
-            <div>Dernière publication confirmée dans ce flux : {eventTime(lastPublication?.timestamp)}</div>
-            <div className="text-muted-foreground">Source partielle · actualisation périodique · ne couvre pas tous les tentacules</div>
-          </div>
-          {!isDemo && (
-            <div className="glass-panel pointer-events-auto mt-2 max-w-[min(92vw,340px)] px-3 py-2 text-xs leading-relaxed" aria-label="Exécutions GitHub des tentacules">
-              <div className="font-semibold">Tentacules · GitHub Actions</div>
-              {tentacles.length === 0 && <div>Lecture des exécutions…</div>}
-              {tentacles.map((run) => (
-                <div key={run.name} className="flex items-center justify-between gap-2 py-0.5">
-                  <span>{run.name}</span>
-                  <span className="text-right">
-                    {run.status === "unavailable" ? "Indisponible" :
-                      run.status === "idle" ? "Aucune exécution" :
-                      run.status === "in_progress" ? "En cours" :
-                      run.status === "queued" ? "En attente" :
-                      run.conclusion === "success" ? "Terminé ✓" :
-                      run.conclusion === "failure" ? "Échec" :
-                      run.conclusion === "cancelled" ? "Annulé" : "Terminé"}
-                    {run.at ? ` · ${eventTime(run.at)}` : ""}
-                    {run.url && <a href={run.url} target="_blank" rel="noopener noreferrer" className="ml-1 underline" aria-label={`Voir le run ${run.name}`}>Voir</a>}
-                  </span>
-                </div>
-              ))}
-              <div className="text-muted-foreground">Exécution réussie ≠ publication confirmée. Source publique GitHub, rafraîchie chaque minute.</div>
-            </div>
-          )}
           <div className="garden-filters pointer-events-auto mt-2 flex gap-1.5 overflow-x-auto" role="group" aria-label="Filtrer les Gégé">
             {([["all", `Tous · ${garden.missions.length}`], ["active", `En cours · ${active}`], ["attention", `À voir · ${errors}`]] as const).map(([k, label]) => (
               <button key={k} className="garden-chip glass-panel shrink-0 !py-1.5" aria-pressed={filter === k} onClick={() => setFilter(k)}
@@ -139,6 +111,7 @@ export function Jardin() {
           </div>
         </div>
         <div className="pointer-events-auto flex gap-2">
+          <button className="garden-icon-btn" aria-label="Afficher l'activité" aria-expanded={activityOpen} onClick={() => { setActivityOpen(v => !v); setSettingsOpen(false); }}><Activity size={18} /></button>
           <button className="garden-btn glass-panel" aria-pressed={supervision} onClick={() => { setSupervision((v) => !v); setSelection(null); }}>
             <LayoutList size={16} /> <span className="hidden sm:inline">Superviser</span>
           </button>
@@ -146,6 +119,41 @@ export function Jardin() {
         </div>
       </header>
 
+      {activityOpen && (
+        <aside className="pointer-events-auto absolute left-2 right-2 top-20 z-30 max-h-[min(65dvh,520px)] overflow-y-auto rounded-xl md:left-auto md:right-5 md:top-24 md:w-[380px]" aria-label="Activité et tentacules">
+          <div className="flex justify-end px-2 pt-2"><button className="garden-icon-btn" aria-label="Fermer l'activité" onClick={() => setActivityOpen(false)}>×</button></div>
+            <div className="glass-panel pointer-events-auto mt-2 max-w-[min(92vw,340px)] px-3 py-2 text-xs leading-relaxed" aria-label="Dernières traces du jardin">
+              <div className="font-semibold">Activité observée</div>
+              <div>Dernière trace : {eventTime(lastEvent?.timestamp)}</div>
+              <div>Dernière publication confirmée dans ce flux : {eventTime(lastPublication?.timestamp)}</div>
+              <div className="text-muted-foreground">Source partielle · actualisation périodique · ne couvre pas tous les tentacules</div>
+            </div>
+            {!isDemo && (
+              <div className="glass-panel pointer-events-auto mt-2 max-w-[min(92vw,340px)] px-3 py-2 text-xs leading-relaxed" aria-label="Exécutions GitHub des tentacules">
+                <div className="font-semibold">Tentacules · GitHub Actions</div>
+                {tentacles.length === 0 && <div>Lecture des exécutions…</div>}
+                {tentacles.map((run) => (
+                  <div key={run.name} className="flex items-center justify-between gap-2 py-0.5">
+                    <span>{run.name}</span>
+                    <span className="text-right">
+                      {run.status === "unavailable" ? "Indisponible" :
+                        run.status === "idle" ? "Aucune exécution" :
+                        run.status === "in_progress" ? "En cours" :
+                        run.status === "queued" ? "En attente" :
+                        run.conclusion === "success" ? "Terminé ✓" :
+                        run.conclusion === "failure" ? "Échec" :
+                        run.conclusion === "cancelled" ? "Annulé" : "Terminé"}
+                      {run.at ? ` · ${eventTime(run.at)}` : ""}
+                      {run.url && <a href={run.url} target="_blank" rel="noopener noreferrer" className="ml-1 underline" aria-label={`Voir le run ${run.name}`}>Voir</a>}
+                    </span>
+                  </div>
+                ))}
+                <div className="text-muted-foreground">Exécution réussie ≠ publication confirmée. Source publique GitHub, rafraîchie chaque minute.</div>
+              </div>
+            )}
+  
+        </aside>
+      )}
       {settingsOpen && (
         <section className="glass-panel pointer-events-auto absolute right-2 top-20 z-30 w-64 space-y-3 p-4 text-sm md:right-5 md:top-24" aria-label="Réglages du jardin">
           <div className="flex items-center justify-between"><strong>Réglages</strong><button aria-label="Fermer les réglages" onClick={() => setSettingsOpen(false)}>×</button></div>
