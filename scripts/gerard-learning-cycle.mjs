@@ -118,6 +118,19 @@ async function main() {
   const result = process.env.GERARD_ADAPTIVE_HOOKS_ENABLED === 'true'
     ? integrateAdaptiveEvidence(ownerResult, await read('gerard-decision-explanation.json'),
         await read('next-social-publication.json')) : ownerResult;
+  if (process.env.GERARD_ADAPTIVE_HOOKS_ENABLED === 'true') {
+    // Operational evidence only; never log private payloads, post copy or tokens.
+    const evidence = result.adaptiveEvidence ?? {};
+    console.log(JSON.stringify({
+      event: 'gerard.adaptive-observation',
+      status: evidence.status ?? 'unavailable',
+      eventCount: Array.isArray(result.adaptiveEvents?.events) ? result.adaptiveEvents.events.length : 0,
+      cyclePresent: Boolean(evidence.cycleId),
+      parcelPresent: Boolean(evidence.parcelId),
+      adviceAction: evidence.advice?.action ?? null,
+      evidenceCount: evidence.advice?.evidenceIds?.length ?? 0,
+    }));
+  }
   await writeFile(new URL('gerard-learning.json', garden), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ status: 'integrated', pendingExperiments: result.pendingExperiments.length,
     nextExperiment: result.guidance.nextExperiment }));
