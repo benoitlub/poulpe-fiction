@@ -15,7 +15,27 @@ try {
   }
   throw error;
 }
+// Mirror production eligibility: do not rehearse stale or consumed work.
+const ageMs = Date.now() - Date.parse(prepared?.preparedAt);
+if (!Number.isFinite(ageMs) || ageMs < 0 || ageMs >= 24 * 60 * 60 * 1000) {
+  console.log(JSON.stringify({ status: "stale-preparation", executed: false }));
+  process.exit(0);
+}
+let receipt = null;
+try {
+  receipt = JSON.parse(await readFile(new URL("../garden/gerard-metricool-receipt.json", import.meta.url), "utf8"));
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+}
 const candidate = prepared?.candidate;
+if (receipt?.harvestId && receipt.harvestId === candidate?.harvestId) {
+  console.log(JSON.stringify({ status: "already-handed-off", executed: false }));
+  process.exit(0);
+}
+if (candidate?.copy?.strategy === "local-editorial" && candidate?.harvestId?.startsWith("gerard-facebook-")) {
+  console.log(JSON.stringify({ status: "legacy-local-draft", executed: false }));
+  process.exit(0);
+}
 const mission = metricoolMission(candidate, { execute: false });
 if (!mission) {
   console.log(JSON.stringify({ status: "ineligible", executed: false, reason: "metricool-mission-not-eligible" }));
