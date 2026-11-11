@@ -19,6 +19,8 @@ jobs:
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       GERARD_TENTACLE: learning
+      # Observation only: no autonomous publishing or strategy changes.
+      GERARD_ADAPTIVE_HOOKS_ENABLED: 'true'
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
       GERARD_NOTION_MEMORY_PAGE_ID: ${{ vars.GERARD_NOTION_MEMORY_PAGE_ID || '40f39119-7253-812a-819d-e39863e4b86a' }}
     steps:
