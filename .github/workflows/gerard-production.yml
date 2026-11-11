@@ -164,6 +164,15 @@ jobs:
         working-directory: poulpe-fiction
         run: node scripts/gerard-metricool-publication.mjs
 
+      # Rehearse the pre-November Octopus transport without scheduling anything.
+      # Production already starts Octopus and registers Publisher; Diffusion does not.
+      - name: Rehearse legacy Metricool transport (dry-run only)
+        if: inputs.candidatures_only != true
+        working-directory: poulpe-fiction
+        env:
+          GERARD_METRICOOL_EXECUTION_ENABLED: "false"
+        run: node scripts/gerard-direct-metricool-rehearsal.mjs
+
       - name: Persist private snapshots before publishing metadata
         working-directory: poulpe-fiction
         env:
