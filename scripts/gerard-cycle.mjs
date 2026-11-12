@@ -15,6 +15,7 @@ import { isSimulatedHarvest, isCrossParcelYaebaliHarvest, isOffDomainYaebaliHarv
 import { searchBusinessSources, searchPublisherJobPages } from "./gerard-b2b-bridge.mjs";
 import { runCommunityRadar } from "./gerard-community-radar.mjs";
 import { providerRetry } from "./gerard-provider-retry.mjs";
+import { prepareProhibitedGameplay, prohibitedGameplaySeedId } from "./gerard-prohibited-gameplay.mjs";
 import { runImageStudio } from "./gerard-image-studio.mjs";
 import { runParcelStudio, studioOperationId, studioFeedbackForParcel, submitStudioMission } from "./gerard-av-studio.mjs";
 import { qualifyBusinessSources, formatQualifiedSources } from "./gerard-b2b-qualification.mjs";
@@ -121,6 +122,9 @@ async function loadSeeds() {
   const parsed = JSON.parse(await readFile(SEEDS_PATH, "utf8"));
   const seeds = Array.isArray(parsed?.seeds) ? parsed.seeds : [];
   return seeds.filter(seed => {
+    if (process.env.GERARD_STUDIO_PREVIEW_SEED === prohibitedGameplaySeedId) {
+      return process.env.GERARD_TENTACLE === "studio" && seed?.seedId === prohibitedGameplaySeedId;
+    }
     if (!seed?.seedId || !seed?.parcelId) return false;
     const studio = seed.templates?.some(t => ["image-studio", "audio-studio", "video-studio"].includes(t.id) && t.enabled !== false);
     if (process.env.GERARD_TENTACLE === "studio") return studio;
@@ -452,6 +456,7 @@ async function main() {
           const benchmarks = kind === "video" ? await loadCreativeBenchmarks([selectedSeed.seedId, selectedSeed.parcelId, selectedSeed.title]) : [];
           const studioId=studioOperationId(selectedSeed,kind,creativeFeedback,benchmarks);
           const outputDir = new URL(`../garden/studio/${encodeURIComponent(selectedSeed.parcelId)}/${studioId}/`, import.meta.url);
+          if (selectedSeed.seedId === prohibitedGameplaySeedId) await prepareProhibitedGameplay();
           const studio = await runParcelStudio(selectedSeed,{kind,operationId:studioId,outputDir,creativeFeedback,benchmarks});
           result = { status:studio.status === "ready-for-review" ? "ok" : studio.status === "deferred" ? "deferred" : "failed", operationId, seedId:selectedSeed.seedId, parcelId:selectedSeed.parcelId,
             decision:studio.status === "ready-for-review" ? "studio-files-ready-for-review" : "studio-production-blocked", studio, published:false };
