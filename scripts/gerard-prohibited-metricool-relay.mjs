@@ -67,7 +67,7 @@ export async function relayProhibitedStudio({ fetchImpl = fetch, handoff = hando
   const tiktokDelivered = await handoff(tiktokCandidate, { fetchImpl, presentation: "contract-v1" });
   const tiktok = tiktokDelivered.metricoolHandoff ?? { status: "handoff-ineligible" };
   return {
-    status: ["mail-sent", "mail-already-reserved"].includes(tiktok.status) ? "mail-sent" : "blocked",
+    status: ["mail-sent", "mail-already-reserved"].includes(tiktok.status) ? "relays-handed-off" : "blocked",
     instagram, tiktok,
   };
 }
@@ -76,7 +76,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   try {
     const outcome = await relayProhibitedStudio();
     console.log(JSON.stringify({ prohibitedStudioMetricool: outcome }));
-    if (!["awaiting-studio-export", "mail-sent", "mail-already-reserved"].includes(outcome.status)) process.exitCode = 1;
+    if (!["awaiting-studio-export", "mail-sent", "mail-already-reserved", "relays-handed-off"].includes(outcome.status)) process.exitCode = 1;
   } catch (error) {
     console.log(JSON.stringify({ prohibitedStudioMetricool: { status: "blocked", reason: error.message } }));
     process.exitCode = 1;
