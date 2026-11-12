@@ -1,6 +1,10 @@
 name: Gérard · Studio
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/gerard-prohibited-metricool-relay.mjs
   schedule:
     - cron: '37 */3 * * *'
   workflow_dispatch:
@@ -19,6 +23,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      prohibited_media: ${{ steps.prohibited_media.outputs.ready }}
     concurrency:
       group: gerard-studio
       cancel-in-progress: false
@@ -40,7 +46,7 @@ jobs:
       GERARD_AV_STUDIO_ENABLED: "true"
       GERARD_IMAGE_STUDIO_ENABLED: "true"
       GERARD_MODE: cultivate
-      GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_prohibited_gameplay && 'prohibited-online-gameplay-preview' || inputs.preview_420_dice_short && '420-dice' || '' }}
+      GERARD_STUDIO_PREVIEW_SEED: ${{ (inputs.preview_prohibited_gameplay || github.event_name == 'push') && 'prohibited-online-gameplay-preview' || inputs.preview_420_dice_short && '420-dice' || '' }}
     steps:
       - name: Runtime heartbeat
         shell: bash
@@ -174,6 +180,30 @@ jobs:
         working-directory: poulpe-fiction
         run: node scripts/gerard-cycle.mjs
 
+      - name: Stage only the verified Pro.Hibited MP4 for delivery
+        id: prohibited_media
+        working-directory: poulpe-fiction
+        run: |
+          set -euo pipefail
+          id=$(jq -r '.lastResult | select(.seedId == "prohibited-online-gameplay-preview" and .studio.evidence.fileVerified == true) | .studio.operationId' garden/gerard-studio-state.json)
+          if [ -z "$id" ]; then exit 0; fi
+          [[ "$id" =~ ^studio-[a-f0-9]{64}$ ]]
+          dir="garden/studio/prohibited-online/$id"
+          expected=$(jq -er --arg id "$id" 'select(.operationId == $id and .status == "ready-for-review" and .parcelId == "prohibited-online" and .image.provider == "registered-gameplay-video") | .files[] | select(.filename == "short.mp4") | .sha256' "$dir/report.json")
+          read -r actual _ < <(sha256sum "$dir/short.mp4")
+          [[ "$actual" == "$expected" ]]
+          cp "$dir/short.mp4" "$RUNNER_TEMP/prohibited-online-studio-v1.mp4"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Pass the MP4 to the delivery job
+        if: steps.prohibited_media.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-prohibited-metricool-mp4
+          path: ${{ runner.temp }}/prohibited-online-studio-v1.mp4
+          if-no-files-found: error
+          retention-days: 2
+
       - name: Preserve Studio files and submission checkpoints
         if: ${{ !cancelled() }}
         uses: actions/cache/save@v4
@@ -199,3 +229,36 @@ jobs:
             poulpe-fiction/garden/studio/**
             publisher/data/studio/jobs/**
           retention-days: 7
+
+  expose_prohibited_mp4:
+    needs: studio
+    if: needs.studio.outputs.prohibited_media == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: gerard-prohibited-metricool-mp4
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: gerard-prohibited-metricool-mp4
+      - name: Make the approved gameplay MP4 downloadable for Metricool
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag=gerard-prohibited-online-studio-v1
+          file=prohibited-online-studio-v1.mp4
+          if ! gh release view "$tag" --json tagName >/dev/null 2>&1; then
+            gh release create "$tag" --target "$GITHUB_SHA" --latest=false \
+              --title "Pro.Hibited Online · vidéo de gameplay" --notes "Clip vertical de Pro.Hibited Online. Voix SIWIS, University of Edinburgh (CC BY 4.0)."
+          fi
+          names=$(gh release view "$tag" --json assets --jq '.assets[].name')
+          if ! grep -Fxq "$file" <<< "$names"; then
+            gh release upload "$tag" "$file"
+            gh workflow run gerard-runtime.yml --ref main -f tentacle=studio-prohibited
+          fi

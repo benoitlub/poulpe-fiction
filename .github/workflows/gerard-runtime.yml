@@ -12,10 +12,27 @@ on:
       tentacle:
         description: "Tentacule à lancer"
         type: choice
-        options: [diffusion, courrier]
+        options: [diffusion, courrier, studio-prohibited]
         default: diffusion
 
 jobs:
+  studio_prohibited_delivery:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.tentacle == 'studio-prohibited'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Relay the verified Pro.Hibited gameplay video
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/gerard-prohibited-metricool-relay.mjs
+
   delivery:
     if: github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 */3 * * *') || (github.event_name == 'workflow_dispatch' && inputs.tentacle == 'diffusion'))
     runs-on: ubuntu-latest
@@ -54,6 +71,13 @@ jobs:
       - name: Restore private state
         working-directory: poulpe-fiction
         run: node scripts/gerard-private-runtime.mjs hydrate
+
+      - name: Relay the verified Pro.Hibited gameplay video
+        working-directory: poulpe-fiction
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/gerard-prohibited-metricool-relay.mjs
 
       - name: Select and explain the next publication
         working-directory: poulpe-fiction
