@@ -58,14 +58,16 @@ fi
 # without empty entries or duplicates from combined observations.
 EXCLUDED_SEED_IDS="$(printf '%s' "$EXCLUDED_SEED_IDS" | jq -sRr 'split(",") | map(select(length > 0)) | unique | join(",")')"
 EXCLUDED_IDS="$(printf '%s' "$EXCLUDED_IDS" | jq -sRr 'split(",") | map(select(length > 0)) | unique | join(",")')"
+select_social_package() {
+local prefer_metricool="$1"
 # If the top candidate is a book held for Buffer, inspect alternatives
 # instead of letting that single item monopolize every scheduled cycle.
 # Never force books through Metricool or bypass account routing.
 BRIDGE_URL="$PUBLISHER_URL/api/social/bridge/next?excludeSeedIds=$(printf '%s' "$EXCLUDED_SEED_IDS" | jq -sRr @uri)&excludeHarvestIds=$(printf '%s' "$EXCLUDED_IDS" | jq -sRr @uri)"
-HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' "$BRIDGE_URL")"
+HTTP_STATUS="$(curl --silent --show-error --output /tmp/gerard-social-next.json --write-out '%{http_code}' --max-time 25 "$BRIDGE_URL")" || HTTP_STATUS="000"
 # Walk a bounded list of existing candidates. One Buffer-only book
 # must not monopolize the Metricool delivery lane.
-if [ "$HTTP_STATUS" = "200" ] && [ "$(jq -r '.status // ""' /tmp/gerard-social-next.json)" = "ready" ]; then
+if [ "$prefer_metricool" = "true" ] && [ "$HTTP_STATUS" = "200" ] && [ "$(jq -r '.status // ""' /tmp/gerard-social-next.json)" = "ready" ]; then
   SEARCH_EXCLUDED_IDS="$EXCLUDED_IDS"
   for ATTEMPT in 1 2 3 4 5 6 7 8; do
     CANDIDATE_ID="$(jq -r '.harvestId // ""' /tmp/gerard-social-next.json)"
@@ -239,6 +241,27 @@ else
   echo "Publisher social bridge failed with HTTP $HTTP_STATUS; publication remains safely skipped."
   cat /tmp/gerard-social-next.json || true
   jq -n --arg checkedAt "$(date -u +%FT%TZ)" --arg httpStatus "$HTTP_STATUS" --arg pinnedHarvestId "${SELECTED_HARVEST_ID:-}" --slurpfile bridge /tmp/gerard-social-next.json '{preparedAt:$checkedAt,status:"blocked",reason:"publisher-media-or-bridge-unavailable",httpStatus:$httpStatus,harvestId:(if $pinnedHarvestId != "" then $pinnedHarvestId else ($bridge[0].harvestId // null) end),title:($bridge[0].title // null),action:"do-not-schedule"}' > garden/next-social-publication.json
+fi
+}
+
+select_social_package true
+if [ "${GERARD_TENTACLE:-}" = "delivery" ] &&
+   jq -e '.reason == "editorial-prompt-leak" and .transport.provider == "buffer"' garden/next-social-publication.json >/dev/null; then
+  cp garden/next-social-publication.json /tmp/gerard-rejected-buffer-package.json
+  for RETRY in 1 2 3; do
+    REJECTED_ID="$(jq -r '.harvestId // empty' garden/next-social-publication.json)"
+    [ -n "$REJECTED_ID" ] || break
+    case ",$EXCLUDED_IDS," in *,"$REJECTED_ID",*) break ;; esac
+    EXCLUDED_IDS="${EXCLUDED_IDS:+$EXCLUDED_IDS,}$REJECTED_ID"
+    echo "Buffer caption rejected; selecting a different harvest (retry $RETRY)."
+    select_social_package false
+    if jq -e '.status == "ready" and .transport.provider == "buffer" and .action == "hold-for-buffer-draft" and .bufferPreflight.status == "ready-for-controlled-test"' garden/next-social-publication.json >/dev/null; then
+      break
+    fi
+  done
+  if ! jq -e '.status == "ready" and .transport.provider == "buffer" and .action == "hold-for-buffer-draft" and .bufferPreflight.status == "ready-for-controlled-test"' garden/next-social-publication.json >/dev/null; then
+    cp /tmp/gerard-rejected-buffer-package.json garden/next-social-publication.json
+  fi
 fi
 
 set -euo pipefail
