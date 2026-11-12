@@ -194,6 +194,41 @@ jobs:
         env:
           GERARD_PLAYWRIGHT_MODULE: ${{ runner.temp }}/gerard-playwright/node_modules/playwright/index.mjs
         run: node scripts/gerard-gameplay-capture.mjs output/prohibited-gameplay prohibited-online
+      - name: Checkout Publisher Studio
+        if: ${{ inputs.capture_prohibited_gameplay || github.event_name == 'pull_request' }}
+        uses: actions/checkout@v4
+        with:
+          repository: benoitlub/blacklace-publisher-ai
+          path: publisher
+      - name: Mount and score the captured gameplay in Publisher
+        if: ${{ inputs.capture_prohibited_gameplay || github.event_name == 'pull_request' }}
+        working-directory: publisher
+        run: |
+          set -euo pipefail
+          corepack enable
+          pnpm install --frozen-lockfile
+          python3 -m venv .studio-venv
+          .studio-venv/bin/pip install 'piper-tts==1.8.0'
+          python3 scripts/setup-studio-voice.py
+          export PIPER_BIN="$PWD/.studio-venv/bin/piper"
+          export PIPER_MODEL="$PWD/data/studio-models/fr_FR-siwis-medium.onnx"
+          export PIPER_MODEL_SHA256=641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99
+          export STUDIO_ASSETS_DIR="$PWD/data/studio-inputs"
+          asset_id=prohibited-online-captured-gameplay
+          source_url=https://benoitlub.github.io/prohibited-online/
+          cp ../output/prohibited-gameplay/gameplay-vertical.mp4 "$STUDIO_ASSETS_DIR/$asset_id.mp4"
+          read -r asset_sha _ < <(sha256sum "$STUDIO_ASSETS_DIR/$asset_id.mp4")
+          jq -e --arg sha "$asset_sha" '.files["gameplay-vertical.mp4"].sha256 == $sha and .technicalQuality == "passed"' ../output/prohibited-gameplay/review-report.json
+          jq --arg id "$asset_id" --arg sha "$asset_sha" --arg source "$source_url" \
+            '.assets += [{id:$id,parcelId:"prohibited-online",file:($id+".mp4"),sha256:$sha,rights:{license:"LicenseRef-Owner-Authorized-Preview",scope:"local-preview",source:$source,attribution:"Partie enregistrée dans le jeu de Benoît Lubert"}}]' \
+            "$STUDIO_ASSETS_DIR/assets.json" > "$STUDIO_ASSETS_DIR/assets.tmp.json"
+          mv "$STUDIO_ASSETS_DIR/assets.tmp.json" "$STUDIO_ASSETS_DIR/assets.json"
+          jq -n --arg id "$asset_id" --arg source "$source_url" --arg operation "prohibited-online-preview-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            '{version:"studio-v1",parcelId:"prohibited-online",seedId:"prohibited-online-gameplay-preview",operationId:$operation,durationSeconds:10,title:"PRO.HIBITED ONLINE",videoAssetId:$id,segments:[{text:"À toi de jouer.",caption:"À toi de jouer."},{text:"Le bot prend la main.",caption:"Le bot prend la main."}],scriptRights:{source:$source,attribution:"Texte de démonstration écrit pour la capture."},authorizedResources:["video.studio"],automaticPublication:false}' \
+            > examples/studio/prohibited-online-preview.json
+          pnpm --filter @workspace/scripts exec tsx ./render-short.mts ../examples/studio/prohibited-online-preview.json > ../output/prohibited-gameplay/studio-report.json
+          find data/studio/jobs -name short.mp4 -exec cp '{}' ../output/prohibited-gameplay/prohibited-online-short.mp4 \;
+          test -s ../output/prohibited-gameplay/prohibited-online-short.mp4
       - name: Upload Pro.Hibited Online footage and proof
         if: ${{ always() && (inputs.capture_prohibited_gameplay || github.event_name == 'pull_request') }}
         uses: actions/upload-artifact@v4
@@ -202,6 +237,8 @@ jobs:
           path: |
             output/prohibited-gameplay/gameplay-vertical.mp4
             output/prohibited-gameplay/final-frame.png
+            output/prohibited-gameplay/prohibited-online-short.mp4
+            output/prohibited-gameplay/studio-report.json
             output/prohibited-gameplay/review-report.json
           retention-days: 14
           if-no-files-found: warn
