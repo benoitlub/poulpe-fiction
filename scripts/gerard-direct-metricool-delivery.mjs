@@ -16,14 +16,21 @@ export async function registerPreparedSource(candidate, {fetchImpl = fetch,
   if (!candidate.harvestId.startsWith('gerard-facebook-')) return; // Already registered by Publisher.
   const local = localEditorialCandidate(candidate.seedId, candidate.category);
   // Only our exact sourced local draft can be registered by this fallback.
-  // Never register arbitrary text, a foreign parcel, media or private prospect data.
+  // Keep old text-only drafts readable. An attached image must match the exact
+  // project file, and an illustrated fallback may only target its declared network.
+  const mediaUrl = candidate.media?.url;
+  const expectedNetwork = mediaUrl ? local?.compatibleNetworks[0] : 'facebook';
   if (!local || local.harvestId !== candidate.harvestId || local.copy.text !== candidate.copy?.text ||
-      candidate.copy.strategy !== 'local-editorial-sourced' || (candidate.parcelId && candidate.parcelId !== local.seedId) || candidate.media?.url)
+      candidate.copy.strategy !== 'local-editorial-sourced' || (candidate.parcelId && candidate.parcelId !== local.seedId) ||
+      (mediaUrl && mediaUrl !== local.media?.url) || candidate.compatibleNetworks?.length !== 1 ||
+      candidate.compatibleNetworks[0] !== expectedNetwork ||
+      (candidate.media?.sourceHarvestId && candidate.media.sourceHarvestId !== local.harvestId))
     throw new Error('PREPARED_SOURCE_NOT_VERIFIABLE');
   const response = await fetchImpl(`${String(publisherUrl).replace(/\/$/,'')}/api/garden/harvests/sync`, {
     method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(30000),
     body:JSON.stringify({harvests:[{id:local.harvestId,parcelId:local.seedId,seedId:local.seedId,
       title:local.title,content:local.copy.text,url:local.editorialEvidence.source,
+      ...(mediaUrl ? {downloadUrl:mediaUrl} : {}),
       type:'text',status:'ready',createdAt:preparedAt}]})
   });
   const result = await response.json();

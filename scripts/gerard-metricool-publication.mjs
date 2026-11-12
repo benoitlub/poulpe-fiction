@@ -242,8 +242,14 @@ const NOTION_EDITORIAL_PROJECTS = [
     "format": "Montrer l’interface comme une fiction interactive."
   }
 ];
-const FACEBOOK_PROJECTS = NOTION_EDITORIAL_PROJECTS.map(project =>
+const FALLBACK_PROJECTS = NOTION_EDITORIAL_PROJECTS.map(project =>
   [project.id, project.title, [project.copy, project.copy, project.copy]]);
+
+// Files from the project's own repository, pinned to the verified revision.
+const PROJECT_IMAGES = {
+  "blacklace-dice": "https://raw.githubusercontent.com/benoitlub/blacklace-dice/fb8de762d467878c4a6c8435831b03e1592a608b/public/opengraph.jpg",
+  "blacklace-echo": "https://raw.githubusercontent.com/benoitlub/blacklace-echo/46bd95b2ed2e2528168c46911b7a0049033ff438/public/assets/img/island-map.png",
+};
 
 export function localEditorialCandidate(seedId, category = "entertainment") {
   const project = NOTION_EDITORIAL_PROJECTS.find(item => item.id === seedId);
@@ -256,9 +262,8 @@ export function localEditorialCandidate(seedId, category = "entertainment") {
     promotion: project.copy,
   };
   const text = `${project.title}\n\n${project.fact}\n\n${endings[category] ?? endings.promotion}`;
-  return { ...makeFacebookCandidate([project.id, project.title], [category], text, "local-editorial-sourced"),
-    editorialEvidence: { source: project.source, fact: project.fact, type: "project-summary" },
-    mediaStatus: "not-produced" };
+  return { ...makeFallbackCandidate([project.id, project.title], [category], text, "local-editorial-sourced"),
+    editorialEvidence: { source: project.source, fact: project.fact, type: "project-summary" } };
 }
 
 const PROJECT_PROPOSALS = new URL("../garden/gerard-editorial-proposals.json", import.meta.url);
@@ -403,7 +408,8 @@ function copyKey(text) {
 async function requestPublisherCaption(project, angle, oldCaptions) {
   const [seedId, title] = project;
   const [category, treatment] = angle;
-  const objective = "Écrire un seul post Facebook en français pour la marque Pro.hibited.";
+  const platform = PROJECT_IMAGES[seedId] ? "Instagram" : "Facebook";
+  const objective = `Écrire un seul post ${platform} en français pour la marque Pro.hibited.`;
   const benchmarks = await loadCreativeBenchmarks([seedId, title]);
   const projectSource = NOTION_EDITORIAL_PROJECTS.find(project => project.id === seedId);
   const response = await fetch(`${(process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "")}/mission`, {
@@ -423,7 +429,7 @@ async function requestPublisherCaption(project, angle, oldCaptions) {
         ...oldCaptions.slice(-3).map(text => `Angle à ne pas répéter : ${JSON.stringify(text)}`),
       ].join("\n"),
       context: { id: seedId, label: title, metadata: {
-        source: "gerard-cycle", agentName: "Gérard", knowledgeSlug: seedId, platform: "Facebook",
+        source: "gerard-cycle", agentName: "Gérard", knowledgeSlug: seedId, platform,
       } },
     }),
   });
@@ -442,13 +448,18 @@ async function requestPublisherCaption(project, angle, oldCaptions) {
   return text;
 }
 
-function makeFacebookCandidate(project, angle, text, strategy) {
+function makeFallbackCandidate(project, angle, text, strategy) {
   const [seedId, title] = project;
   const [category] = angle;
   const hash = createHash("sha256").update(copyKey(text)).digest("hex");
+  const imageUrl = PROJECT_IMAGES[seedId];
+  // Keep existing harvest IDs stable for previously prepared copies and receipts.
   return {
     status: "ready", harvestId: `gerard-facebook-${hash}`, seedId, title, category,
-    copy: { text, strategy }, compatibleNetworks: ["facebook"],
+    copy: { text, strategy },
+    ...(imageUrl ? { media: { url: imageUrl, direct: true, official: true } } : {}),
+    mediaStatus: imageUrl ? "existing-project-media" : "not-produced",
+    compatibleNetworks: [imageUrl ? "instagram" : "facebook"],
     transport: { provider: "metricool", brandId: "3350145" },
     editorialRoute: { destination: { preferredProvider: "metricool" } },
   };
@@ -458,7 +469,13 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
   const ledgerPath = prepareOnly ? PRODUCTION_LEDGER : FALLBACK_LEDGER;
   const ledger = await readOptional(ledgerPath, { cursor: 0, history: [] });
   const otherLedger = await readOptional(prepareOnly ? FALLBACK_LEDGER : PRODUCTION_LEDGER, { history: [] });
-  const topics = EDITORIAL_ANGLES.flatMap(angle => FACEBOOK_PROJECTS.map(project => ({ project, angle })));
+  const topics = EDITORIAL_ANGLES.flatMap(angle => FALLBACK_PROJECTS.map(project => ({ project, angle })));
+  const start = ledger.cursor % topics.length;
+  const order = topics.map((_, index) => (start + index) % topics.length);
+  // Prefer a publishable project visual during Production. Preserve the saved
+  // rotation and fall back to text once the unused illustrated angles run out.
+  if (prepareOnly) order.sort((a, b) => Number(Boolean(PROJECT_IMAGES[topics[b].project[0]])) -
+    Number(Boolean(PROJECT_IMAGES[topics[a].project[0]])));
   const recent = ledger.history.slice(-200);
   const direct = prepareOnly && directMetricoolEnabled(process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED);
   // A review mail is not a publication. In direct mode its copy remains eligible.
@@ -467,8 +484,9 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
   let publisherFailure = null;
   let candidate;
   for (let attempt = 0; attempt < topics.length; attempt++) {
-    const { project, angle } = topics[ledger.cursor % topics.length];
-    ledger.cursor = (ledger.cursor + 1) % topics.length;
+    const index = order[attempt];
+    const { project, angle } = topics[index];
+    ledger.cursor = (index + 1) % topics.length;
     const [seedId, title] = project;
     if (requires420Review(seedId, title)) continue;
     const [category] = angle;
@@ -477,7 +495,7 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
         const previous = recent.filter(item => item.seedId === seedId && item.text).map(item => item.text);
         const text = await requestPublisherCaption(project, angle, previous);
         if (seen.has(copyKey(text))) throw new Error("caption-already-tried");
-        candidate = makeFacebookCandidate(project, angle, text, "publisher");
+        candidate = makeFallbackCandidate(project, angle, text, "publisher");
         break;
       } catch (error) {
         publisherFailure = error.name === "TimeoutError" ? "publisher-timeout" : error.message;
@@ -504,7 +522,7 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
   await save();
   if (prepareOnly) {
     await writeFile(PREPARED, JSON.stringify({ preparedAt: entry.at, candidate }) + "\n");
-    return { seedId, category, strategy, status: "prepared-for-diffusion", visualProposalCount: visualProposals.length };
+    return { seedId, category, strategy, status: "prepared-for-diffusion", networks: candidate.compatibleNetworks, mediaStatus: candidate.mediaStatus, visualProposalCount: visualProposals.length };
   }
   const delivered = await handoffMetricoolByEmail(candidate);
   entry.status = delivered.metricoolHandoff?.status ?? "handoff-ineligible";
