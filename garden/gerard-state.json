@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-12T19:53:58.626Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-12T20:33:01.033Z",
   "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-09T06:26:59.827Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1794205618739"
-    },
     {
       "at": "2026-11-09T19:50:11.726Z",
       "mode": "cultivate",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-12T19:53:58.626Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1794513236293",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1794513236293"
+    },
+    {
+      "at": "2026-11-12T20:33:01.032Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1794515580289",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-04T10:03:06.363Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793786585988"
-    },
     {
       "at": "2026-11-04T11:06:49.357Z",
       "mode": "cultivate",
@@ -500,21 +494,23 @@
     },
     {
       "at": "2026-11-12T19:53:58.626Z",
-      "operationId": "gerard-cultivate-1794513236293",
       "mode": "cultivate",
+      "seedId": "benoit-job-search",
       "outcome": "ok",
       "decision": "candidatures-no-new-verified-offers",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career"
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794513236293"
+    },
+    {
+      "at": "2026-11-12T20:33:01.032Z",
+      "operationId": "gerard-symbiosis-1794515580289",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "decision": "candidatures-no-new-verified-offers",
-    "parcelId": "benoit-career",
-    "seedId": "benoit-job-search",
-    "operationId": "gerard-cultivate-1794513236293",
-    "itemCount": 0,
-    "contacted": false
+    "at": "2026-11-12T20:33:01.032Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
