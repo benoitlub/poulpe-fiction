@@ -99,8 +99,15 @@ test('local fallback includes a project fact and source instead of a bare recycl
  assert.match(c.copy.text,/petite décision/);
  assert.equal(c.copy.strategy,'local-editorial-sourced');
  assert.match(c.editorialEvidence.source,/notion/);
- assert.equal(c.mediaStatus,'not-produced');
- assert.equal(c.media,undefined);
+ assert.equal(c.mediaStatus,'existing-project-media');
+ assert.match(c.media.url,/blacklace-dice\/.+\/opengraph\.jpg$/);
+ assert.deepEqual(c.compatibleNetworks,['instagram']);
+ const publication=metricoolMission(c).context.metadata.socialPublication;
+ assert.deepEqual(publication.media,[c.media.url]);
+ assert.deepEqual(publication.networks,['instagram']);
+ const textOnly=localEditorialCandidate('spectrl');
+ assert.equal(textOnly.media,undefined);
+ assert.deepEqual(textOnly.compatibleNetworks,['facebook']);
  assert.equal(localEditorialCandidate('jointed'),null,'no local invention of card mechanics without a source summary');
  assert.equal(localEditorialCandidate('unknown'),null);
  const variants=['entertainment','behind-the-scenes','promotion'].map(category=>localEditorialCandidate('blacklace-dice',category));
