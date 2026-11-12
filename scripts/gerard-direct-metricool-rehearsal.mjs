@@ -3,6 +3,7 @@
 // Never writes to the publication queue and never sets execute=true.
 import { readFile } from "node:fs/promises";
 import { metricoolMission, submitMetricoolPublication } from "./gerard-metricool-publication.mjs";
+import { registerPreparedSource } from "./gerard-direct-metricool-delivery.mjs";
 
 const file = new URL("../garden/gerard-metricool-prepared.json", import.meta.url);
 let prepared;
@@ -43,6 +44,19 @@ if (!mission) {
 }
 if (mission.context.metadata.socialPublication.dryRun !== true) {
   throw new Error("Direct rehearsal must remain dry-run");
+}
+// The original dry-run can only verify a harvest already visible to Publisher.
+// Synchronize exclusively the exact, sourced, allowlisted local draft through
+// the existing guarded registration function. This does NOT publish a post.
+if (candidate?.harvestId?.startsWith("gerard-facebook-") &&
+    candidate?.copy?.strategy === "local-editorial-sourced") {
+  try {
+    await registerPreparedSource(candidate, { preparedAt: prepared.preparedAt });
+  } catch (error) {
+    console.log(JSON.stringify({ status: "source-registration-blocked",
+      stage: "provenance", reason: error.message, executed: false, dryRun: true }));
+    process.exit(0);
+  }
 }
 const result = await submitMetricoolPublication(candidate, {
   execute: false,
