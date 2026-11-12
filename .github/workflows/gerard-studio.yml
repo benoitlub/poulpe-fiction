@@ -1,6 +1,10 @@
 name: Gérard · Studio
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/gerard-prohibited-metricool-relay.mjs
   schedule:
     - cron: '37 */3 * * *'
   workflow_dispatch:
@@ -42,7 +46,7 @@ jobs:
       GERARD_AV_STUDIO_ENABLED: "true"
       GERARD_IMAGE_STUDIO_ENABLED: "true"
       GERARD_MODE: cultivate
-      GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_prohibited_gameplay && 'prohibited-online-gameplay-preview' || inputs.preview_420_dice_short && '420-dice' || '' }}
+      GERARD_STUDIO_PREVIEW_SEED: ${{ (inputs.preview_prohibited_gameplay || github.event_name == 'push') && 'prohibited-online-gameplay-preview' || inputs.preview_420_dice_short && '420-dice' || '' }}
     steps:
       - name: Runtime heartbeat
         shell: bash
@@ -236,6 +240,7 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: write
+      actions: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -255,4 +260,5 @@ jobs:
           names=$(gh release view "$tag" --json assets --jq '.assets[].name')
           if ! grep -Fxq "$file" <<< "$names"; then
             gh release upload "$tag" "$file"
+            gh workflow run gerard-runtime.yml --ref main -f tentacle=studio-prohibited
           fi
