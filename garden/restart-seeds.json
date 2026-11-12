@@ -237,6 +237,41 @@
       ]
     },
     {
+      "seedId": "prohibited-online-gameplay-preview",
+      "parcelId": "prohibited-online",
+      "title": "Pro.Hibited Online",
+      "objective": "Monter un vrai tour solo de Pro.Hibited Online en dix secondes.",
+      "templates": [
+        {
+          "id": "video-studio",
+          "enabled": true,
+          "config": {
+            "title": "PRO.HIBITED ONLINE",
+            "durationSeconds": 10,
+            "videoAssetId": "prohibited-online-captured-gameplay",
+            "segments": [
+              {
+                "text": "Une table, cinq cartes en main.",
+                "caption": "Une table, cinq cartes en main."
+              },
+              {
+                "text": "Joue ou défausse une carte.",
+                "caption": "Joue ou défausse une carte."
+              },
+              {
+                "text": "Le bot prend la main. À toi de réagir !",
+                "caption": "Le bot prend la main. À toi de réagir !"
+              }
+            ],
+            "scriptRights": {
+              "source": "https://benoitlub.github.io/prohibited-online/",
+              "attribution": "Texte de démonstration écrit pour la capture."
+            }
+          }
+        }
+      ]
+    },
+    {
       "seedId": "prohibited-online-image-studio",
       "parcelId": "prohibited-online",
       "title": "Pro.Hibited Online",

@@ -5,6 +5,10 @@ on:
     - cron: '37 */3 * * *'
   workflow_dispatch:
     inputs:
+      preview_prohibited_gameplay:
+        description: "Filmer et monter une partie de Pro.Hibited Online"
+        type: boolean
+        default: false
       preview_420_dice_short:
         description: "Rendre un aperçu 420 Dice pour revue"
         type: boolean
@@ -24,6 +28,7 @@ jobs:
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       GERARD_TENTACLE: studio
+      GERARD_STUDIO_ASSETS_DIR: ${{ github.workspace }}/publisher/data/studio-inputs
       OCTOPUS_URL: http://127.0.0.1:3000
       LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
@@ -35,7 +40,7 @@ jobs:
       GERARD_AV_STUDIO_ENABLED: "true"
       GERARD_IMAGE_STUDIO_ENABLED: "true"
       GERARD_MODE: cultivate
-      GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_420_dice_short == true && '420-dice' || '' }}
+      GERARD_STUDIO_PREVIEW_SEED: ${{ inputs.preview_prohibited_gameplay && 'prohibited-online-gameplay-preview' || inputs.preview_420_dice_short && '420-dice' || '' }}
     steps:
       - name: Runtime heartbeat
         shell: bash
@@ -106,6 +111,12 @@ jobs:
           if [ "$GERARD_AV_STUDIO_ENABLED" = "true" ]; then
             python3 -m venv .studio-venv
             .studio-venv/bin/pip install 'piper-tts==1.8.0'
+            mkdir -p data/studio-models
+            model_url=https://huggingface.co/rhasspy/piper-voices/resolve/d5de91c972ba5a13cea0e77a63fda1623faac2c1/fr/fr_FR/siwis/medium
+            for file in fr_FR-siwis-medium.onnx fr_FR-siwis-medium.onnx.json MODEL_CARD; do
+              curl --fail --location --silent --show-error --retry 2 --max-time 180 \
+                "$model_url/$file?download=true" --output "data/studio-models/$file"
+            done
             python3 scripts/setup-studio-voice.py
             echo "PIPER_BIN=$PWD/.studio-venv/bin/piper" >> "$GITHUB_ENV"
             echo "PIPER_MODEL=$PWD/data/studio-models/fr_FR-siwis-medium.onnx" >> "$GITHUB_ENV"
