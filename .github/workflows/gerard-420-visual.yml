@@ -209,6 +209,13 @@ jobs:
           pnpm install --frozen-lockfile
           python3 -m venv .studio-venv
           .studio-venv/bin/pip install 'piper-tts==1.8.0'
+          # Pin the upstream model revision to the checksum verified by Publisher.
+          mkdir -p data/studio-models
+          model_url=https://huggingface.co/rhasspy/piper-voices/resolve/d5de91c972ba5a13cea0e77a63fda1623faac2c1/fr/fr_FR/siwis/medium
+          for file in fr_FR-siwis-medium.onnx fr_FR-siwis-medium.onnx.json MODEL_CARD; do
+            curl --fail --location --silent --show-error --retry 2 --max-time 180 \
+              "$model_url/$file?download=true" --output "data/studio-models/$file"
+          done
           python3 scripts/setup-studio-voice.py
           export PIPER_BIN="$PWD/.studio-venv/bin/piper"
           export PIPER_MODEL="$PWD/data/studio-models/fr_FR-siwis-medium.onnx"
@@ -226,7 +233,7 @@ jobs:
           jq -n --arg id "$asset_id" --arg source "$source_url" --arg operation "prohibited-online-preview-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
             '{version:"studio-v1",parcelId:"prohibited-online",seedId:"prohibited-online-gameplay-preview",operationId:$operation,durationSeconds:10,title:"PRO.HIBITED ONLINE",videoAssetId:$id,segments:[{text:"À toi de jouer.",caption:"À toi de jouer."},{text:"Le bot prend la main.",caption:"Le bot prend la main."}],scriptRights:{source:$source,attribution:"Texte de démonstration écrit pour la capture."},authorizedResources:["video.studio"],automaticPublication:false}' \
             > examples/studio/prohibited-online-preview.json
-          pnpm --filter @workspace/scripts exec tsx ./render-short.mts ../examples/studio/prohibited-online-preview.json > ../output/prohibited-gameplay/studio-report.json
+          pnpm --filter @workspace/scripts exec tsx ./render-short.mts ../examples/studio/prohibited-online-preview.json | tee ../output/prohibited-gameplay/studio-report.json
           find data/studio/jobs -name short.mp4 -exec cp '{}' ../output/prohibited-gameplay/prohibited-online-short.mp4 \;
           test -s ../output/prohibited-gameplay/prohibited-online-short.mp4
       - name: Upload Pro.Hibited Online footage and proof
@@ -239,6 +246,7 @@ jobs:
             output/prohibited-gameplay/final-frame.png
             output/prohibited-gameplay/prohibited-online-short.mp4
             output/prohibited-gameplay/studio-report.json
+            publisher/data/studio-models/MODEL_CARD
             output/prohibited-gameplay/review-report.json
           retention-days: 14
           if-no-files-found: warn
