@@ -1,6 +1,10 @@
 name: Gerard Reel 420 visual proof
 
 on:
+  pull_request:
+    paths:
+      - scripts/gerard-gameplay-capture.mjs
+      - .github/workflows/gerard-420-visual.yml
   workflow_dispatch:
     inputs:
       capture_live_gameplay:
@@ -25,6 +29,7 @@ permissions:
 
 jobs:
   visual:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Produce a real 9:16 visual asset
@@ -154,7 +159,7 @@ jobs:
 
   gameplay_capture:
     name: Capture real gameplay (manual, review only)
-    if: ${{ inputs.capture_live_gameplay || inputs.capture_prohibited_gameplay }}
+    if: ${{ inputs.capture_live_gameplay || inputs.capture_prohibited_gameplay || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -185,12 +190,12 @@ jobs:
           node --input-type=module -e 'await import(process.env.GERARD_PLAYWRIGHT_MODULE)'
           node scripts/gerard-gameplay-capture.mjs output/gameplay
       - name: Record a Pro.Hibited Online solo turn (no external POST)
-        if: ${{ inputs.capture_prohibited_gameplay }}
+        if: ${{ inputs.capture_prohibited_gameplay || github.event_name == 'pull_request' }}
         env:
           GERARD_PLAYWRIGHT_MODULE: ${{ runner.temp }}/gerard-playwright/node_modules/playwright/index.mjs
         run: node scripts/gerard-gameplay-capture.mjs output/prohibited-gameplay prohibited-online
       - name: Upload Pro.Hibited Online footage and proof
-        if: ${{ always() && inputs.capture_prohibited_gameplay }}
+        if: ${{ always() && (inputs.capture_prohibited_gameplay || github.event_name == 'pull_request') }}
         uses: actions/upload-artifact@v4
         with:
           name: gerard-prohibited-real-gameplay-${{ github.run_id }}
