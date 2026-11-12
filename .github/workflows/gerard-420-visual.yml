@@ -7,6 +7,10 @@ on:
         description: 'Record real dice rolls from 420 Dice, silent MP4 + review report; never publish'
         type: boolean
         default: false
+      capture_prohibited_gameplay:
+        description: 'Record Pro.Hibited Online solo gameplay; never publish'
+        type: boolean
+        default: false
       generate_ai_image:
         description: 'Ask existing Publisher/Mistral to generate one image (no publication)'
         type: boolean
@@ -149,8 +153,8 @@ jobs:
           retention-days: 14
 
   gameplay_capture:
-    name: Capture real 420 Dice gameplay (manual, review only)
-    if: ${{ inputs.capture_live_gameplay == true }}
+    name: Capture real gameplay (manual, review only)
+    if: ${{ inputs.capture_live_gameplay || inputs.capture_prohibited_gameplay }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -174,13 +178,30 @@ jobs:
           "$GERARD_PLAYWRIGHT_DIR/node_modules/.bin/playwright" install --with-deps chromium
           sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Record authentic dice rolls (no external POST)
+        if: ${{ inputs.capture_live_gameplay }}
         env:
           GERARD_PLAYWRIGHT_MODULE: ${{ runner.temp }}/gerard-playwright/node_modules/playwright/index.mjs
         run: |
           node --input-type=module -e 'await import(process.env.GERARD_PLAYWRIGHT_MODULE)'
           node scripts/gerard-gameplay-capture.mjs output/gameplay
+      - name: Record a Pro.Hibited Online solo turn (no external POST)
+        if: ${{ inputs.capture_prohibited_gameplay }}
+        env:
+          GERARD_PLAYWRIGHT_MODULE: ${{ runner.temp }}/gerard-playwright/node_modules/playwright/index.mjs
+        run: node scripts/gerard-gameplay-capture.mjs output/prohibited-gameplay prohibited-online
+      - name: Upload Pro.Hibited Online footage and proof
+        if: ${{ always() && inputs.capture_prohibited_gameplay }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerard-prohibited-real-gameplay-${{ github.run_id }}
+          path: |
+            output/prohibited-gameplay/gameplay-vertical.mp4
+            output/prohibited-gameplay/final-frame.png
+            output/prohibited-gameplay/review-report.json
+          retention-days: 14
+          if-no-files-found: warn
       - name: Upload review-only source footage and proof
-        if: always()
+        if: ${{ always() && inputs.capture_live_gameplay }}
         uses: actions/upload-artifact@v4
         with:
           name: gerard-420-real-gameplay-${{ github.run_id }}
