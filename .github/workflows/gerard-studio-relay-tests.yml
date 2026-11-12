@@ -1,0 +1,27 @@
+name: Gérard · Studio relay tests
+
+on:
+  pull_request:
+    paths:
+      - scripts/gerard-prohibited-metricool-relay.mjs
+      - scripts/gerard-metricool-publication.mjs
+      - tests/gerard-prohibited-studio-tiktok-relay.test.mjs
+      - .github/workflows/gerard-studio-relay-tests.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  relay-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check relay syntax
+        run: node --check scripts/gerard-prohibited-metricool-relay.mjs
+      - name: Test Studio video handoff without publishing
+        run: node --test tests/gerard-prohibited-studio-tiktok-relay.test.mjs
