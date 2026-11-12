@@ -11,9 +11,10 @@ const script = readFileSync(new URL("../scripts/gerard-social-selection.sh", imp
 const start = script.indexOf('EXCLUDED_IDS=""');
 const end = script.indexOf('\nif [ "$HTTP_STATUS" = "200" ]; then', start);
 assert.ok(start >= 0 && end > start, "selection block must exist");
-const selection = script.slice(start, end);
+const selection = script.slice(start, end).replace('select_social_package() {\nlocal prefer_metricool="$1"', "prefer_metricool=true");
+const preparation = script.slice(0, script.indexOf("\nset -euo pipefail", 1));
 
-function runSelection(t, files = {}, empty = false) {
+function runSelection(t, files = {}, empty = false, recovery = "") {
   const root = mkdtempSync(join(tmpdir(), "gerard-seed-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, "garden"));
@@ -35,27 +36,49 @@ if (url.origin !== 'https://publisher.invalid') process.exit(2);
 if (url.pathname === '/api/social/bridge/next') {
   if (process.env.EMPTY_SELECTION === 'true') {
     body = { status: 'empty' }; status = '404';
+  } else if (process.env.RECOVERY) {
+    const excluded = url.searchParams.get('excludeHarvestIds').split(',');
+    const rejected = excluded.includes('book-1');
+    if (rejected && process.env.RECOVERY === 'empty') {
+      body = { status: 'empty' }; status = '404';
+    } else {
+      body = { status: 'ready', harvestId: rejected ? 'book-2' : 'book-1',
+        seedId: 'gerard-et-gerard', title: 'Gérard & Gérard',
+        copy: { text: (rejected ? 'Deux Gérard, un seul livre.' : '*[Plan serré, voix off]* Gérard') + ' https://www.amazon.fr/dp/B0H68811RL' },
+        media: { official: true, url: 'https://example.test/cover.jpg' } };
+    }
   } else {
     const alternative = url.searchParams.get('excludeHarvestIds').split(',').includes('book-1');
     body = { status: 'ready', harvestId: alternative ? 'creative-1' : 'book-1', seedId: alternative ? 'creative' : 'book', copy: { text: 'Ready copy' } };
   }
 } else if (url.pathname === '/api/social/editorial/route') {
   const input = JSON.parse(args[args.indexOf('--data') + 1]);
-  body = { destination: { preferredProvider: input.seedId === 'book' ? 'buffer' : 'metricool' } };
+  if (process.env.RECOVERY) {
+    const routeCallCount = calls.filter(value => value.includes('/api/social/editorial/route')).length;
+    if (routeCallCount === 1) status = '503';
+    body = { contract: 'publisher-editorial-routing-v1', topic: 'book', destination: { preferredProvider: 'buffer' } };
+  } else body = { destination: { preferredProvider: input.seedId === 'book' ? 'buffer' : 'metricool' } };
+} else if (url.pathname === '/api/social/transports/buffer/book-preflight' && process.env.RECOVERY) {
+  body = { status: 'ready-for-controlled-test' };
 } else process.exit(3);
 fs.writeFileSync(args[args.indexOf('--output') + 1], JSON.stringify(body));
 process.stdout.write(status);
 `, { mode: 0o755 });
-  const script = selection.replaceAll("/tmp/gerard-", `${root}/gerard-`);
+  if (recovery) {
+    mkdirSync(join(root, "scripts"));
+    writeFileSync(join(root, "scripts", "gerard-book-quality.jq"), readFileSync(new URL("../scripts/gerard-book-quality.jq", import.meta.url)));
+  }
+  const script = (recovery ? preparation : selection).replaceAll("/tmp/gerard-", `${root}/gerard-`);
   const result = spawnSync("bash", ["-eu", "-o", "pipefail", "-c", script], {
     cwd: root, encoding: "utf8",
-    env: { ...process.env, PATH: `${root}/bin:${process.env.PATH}`, PUBLISHER_URL: "https://publisher.invalid", EMPTY_SELECTION: String(empty) },
+    env: { ...process.env, PATH: `${root}/bin:${process.env.PATH}`, PUBLISHER_URL: "https://publisher.invalid", EMPTY_SELECTION: String(empty), RECOVERY: recovery, GERARD_TENTACLE: recovery ? "delivery" : "" },
   });
   assert.equal(result.status, 0, result.stderr);
   const calls = JSON.parse(readFileSync(join(root, "calls.json"), "utf8")).map(url => new URL(url));
   return {
     selections: calls.filter(url => url.pathname === "/api/social/bridge/next"),
     calls,
+    finalPackage: recovery ? JSON.parse(readFileSync(join(root, "garden", "next-social-publication.json"), "utf8")) : null,
     candidate: JSON.parse(readFileSync(join(root, "gerard-social-next.json"), "utf8")),
   };
 }
@@ -145,4 +168,21 @@ test("repeated subjects and the prior explore decision retain all known harvest 
     const ids=url.searchParams.get("excludeHarvestIds").split(",");
     assert.ok(ids.includes("terra-1")); assert.ok(ids.includes("feuch-1"));
   }
+});
+
+test("delivery skips a rejected Buffer caption and validates a different harvest in the same cycle", t => {
+  const result = runSelection(t, {}, false, "alternative");
+  assert.equal(result.selections.length, 2);
+  assert.equal(result.selections[1].searchParams.get("excludeHarvestIds"), "book-1");
+  assert.equal(result.finalPackage.harvestId, "book-2");
+  assert.equal(result.finalPackage.action, "hold-for-buffer-draft");
+  assert.equal(result.finalPackage.bufferPreflight.status, "ready-for-controlled-test");
+});
+
+test("delivery retains the editorial rejection when there is no other harvest", t => {
+  const result = runSelection(t, {}, false, "empty");
+  assert.equal(result.selections.length, 2);
+  assert.equal(result.finalPackage.harvestId, "book-1");
+  assert.equal(result.finalPackage.reason, "editorial-prompt-leak");
+  assert.equal(result.finalPackage.action, "do-not-schedule");
 });
