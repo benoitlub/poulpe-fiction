@@ -73,11 +73,28 @@ jobs:
         run: node scripts/gerard-private-runtime.mjs hydrate
 
       - name: Relay the verified Pro.Hibited gameplay video
+        id: prohibited_relay
         working-directory: poulpe-fiction
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/gerard-prohibited-metricool-relay.mjs
+
+      # Keep the rest of delivery running, but never conceal a failed Studio handoff.
+      - name: Report Studio relay outcome
+        if: always()
+        shell: bash
+        env:
+          RELAY_OUTCOME: ${{ steps.prohibited_relay.outcome }}
+        run: |
+          if [ "$RELAY_OUTCOME" = "failure" ]; then
+            echo "::warning title=Gérard Studio relay blocked::Pro.Hibited video handoff failed; inspect the relay step. Other publication routes remain active."
+            echo "### Gérard Studio → Metricool: blocked" >> "$GITHUB_STEP_SUMMARY"
+            echo "The gameplay MP4 relay failed. No publication is confirmed by this step." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Gérard Studio → Metricool: $RELAY_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+            echo "Check the relay receipt and Metricool for a provider-confirmed publication." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Select and explain the next publication
         working-directory: poulpe-fiction
