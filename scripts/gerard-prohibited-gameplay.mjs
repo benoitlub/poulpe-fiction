@@ -12,14 +12,24 @@ const source = "https://benoitlub.github.io/prohibited-online/";
 const exec = promisify(execFile);
 
 export async function prepareProhibitedGameplay(assetsDir = process.env.GERARD_STUDIO_ASSETS_DIR) {
-  if (!assetsDir || !process.env.GERARD_PLAYWRIGHT_MODULE) throw new Error("studio-gameplay-runtime-missing");
+  if (!assetsDir) throw new Error("studio-gameplay-catalog-missing");
   const dir = await mkdtemp(path.join(tmpdir(), "gerard-prohibited-"));
   try {
     const script = fileURLToPath(new URL("./gerard-gameplay-capture.mjs", import.meta.url));
-    await exec(process.execPath, [script, dir, "prohibited-online"], { timeout: 210000 });
+    let playwright = process.env.GERARD_PLAYWRIGHT_MODULE;
+    if (!playwright) {
+      await exec("npm", ["install", "--prefix", dir, "--no-save", "--ignore-scripts", "--package-lock=false", "--no-audit", "--no-fund", "playwright"], { timeout: 120000 });
+      const packageDir = path.join(dir, "node_modules", "playwright");
+      await exec(process.execPath, [path.join(packageDir, "cli.js"), "install", "--with-deps", "chromium"], { timeout: 240000 });
+      playwright = path.join(packageDir, "index.mjs");
+    }
+    await exec(process.execPath, [script, path.join(dir, "capture"), "prohibited-online"], {
+      timeout: 210000,
+      env: { ...process.env, GERARD_PLAYWRIGHT_MODULE: playwright },
+    });
     const filename = "gameplay-vertical.mp4";
-    const video = await readFile(path.join(dir, filename));
-    const report = JSON.parse(await readFile(path.join(dir, "review-report.json"), "utf8"));
+    const video = await readFile(path.join(dir, "capture", filename));
+    const report = JSON.parse(await readFile(path.join(dir, "capture", "review-report.json"), "utf8"));
     const sha256 = createHash("sha256").update(video).digest("hex");
     if (report.technicalQuality !== "passed" || report.observation?.origin !== source ||
         report.files?.[filename]?.sha256 !== sha256) {
