@@ -34,7 +34,7 @@ export function qualityDecision({ video, observations, distinctFrames }) {
   return { ...evidence, actualVideoMotion: true, technicalQuality: "passed", creativeQuality: "human-review-required", published: false };
 }
 async function playProhibited(page) {
-  await page.getByRole("button", { name: "Solo vs IA", exact: true }).click({ timeout: 30000 });
+  await page.locator("button.solo-ai-native-button").click({ timeout: 30000 });
   const endTurn = page.getByRole("button", { name: "Finir le tour", exact: true });
   const log = page.locator(".event-log");
   const before = await log.innerText({ timeout: 10000 });
@@ -105,7 +105,8 @@ async function launch() {
       if (url.origin !== gameUrl.origin || !url.pathname.startsWith(gameUrl.pathname)) return route.abort();
       return route.continue();
     });
-    await page.goto(gameUrl.href, { waitUntil: "domcontentloaded", timeout: 45000 });
+    const response = await page.goto(gameUrl.href, { waitUntil: "domcontentloaded", timeout: 45000 });
+    if (isProhibited && !response?.ok()) throw new Error(`PROHIBITED_PAGE_HTTP_${response?.status() ?? "UNKNOWN"}`);
     const observation = isProhibited ? await playProhibited(page) : await playDice(page);
     await page.screenshot({ path: path.join(outputDir, "final-frame.png") });
     const recorded = await page.video();
@@ -130,6 +131,13 @@ async function launch() {
     }
     await writeFile(path.join(outputDir, "review-report.json"), JSON.stringify({ ...decision, observation, video: { width: v.width, height: v.height, fps: v.r_frame_rate, durationSeconds: Number(info.format.duration), silent: true }, distinctSampledGameplayFrames: distinctFrames, files, nextStep: "Send this verified source clip to Publisher's montage pipeline; no automatic publishing or email." },null,2)+"\n");
     process.stdout.write(JSON.stringify({ status:"ready-for-review", outputDir, distinctFrames, verifiedInteractions:decision.verifiedInteractions })+"\n");
+  } catch (error) {
+    if (isProhibited && page) {
+      await page.screenshot({ path: path.join(outputDir, "final-frame.png") }).catch(() => {});
+      const visibleText = await page.locator("body").innerText({ timeout: 1000 }).catch(() => "");
+      process.stderr.write(JSON.stringify({ title: await page.title().catch(() => ""), visibleText: safeText(visibleText) }) + "\n");
+    }
+    throw error;
   } finally {
     await context.close().catch(() => {});
     await browser.close();
