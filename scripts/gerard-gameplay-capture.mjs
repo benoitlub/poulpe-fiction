@@ -35,13 +35,16 @@ export function qualityDecision({ video, observations, distinctFrames }) {
 }
 async function playProhibited(page) {
   await page.locator("button.solo-ai-native-button").click({ timeout: 30000 });
-  const endTurn = page.getByRole("button", { name: "Finir le tour", exact: true });
+  const endTurn = page.locator("button.end-turn-button");
   const log = page.locator(".event-log");
   const before = await log.innerText({ timeout: 10000 });
   await page.waitForTimeout(900);
-  await page.getByRole("button", { name: /^Jouer / }).and(page.locator(":enabled")).first().click({ timeout: 5000 });
+  const playable = page.locator('button.play-action[aria-label^="Jouer "]:enabled');
+  const canPlay = (await playable.count()) > 0;
+  const cardAction = canPlay ? playable : page.locator("button.discard-action:enabled");
+  await cardAction.first().click({ timeout: 5000 });
   const afterCard = await log.innerText();
-  if (afterCard === before) throw new Error("PROHIBITED_CARD_PLAY_UNVERIFIED");
+  if (afterCard === before) throw new Error("PROHIBITED_CARD_ACTION_UNVERIFIED");
   await page.waitForTimeout(1000);
   await endTurn.click();
   await page.locator(".ai-hidden-hand").waitFor({ state: "visible", timeout: 5000 });
@@ -49,7 +52,7 @@ async function playProhibited(page) {
   const afterBot = await log.innerText();
   if (afterBot === afterCard) throw new Error("PROHIBITED_BOT_TURN_UNVERIFIED");
   await page.waitForTimeout(1200);
-  return { origin: PROHIBITED_URL, before, afterCard, afterBot, observedAt: new Date().toISOString() };
+  return { origin: PROHIBITED_URL, before, cardAction: canPlay ? "played" : "discarded", afterCard, afterBot, observedAt: new Date().toISOString() };
 }
 async function playDice(page) {
   await page.getByTestId("dice-board").waitFor({ timeout: 30000 });
