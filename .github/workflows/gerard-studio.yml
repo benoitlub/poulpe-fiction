@@ -28,6 +28,7 @@ jobs:
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       GERARD_TENTACLE: studio
+      GERARD_STUDIO_ASSETS_DIR: ${{ github.workspace }}/publisher/data/studio-inputs
       OCTOPUS_URL: http://127.0.0.1:3000
       LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
@@ -167,16 +168,6 @@ jobs:
           path: poulpe-fiction/garden/studio
           key: gerard-studio-files-v1-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: gerard-studio-files-v1-
-
-      - name: Install the gameplay recorder
-        if: inputs.preview_420_dice_short != true || inputs.preview_prohibited_gameplay == true
-        env:
-          PLAYWRIGHT_DIR: ${{ runner.temp }}/gerard-playwright
-        run: |
-          npm install --prefix "$PLAYWRIGHT_DIR" --no-save --ignore-scripts --package-lock=false --no-audit --no-fund playwright
-          "$PLAYWRIGHT_DIR/node_modules/.bin/playwright" install --with-deps chromium
-          echo "GERARD_PLAYWRIGHT_MODULE=$PLAYWRIGHT_DIR/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
-          echo "GERARD_STUDIO_ASSETS_DIR=$GITHUB_WORKSPACE/publisher/data/studio-inputs" >> "$GITHUB_ENV"
 
       - name: Run Gerard cycle
         id: studio_cycle
