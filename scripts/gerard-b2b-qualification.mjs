@@ -6,6 +6,8 @@ const MAX_BYTES = 180_000;
 const SELLER = /distribut(?:ion|eur|or)|grossiste|wholesale|retailer|revendeur|reseller|boutique|shops?|stores?/i;
 const GAME = /jeux? de (?:société|cartes)|board\s?games?|card\s?games?|tabletop|tcg|jouets?|toy/i;
 const PARTNER = /partenair|partner|b2b|professionnel|business|contact|catalogue|catalog/i;
+const CREATOR = /créatrice|creator|content creator|modèle|model|onlyfans|fansly|subscription content|instagram/i;
+const CONTACTABLE = /contact|collab|collaboration|booking|business inquiries|management|email/i;
 
 function publicAddress(address) {
   if (isIP(address) === 4) {
@@ -54,10 +56,23 @@ export function findPublishedContactEmail(html) {
   return unique.find(email => priority.test(email)) ?? unique[0] ?? null;
 }
 
-export function assessBusinessPage(candidate, html) {
+export function assessBusinessPage(candidate, html, { profile = 'business' } = {}) {
   const text = stripHtml(html);
   const contactEmail = findPublishedContactEmail(html);
   const signals = [];
+  if (profile === 'onlyfeuch') {
+    if (CREATOR.test(text)) signals.push('créatrice-ou-modèle');
+    if (CONTACTABLE.test(text) || contactEmail) signals.push('canal-professionnel-public');
+    const adultContext = /onlyfans|fansly|adult creator|contenu adulte|18\+|nsfw/i.test(text);
+    if (adultContext) signals.push('contexte-adulte-public');
+    const score = (signals.includes('créatrice-ou-modèle') ? 45 : 0) +
+      (signals.includes('canal-professionnel-public') ? 35 : 0) +
+      (signals.includes('contexte-adulte-public') ? 10 : 0);
+    return { ...candidate, verification: 'page-read', qualification: score >= 80 && contactEmail ? 'priority-review' : 'investigate',
+      fitScore: score, signals, contactEmail, evidence: text.slice(0, 280),
+      nextAction: score >= 80 && contactEmail ? 'Relire le profil public et préparer une prise de contact OnlyFeuch à valider' :
+        'Ne pas contacter automatiquement ; vérifier manuellement la pertinence et le statut adulte', contacted: false };
+  }
   if (SELLER.test(text)) signals.push('distribution-ou-vente-professionnelle');
   if (GAME.test(text)) signals.push('univers-jeux');
   if (PARTNER.test(text)) signals.push('canal-partenariat-ou-contact');
@@ -70,7 +85,7 @@ export function assessBusinessPage(candidate, html) {
       'Examiner manuellement la pertinence du partenariat', contacted: false };
 }
 
-export async function qualifyBusinessSources(candidates, { fetchPage = fetch, resolve = lookup } = {}) {
+export async function qualifyBusinessSources(candidates, { fetchPage = fetch, resolve = lookup, profile = 'business' } = {}) {
   const results = [];
   for (const candidate of candidates.slice(0, 10)) {
     if (!await isSafePublicUrl(candidate.url, resolve)) {
@@ -86,7 +101,7 @@ export async function qualifyBusinessSources(candidates, { fetchPage = fetch, re
       const declaredLength = Number(response.headers?.get('content-length') || 0);
       if (declaredLength > MAX_BYTES) throw new Error('page-too-large');
       const html = (await response.text()).slice(0, MAX_BYTES);
-      results.push(assessBusinessPage(candidate, html));
+      results.push(assessBusinessPage(candidate, html, { profile }));
     } catch (error) {
       results.push({ ...candidate, verification: 'unverified', qualification: 'investigate',
         fitScore: null, signals: [], reason: String(error?.message || error).slice(0, 90), contacted: false });
