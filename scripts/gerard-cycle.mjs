@@ -501,7 +501,7 @@ async function main() {
           const memoryKey = acquisition ? `${acquisition.clientId}:${parcel}` : parcel;
           const prior = state.businessSourceMemory?.[memoryKey] || {};
           const plan = planBusinessResearch(lookup.candidates, prior);
-          const examined = plan.fresh.length ? await qualifyBusinessSources(plan.fresh) : [];
+          const examined = plan.fresh.length ? await qualifyBusinessSources(plan.fresh, { profile: onlyFeuchOutreach ? 'onlyfeuch' : 'business' }) : [];
           const learned = rememberBusinessResearch(prior, examined);
           state.businessSourceMemory = { ...(state.businessSourceMemory || {}), [memoryKey]: learned.memory };
           businessSourceChanges = learned.changed;
