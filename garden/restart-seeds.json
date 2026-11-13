@@ -114,14 +114,43 @@
     {
       "seedId": "benoit-job-search",
       "parcelId": "benoit-career",
-      "title": "Candidatures",
-      "objective": "Repérer et vérifier des emplois salariés proches de La Celle-Saint-Cloud et des missions rémunérées en multimédia, formation ou automatisation. Préparer les candidatures à relire.",
+      "title": "Gégé Revenus · Opportunités rémunérées",
+      "objective": "Trouver pour Benoît des solutions rémunératrices réelles où la demande existe déjà et où il n'a pas à prospecter ses propres clients : emplois salariés, intérim et CDD courts, support client à distance, missions de formation confiées par un organisme, missions créatives ou numériques avec client déjà fourni, et postes francophones avec télétravail ou aide à la relocalisation vers un pays ensoleillé. Prioriser paiement explicite, faible investissement initial, démarrage rapide, portabilité et compatibilité avec son expérience en formation multimédia, création graphique, vente, web et IA. Exclure bénévolat, commission uniquement, MLM, achat de stock, frais d'entrée, offres expirées ou non vérifiables, et le faux freelance où il doit trouver lui-même les clients. Ne jamais inventer une rémunération, un employeur, une disponibilité ou une adresse de candidature. Préparer au maximum trois opportunités vérifiées avec candidature prête à relire.",
       "knowledgeSlug": "benoit-lubert-professional",
       "delivery": {
         "mode": "review-only",
         "harvestState": "ready-to-review"
       },
-      "templates": [{ "id": "job-search", "enabled": true }]
+      "templates": [
+        {
+          "id": "job-search",
+          "enabled": true,
+          "config": {
+            "mode": "income-solutions",
+            "maxResults": 3,
+            "requireVerifiedSource": true,
+            "reject": [
+              "bénévolat",
+              "commission uniquement",
+              "MLM",
+              "achat de stock",
+              "frais d'entrée",
+              "prospection de ses propres clients"
+            ],
+            "prefer": [
+              "télétravail",
+              "temps partiel",
+              "mission courte",
+              "formation avec stagiaires fournis",
+              "support client",
+              "relocalisation financée",
+              "CDD",
+              "intérim"
+            ]
+          }
+        }
+      ],
+      "firstHarvest": "Maximum 3 pistes rémunérées vérifiées et actuellement ouvertes, classées par facilité de démarrage, rémunération connue, portabilité et effort commercial demandé. Pour chacune : annonce source ouverte, employeur, lieu/télétravail, type de contrat, rémunération si publiée, canal de candidature vérifié et brouillon. Zéro piste nécessitant de prospecter ses propres clients."
     },
     {
       "seedId": "420-dice-video-studio",
