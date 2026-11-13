@@ -13,6 +13,7 @@ const labels = {
   "poulpe-fiction": "Poulpe Fiction",
   "project-yael-prospection": "Yaébali",
   "benoit-business-growth": "Parcelle professionnelle",
+  "onlyfeuch-agency": "OnlyFeuch Agency",
 };
 const ids = [...new Set(seeds.seeds.map((s) => s.parcelId))];
 const projects = ids.map((id) => ({
