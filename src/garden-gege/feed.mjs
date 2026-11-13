@@ -10,6 +10,7 @@ const labels = Object.freeze({
   "poulpe-fiction": "Poulpe Fiction",
   "project-yael-prospection": "Yaébali",
   "benoit-business-growth": "Parcelle professionnelle",
+  "onlyfeuch-agency": "OnlyFeuch Agency",
 });
 export function configuredProjects(input) {
   if (!Array.isArray(input?.seeds))

@@ -38,6 +38,7 @@ export function Jardin() {
   const [paused, setPaused] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
+  const [onlyFeuchOpen, setOnlyFeuchOpen] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [filter, setFilter] = useState<SceneFilter>("all");
 
@@ -57,6 +58,15 @@ export function Jardin() {
 
   const active = garden.missions.filter((m) => ["running", "retrying"].includes(m.status)).length;
   const errors = garden.missions.filter((m) => ["failed", "blocked"].includes(m.status)).length;
+  const onlyFeuchMissions = garden.missions.filter((m) => m.projectId === "onlyfeuch-agency");
+  const onlyFeuchState = (roles: string[]) => {
+    const list = onlyFeuchMissions.filter((m) => roles.includes(m.agentRole));
+    if (list.some((m) => ["running", "retrying"].includes(m.status))) return "En cours";
+    if (list.some((m) => ["failed", "blocked"].includes(m.status))) return "À vérifier";
+    if (list.some((m) => m.status === "queued")) return "En attente";
+    if (list.some((m) => m.status === "completed")) return "Dernière mission terminée";
+    return "En attente de mission";
+  };
   const isDemo = source?.kind === "demo";
   // Read-only visibility: never turn an old completed cycle into a live worker.
   const lastEvent = garden.events.at(-1);
@@ -108,6 +118,12 @@ export function Jardin() {
                 {label}
               </button>
             ))}
+            {!isDemo && (garden.snapshot?.projects ?? []).some((p) => p.id === "onlyfeuch-agency") && (
+              <button className="garden-chip glass-panel shrink-0 !py-1.5" aria-expanded={onlyFeuchOpen}
+                onClick={() => { setOnlyFeuchOpen(v => !v); setActivityOpen(false); setSettingsOpen(false); }}>
+                OnlyFeuch · {onlyFeuchMissions.length}
+              </button>
+            )}
           </div>
         </div>
         <div className="pointer-events-auto flex gap-2">
@@ -119,6 +135,37 @@ export function Jardin() {
         </div>
       </header>
 
+      {onlyFeuchOpen && (
+        <aside className="pointer-events-auto absolute left-2 right-2 top-32 z-30 md:left-5 md:right-auto md:top-36 md:w-[390px]" aria-label="Escouade Gégé OnlyFeuch">
+          <div className="glass-panel p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <div className="font-display font-extrabold">Escouade OnlyFeuch</div>
+                <div className="text-xs text-muted-foreground">Spécialisée · activité fondée uniquement sur des missions observées</div>
+              </div>
+              <button className="garden-icon-btn" aria-label="Fermer OnlyFeuch" onClick={() => setOnlyFeuchOpen(false)}>×</button>
+            </div>
+            <div className="grid gap-2">
+              {[
+                ["Gégé Growth", ["cueilleur", "tresseur"], "Plateforme, offre, acquisition et rétention"],
+                ["Gégé Studio", ["enlumineur"], "Univers créatif, briefs et production"],
+                ["Gégé Analytics", ["jardinier"], "Résultats réels, tests et apprentissage"],
+              ].map(([label, roles, mission]) => (
+                <div key={String(label)} className="rounded-xl border border-white/10 bg-black/10 px-3 py-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <strong>{String(label)}</strong>
+                    <span className="garden-chip !py-0.5">{onlyFeuchState(roles as string[])}</span>
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{String(mission)}</div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Aucun revenu n'est garanti et aucune action externe n'est déduite d'un simple cycle. Les recommandations doivent être vérifiées avant utilisation.
+            </p>
+          </div>
+        </aside>
+      )}
       {activityOpen && (
         <aside className="pointer-events-auto absolute left-2 right-2 top-20 z-30 max-h-[min(65dvh,520px)] overflow-y-auto rounded-xl md:left-auto md:right-5 md:top-24 md:w-[380px]" aria-label="Activité et tentacules">
           <div className="flex justify-end px-2 pt-2"><button className="garden-icon-btn" aria-label="Fermer l'activité" onClick={() => setActivityOpen(false)}>×</button></div>

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildFeed, adaptHarvests } from "../src/garden-gege/feed.mjs";
+import { buildFeed, adaptHarvests, configuredProjects } from "../src/garden-gege/feed.mjs";
 import {
   projectMissions,
   adaptGerard,
@@ -178,4 +178,15 @@ test("mock flags nested in Octopus output never become real events", () => {
     ],
   };
   assert.equal(adaptOctopus(source, projects).events.length, 0);
+});
+
+test("OnlyFeuch is exposed as a dedicated configured Garden parcel", () => {
+  const projects = configuredProjects({ seeds: [
+    { parcelId: "poulpe-fiction" },
+    { parcelId: "onlyfeuch-agency" },
+  ]});
+  assert.deepEqual(projects, [
+    { id: "poulpe-fiction", label: "Poulpe Fiction" },
+    { id: "onlyfeuch-agency", label: "OnlyFeuch Agency" },
+  ]);
 });
