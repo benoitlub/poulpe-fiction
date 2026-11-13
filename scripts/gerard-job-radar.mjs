@@ -1,14 +1,19 @@
 import { createHash } from "node:crypto";
 
-const sources = "(site:candidat.francetravail.fr/offres/recherche/detail OR site:hellowork.com/fr-fr/emplois OR site:welcometothejungle.com/fr/companies)";
+const sources = "(site:candidat.francetravail.fr/offres/recherche/detail OR site:hellowork.com/fr-fr/emplois OR site:welcometothejungle.com/fr/companies OR site:jobs.lever.co OR site:boards.greenhouse.io)";
 export const jobSearchQueries = [
   `${sources} ("conseiller de vente" OR "vendeur" OR "vendeuse") (Versailles OR "La Celle-Saint-Cloud" OR "Le Chesnay" OR "Rueil-Malmaison" OR "Saint-Germain-en-Laye" OR "Marly-le-Roi")`,
-  `${sources} ("formateur multimédia" OR "formateur numérique" OR "graphiste" OR "AI image designer" OR "automatisation IA") (Yvelines OR "Île-de-France" OR télétravail)`,
+  `${sources} ("formateur multimédia" OR "formateur numérique" OR "formateur Photoshop" OR "formateur Adobe" OR "formateur IA" OR "graphiste" OR "automatisation IA") (Yvelines OR "Île-de-France" OR télétravail OR remote)`,
+  `${sources} ("support client" OR "customer support" OR "service client") (français OR francophone) (télétravail OR remote OR "temps partiel")`,
+  `${sources} ("mission freelance" OR "formateur freelance" OR "intervenant formation") (Photoshop OR InDesign OR multimédia OR IA) ("rémunération" OR "€/h" OR "€/jour" OR "TTC")`,
+  `${sources} (francophone OR français) ("relocation package" OR relocalisation OR "flight provided" OR "accommodation provided") (Espagne OR Malta OR Grèce OR Greece OR Portugal OR Cyprus)`,
 ];
 
 const local = /\b(?:78000|78150|78170|78160|78380|78430|78400|78600|78100|92420|92500|versailles|le chesnay|la celle.saint.cloud|louveciennes|marly.le.roi|rueil.malmaison|saint.germain.en.laye|bougival|vaucresson)\b/i;
 const employment = /\b(?:CDI|CDD|FULL_TIME|PART_TIME|TEMPORARY|PERMANENT|salariat|intérim)\b/i;
 const independent = /\b(?:freelance|indépendant|CONTRACTOR|auto.entrepreneur|micro.entreprise|independant)\b/i;
+const relocation = /\b(?:relocation|relocalisation|flight provided|accommodation provided|housing provided|visa support)\b/i;
+const sunnyDestination = /\b(?:espagne|spain|valencia|malta|gr[eè]ce|greece|athens|thessaloniki|portugal|lisbon|cyprus|chypre)\b/i;
 const contingentPay = /(?:sans|aucune)\s+rémunération|(?:fixez|fixer|définissez|définir)\s+(?:vous.même\s+)?(?:vos|vos propres|ses|les)\s+tarifs|rémunération\s+(?:uniquement|exclusivement)\s+(?:à la commission|selon les inscriptions)|bénévolat|commission uniquement|100\s*%\s+commission/i;
 
 const profiles = [
@@ -16,6 +21,7 @@ const profiles = [
   { role: /\b(?:formateu[rs]|formatrice|formation|multimédia)\b/i, evidence: "J’ai travaillé vingt ans comme formateur en multimédia et j’ai l’habitude d’accompagner des publics de niveaux différents." },
   { role: /\b(?:graphiste|designer|créati(?:on|f|ve) visuel|infographiste)\b/i, evidence: "Mon parcours mêle vingt ans de formation en multimédia et la création de visuels. Je suis titulaire d’un certificat Adobe Photoshop." },
   { role: /\b(?:automatisation|automation|agents? ia|workflow|no.code)\b/i, evidence: "J’ai conçu Poulpe Fiction, un projet qui assemble des outils d’IA et automatise des étapes de production de contenus." },
+  { role: /\b(?:support client|customer support|service client|customer care|conseiller clientèle)\b/i, evidence: "Mon parcours combine relation client, vente, formation et maîtrise des outils numériques. J’ai l’habitude d’expliquer clairement, de résoudre des problèmes et d’accompagner des publics très différents." },
 ];
 
 export function rankJobCandidates(candidates, limit = 3) {
@@ -30,7 +36,9 @@ export function rankJobCandidates(candidates, limit = 3) {
     const salaried = !isIndependent && (employment.test(job.employmentType || "") ||
       /\b(?:contrat (?:en )?(?:CDI|CDD)|poste en (?:CDI|CDD))\b/i.test(description));
     const freelance = isIndependent && Boolean(job.salary);
-    if ((!nearby && !job.remote) || (!salaried && !freelance)) return [];
+    const relocationOffer = relocation.test(`${job.title} ${job.location} ${description}`) &&
+      sunnyDestination.test(`${job.location} ${description}`);
+    if ((!nearby && !job.remote && !relocationOffer) || (!salaried && !freelance)) return [];
     const url = URL.canParse(job.url) ? new URL(job.url) : null;
     if (url?.protocol !== "https:" || url.username || url.password) return [];
     const identity = [job.employer, job.title, job.location || (job.remote ? "remote" : "")].join(" ")
@@ -47,7 +55,8 @@ export function rankJobCandidates(candidates, limit = 3) {
     const subject = `Candidature · ${job.title}`;
     return [{
       id, title: `${job.title} · ${job.employer}`,
-      score: (salaried && nearby ? 8 : 0) + (salaried ? 2 : 0) + (nearby ? 1 : 0) + (job.salary ? 1 : 0),
+      score: (salaried && nearby ? 8 : 0) + (salaried ? 2 : 0) + (nearby ? 1 : 0) +
+        (job.remote ? 4 : 0) + (relocationOffer ? 4 : 0) + (job.salary ? 2 : 0),
       content: [
         "### Offre vérifiée par Publisher",
         `[Ouvrir l’annonce d’origine](${url.href})`,
