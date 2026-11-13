@@ -121,7 +121,12 @@
         "mode": "review-only",
         "harvestState": "ready-to-review"
       },
-      "templates": [{ "id": "job-search", "enabled": true }]
+      "templates": [
+        {
+          "id": "job-search",
+          "enabled": true
+        }
+      ]
     },
     {
       "seedId": "420-dice-video-studio",
@@ -357,6 +362,43 @@
             "subject": "Un appareil de scan spectral fictif fait apparaître une silhouette abstraite dans une pièce sombre. Illustration de science-fiction, sans interface réelle ni texte.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
             "allowMistralImage": true
+          }
+        }
+      ]
+    },
+    {
+      "seedId": "onlyfeuch-agency",
+      "parcelId": "onlyfeuch-agency",
+      "title": "OnlyFeuch Agency · Escouade spécialisée",
+      "objective": "Développer OnlyFeuch comme service d’accompagnement pour créatrices adultes débutantes, en séparant clairement stratégie de plateforme, production créative et mesure des résultats. Ne promettre aucun revenu garanti. Vérifier les fonctions et règles de plateforme avant toute recommandation opérationnelle. Ne jamais publier, envoyer de message, gérer un compte, fixer un prix ou engager une créatrice sans validation humaine explicite. Travailler uniquement avec des adultes consentants et ne conserver aucune donnée intime inutile.",
+      "knowledgeSlug": "onlyfeuch-agency",
+      "delivery": {
+        "mode": "review-only",
+        "harvestState": "ready-to-review"
+      },
+      "templates": [
+        {
+          "id": "onlyfeuch-growth",
+          "enabled": true,
+          "config": {
+            "label": "Gégé Growth",
+            "mission": "Plateforme, offre, acquisition, conversion et rétention à partir de mécanismes vérifiés."
+          }
+        },
+        {
+          "id": "onlyfeuch-studio",
+          "enabled": true,
+          "config": {
+            "label": "Gégé Studio",
+            "mission": "Univers créatif, briefs de shooting, calendrier et réutilisation du Studio existant."
+          }
+        },
+        {
+          "id": "onlyfeuch-analytics",
+          "enabled": true,
+          "config": {
+            "label": "Gégé Analytics",
+            "mission": "Suivre résultats réels, tests, apprentissages et prochaines expériences sans inventer de performance."
           }
         }
       ]
