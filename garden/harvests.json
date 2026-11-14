@@ -1045,13 +1045,13 @@
       "privateContent": true
     },
     {
-      "harvestId": "candidature-4cc60dd7e6c30fcd4499",
-      "harvestedAt": "2026-11-14T01:27:31.607Z",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
-      "capability": "candidature.draft",
       "route": "publisher->poulpe-fiction",
       "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "harvestId": "candidature-4cc60dd7e6c30fcd4499",
+      "capability": "candidature.draft",
+      "harvestedAt": "2026-11-14T01:27:31.607Z",
       "privateContent": true
     }
   ]
