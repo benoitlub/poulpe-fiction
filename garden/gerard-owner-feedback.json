@@ -52,6 +52,26 @@
         "Ne pas engager de dépenses ni activer un service payant."
       ],
       "status": "accepted-for-learning"
+    },
+    {
+      "id": "benoit-bazar-du-feuch-metricool-2026-11-14",
+      "source": "owner-reviewed-github",
+      "ownerGitHub": "benoitlub",
+      "approvedAt": "2026-11-14",
+      "parcelId": "bazar-du-feuch",
+      "assetType": "social-post",
+      "evaluation": {
+        "summary": "Pour le post du 14 novembre à 10 h, Benoît a ajouté deux images et TikTok à la proposition initiale, prévue sur Facebook en texte seul. Metricool a confirmé ces retouches sur la publication 427825011. Résultat d’audience inconnu."
+      },
+      "creativeGuidance": [
+        "Pour une prochaine proposition Bazar du Feuch, préparer d’emblée deux images pertinentes qui montrent le catalogue, les livres, les jeux ou les prototypes évoqués.",
+        "Proposer Facebook et, si le média et le compte s’y prêtent, une déclinaison TikTok dans les prochaines suggestions pour le Bazar du Feuch.",
+        "Comparer les résultats par réseau et par format quand des mesures attribuées seront disponibles."
+      ],
+      "prohibitedActions": [
+        "Ce retour éditorial ne change pas les destinations autorisées pour la programmation automatique."
+      ],
+      "status": "accepted-for-learning"
     }
   ]
 }
