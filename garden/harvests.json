@@ -7,16 +7,6 @@
     {
       "route": "octopus->publisher-adapter",
       "state": "composted",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "harvestId": "gerard-cultivate-1791580886903-harvest",
-      "capability": "content.generate",
-      "harvestedAt": "2026-10-09T21:21:34.648Z",
-      "privateContent": true
-    },
-    {
-      "route": "octopus->publisher-adapter",
-      "state": "composted",
       "seedId": "yael-prospection",
       "parcelId": "project-yael-prospection",
       "harvestId": "gerard-cultivate-1791585855614-harvest",
@@ -1052,6 +1042,16 @@
       "harvestId": "candidature-4cc60dd7e6c30fcd4499",
       "capability": "candidature.draft",
       "harvestedAt": "2026-11-14T01:27:31.607Z",
+      "privateContent": true
+    },
+    {
+      "harvestId": "gerard-cultivate-1794679256352-harvest",
+      "harvestedAt": "2026-11-14T18:01:05.957Z",
+      "seedId": "onlyfeuch-agency",
+      "parcelId": "onlyfeuch-agency",
+      "capability": "content.generate",
+      "route": "octopus->publisher-adapter",
+      "state": "ready-to-review",
       "privateContent": true
     }
   ]

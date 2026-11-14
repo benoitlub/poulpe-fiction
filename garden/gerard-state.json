@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-14T10:25:09.635Z",
-  "lastSeedId": "benoit-job-search",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-14T18:01:05.962Z",
+  "lastSeedId": "onlyfeuch-agency",
   "history": [
-    {
-      "at": "2026-11-11T06:18:05.506Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1794377884469"
-    },
     {
       "at": "2026-11-11T11:57:45.821Z",
       "mode": "cultivate",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-14T10:25:09.635Z",
       "mode": "symbiosis",
-      "operationId": "gerard-symbiosis-1794651908656",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1794651908656"
+    },
+    {
+      "at": "2026-11-14T18:01:05.962Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1794679256352",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-04T18:57:27.245Z",
-      "mode": "cultivate",
-      "seedId": "420-dice-video-studio",
-      "outcome": "ok",
-      "decision": "studio-files-ready-for-review",
-      "parcelId": "420-dice",
-      "operationId": "gerard-cultivate-1793818612512"
-    },
     {
       "at": "2026-11-04T19:52:16.840Z",
       "mode": "symbiosis",
@@ -503,14 +494,113 @@
     },
     {
       "at": "2026-11-14T10:25:09.635Z",
-      "operationId": "gerard-symbiosis-1794651908656",
       "mode": "symbiosis",
-      "outcome": "ok"
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1794651908656"
+    },
+    {
+      "at": "2026-11-14T18:01:05.962Z",
+      "operationId": "gerard-cultivate-1794679256352",
+      "mode": "cultivate",
+      "outcome": "ok",
+      "decision": "harvest-produced",
+      "seedId": "onlyfeuch-agency",
+      "parcelId": "onlyfeuch-agency"
     }
   ],
   "lastResult": {
-    "at": "2026-11-14T10:25:09.635Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "ok",
+    "harvestMode": "garden-prepare-bag",
+    "operationId": "gerard-cultivate-1794679256352",
+    "seedId": "onlyfeuch-agency",
+    "parcelId": "onlyfeuch-agency",
+    "phase": "knowledge",
+    "knowledge": {
+      "status": "completed",
+      "verified": true,
+      "slug": "onlyfeuch-agency",
+      "source": "notion"
+    },
+    "delivery": {
+      "mode": "review-only"
+    },
+    "decision": "harvest-produced",
+    "octopus": {
+      "status": "ok",
+      "httpStatus": 200,
+      "payload": {
+        "operationId": "gerard-cultivate-1794679256352-knowledge",
+        "status": "completed",
+        "output": {
+          "capability": "knowledge.search",
+          "slug": "onlyfeuch-agency",
+          "source": "notion",
+          "verified": true,
+          "itemCount": 1,
+          "diagnostics": {
+            "connected": true,
+            "totalItems": 2,
+            "matchedItems": 1,
+            "discoveredItems": 1,
+            "digestedItems": 1
+          }
+        },
+        "missionId": "gerard-cultivate-1794679256352-knowledge",
+        "contextId": "onlyfeuch-agency",
+        "adapterId": "publisher",
+        "lifecycle": {
+          "missionId": "gerard-cultivate-1794679256352-knowledge",
+          "state": "completed",
+          "createdAt": "2026-11-14T18:00:56.379Z",
+          "updatedAt": "2026-11-14T18:00:58.087Z"
+        }
+      }
+    },
+    "harvest": {
+      "status": "ok",
+      "httpStatus": 200,
+      "payload": {
+        "operationId": "gerard-cultivate-1794679256352-harvest",
+        "missionId": "gerard-cultivate-1794679256352-harvest",
+        "status": "completed",
+        "contextId": "onlyfeuch-agency",
+        "tentacleId": "octopus-core",
+        "executorId": "octopus-core",
+        "resourceResult": {
+          "resourceId": "mistral",
+          "status": "success",
+          "output": {}
+        },
+        "output": {},
+        "lifecycle": {
+          "missionId": "gerard-cultivate-1794679256352-harvest",
+          "state": "completed",
+          "createdAt": "2026-11-14T18:00:58.099Z",
+          "updatedAt": "2026-11-14T18:01:05.952Z"
+        }
+      },
+      "verification": {
+        "seedId": "onlyfeuch-agency",
+        "parcelId": "onlyfeuch-agency",
+        "operationId": "gerard-cultivate-1794679256352-harvest",
+        "capability": "content.generate",
+        "completed": true,
+        "simulated": false,
+        "contentLength": 4350,
+        "route": "octopus->publisher-adapter"
+      }
+    },
+    "persistedHarvest": {
+      "harvestId": "gerard-cultivate-1794679256352-harvest",
+      "harvestedAt": "2026-11-14T18:01:05.957Z",
+      "seedId": "onlyfeuch-agency",
+      "parcelId": "onlyfeuch-agency",
+      "capability": "content.generate",
+      "route": "octopus->publisher-adapter",
+      "delivery": {
+        "mode": "review-only"
+      },
+      "state": "ready-to-review"
+    }
   }
 }
