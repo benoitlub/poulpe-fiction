@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-15T22:02:24.608Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-15T22:48:18.449Z",
   "lastSeedId": "onlyfeuch-agency",
   "history": [
-    {
-      "at": "2026-11-11T16:09:09.654Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1794413321635"
-    },
     {
       "at": "2026-11-11T16:34:59.840Z",
       "mode": "symbiosis",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-15T22:02:24.608Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1794780126292",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1794780126292"
+    },
+    {
+      "at": "2026-11-15T22:48:18.449Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1794782897970",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-05T13:27:32.965Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793885252048"
-    },
     {
       "at": "2026-11-05T13:47:59.479Z",
       "mode": "cultivate",
@@ -500,107 +494,23 @@
     },
     {
       "at": "2026-11-15T22:02:24.608Z",
-      "operationId": "gerard-cultivate-1794780126292",
       "mode": "cultivate",
+      "seedId": "onlyfeuch-agency",
       "outcome": "ok",
       "decision": "harvest-produced",
-      "seedId": "onlyfeuch-agency",
-      "parcelId": "onlyfeuch-agency"
+      "parcelId": "onlyfeuch-agency",
+      "operationId": "gerard-cultivate-1794780126292"
+    },
+    {
+      "at": "2026-11-15T22:48:18.449Z",
+      "operationId": "gerard-symbiosis-1794782897970",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1794780126292",
-    "seedId": "onlyfeuch-agency",
-    "parcelId": "onlyfeuch-agency",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "onlyfeuch-agency",
-      "source": "notion"
-    },
-    "delivery": {
-      "mode": "review-only"
-    },
-    "decision": "harvest-produced",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1794780126292-knowledge",
-        "status": "completed",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "onlyfeuch-agency",
-          "source": "notion",
-          "verified": true,
-          "itemCount": 1,
-          "diagnostics": {
-            "connected": true,
-            "totalItems": 2,
-            "matchedItems": 1,
-            "discoveredItems": 1,
-            "digestedItems": 1
-          }
-        },
-        "missionId": "gerard-cultivate-1794780126292-knowledge",
-        "contextId": "onlyfeuch-agency",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1794780126292-knowledge",
-          "state": "completed",
-          "createdAt": "2026-11-15T22:02:06.315Z",
-          "updatedAt": "2026-11-15T22:02:07.359Z"
-        }
-      }
-    },
-    "harvest": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1794780126292-harvest",
-        "missionId": "gerard-cultivate-1794780126292-harvest",
-        "status": "completed",
-        "contextId": "onlyfeuch-agency",
-        "tentacleId": "octopus-core",
-        "executorId": "octopus-core",
-        "resourceResult": {
-          "resourceId": "mistral",
-          "status": "success",
-          "output": {}
-        },
-        "output": {},
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1794780126292-harvest",
-          "state": "completed",
-          "createdAt": "2026-11-15T22:02:07.372Z",
-          "updatedAt": "2026-11-15T22:02:24.598Z"
-        }
-      },
-      "verification": {
-        "seedId": "onlyfeuch-agency",
-        "parcelId": "onlyfeuch-agency",
-        "operationId": "gerard-cultivate-1794780126292-harvest",
-        "capability": "content.generate",
-        "completed": true,
-        "simulated": false,
-        "contentLength": 4425,
-        "route": "octopus->publisher-adapter"
-      }
-    },
-    "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1794780126292-harvest",
-      "harvestedAt": "2026-11-15T22:02:24.603Z",
-      "seedId": "onlyfeuch-agency",
-      "parcelId": "onlyfeuch-agency",
-      "capability": "content.generate",
-      "route": "octopus->publisher-adapter",
-      "delivery": {
-        "mode": "review-only"
-      },
-      "state": "ready-to-review"
-    }
+    "at": "2026-11-15T22:48:18.448Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
