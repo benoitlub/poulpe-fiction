@@ -12,9 +12,9 @@ const independent = /\b(?:freelance|indépendant|CONTRACTOR|auto.entrepreneur|mi
 const contingentPay = /(?:sans|aucune)\s+rémunération|(?:fixez|fixer|définissez|définir)\s+(?:vous.même\s+)?(?:vos|vos propres|ses|les)\s+tarifs|rémunération\s+(?:uniquement|exclusivement)\s+(?:à la commission|selon les inscriptions)|bénévolat|commission uniquement|100\s*%\s+commission/i;
 
 export const careerCvProfiles = Object.freeze({
-  vente: "CV_Benoit_Lubert_Vente_2026.pdf",
+  vente: "CV_Benoit_Lubert_Commercial_2026.pdf",
   formation: "CV_Benoit_Lubert_Formation_Multimedia_IA_2026.pdf",
-  creation: "CV_Benoit_Lubert_Creation_Graphique_XR_2026.pdf",
+  creation: "CV_Benoit_Lubert_Orange_Wholesale_2026.pdf",
 });
 
 const profiles = [
@@ -63,7 +63,7 @@ export function rankJobCandidates(candidates, limit = 3) {
         `- Rémunération : ${salary}`,
         `- ${channel}`,
         `- Profil CV recommandé : ${profile.cvProfile}.`,
-        `- Fichier CV attendu : ${careerCvProfiles[profile.cvProfile]}.`,
+        `- Fichier CV de référence : ${careerCvProfiles[profile.cvProfile]}.`,
         "- Pièce jointe : non vérifiée. Ne pas envoyer automatiquement avant confirmation de sa disponibilité.",
         "",
         "### Brouillon de candidature",
