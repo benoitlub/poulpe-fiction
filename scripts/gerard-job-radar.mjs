@@ -11,11 +11,17 @@ const employment = /\b(?:CDI|CDD|FULL_TIME|PART_TIME|TEMPORARY|PERMANENT|salaria
 const independent = /\b(?:freelance|indépendant|CONTRACTOR|auto.entrepreneur|micro.entreprise|independant)\b/i;
 const contingentPay = /(?:sans|aucune)\s+rémunération|(?:fixez|fixer|définissez|définir)\s+(?:vous.même\s+)?(?:vos|vos propres|ses|les)\s+tarifs|rémunération\s+(?:uniquement|exclusivement)\s+(?:à la commission|selon les inscriptions)|bénévolat|commission uniquement|100\s*%\s+commission/i;
 
+export const careerCvProfiles = Object.freeze({
+  vente: "CV_Benoit_Lubert_Vente_2026.pdf",
+  formation: "CV_Benoit_Lubert_Formation_Multimedia_IA_2026.pdf",
+  creation: "CV_Benoit_Lubert_Creation_Graphique_XR_2026.pdf",
+});
+
 const profiles = [
-  { role: /\b(?:vendeu[rs]|vendeuse|vente|boutique)\b/i, evidence: "J’ai deux ans d’expérience commerciale, dont une expérience récente en boutique chez Alter Smoke." },
-  { role: /\b(?:formateu[rs]|formatrice|formation|multimédia)\b/i, evidence: "J’ai travaillé vingt ans comme formateur en multimédia et j’ai l’habitude d’accompagner des publics de niveaux différents." },
-  { role: /\b(?:graphiste|designer|créati(?:on|f|ve) visuel|infographiste)\b/i, evidence: "Mon parcours mêle vingt ans de formation en multimédia et la création de visuels. Je suis titulaire d’un certificat Adobe Photoshop." },
-  { role: /\b(?:automatisation|automation|agents? ia|workflow|no.code)\b/i, evidence: "J’ai conçu Poulpe Fiction, un projet qui assemble des outils d’IA et automatise des étapes de production de contenus." },
+  { cvProfile: "vente", role: /\b(?:vendeu[rs]|vendeuse|vente|boutique)\b/i, evidence: "J’ai deux ans d’expérience commerciale, dont une expérience récente en boutique chez Alter Smoke." },
+  { cvProfile: "formation", role: /\b(?:formateu[rs]|formatrice|formation|multimédia)\b/i, evidence: "J’ai travaillé vingt ans comme formateur en multimédia et j’ai l’habitude d’accompagner des publics de niveaux différents." },
+  { cvProfile: "creation", role: /\b(?:graphiste|designer|créati(?:on|f|ve) visuel|infographiste)\b/i, evidence: "Mon parcours mêle vingt ans de formation en multimédia et la création de visuels. Je suis titulaire d’un certificat Adobe Photoshop." },
+  { cvProfile: "formation", role: /\b(?:automatisation|automation|agents? ia|workflow|no.code)\b/i, evidence: "J’ai conçu Poulpe Fiction, un projet qui assemble des outils d’IA et automatise des étapes de production de contenus." },
 ];
 
 export function rankJobCandidates(candidates, limit = 3) {
@@ -56,7 +62,9 @@ export function rankJobCandidates(candidates, limit = 3) {
         ...(job.hours ? [`- Horaires : ${job.hours}`] : []),
         `- Rémunération : ${salary}`,
         `- ${channel}`,
-        `- CV : ${profile === profiles[0] ? "CV_Benoit_Lubert_Vente_2026.pdf à joindre" : "version adaptée au poste à sélectionner avant envoi"}.`,
+        `- Profil CV recommandé : ${profile.cvProfile}.`,
+        `- Fichier CV attendu : ${careerCvProfiles[profile.cvProfile]}.`,
+        "- Pièce jointe : non vérifiée. Ne pas envoyer automatiquement avant confirmation de sa disponibilité.",
         "",
         "### Brouillon de candidature",
         `Objet : ${subject}`,
