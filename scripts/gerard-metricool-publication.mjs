@@ -251,6 +251,14 @@ const PROJECT_IMAGES = {
   "blacklace-echo": "https://raw.githubusercontent.com/benoitlub/blacklace-echo/46bd95b2ed2e2528168c46911b7a0049033ff438/public/assets/img/island-map.png",
 };
 
+// Publisher's editorial illustrations for the Facebook route.
+const PUBLISHER_ILLUSTRATION_BASE = "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/5f7f11eb28cca5c74104486086b4fc7c892b1177/public/media/gerard";
+const PUBLISHER_ILLUSTRATIONS = {
+  "creature-sync": `${PUBLISHER_ILLUSTRATION_BASE}/creature-sync.jpg`,
+  "feuch-dice": `${PUBLISHER_ILLUSTRATION_BASE}/feuch-dice.jpg`,
+  "spectrl": `${PUBLISHER_ILLUSTRATION_BASE}/spectrl.jpg`,
+};
+
 export function localEditorialCandidate(seedId, category = "entertainment") {
   const project = NOTION_EDITORIAL_PROJECTS.find(item => item.id === seedId);
   if (!project?.fact || !project.copy) return null;
@@ -452,14 +460,16 @@ function makeFallbackCandidate(project, angle, text, strategy) {
   const [seedId, title] = project;
   const [category] = angle;
   const hash = createHash("sha256").update(copyKey(text)).digest("hex");
-  const imageUrl = PROJECT_IMAGES[seedId];
+  const projectImage = PROJECT_IMAGES[seedId];
+  const illustration = PUBLISHER_ILLUSTRATIONS[seedId];
+  const imageUrl = projectImage ?? illustration;
   // Keep existing harvest IDs stable for previously prepared copies and receipts.
   return {
     status: "ready", harvestId: `gerard-facebook-${hash}`, seedId, title, category,
     copy: { text, strategy },
-    ...(imageUrl ? { media: { url: imageUrl, direct: true, official: true } } : {}),
-    mediaStatus: imageUrl ? "existing-project-media" : "not-produced",
-    compatibleNetworks: [imageUrl ? "instagram" : "facebook"],
+    ...(imageUrl ? { media: { url: imageUrl, direct: true, official: Boolean(projectImage) } } : {}),
+    mediaStatus: projectImage ? "existing-project-media" : illustration ? "publisher-illustration" : "not-produced",
+    compatibleNetworks: [projectImage ? "instagram" : "facebook"],
     transport: { provider: "metricool", brandId: "3350145" },
     editorialRoute: { destination: { preferredProvider: "metricool" } },
   };

@@ -17,6 +17,7 @@ test('GitHub True and Node true agree; a ready draft reaches the real mission bu
  for(const value of ['false','1','',undefined])assert.equal(directMetricoolEnabled(value),false);
  let post,persisted,registered=0;
  const result=await runDirectMetricoolDelivery(prepared,null,{...options,register:async()=>{registered++;},persist:async r=>{persisted=r;},submit:(c,opts)=>submitMetricoolPublication(c,{...opts,fetchImpl:async(url,init)=>{
+  if (init.method === 'HEAD') return new Response(null, {headers: {'content-type': 'image/jpeg'}});
   assert.equal(url,'http://127.0.0.1:3000/mission');post=JSON.parse(init.body);
   return Response.json({status:'completed',output:{status:'confirmed-scheduled',scheduled:true,postId:'fixture-post',publicationDate:'2026-11-12T09:00:00'}});
  }})});
