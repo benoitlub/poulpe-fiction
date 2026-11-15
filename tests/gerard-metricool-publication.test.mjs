@@ -113,6 +113,14 @@ test('local fallback includes a project fact and source instead of a bare recycl
    assert.deepEqual(publication.media, [illustrated.media.url]);
    assert.ok(illustrated.media.url.endsWith('/media/gerard/' + seedId + '.jpg'));
  }
+ for (const seedId of ['bazar-du-feuch', 'prohibited-online']) {
+   const captured = localEditorialCandidate(seedId);
+   const publication = metricoolMission(captured).context.metadata.socialPublication;
+   assert.equal(captured.mediaStatus, 'publisher-capture');
+   assert.deepEqual(publication.networks, ['facebook']);
+   assert.deepEqual(publication.media, [captured.media.url]);
+   assert.ok(captured.media.url.endsWith('/media/gerard/' + seedId + '.jpg'));
+ }
  const textOnly=localEditorialCandidate('feuch-lab');
  assert.equal(textOnly.media,undefined);
  assert.deepEqual(textOnly.compatibleNetworks,['facebook']);
