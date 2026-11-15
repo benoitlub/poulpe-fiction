@@ -1,0 +1,27 @@
+name: Gérard · Audit des archives
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Mission GitHub à auditer"
+        required: true
+        type: string
+        default: "247"
+  issues:
+    types: [opened, reopened]
+permissions:
+  contents: read
+  issues: write
+jobs:
+  audit:
+    if: github.event_name == 'workflow_dispatch' || github.event.issue.number == 247
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier la mission et auditer les capacités existantes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ inputs.issue_number || github.event.issue.number }}
+        run: node scripts/gerard-archive-audit.mjs
