@@ -1053,6 +1053,26 @@
       "capability": "content.generate",
       "harvestedAt": "2026-11-14T18:01:05.957Z",
       "privateContent": true
+    },
+    {
+      "harvestId": "candidature-01829579b3c5b54152f2",
+      "harvestedAt": "2026-11-15T06:30:52.877Z",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "capability": "candidature.draft",
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "privateContent": true
+    },
+    {
+      "harvestId": "candidature-ee5818d5e24abe7c2762",
+      "harvestedAt": "2026-11-15T06:30:52.882Z",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "capability": "candidature.draft",
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "privateContent": true
     }
   ]
 }
