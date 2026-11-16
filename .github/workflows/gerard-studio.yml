@@ -39,6 +39,9 @@ jobs:
       LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      # Gérard uses the historical Publisher Cloudflare Worker for image generation.
+      # Direct Mistral remains available in Publisher, but is never auto-retried.
+      MISTRAL_IMAGE_TRANSPORT: worker
       AI_MODEL: ${{ secrets.AI_MODEL }}
       AI_PROVIDER: mistral
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
