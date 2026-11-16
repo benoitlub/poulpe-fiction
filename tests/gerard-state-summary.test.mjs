@@ -66,3 +66,26 @@ test("Studio failure codes and retrieval evidence survive public summaries witho
   assert.deepEqual(summary.studio.evidence,{fileVerified:false,published:false});
   assert.doesNotMatch(JSON.stringify(summary),/PRIVATE/);
 });
+
+
+test("Studio Mistral refusal exposes the exact provider stage but no credentials", () => {
+  const summary = summarizeCycleResult({
+    status: "failed",
+    studio: { status: "blocked", report: {
+      code: "MISTRAL_IMAGE_ACCESS_DENIED", httpStatus: 403,
+      provider: {
+        service: "mistral", model: "mistral-medium-latest", stage: "agent",
+        endpoint: "/v1/agents",
+        authorization: "Bearer PRIVATE_TOKEN",
+        rawResponse: "PRIVATE_RESPONSE",
+      },
+      prompt: "PRIVATE_PROMPT",
+    } },
+  });
+  assert.deepEqual(summary.studio.report.provider, {
+    service: "mistral", model: "mistral-medium-latest", stage: "agent",
+    endpoint: "/v1/agents",
+  });
+  assert.equal(summary.studio.report.httpStatus, 403);
+  assert.doesNotMatch(JSON.stringify(summary), /PRIVATE_TOKEN|PRIVATE_RESPONSE|PRIVATE_PROMPT/);
+});

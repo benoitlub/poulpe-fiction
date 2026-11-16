@@ -2,7 +2,7 @@
 const scalars = new Set([
   "status", "httpStatus", "operationId", "missionId", "contextId", "adapterId",
   "executorId", "tentacleId", "resourceId", "seedId", "parcelId", "harvestId",
-  "harvestMode", "phase", "decision", "state", "mode", "capability", "slug",
+  "harvestMode", "phase", "stage", "endpoint", "model", "service", "decision", "state", "mode", "capability", "slug",
   "source", "route", "reason", "at", "createdAt", "updatedAt", "harvestedAt",
   "retryAt", "completed", "verified", "simulated", "processed", "contentLength",
   "itemCount", "connected", "totalItems", "matchedItems", "discoveredItems",
@@ -11,7 +11,7 @@ const scalars = new Set([
 ]);
 const objects = new Set([
   "knowledge", "octopus", "harvest", "persistedHarvest", "verification", "payload",
-  "studio", "report", "evidence", "output", "resourceResult", "diagnostics", "lifecycle", "deferred", "delivery",
+  "studio", "report", "provider", "evidence", "output", "resourceResult", "diagnostics", "lifecycle", "deferred", "delivery",
 ]);
 const identifier = /^[A-Za-z0-9_.:>\/-]{1,160}$/;
 
