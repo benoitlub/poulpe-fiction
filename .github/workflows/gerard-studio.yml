@@ -39,6 +39,8 @@ jobs:
       LOCAL_PUBLISHER_URL: http://127.0.0.1:3100
       PUBLISHER_ADAPTER_URL: http://127.0.0.1:3100/api/octopus-adapter/execute
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      # Opt in via GitHub Actions repository variable; blank preserves direct mode.
+      MISTRAL_IMAGE_TRANSPORT: ${{ vars.MISTRAL_IMAGE_TRANSPORT }}
       AI_MODEL: ${{ secrets.AI_MODEL }}
       AI_PROVIDER: mistral
       NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
