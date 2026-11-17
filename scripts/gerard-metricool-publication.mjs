@@ -251,6 +251,19 @@ const PROJECT_IMAGES = {
   "blacklace-echo": "https://raw.githubusercontent.com/benoitlub/blacklace-echo/46bd95b2ed2e2528168c46911b7a0049033ff438/public/assets/img/island-map.png",
 };
 
+// Publisher's editorial illustrations for the Facebook route.
+const PUBLISHER_MEDIA_BASE = "https://raw.githubusercontent.com/benoitlub/blacklace-publisher-ai/95cb872077a4849de47908803e89824df0bd049c/public/media/gerard";
+const PUBLISHER_ILLUSTRATIONS = {
+  "creature-sync": `${PUBLISHER_MEDIA_BASE}/creature-sync.jpg`,
+  "feuch-dice": `${PUBLISHER_MEDIA_BASE}/feuch-dice.jpg`,
+  "spectrl": `${PUBLISHER_MEDIA_BASE}/spectrl.jpg`,
+};
+
+const PUBLISHER_CAPTURES = {
+  "bazar-du-feuch": `${PUBLISHER_MEDIA_BASE}/bazar-du-feuch.jpg`,
+  "prohibited-online": `${PUBLISHER_MEDIA_BASE}/prohibited-online.jpg`,
+};
+
 export function localEditorialCandidate(seedId, category = "entertainment") {
   const project = NOTION_EDITORIAL_PROJECTS.find(item => item.id === seedId);
   if (!project?.fact || !project.copy) return null;
@@ -452,14 +465,17 @@ function makeFallbackCandidate(project, angle, text, strategy) {
   const [seedId, title] = project;
   const [category] = angle;
   const hash = createHash("sha256").update(copyKey(text)).digest("hex");
-  const imageUrl = PROJECT_IMAGES[seedId];
+  const projectImage = PROJECT_IMAGES[seedId];
+  const illustration = PUBLISHER_ILLUSTRATIONS[seedId];
+  const capture = PUBLISHER_CAPTURES[seedId];
+  const imageUrl = projectImage ?? illustration ?? capture;
   // Keep existing harvest IDs stable for previously prepared copies and receipts.
   return {
     status: "ready", harvestId: `gerard-facebook-${hash}`, seedId, title, category,
     copy: { text, strategy },
-    ...(imageUrl ? { media: { url: imageUrl, direct: true, official: true } } : {}),
-    mediaStatus: imageUrl ? "existing-project-media" : "not-produced",
-    compatibleNetworks: [imageUrl ? "instagram" : "facebook"],
+    ...(imageUrl ? { media: { url: imageUrl, direct: true, official: Boolean(projectImage ?? capture) } } : {}),
+    mediaStatus: projectImage ? "existing-project-media" : illustration ? "publisher-illustration" : capture ? "publisher-capture" : "not-produced",
+    compatibleNetworks: [projectImage ? "instagram" : "facebook"],
     transport: { provider: "metricool", brandId: "3350145" },
     editorialRoute: { destination: { preferredProvider: "metricool" } },
   };

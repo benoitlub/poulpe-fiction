@@ -105,7 +105,23 @@ test('local fallback includes a project fact and source instead of a bare recycl
  const publication=metricoolMission(c).context.metadata.socialPublication;
  assert.deepEqual(publication.media,[c.media.url]);
  assert.deepEqual(publication.networks,['instagram']);
- const textOnly=localEditorialCandidate('spectrl');
+ for (const seedId of ['creature-sync', 'spectrl', 'feuch-dice']) {
+   const illustrated = localEditorialCandidate(seedId);
+   assert.equal(illustrated.mediaStatus, 'publisher-illustration');
+   const publication = metricoolMission(illustrated).context.metadata.socialPublication;
+   assert.deepEqual(publication.networks, ['facebook']);
+   assert.deepEqual(publication.media, [illustrated.media.url]);
+   assert.ok(illustrated.media.url.endsWith('/media/gerard/' + seedId + '.jpg'));
+ }
+ for (const seedId of ['bazar-du-feuch', 'prohibited-online']) {
+   const captured = localEditorialCandidate(seedId);
+   const publication = metricoolMission(captured).context.metadata.socialPublication;
+   assert.equal(captured.mediaStatus, 'publisher-capture');
+   assert.deepEqual(publication.networks, ['facebook']);
+   assert.deepEqual(publication.media, [captured.media.url]);
+   assert.ok(captured.media.url.endsWith('/media/gerard/' + seedId + '.jpg'));
+ }
+ const textOnly=localEditorialCandidate('feuch-lab');
  assert.equal(textOnly.media,undefined);
  assert.deepEqual(textOnly.compatibleNetworks,['facebook']);
  assert.equal(localEditorialCandidate('jointed'),null,'no local invention of card mechanics without a source summary');
