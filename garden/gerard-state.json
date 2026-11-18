@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-18T00:58:04.187Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-18T11:41:06.474Z",
   "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-12T11:39:23.816Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1794483549063"
-    },
     {
       "at": "2026-11-12T19:53:58.626Z",
       "mode": "cultivate",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-18T00:58:04.187Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1794963480691",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1794963480691"
+    },
+    {
+      "at": "2026-11-18T11:41:06.474Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1795002065788",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-05T15:39:24.135Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1793893163278"
-    },
     {
       "at": "2026-11-05T23:38:54.907Z",
       "mode": "cultivate",
@@ -503,21 +497,23 @@
     },
     {
       "at": "2026-11-18T00:58:04.187Z",
-      "operationId": "gerard-cultivate-1794963480691",
       "mode": "cultivate",
+      "seedId": "benoit-job-search",
       "outcome": "ok",
       "decision": "candidatures-ready-to-review",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career"
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1794963480691"
+    },
+    {
+      "at": "2026-11-18T11:41:06.474Z",
+      "operationId": "gerard-symbiosis-1795002065788",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "decision": "candidatures-ready-to-review",
-    "parcelId": "benoit-career",
-    "seedId": "benoit-job-search",
-    "operationId": "gerard-cultivate-1794963480691",
-    "itemCount": 1,
-    "contacted": false
+    "at": "2026-11-18T11:41:06.473Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
