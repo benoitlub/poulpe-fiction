@@ -7,3 +7,14 @@
   background: #0b1024;
   margin: 18px 0;
 }
+
+/* Compact, borderless harvest prospect lists */
+.pf-prospect-list{margin:12px 0}
+.pf-prospect-line{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(170,180,204,.24);overflow-wrap:anywhere}
+.pf-prospect-line a{color:#9ce9d9;text-decoration:underline}
+.pf-prospect-controls{display:flex;flex-wrap:wrap;gap:8px}
+.pf-prospect-controls select{min-height:36px;background:#15243a;color:inherit;border:1px solid #44516b;border-radius:3px}
+.pf-prospect-editor{margin:14px 0;padding:12px 0;border-top:1px solid #44516b}
+.pf-prospect-editor label{display:block;margin:12px 0}
+.pf-prospect-editor input,.pf-prospect-editor textarea{display:block;width:100%;box-sizing:border-box;margin-top:6px;background:#0b1024;color:inherit;border:1px solid #44516b;border-radius:3px;padding:9px}
+@media(max-width:640px){.pf-prospect-line{display:block}.pf-prospect-controls{margin-top:10px}}
