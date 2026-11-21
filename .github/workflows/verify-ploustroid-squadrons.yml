@@ -1,0 +1,26 @@
+name: Verify Ploustroid Squadrons
+on:
+  pull_request:
+    paths:
+      - 'scripts/ploustroid-squadrons.mjs'
+      - 'scripts/ploustroid-observer.mjs'
+      - 'scripts/gerard-learning-cycle.mjs'
+      - '.github/workflows/gerard-learning.yml'
+      - 'tests/ploustroid-squadrons.test.mjs'
+      - 'tests/ploustroid-observer.test.mjs'
+      - '.github/workflows/verify-ploustroid-squadrons.yml'
+  workflow_dispatch:
+jobs:
+  squadron-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check scripts/ploustroid-squadrons.mjs
+      - run: node --check scripts/ploustroid-observer.mjs
+      - run: node --check scripts/gerard-learning-cycle.mjs
+      - run: node --test tests/ploustroid-squadrons.test.mjs tests/ploustroid-observer.test.mjs tests/gerard-adaptive-integration.test.mjs
