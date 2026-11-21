@@ -11,7 +11,7 @@ export type TentacleRun = {
 
 const workflows = [
   { name: "Production", file: "gerard-production.yml" },
-  { name: "Diffusion", file: "gerard-runtime.yml", job: "diffusion" },
+  { name: "Diffusion", file: "gerard-runtime.yml", job: "delivery" },
   { name: "Apprentissage", file: "gerard-learning.yml" },
 ] as const;
 
@@ -50,7 +50,7 @@ export function useTentacleRuns(enabled: boolean) {
                 name?: string; status?: string; conclusion?: string | null;
                 started_at?: string; completed_at?: string; html_url?: string;
               }> };
-              const job = jobs.jobs?.find((entry) => /diffusion/i.test(entry.name ?? ""));
+              const job = jobs.jobs?.find((entry) => /^(delivery|diffusion)(\s|$|\s*\/)/i.test(entry.name?.trim() ?? ""));
               if (job) return {
                 name: item.name,
                 status: job.status === "completed" || job.status === "in_progress" || job.status === "queued" ? job.status : "unavailable",
