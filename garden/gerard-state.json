@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "symbiosis",
-  "lastRunAt": "2026-11-21T11:00:35.497Z",
-  "lastSeedId": "onlyfeuch-agency",
+  "lastMode": "cultivate",
+  "lastRunAt": "2026-11-21T19:15:55.749Z",
+  "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-14T22:24:01.613Z",
-      "mode": "symbiosis",
-      "result": "ok",
-      "operationId": "gerard-symbiosis-1794695040518"
-    },
     {
       "at": "2026-11-15T06:30:52.885Z",
       "mode": "cultivate",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-21T11:00:35.497Z",
       "mode": "symbiosis",
-      "operationId": "gerard-symbiosis-1795258834893",
+      "result": "ok",
+      "operationId": "gerard-symbiosis-1795258834893"
+    },
+    {
+      "at": "2026-11-21T19:15:55.749Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1795288553914",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-08T17:56:29.269Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1794160588833"
-    },
     {
       "at": "2026-11-08T22:04:57.336Z",
       "mode": "cultivate",
@@ -506,14 +500,27 @@
     },
     {
       "at": "2026-11-21T11:00:35.497Z",
-      "operationId": "gerard-symbiosis-1795258834893",
       "mode": "symbiosis",
-      "outcome": "ok"
+      "outcome": "ok",
+      "operationId": "gerard-symbiosis-1795258834893"
+    },
+    {
+      "at": "2026-11-21T19:15:55.749Z",
+      "operationId": "gerard-cultivate-1795288553914",
+      "mode": "cultivate",
+      "outcome": "ok",
+      "decision": "candidatures-ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career"
     }
   ],
   "lastResult": {
-    "at": "2026-11-21T11:00:35.496Z",
-    "mode": "symbiosis",
-    "status": "ok"
+    "status": "ok",
+    "decision": "candidatures-ready-to-review",
+    "parcelId": "benoit-career",
+    "seedId": "benoit-job-search",
+    "operationId": "gerard-cultivate-1795288553914",
+    "itemCount": 1,
+    "contacted": false
   }
 }
