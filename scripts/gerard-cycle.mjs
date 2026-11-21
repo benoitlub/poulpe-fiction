@@ -171,8 +171,8 @@ async function saveState(state) {
   await writeFile(STATE_PATH, JSON.stringify(summarizeStateResult(state), null, 2) + "\n", "utf8");
 }
 
-async function saveMailDrafts(sources, parcelId) {
-  const proposed = createMailDrafts(sources, { parcelId });
+async function saveMailDrafts(sources, parcelId, profile = 'pro-hibited') {
+  const proposed = createMailDrafts(sources, { parcelId, profile });
   if (!proposed.length) return 0;
   let existing = { drafts: [] };
   try { existing = JSON.parse(await readFile(MAIL_OUTBOX_PATH, "utf8")); } catch (_) {}
@@ -493,14 +493,15 @@ async function main() {
       let businessSourceState = null;
       let businessSourceChanges = null;
       const acquisition = getAcquisitionConfig(selectedSeed);
-      if (acquisition || selectedSeed.seedId === "benoit-client-acquisition") {
+      const onlyFeuchOutreach = selectedSeed.templates?.some(t => t.id === "onlyfeuch-outreach" && t.enabled !== false);
+      if (acquisition || selectedSeed.seedId === "benoit-client-acquisition" || onlyFeuchOutreach) {
         try {
           const lookup = await searchBusinessSources({ publisherUrl: PUBLISHER_URL, operationId, seed: selectedSeed, call: callJson });
           const parcel = selectedSeed.parcelId;
           const memoryKey = acquisition ? `${acquisition.clientId}:${parcel}` : parcel;
           const prior = state.businessSourceMemory?.[memoryKey] || {};
           const plan = planBusinessResearch(lookup.candidates, prior);
-          const examined = plan.fresh.length ? await qualifyBusinessSources(plan.fresh) : [];
+          const examined = plan.fresh.length ? await qualifyBusinessSources(plan.fresh, { profile: onlyFeuchOutreach ? 'onlyfeuch' : 'business' }) : [];
           const learned = rememberBusinessResearch(prior, examined);
           state.businessSourceMemory = { ...(state.businessSourceMemory || {}), [memoryKey]: learned.memory };
           businessSourceChanges = learned.changed;
@@ -508,7 +509,7 @@ async function main() {
             .sort((a, b) => (b.acquisitionScore ?? b.fitScore ?? -1) - (a.acquisitionScore ?? a.fitScore ?? -1));
           // Old Pro.Hibited mail drafts are not reusable for other clients.
           // The template only creates a reviewable research package.
-          const newDrafts = acquisition ? 0 : await saveMailDrafts(businessSources, parcel);
+          const newDrafts = acquisition ? 0 : await saveMailDrafts(businessSources, parcel, onlyFeuchOutreach ? 'onlyfeuch' : 'pro-hibited');
           if (acquisition) {
             const notion = await handoffAcquisitionReviews(businessSources, acquisition, {
               publisherUrl: PUBLISHER_URL,

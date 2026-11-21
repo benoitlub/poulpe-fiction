@@ -400,8 +400,31 @@
             "label": "Gégé Analytics",
             "mission": "Suivre résultats réels, tests, apprentissages et prochaines expériences sans inventer de performance."
           }
+        },
+        {
+          "id": "onlyfeuch-outreach",
+          "enabled": true,
+          "config": {
+            "audience": "créatrices adultes débutantes ou émergentes",
+            "channels": [
+              "email-public-professionnel"
+            ],
+            "geographies": [
+              "France",
+              "Espagne",
+              "Europe"
+            ],
+            "languages": [
+              "fr",
+              "en",
+              "es"
+            ],
+            "requireHumanApproval": true,
+            "automaticOutreach": false
+          }
         }
-      ]
+      ],
+      "businessSearchQuery": "créatrice adulte modèle contenu abonnement Instagram OnlyFans Fansly contact email public professionnel débutante émergente France Espagne Europe"
     }
   ]
 }
