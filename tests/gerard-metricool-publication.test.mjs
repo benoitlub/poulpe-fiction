@@ -175,3 +175,51 @@ test('machine mode preserves the legacy subject and exact v1 body for an externa
   assert.deepEqual(Object.keys(relay),['contract','operationId','harvestId','seedId','brandId','networks','text','media']);
  } finally {if(before===undefined)delete process.env.ACTIONS_ID_TOKEN_REQUEST_URL;else process.env.ACTIONS_ID_TOKEN_REQUEST_URL=before;}
 });
+
+test("Facebook fallback reuses official media and can relay a verified Publisher visual", async () => {
+  const { localEditorialCandidate, requestFallbackVisual } = await import("../scripts/gerard-metricool-publication.mjs");
+  const ready = localEditorialCandidate("spectrl");
+  assert.equal(await requestFallbackVisual(ready, { fetchImpl: () => assert.fail("known media must be reused") }), ready);
+
+  const candidate = localEditorialCandidate("feuch-lab");
+  const url = "https://publisher.example/api/production/mistral-image/content?fileId=fixture";
+  const options = {
+    publisherUrl: "https://publisher.example",
+    oidcUrl: "https://identity.example/token",
+    oidcToken: "fixture-request-token",
+  };
+  const fetchImpl = async (target, init) => {
+    if (target.hostname === "identity.example") {
+      assert.equal(target.searchParams.get("audience"), "blacklace-publisher-gerard-production-publish");
+      return Response.json({ value: "fixture-signed-token" });
+    }
+    if (init.method === "POST") {
+      assert.equal(target.pathname, "/api/social/media/request");
+      assert.equal(init.headers.Authorization, "Bearer fixture-signed-token");
+      const input = JSON.parse(init.body);
+      assert.equal(input.mode, "gerard-facebook-fallback");
+      assert.equal(input.harvestId, candidate.harvestId);
+      assert.equal(input.text, candidate.copy.text);
+      return Response.json({
+        status: "publishable", contract: "gerard-social-media-v1", harvestId: input.harvestId,
+        seedId: input.seedId, media: { url, direct: true }, verification: { publishable: true },
+      });
+    }
+    assert.equal(init.method, "HEAD");
+    assert.equal(target.href, url);
+    return new Response(null, { headers: { "content-type": "image/png" } });
+  };
+
+  const illustrated = await requestFallbackVisual(candidate, { ...options, fetchImpl });
+  assert.equal(illustrated.mediaStatus, "publisher-generated-image");
+  const publication = metricoolMission(illustrated).context.metadata.socialPublication;
+  assert.deepEqual(publication.media, [url]);
+  assert.deepEqual(publication.networks, ["facebook"]);
+  assert.equal(publication.text, candidate.copy.text);
+
+  const failed = await requestFallbackVisual(candidate, { ...options,
+    fetchImpl: async (target, init) => init.method === "POST" ? new Response(null, { status: 429 }) : fetchImpl(target, init),
+  });
+  assert.equal(failed.mediaFailure, "PUBLISHER_HTTP_429");
+  assert.deepEqual(metricoolMission(failed).context.metadata.socialPublication.media, []);
+});

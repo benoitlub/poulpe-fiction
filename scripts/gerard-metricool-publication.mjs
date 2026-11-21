@@ -481,6 +481,66 @@ function makeFallbackCandidate(project, angle, text, strategy) {
   };
 }
 
+export async function requestFallbackVisual(candidate, {
+  fetchImpl = fetch,
+  publisherUrl = process.env.PUBLISHER_URL,
+  oidcUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL,
+  oidcToken = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN,
+} = {}) {
+  if (candidate.media?.url || JSON.stringify(candidate.compatibleNetworks) !== '["facebook"]' ||
+      requires420Review(candidate.seedId, candidate.title, candidate.copy.text) ||
+      !publisherUrl || !oidcUrl || !oidcToken) return candidate;
+
+  try {
+    const publisher = new URL(publisherUrl);
+    if (publisher.protocol !== "https:" || publisher.username || publisher.password) return candidate;
+    const oidc = new URL(oidcUrl);
+    oidc.searchParams.set("audience", "blacklace-publisher-gerard-production-publish");
+    const identity = await fetchImpl(oidc, {
+      headers: { Authorization: "Bearer " + oidcToken },
+      redirect: "error", signal: AbortSignal.timeout(10000),
+    });
+    if (!identity.ok) throw new Error("OIDC_UNAVAILABLE");
+    const { value } = await identity.json();
+    if (typeof value !== "string" || !value) throw new Error("OIDC_TOKEN_MISSING");
+
+    const response = await fetchImpl(new URL("/api/social/media/request", publisher), {
+      method: "POST",
+      headers: { Authorization: "Bearer " + value, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "gerard-facebook-fallback", harvestId: candidate.harvestId,
+        seedId: candidate.seedId, title: candidate.title, text: candidate.copy.text,
+      }),
+      redirect: "error", signal: AbortSignal.timeout(90000),
+    });
+    if (!response.ok) throw new Error("PUBLISHER_HTTP_" + response.status);
+    const result = await response.json();
+    if (result.contract !== "gerard-social-media-v1" || result.status !== "publishable" ||
+        result.harvestId !== candidate.harvestId || result.seedId !== candidate.seedId ||
+        result.verification?.publishable !== true || result.media?.direct !== true ||
+        typeof result.media.url !== "string")
+      throw new Error("PUBLISHER_MEDIA_UNCONFIRMED");
+
+    const asset = new URL(result.media.url);
+    if (asset.origin !== publisher.origin || asset.username || asset.password ||
+        asset.pathname !== "/api/production/mistral-image/content" || !asset.searchParams.get("fileId"))
+      throw new Error("PUBLISHER_MEDIA_URL_INVALID");
+
+    const media = await fetchImpl(asset, {
+      method: "HEAD", redirect: "error", signal: AbortSignal.timeout(10000),
+    });
+    if (!media.ok || !/^image\/(?:png|jpeg|webp)(?:;|$)/i.test(media.headers.get("content-type") ?? "") ||
+        media.headers.get("content-length") === "0")
+      throw new Error("PUBLISHER_MEDIA_UNAVAILABLE");
+
+    return { ...candidate, media: { url: result.media.url, direct: true, official: false },
+      mediaStatus: "publisher-generated-image" };
+  } catch (error) {
+    const code = /^(?:OIDC_|PUBLISHER_)[A-Z0-9_]+$/.test(error.message) ? error.message : "PUBLISHER_VISUAL_REQUEST_FAILED";
+    return { ...candidate, mediaStatus: "publisher-visual-unavailable", mediaFailure: code };
+  }
+}
+
 async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
   const ledgerPath = prepareOnly ? PRODUCTION_LEDGER : FALLBACK_LEDGER;
   const ledger = await readOptional(ledgerPath, { cursor: 0, history: [] });
@@ -531,9 +591,10 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
     if (prepareOnly) await save();
     return { status: prepareOnly ? "no-draft-prepared" : "local-catalogue-exhausted", publisherFailure };
   }
+  if (prepareOnly && !direct) candidate = await requestFallbackVisual(candidate);
   const { seedId, category, copy: { text, strategy } } = candidate;
   const visualProposals = await proposeVisuals(seedId);
-  const entry = { at: new Date().toISOString(), seedId, category, text, strategy, publisherFailure, visualProposals, status: "prepared" };
+  const entry = { at: new Date().toISOString(), seedId, category, text, strategy, publisherFailure, visualProposals, mediaStatus: candidate.mediaStatus, mediaFailure: candidate.mediaFailure, status: "prepared" };
   recent.push(entry);
   await save();
   if (prepareOnly) {
