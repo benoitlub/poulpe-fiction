@@ -1,0 +1,21 @@
+name: Verify Ploustroïdes Workflow Errors
+on:
+  pull_request:
+    paths:
+      - 'scripts/ploustroid-workflow-errors.mjs'
+      - 'tests/ploustroid-workflow-errors.test.mjs'
+      - '.github/workflows/ploustroid-workflow-incidents.yml'
+      - '.github/workflows/verify-ploustroid-workflow-errors.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check scripts/ploustroid-workflow-errors.mjs
+      - run: node --test tests/ploustroid-incident-digest.test.mjs tests/ploustroid-workflow-errors.test.mjs
