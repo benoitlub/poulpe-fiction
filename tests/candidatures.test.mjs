@@ -27,7 +27,7 @@ test("keeps only opened, paid or salaried opportunities and deduplicates mirrors
   assert.match(drafts[0].content, /Montant non indiqué/);
   assert.match(drafts[0].content, /Aucun e-mail de candidature vérifié/);
   assert.match(drafts[0].content, /Alter Smoke/);
-  assert.match(drafts[0].content, /CV_Benoit_Lubert_Vente_2026.pdf/);
+  assert.match(drafts[0].content, /CV_Benoit_Lubert_Commercial_2026.pdf/);
 });
 
 test("draft recipient and body are stripped from the public projection", () => {
