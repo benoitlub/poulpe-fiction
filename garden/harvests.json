@@ -1115,12 +1115,32 @@
       "privateContent": true
     },
     {
-      "harvestId": "gerard-cultivate-1795346615666-harvest",
-      "harvestedAt": "2026-11-22T11:23:44.729Z",
+      "route": "octopus->publisher-adapter",
+      "state": "ready-to-review",
       "seedId": "onlyfeuch-agency",
       "parcelId": "onlyfeuch-agency",
+      "harvestId": "gerard-cultivate-1795346615666-harvest",
       "capability": "content.generate",
-      "route": "octopus->publisher-adapter",
+      "harvestedAt": "2026-11-22T11:23:44.729Z",
+      "privateContent": true
+    },
+    {
+      "harvestId": "candidature-e5fd8ffe0479f86417cc",
+      "harvestedAt": "2026-11-22T19:39:13.903Z",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "capability": "candidature.draft",
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "privateContent": true
+    },
+    {
+      "harvestId": "candidature-18d1aad5b6e11fb56ce2",
+      "harvestedAt": "2026-11-22T19:39:13.909Z",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "capability": "candidature.draft",
+      "route": "publisher->poulpe-fiction",
       "state": "ready-to-review",
       "privateContent": true
     }
