@@ -79,6 +79,7 @@ process.stdout.write(status);
     selections: calls.filter(url => url.pathname === "/api/social/bridge/next"),
     calls,
     finalPackage: recovery ? JSON.parse(readFileSync(join(root, "garden", "next-social-publication.json"), "utf8")) : null,
+    confirmedHistory: recovery ? (()=>{try{return JSON.parse(readFileSync(join(root,"garden","gerard-buffer-confirmed-history.json"),"utf8"));}catch{return []}})() : [],
     candidate: JSON.parse(readFileSync(join(root, "gerard-social-next.json"), "utf8")),
   };
 }
@@ -185,4 +186,30 @@ test("delivery retains the editorial rejection when there is no other harvest", 
   assert.equal(result.finalPackage.harvestId, "book-1");
   assert.equal(result.finalPackage.reason, "editorial-prompt-leak");
   assert.equal(result.finalPackage.action, "do-not-schedule");
+});
+
+
+test("confirmed Buffer harvests are excluded without excluding another angle for their book", t => {
+ const result=runSelection(t, {"gerard-buffer-confirmed-history.json":[
+  {harvestId:"book-1",postId:"provider-post",status:"confirmed-scheduled"},
+  {harvestId:"uncertain-book",status:"unknown"},
+  {harvestId:"mail-only",postId:"mail-id",status:"mail-sent"}
+ ]});
+ assert.equal(result.selections.length,1);
+ assert.equal(result.selections[0].searchParams.get("excludeHarvestIds"),"book-1");
+ assert.equal(result.selections[0].searchParams.get("excludeSeedIds"),"");
+ assert.equal(result.candidate.harvestId,"creative-1");
+});
+
+test("previous confirmed Buffer receipt survives replacing next-social-publication", t => {
+ const result=runSelection(t, {"next-social-publication.json":{
+  harvestId:"book-1",seedId:"gerard-et-gerard",transport:{provider:"buffer"},
+  copy:{text:"Original caption"},media:{url:"https://example.test/cover.jpg"},
+  delivery:{status:"confirmed-published",postId:"provider-post"}
+ }}, false, "alternative");
+ assert.equal(result.finalPackage.harvestId,"book-2");
+ assert.equal(result.confirmedHistory.length,1);
+ assert.equal(result.confirmedHistory[0].postId,"provider-post");
+ assert.equal(result.confirmedHistory[0].copyText,"Original caption");
+ assert.ok(result.selections[0].searchParams.get("excludeHarvestIds").includes("book-1"));
 });

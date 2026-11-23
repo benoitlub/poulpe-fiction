@@ -72,6 +72,29 @@
         "Ce retour éditorial ne change pas les destinations autorisées pour la programmation automatique."
       ],
       "status": "accepted-for-learning"
+    },
+    {
+      "id": "benoit-publication-interruptions-2026-11-23",
+      "source": "owner-reviewed-github",
+      "ownerGitHub": "benoitlub",
+      "approvedAt": "2026-11-23",
+      "parcelId": "poulpe-fiction",
+      "assetType": "publication-operation",
+      "evaluation": {
+        "summary": "Benoît indique que les interruptions répétées le pénalisent fortement : visibilité de ses livres, temps perdu en dépannage et frustration. Il demande une remise en marche effective."
+      },
+      "creativeGuidance": [
+        "Priorité aux livres, dont FLÛTE ET RE-FLÛTE !, déjà paru : https://amzn.eu/d/04mModzU .",
+        "Une exécution réussie ou un mail réservé ne prouve aucune publication : exiger un identifiant fournisseur et un statut confirmé.",
+        "Ne pas sélectionner à répétition une récolte déjà programmée ; produire un nouvel angle vérifiable.",
+        "Utiliser les médias existants pertinents quand la génération échoue ; signaler précisément les blocages persistants.",
+        "Le fonctionnement doit rendre du temps à Benoît et réduire sa charge de dépannage."
+      ],
+      "prohibitedActions": [
+        "Ne pas modifier ni supprimer les publications ou programmations existantes.",
+        "Ne pas engager de nouvelle dépense ni activer un service payant."
+      ],
+      "status": "accepted-for-learning"
     }
   ]
 }
