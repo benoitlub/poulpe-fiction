@@ -267,7 +267,13 @@ else
 fi
 }
 
-select_social_package true
+# Reviewed book copy can keep the author route working during a text-provider
+# outage. It uses official existing artwork and the same Buffer preflight.
+REVIEWED_BOOK_READY=false
+if [ "${GERARD_TENTACLE:-}" = "delivery" ] && [ -f scripts/gerard-reviewed-book-fallback.mjs ]; then
+  if node scripts/gerard-reviewed-book-fallback.mjs; then REVIEWED_BOOK_READY=true; fi
+fi
+if [ "$REVIEWED_BOOK_READY" != "true" ]; then select_social_package true; fi
 if [ "${GERARD_TENTACLE:-}" = "delivery" ] &&
    jq -e '.reason == "editorial-prompt-leak" and .transport.provider == "buffer"' garden/next-social-publication.json >/dev/null; then
   cp garden/next-social-publication.json /tmp/gerard-rejected-buffer-package.json
