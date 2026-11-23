@@ -1135,13 +1135,13 @@
       "privateContent": true
     },
     {
-      "harvestId": "gerard-cultivate-1795420933966-harvest",
-      "harvestedAt": "2026-11-23T08:02:32.983Z",
-      "seedId": "onlyfeuch-agency",
-      "parcelId": "onlyfeuch-agency",
-      "capability": "content.generate",
       "route": "octopus->publisher-adapter",
       "state": "ready-to-review",
+      "seedId": "onlyfeuch-agency",
+      "parcelId": "onlyfeuch-agency",
+      "harvestId": "gerard-cultivate-1795420933966-harvest",
+      "capability": "content.generate",
+      "harvestedAt": "2026-11-23T08:02:32.983Z",
       "privateContent": true
     }
   ]
