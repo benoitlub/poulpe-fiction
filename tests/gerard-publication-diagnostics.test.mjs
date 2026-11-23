@@ -15,3 +15,15 @@ test('Metricool mail sent is not a published post', () => {
 test('historical analytics are stale', () => {
  assert.equal(analyticsHealth({}, {snapshotCheckedAt:'2026-10-29T00:00:00Z'},new Date('2026-11-11T12:00:00Z')).providerMetrics,'stale-or-unavailable');
 });
+test('Publisher-resolved channel and unknown learning credentials are not missing configuration', () => {
+ const d=diagnosePublication({harvestId:'h',status:'ready',copy:{text:'book'},transport:{provider:'buffer'},media:{url:'https://example.test/cover.jpg'},bufferPreflight:{status:'ready-for-controlled-test',channelId:'verified-channel'},action:'hold-for-buffer-draft'}, {bufferTokenPresent:null});
+ assert.deepEqual(d.issues,[]);
+ assert.equal(d.state,'eligible-for-provider-check');
+});
+test('a provider-confirmed delivery is terminal even when the next-write action has changed', () => {
+ for(const status of ['confirmed-scheduled','confirmed-published']) {
+  const d=diagnosePublication({harvestId:'h',transport:{provider:'buffer'},action:'buffer-publication-confirmed',delivery:{status,postId:'verified-post'}},{bufferTokenPresent:null});
+  assert.equal(d.state,status);assert.equal(d.publicationConfirmed,true);assert.deepEqual(d.issues,[]);
+ }
+ assert.equal(diagnosePublication({delivery:{status:'confirmed-published'}}).publicationConfirmed,false);
+});
