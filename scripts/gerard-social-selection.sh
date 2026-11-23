@@ -1,6 +1,24 @@
 set -euo pipefail
 mkdir -p garden
-# Rank again, excluding harvests whose exact copy is confirmed published.
+# Retain confirmed Buffer deliveries before replacing the candidate. The same
+# harvest must not win every future cycle; other angles for its book stay eligible.
+if [ -f garden/next-social-publication.json ]; then
+  if jq -e '.transport.provider == "buffer" and
+      (.delivery.status == "confirmed-scheduled" or .delivery.status == "confirmed-published") and
+      (.delivery.postId | type == "string" and length > 0) and
+      (.harvestId | type == "string" and length > 0)' garden/next-social-publication.json >/dev/null; then
+    test -f garden/gerard-buffer-confirmed-history.json || echo '[]' > garden/gerard-buffer-confirmed-history.json
+    jq --slurpfile candidate garden/next-social-publication.json '
+      (if type == "array" then . else [] end) as $old
+      | $candidate[0] as $c
+      | if any($old[]; .harvestId == $c.harvestId) then $old else
+        ($old + [{harvestId:$c.harvestId,postId:$c.delivery.postId,status:$c.delivery.status,
+          copyText:$c.copy.text,mediaUrl:$c.media.url}]) end
+    ' garden/gerard-buffer-confirmed-history.json > /tmp/gerard-buffer-confirmed-history.json
+    mv /tmp/gerard-buffer-confirmed-history.json garden/gerard-buffer-confirmed-history.json
+  fi
+fi
+# Rank again, excluding harvests whose delivery is confirmed.
 # Feed prior observations into the autonomous selection cycle.
 if [ -f garden/gerard-learning.json ]; then
   jq -c '.guidance // {}' garden/gerard-learning.json > /tmp/gerard-prior-guidance.json
@@ -49,6 +67,11 @@ if [ -f garden/gerard-learning.json ]; then
     fi
     echo "Applying previous experiment: explore beyond $PREVIOUS_SEED"
   fi
+fi
+# This is delivery evidence, not selection history or an uncertain mail receipt.
+if [ -f garden/gerard-buffer-confirmed-history.json ]; then
+  CONFIRMED_IDS="$(jq -r '[.[]? | select((.status == "confirmed-scheduled" or .status == "confirmed-published") and (.postId | type == "string" and length > 0)) | .harvestId | select(type == "string" and length > 0)] | unique | join(",")' garden/gerard-buffer-confirmed-history.json)"
+  EXCLUDED_IDS="$EXCLUDED_IDS,$CONFIRMED_IDS"
 fi
 # 420 Dice remains in review. Filter its known seeds before ranking.
 if [ "${GERARD_TENTACLE:-}" = "delivery" ]; then
