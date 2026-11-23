@@ -44,6 +44,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: write
     env:
       PUBLISHER_URL: https://blacklace-publisher-worker.benoitlubert.workers.dev
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -256,6 +257,12 @@ jobs:
         if: always() && steps.restore_private.outcome == 'success'
         working-directory: poulpe-fiction
         run: node scripts/gerard-private-runtime.mjs persist
+
+      - name: Refresh learning after recovery delivery is persisted
+        if: success() && github.event_name == 'workflow_dispatch' && inputs.tentacle == 'diffusion'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run gerard-learning.yml --repo "$GITHUB_REPOSITORY" --ref main
 
   outreach:
     if: github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '7 */3 * * *') || (github.event_name == 'workflow_dispatch' && inputs.tentacle == 'courrier'))
