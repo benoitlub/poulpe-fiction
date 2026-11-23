@@ -1,17 +1,22 @@
 /** Read-only diagnosis: no external writes or inferred publication success. */
 const str = x => typeof x === 'string' && x.trim().length > 0;
 export function diagnosePublication(candidate = {}, { bufferTokenPresent = false } = {}) {
+  const provider = candidate.transport?.provider;
+  const publicationConfirmed = ['confirmed-scheduled','confirmed-published'].includes(candidate.delivery?.status)
+    && str(candidate.delivery?.postId);
+  // Eligibility checks concern a future write, not a completed provider receipt.
+  if (publicationConfirmed) return { harvestId: candidate.harvestId ?? null, provider: provider ?? null,
+    state: candidate.delivery.status, issues: [], publicationConfirmed: true };
   const issues = [];
   const add = (code, owner, action) => issues.push({ code, owner, action });
   if (!str(candidate.harvestId)) add('MISSING_HARVEST', 'selection', 'Select a traceable harvest.');
   if (candidate.status !== 'ready') add('CANDIDATE_NOT_READY', 'selection', 'Complete selection before transport.');
   if (!str(candidate.copy?.text)) add('MISSING_COPY', 'creative', 'Prepare a nonempty caption.');
-  const provider = candidate.transport?.provider;
   if (!['buffer', 'metricool'].includes(provider)) add('NO_SUPPORTED_PROVIDER', 'routing', 'Choose an explicit supported destination.');
   if (provider === 'buffer') {
-    if (!str(candidate.transport?.channelId)) add('BUFFER_CHANNEL_MISSING', 'routing', 'Configure the target channel.');
+    if (!str(candidate.transport?.channelId ?? candidate.bufferPreflight?.channelId)) add('BUFFER_CHANNEL_MISSING', 'routing', 'Configure the target channel.');
     if (!str(candidate.media?.url) || !candidate.media.url.startsWith('https://')) add('BUFFER_MEDIA_MISSING', 'creative', 'Provide a publicly accessible HTTPS image.');
-    if (!bufferTokenPresent) add('BUFFER_TOKEN_MISSING', 'credentials', 'Check BUFFER_DRAFT_WRITE_TOKEN secret.');
+    if (bufferTokenPresent === false) add('BUFFER_TOKEN_MISSING', 'credentials', 'Check BUFFER_DRAFT_WRITE_TOKEN secret.');
     if (candidate.bufferPreflight?.status !== 'ready-for-controlled-test') add('BUFFER_PREFLIGHT_NOT_READY', 'transport', 'Inspect Buffer preflight.');
     if (candidate.action !== 'hold-for-buffer-draft') add('BUFFER_ACTION_NOT_ELIGIBLE', 'selection', 'Inspect the selected action.');
   }
