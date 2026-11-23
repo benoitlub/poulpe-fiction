@@ -221,7 +221,6 @@ jobs:
         run: |
           set -euo pipefail
           gh workflow run gerard-runtime.yml --repo "$GITHUB_REPOSITORY" --ref main -f tentacle=diffusion
-          gh workflow run gerard-learning.yml --repo "$GITHUB_REPOSITORY" --ref main
 
       - name: Upload logs
         if: always()
