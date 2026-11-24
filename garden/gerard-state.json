@@ -4,15 +4,9 @@
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
   "lastMode": "cultivate",
-  "lastRunAt": "2026-11-23T12:38:36.272Z",
-  "lastSeedId": "gerard-restart-2026-10-04",
+  "lastRunAt": "2026-11-24T02:13:17.542Z",
+  "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-17T16:00:00.162Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1794931187633"
-    },
     {
       "at": "2026-11-18T00:58:04.187Z",
       "mode": "cultivate",
@@ -124,20 +118,17 @@
     {
       "at": "2026-11-23T12:38:36.272Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1795437503776",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1795437503776"
+    },
+    {
+      "at": "2026-11-24T02:13:17.542Z",
+      "mode": "cultivate",
+      "operationId": "gerard-cultivate-1795486395290",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-10T21:18:36.711Z",
-      "mode": "cultivate",
-      "seedId": "gerard-restart-2026-10-04",
-      "outcome": "ok",
-      "decision": "harvest-produced",
-      "parcelId": "poulpe-fiction",
-      "operationId": "gerard-cultivate-1794345503711"
-    },
     {
       "at": "2026-11-11T06:18:05.506Z",
       "mode": "symbiosis",
@@ -506,105 +497,30 @@
     },
     {
       "at": "2026-11-23T12:38:36.272Z",
-      "operationId": "gerard-cultivate-1795437503776",
       "mode": "cultivate",
+      "seedId": "gerard-restart-2026-10-04",
       "outcome": "ok",
       "decision": "harvest-produced",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction"
+      "parcelId": "poulpe-fiction",
+      "operationId": "gerard-cultivate-1795437503776"
+    },
+    {
+      "at": "2026-11-24T02:13:17.542Z",
+      "operationId": "gerard-cultivate-1795486395290",
+      "mode": "cultivate",
+      "outcome": "ok",
+      "decision": "candidatures-ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career"
     }
   ],
   "lastResult": {
     "status": "ok",
-    "harvestMode": "garden-prepare-bag",
-    "operationId": "gerard-cultivate-1795437503776",
-    "seedId": "gerard-restart-2026-10-04",
-    "parcelId": "poulpe-fiction",
-    "phase": "knowledge",
-    "knowledge": {
-      "status": "completed",
-      "verified": true,
-      "slug": "poulpe-fiction",
-      "source": "notion"
-    },
-    "decision": "harvest-produced",
-    "octopus": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1795437503776-knowledge",
-        "status": "completed",
-        "output": {
-          "capability": "knowledge.search",
-          "slug": "poulpe-fiction",
-          "source": "notion",
-          "verified": true,
-          "itemCount": 4,
-          "diagnostics": {
-            "connected": true,
-            "totalItems": 5,
-            "matchedItems": 4,
-            "discoveredItems": 4,
-            "digestedItems": 4
-          }
-        },
-        "missionId": "gerard-cultivate-1795437503776-knowledge",
-        "contextId": "poulpe-fiction",
-        "adapterId": "publisher",
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1795437503776-knowledge",
-          "state": "completed",
-          "createdAt": "2026-11-23T12:38:23.800Z",
-          "updatedAt": "2026-11-23T12:38:26.801Z"
-        }
-      }
-    },
-    "harvest": {
-      "status": "ok",
-      "httpStatus": 200,
-      "payload": {
-        "operationId": "gerard-cultivate-1795437503776-harvest",
-        "missionId": "gerard-cultivate-1795437503776-harvest",
-        "status": "completed",
-        "contextId": "poulpe-fiction",
-        "tentacleId": "octopus-core",
-        "executorId": "octopus-core",
-        "resourceResult": {
-          "resourceId": "mistral",
-          "status": "success",
-          "output": {
-            "model": "ministral-8b-2512"
-          }
-        },
-        "output": {
-          "model": "ministral-8b-2512"
-        },
-        "lifecycle": {
-          "missionId": "gerard-cultivate-1795437503776-harvest",
-          "state": "completed",
-          "createdAt": "2026-11-23T12:38:27.129Z",
-          "updatedAt": "2026-11-23T12:38:36.260Z"
-        }
-      },
-      "verification": {
-        "seedId": "gerard-restart-2026-10-04",
-        "parcelId": "poulpe-fiction",
-        "operationId": "gerard-cultivate-1795437503776-harvest",
-        "capability": "content.generate",
-        "completed": true,
-        "simulated": false,
-        "contentLength": 4282,
-        "route": "octopus->publisher-adapter"
-      }
-    },
-    "persistedHarvest": {
-      "harvestId": "gerard-cultivate-1795437503776-harvest",
-      "harvestedAt": "2026-11-23T12:38:36.266Z",
-      "seedId": "gerard-restart-2026-10-04",
-      "parcelId": "poulpe-fiction",
-      "capability": "content.generate",
-      "route": "octopus->publisher-adapter",
-      "state": "harvested"
-    }
+    "decision": "candidatures-ready-to-review",
+    "parcelId": "benoit-career",
+    "seedId": "benoit-job-search",
+    "operationId": "gerard-cultivate-1795486395290",
+    "itemCount": 2,
+    "contacted": false
   }
 }
