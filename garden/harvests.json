@@ -1145,23 +1145,23 @@
       "privateContent": true
     },
     {
-      "harvestId": "candidature-c03ff045e016d9f37728",
-      "harvestedAt": "2026-11-24T02:13:17.528Z",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
-      "capability": "candidature.draft",
       "route": "publisher->poulpe-fiction",
       "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "harvestId": "candidature-c03ff045e016d9f37728",
+      "capability": "candidature.draft",
+      "harvestedAt": "2026-11-24T02:13:17.528Z",
       "privateContent": true
     },
     {
-      "harvestId": "candidature-13587c6fca2150bec105",
-      "harvestedAt": "2026-11-24T02:13:17.537Z",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
-      "capability": "candidature.draft",
       "route": "publisher->poulpe-fiction",
       "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "harvestId": "candidature-13587c6fca2150bec105",
+      "capability": "candidature.draft",
+      "harvestedAt": "2026-11-24T02:13:17.537Z",
       "privateContent": true
     }
   ]
