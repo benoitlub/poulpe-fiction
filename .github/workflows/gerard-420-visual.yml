@@ -69,7 +69,8 @@ jobs:
           print("PNG validated: 1080x1920")
           PY
       - name: Generate image with existing Publisher Mistral capability (opt-in)
-        if: ${{ inputs.generate_ai_image == true }}
+        # Image generation paused by Benoît, including manual probes.
+        if: ${{ false }}
         shell: bash
         run: |
           set -euo pipefail
@@ -110,7 +111,7 @@ jobs:
           pathlib.Path("output/ai-result.json").write_text(json.dumps(data,ensure_ascii=False,indent=2))
           PY
       - name: Upload AI result for autonomous learning
-        if: ${{ always() && inputs.generate_ai_image == true }}
+        if: ${{ false }}
         uses: actions/upload-artifact@v4
         with:
           name: gerard-420-dice-mistral-attempt

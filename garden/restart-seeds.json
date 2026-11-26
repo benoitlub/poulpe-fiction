@@ -101,12 +101,12 @@
         },
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Visuel promotionnel original pour les jeux indépendants Pro.Hibited, Feuch Dice et Blacklace, sans marques inventées",
             "style": "cinematic polished game advertising",
             "aspectRatio": "9:16",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -196,11 +196,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Un dé vert lumineux suspendu au-dessus d’une table et deux silhouettes qui se défient du regard. Illustration du défi entre joueurs, sans interface de jeu inventée.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -214,11 +214,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Un laboratoire d’expériences ludiques dont deux portes ouvrent sur des univers de jeu. Ambiance de maquette, sans représenter l’interface réelle du portail.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -232,11 +232,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Une main lance un dé sombre entre deux chemins dessinés sur une table, métaphore d’une petite décision du quotidien. Aucun texte.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -285,11 +285,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Des cartes de jeu sans inscriptions passent d’une table physique à une surface numérique abstraite. Illustration du passage du jeu de cartes au web, sans interface inventée.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -303,11 +303,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Une côte imaginaire vue à la verticale, un port éclairé et un fragment de carte narrative. Illustration d’ambiance de Rotas, sans prétendre reproduire la carte du projet.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -321,11 +321,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Une étagère foisonnante où se côtoient livres sans titre lisible, prototypes et jeux de table. Nature morte d’atelier, sans inventer de produits précis.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -339,11 +339,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Un oiseau perché et un motif d’onde sonore qui évoque une répartie absurde. Illustration humoristique, sans texte ni prétention de traduction animale réelle.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
@@ -357,11 +357,11 @@
       "templates": [
         {
           "id": "image-studio",
-          "enabled": true,
+          "enabled": false,
           "config": {
             "subject": "Un appareil de scan spectral fictif fait apparaître une silhouette abstraite dans une pièce sombre. Illustration de science-fiction, sans interface réelle ni texte.",
             "style": "Illustration éditoriale verticale, composition lisible sur mobile",
-            "allowMistralImage": true
+            "allowMistralImage": false
           }
         }
       ]
