@@ -27,3 +27,11 @@ test('a provider-confirmed delivery is terminal even when the next-write action 
  }
  assert.equal(diagnosePublication({delivery:{status:'confirmed-published'}}).publicationConfirmed,false);
 });
+
+test('empty delivery, blocked content and already-reserved mail cannot make a successful diffusion run', async () => {
+ const {deliveryRunOutcome}=await import('../scripts/gerard-publication-diagnostics.mjs');
+ for (const c of [{},{status:'blocked'}, {metricoolHandoff:{status:'mail-already-reserved'}}, {delivery:{status:'confirmed-scheduled'}}])
+  assert.equal(deliveryRunOutcome(c).failed,true);
+ assert.deepEqual(deliveryRunOutcome({metricoolHandoff:{status:'mail-sent'}}),{status:'awaiting-external-confirmation',confirmed:false,failed:false});
+ assert.equal(deliveryRunOutcome({delivery:{status:'confirmed-published',postId:'real-post'}}).confirmed,true);
+});
