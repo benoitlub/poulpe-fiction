@@ -1,0 +1,55 @@
+name: Compare existing Mistral credential routes
+on:
+  push:
+    branches: [diagnostic/mistral-key-comparison-20261126]
+    paths: [.github/workflows/mistral-key-comparison.yml]
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+    steps:
+      - name: Minimal generation through existing credentials only
+        shell: python
+        run: |
+          import os, json, urllib.request, urllib.error, uuid
+          prompt = "Diagnostic technique. Réponds uniquement OK, sans autre mot."
+          key = os.environ.get("MISTRAL_API_KEY", "").strip()
+          label = ("octo" if key.endswith("x9P2") else "Pulpito" if key.endswith("4izP") else "unidentified") if key else "missing"
+          def call(name, url, body, headers=None):
+              req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={"Content-Type":"application/json", **(headers or {})}, method="POST")
+              try:
+                  with urllib.request.urlopen(req, timeout=65) as response:
+                      status=response.status
+                      raw=response.read(100000).decode()
+              except urllib.error.HTTPError as error:
+                  status=error.code
+                  raw=error.read(100000).decode()
+              except Exception as error:
+                  print(json.dumps({"route":name,"transportError":type(error).__name__}))
+                  return
+              try: data=json.loads(raw)
+              except ValueError: data={}
+              result={"route":name,"httpStatus":status}
+              for field in ("status","code","message","summary","error"):
+                  value=data.get(field)
+                  if isinstance(value, str):
+                      result[field]=value.replace(key,"[REDACTED]")[:600] if key else value[:600]
+              choices=data.get("choices",[])
+              if choices:
+                  result["reply"]=str(choices[0].get("message",{}).get("content",""))[:80]
+              output=data.get("output",{})
+              if isinstance(output,dict):
+                  for field in ("text","content","model","producer"):
+                      if isinstance(output.get(field),str): result[field]=output[field][:100]
+              print(json.dumps(result,ensure_ascii=False))
+          print(json.dumps({"route":"GitHub poulpe-fiction","configuredKeyLabel":label}))
+          if key:
+              call("GitHub poulpe-fiction direct", "https://api.mistral.ai/v1/chat/completions", {"model":"ministral-8b-2512","messages":[{"role":"user","content":prompt}],"max_tokens":8,"temperature":0}, {"Authorization":"Bearer "+key})
+          def mission(name):
+              return {"operationId":"key-check-"+name+"-"+str(uuid.uuid4()),"title":"Owner requested credential diagnostic","objective":prompt,"prompt":prompt,"context":{"id":"credential-diagnostic","label":"Owner requested technical check"},"requiredCapabilities":["copy.generate"]}
+          call("Octopus deployed", "https://octopus-engine-app.benoitlubert.workers.dev/mission", mission("octopus"))
+          call("Publisher deployed", "https://blacklace-publisher-worker.benoitlubert.workers.dev/api/octopus-adapter/execute", {"contract":"octopus-adapter-execution-v1","mission":mission("publisher")})
