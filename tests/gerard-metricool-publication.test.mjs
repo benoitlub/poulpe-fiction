@@ -175,3 +175,31 @@ test('machine mode preserves the legacy subject and exact v1 body for an externa
   assert.deepEqual(Object.keys(relay),['contract','operationId','harvestId','seedId','brandId','networks','text','media']);
  } finally {if(before===undefined)delete process.env.ACTIONS_ID_TOKEN_REQUEST_URL;else process.env.ACTIONS_ID_TOKEN_REQUEST_URL=before;}
 });
+
+test('caption production uses deployed verified Publisher with bounded output, not the local failing API key',async()=>{
+ const {requestPublisherCaption}=await import('../scripts/gerard-metricool-publication.mjs');
+ const text='Un petit choix, un dé : quelle décision du quotidien lui confieriez-vous ?';
+ const calls=[];
+ const actual=await requestPublisherCaption(['blacklace-dice','Blacklace Dice'],['entertainment','Une question ouverte.'],['Ancienne légende'],{fetchImpl:async(url,init)=>{
+  calls.push(url);assert.ok(String(url).endsWith('/api/production/execute'));assert.ok(!String(url).includes('127.0.0.1'));
+  const b=JSON.parse(init.body);assert.equal(b.action,'copy.generate');assert.equal(b.input.maxTokens,220);
+  assert.equal(b.context.seedId,'blacklace-dice');assert.match(b.input.prompt,/Ancienne légende/);
+  return Response.json({status:'completed',provider:'mistral',knowledgePackage:{verified:true,slug:'blacklace-dice'},artifact:{content:text}});
+ }});
+ assert.equal(actual,text);assert.equal(calls.length,1);
+});
+test('a wrapped 402 remains a subscription failure, distinct from 429 and network failure',async()=>{
+ const {publisherCaptionResult}=await import('../scripts/gerard-metricool-publication.mjs');
+ for(const error of ['Mistral API error 402: You need a subscription to access this API.','You need a subscription to access this API.'])
+  assert.throws(()=>publisherCaptionResult({status:'failed',error},{httpStatus:502,seedId:'blacklace-dice'}),/provider-subscription-required/);
+ assert.throws(()=>publisherCaptionResult({status:'failed',error:'Mistral API error 429: quota exceeded'},{httpStatus:502}),/provider-rate-limited/);
+ assert.throws(()=>publisherCaptionResult({status:'failed',error:'network unavailable'},{httpStatus:502}),/publisher-generation-failed/);
+});
+test('renewed captions cannot use another project knowledge, mock output, raw JSON or internal briefs',async()=>{
+ const {publisherCaptionResult}=await import('../scripts/gerard-metricool-publication.mjs');
+ const result={status:'completed',knowledgePackage:{verified:true,slug:'blacklace-dice'},artifact:{content:'Un choix amusant, une question et un dé.'}};
+ assert.throws(()=>publisherCaptionResult({...result,knowledgePackage:{verified:true,slug:'terra'}},{seedId:'blacklace-dice'}),/project-knowledge-unavailable/);
+ assert.throws(()=>publisherCaptionResult({...result,artifact:{content:JSON.stringify({content:result.artifact.content})}},{seedId:'blacklace-dice'}),/caption-not-ready/);
+ assert.throws(()=>publisherCaptionResult({...result,isMock:true},{seedId:'blacklace-dice'}),/simulated/);
+ assert.throws(()=>publisherCaptionResult({...result,artifact:{content:'**Plan serré** sur des dés avec une voix off'}},{seedId:'blacklace-dice'}),/caption-not-ready/);
+});
