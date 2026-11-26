@@ -6,7 +6,9 @@ export function diagnosePublication(candidate = {}, { bufferTokenPresent = false
     && str(candidate.delivery?.postId);
   // Eligibility checks concern a future write, not a completed provider receipt.
   if (publicationConfirmed) return { harvestId: candidate.harvestId ?? null, provider: provider ?? null,
-    state: candidate.delivery.status, issues: [], publicationConfirmed: true };
+    state: candidate.delivery.status, issues: [], publicationConfirmed: true,
+    postId: candidate.delivery.postId, providerStatus: candidate.delivery.providerStatus ?? null,
+    publicationDate: candidate.delivery.publicationDate ?? null };
   const issues = [];
   const add = (code, owner, action) => issues.push({ code, owner, action });
   if (!str(candidate.harvestId)) add('MISSING_HARVEST', 'selection', 'Select a traceable harvest.');
