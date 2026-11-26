@@ -195,6 +195,7 @@ jobs:
           echo "No external publication attempted by this production step."
 
       - name: Persist private snapshots before publishing metadata
+        id: persist_private
         if: ${{ !cancelled() && steps.restore_private.outcome == 'success' }}
         working-directory: poulpe-fiction
         env:
@@ -202,6 +203,9 @@ jobs:
         run: node scripts/gerard-private-runtime.mjs persist
 
       - name: Publish the redacted garden projection
+        # A blocked social draft must not hide successfully persisted harvests.
+        # Persist redacts these files only after the durable state is verified.
+        if: ${{ !cancelled() && steps.persist_private.outcome == 'success' }}
         working-directory: poulpe-fiction
         shell: bash
         run: |
