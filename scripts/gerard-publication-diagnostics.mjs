@@ -41,3 +41,13 @@ export function analyticsHealth(advice = {}, feedback = {}, now = new Date()) {
     providerMetrics: Number.isFinite(age) && age >= 0 && age <= 48 * 3600 * 1000 ? 'recent' : 'stale-or-unavailable',
     checkedAt: checkedAt ?? null, actionable: 'Refresh verified attributed per-post measurements; never infer performance from historical snapshots.' };
 }
+
+// A successful cron execution must mean a confirmed provider result or a newly
+// sent external handoff, never exhausted content or a permanently reserved mail.
+export function deliveryRunOutcome(candidate = {}) {
+  if (['confirmed-scheduled','confirmed-published'].includes(candidate.delivery?.status) && str(candidate.delivery?.postId))
+    return {status:candidate.delivery.status,confirmed:true,failed:false};
+  if (candidate.metricoolHandoff?.status === 'mail-sent')
+    return {status:'awaiting-external-confirmation',confirmed:false,failed:false};
+  return {status:'no-confirmed-delivery',confirmed:false,failed:true};
+}
