@@ -562,6 +562,7 @@ async function main() {
     if (await pendingPrepared({direct:directMetricoolEnabled(process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED)})) return;
     const preparation = await prepareMetricoolFallback({ prepareOnly: true });
     console.log(JSON.stringify({ metricoolPreparation: preparation }));
+    if (preparation.status === "no-draft-prepared") process.exitCode = 1;
     if (preparation.status === "no-draft-prepared" && process.env.GITHUB_STEP_SUMMARY) {
       await appendFile(process.env.GITHUB_STEP_SUMMARY,
         `\n### Gérard — aucun nouveau contenu préparé\n\nCause : ${preparation.publisherFailure || "catalogue local épuisé"}. Aucune programmation confirmée par cette étape.\n`);
