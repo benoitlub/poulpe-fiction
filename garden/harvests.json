@@ -809,26 +809,6 @@
       "state": "ready-to-review",
       "seedId": "benoit-job-search",
       "parcelId": "benoit-career",
-      "harvestId": "candidature-06434b5b1fecba8411e4",
-      "capability": "candidature.draft",
-      "harvestedAt": "2026-11-10T11:19:22.808Z",
-      "privateContent": true
-    },
-    {
-      "route": "publisher->poulpe-fiction",
-      "state": "ready-to-review",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
-      "harvestId": "candidature-343d483ea93966911715",
-      "capability": "candidature.draft",
-      "harvestedAt": "2026-11-10T11:19:22.824Z",
-      "privateContent": true
-    },
-    {
-      "route": "publisher->poulpe-fiction",
-      "state": "ready-to-review",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career",
       "harvestId": "candidature-95b2a16e455ec8781328",
       "capability": "candidature.draft",
       "harvestedAt": "2026-11-10T11:19:22.829Z",
@@ -1192,6 +1172,36 @@
       "harvestId": "candidature-818294bbd8a7df4a8b86",
       "capability": "candidature.draft",
       "harvestedAt": "2026-11-25T08:33:18.864Z",
+      "privateContent": true
+    },
+    {
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "harvestId": "candidature-11179dc5383d4f6e249d",
+      "capability": "candidature.draft",
+      "harvestedAt": "2026-11-26T16:53:50.730Z",
+      "privateContent": true
+    },
+    {
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "harvestId": "candidature-5904be96041770326c2c",
+      "capability": "candidature.draft",
+      "harvestedAt": "2026-11-26T16:53:50.737Z",
+      "privateContent": true
+    },
+    {
+      "route": "publisher->poulpe-fiction",
+      "state": "ready-to-review",
+      "seedId": "benoit-job-search",
+      "parcelId": "benoit-career",
+      "harvestId": "candidature-458336dee05a5cdf01a7",
+      "capability": "candidature.draft",
+      "harvestedAt": "2026-11-26T16:53:50.743Z",
       "privateContent": true
     }
   ]
