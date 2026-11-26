@@ -6,7 +6,9 @@ export function diagnosePublication(candidate = {}, { bufferTokenPresent = false
     && str(candidate.delivery?.postId);
   // Eligibility checks concern a future write, not a completed provider receipt.
   if (publicationConfirmed) return { harvestId: candidate.harvestId ?? null, provider: provider ?? null,
-    state: candidate.delivery.status, issues: [], publicationConfirmed: true };
+    state: candidate.delivery.status, issues: [], publicationConfirmed: true,
+    postId: candidate.delivery.postId, providerStatus: candidate.delivery.providerStatus ?? null,
+    publicationDate: candidate.delivery.publicationDate ?? null };
   const issues = [];
   const add = (code, owner, action) => issues.push({ code, owner, action });
   if (!str(candidate.harvestId)) add('MISSING_HARVEST', 'selection', 'Select a traceable harvest.');
@@ -38,4 +40,14 @@ export function analyticsHealth(advice = {}, feedback = {}, now = new Date()) {
   return { publisher: advice.status === 'unavailable' ? 'unavailable' : 'response-recorded',
     providerMetrics: Number.isFinite(age) && age >= 0 && age <= 48 * 3600 * 1000 ? 'recent' : 'stale-or-unavailable',
     checkedAt: checkedAt ?? null, actionable: 'Refresh verified attributed per-post measurements; never infer performance from historical snapshots.' };
+}
+
+// A successful cron execution must mean a confirmed provider result or a newly
+// sent external handoff, never exhausted content or a permanently reserved mail.
+export function deliveryRunOutcome(candidate = {}) {
+  if (['confirmed-scheduled','confirmed-published'].includes(candidate.delivery?.status) && str(candidate.delivery?.postId))
+    return {status:candidate.delivery.status,confirmed:true,failed:false};
+  if (candidate.metricoolHandoff?.status === 'mail-sent')
+    return {status:'awaiting-external-confirmation',confirmed:false,failed:false};
+  return {status:'no-confirmed-delivery',confirmed:false,failed:true};
 }

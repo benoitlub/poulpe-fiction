@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
-import { creativeBenchmarkPrompt, loadCreativeBenchmarks } from "./gerard-creative-benchmarks.mjs";
 
 export const directMetricoolEnabled = value => typeof value === "string" && value.trim().toLowerCase() === "true";
 export function consumedDirectReceipt(receipt) {
@@ -418,47 +417,53 @@ function copyKey(text) {
   return text.normalize("NFKC").toLocaleLowerCase("fr").replace(/\s+/g, " ").trim();
 }
 
-async function requestPublisherCaption(project, angle, oldCaptions) {
-  const [seedId, title] = project;
-  const [category, treatment] = angle;
-  const platform = PROJECT_IMAGES[seedId] ? "Instagram" : "Facebook";
-  const objective = `Écrire un seul post ${platform} en français pour la marque Pro.hibited.`;
-  const benchmarks = await loadCreativeBenchmarks([seedId, title]);
-  const projectSource = NOTION_EDITORIAL_PROJECTS.find(project => project.id === seedId);
-  const response = await fetch(`${(process.env.OCTOPUS_URL || "http://127.0.0.1:3000").replace(/\/$/, "")}/mission`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    signal: AbortSignal.timeout(60000),
-    body: JSON.stringify({
-      operationId: `gerard-social-fallback-${seedId}-${category}-${Date.now()}`,
-      title, objective, requiredCapabilities: ["content.social.write"], authorizedResources: [],
-      prompt: [
-        objective, `Sujet unique : ${title}.`, treatment,
-        ...(projectSource ? ["Fiche Notion du projet : " + projectSource.fact] : []),
-        ...creativeBenchmarkPrompt(benchmarks),
-        "Dans le champ content, écris uniquement la légende prête à poster, en texte simple, 450 caractères maximum.",
-        "Aucun lien, prix, disponibilité ou promesse. N'invente aucune règle du jeu, anecdote ni citation.",
-        "Aucun scénario de tournage, commentaire interne, Markdown, second projet ou invitation à acheter une substance.",
-        ...oldCaptions.slice(-3).map(text => `Angle à ne pas répéter : ${JSON.stringify(text)}`),
-      ].join("\n"),
-      context: { id: seedId, label: title, metadata: {
-        source: "gerard-cycle", agentName: "Gérard", knowledgeSlug: seedId, platform,
-      } },
-    }),
-  });
-  if (!response.ok) throw new Error(`octopus-http-${response.status}`);
-  const result = await response.json();
-  const output = result?.output;
-  const text = typeof output?.text === "string" ? output.text.trim() : "";
-  if (output?.isMock || output?.mock || output?.simulated || output?.provider === "mock") {
-    const limited = /429|rate limit|quota/i.test(output?.fallbackReason ?? "");
-    throw new Error(limited ? "provider-rate-limited" : "provider-unavailable");
-  }
-  if (result.status !== "completed" || output?.knowledgePackage?.verified !== true)
+export function publisherCaptionResult(result, {httpStatus = 200, seedId} = {}) {
+  const error = String(result?.error ?? result?.summary ?? result?.code ?? "");
+  if (httpStatus === 402 || /\b402\b|subscription.*(?:required|access)|need a subscription/i.test(error))
+    throw new Error("provider-subscription-required");
+  if (/\b429\b|rate.?limit|quota/i.test(error)) throw new Error("provider-rate-limited");
+  if (httpStatus < 200 || httpStatus >= 300 || result?.status !== "completed")
+    throw new Error("publisher-generation-failed");
+  if (result.isMock || result.mock || result.simulated || result.provider === "mock")
+    throw new Error("publisher-generation-simulated");
+  const aliases = {"prohibited-online":"pro-hibited-online", "feuch-lab":"feuch-institute"};
+  if (result.knowledgePackage?.verified !== true ||
+      result.knowledgePackage.slug !== (aliases[seedId] ?? seedId))
     throw new Error("project-knowledge-unavailable");
-  if (text.length < 25 || text.length > 500 || /https?:\/\/|\*\*|^\s*#\s|\[[^\]]+\]|voix off|plan serré|mode mock actif/im.test(text))
+  const text = typeof result.artifact?.content === "string" ? result.artifact.content.trim() : "";
+  if (text.length < 25 || text.length > 500 || /^[{\[]/.test(text) || /https?:\/\/|\*\*|^\s*#\s|\[[^\]]+\]|voix off|plan serré|mode mock actif/im.test(text))
     throw new Error("caption-not-ready");
   return text;
+}
+
+export async function requestPublisherCaption(project, angle, oldCaptions, {fetchImpl = fetch} = {}) {
+  const [seedId, title] = project;
+  const [, treatment] = angle;
+  const platform = PROJECT_IMAGES[seedId] ? "Instagram" : "Facebook";
+  const objective = `Écrire un seul post ${platform} en français pour la marque Pro.hibited.`;
+  const projectSource = NOTION_EDITORIAL_PROJECTS.find(project => project.id === seedId);
+  // Use the existing deployed Publisher producer and its own configured Mistral
+  // connection. The local adapter's GitHub credential returns HTTP 402. Never
+  // silently substitute a mock or turn a subscription failure into a quota.
+  const response = await fetchImpl(`${(process.env.PUBLISHER_URL || "https://blacklace-publisher-worker.benoitlubert.workers.dev").replace(/\/$/, "")}/api/production/execute`, {
+    method: "POST", headers: {"Content-Type":"application/json"},
+    signal: AbortSignal.timeout(60000),
+    body: JSON.stringify({
+      tool: "mistral", action: "copy.generate",
+      context: {parcelId: seedId, seedId},
+      input: {
+        universe: seedId, title, maxTokens: 220, temperature: 0.3,
+        prompt: [objective, `Sujet unique : ${title}.`, treatment,
+          ...(projectSource ? ["Fiche du projet : " + projectSource.fact] : []),
+          "Rends uniquement la légende prête à poster, en texte simple, 450 caractères maximum.",
+          "Aucun lien, prix, disponibilité ou promesse. N'invente aucune règle du jeu, anecdote ni citation.",
+          "Aucun scénario de tournage, commentaire interne, Markdown, second projet ou invitation à acheter une substance.",
+          ...oldCaptions.slice(-3).map(text => `Angle à ne pas répéter : ${JSON.stringify(text)}`),
+        ].join("\n"),
+      },
+    }),
+  });
+  return publisherCaptionResult(await response.json(), {httpStatus:response.status, seedId});
 }
 
 function makeFallbackCandidate(project, angle, text, strategy) {
@@ -499,6 +504,8 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
   const seen = new Set([...recent, ...otherHistory].filter(item => typeof item.text === "string").map(item => copyKey(item.text)));
   let publisherFailure = null;
   let candidate;
+  let generationAttempts = 0;
+  let generationBlocked = false;
   for (let attempt = 0; attempt < topics.length; attempt++) {
     const index = order[attempt];
     const { project, angle } = topics[index];
@@ -506,8 +513,9 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
     const [seedId, title] = project;
     if (requires420Review(seedId, title)) continue;
     const [category] = angle;
-    if (attempt === 0 && process.env.GERARD_METRICOOL_LOCAL_ONLY !== "true") {
+    if (!generationBlocked && generationAttempts < 2 && process.env.GERARD_METRICOOL_LOCAL_ONLY !== "true") {
       try {
+        generationAttempts++;
         const previous = recent.filter(item => item.seedId === seedId && item.text).map(item => item.text);
         const text = await requestPublisherCaption(project, angle, previous);
         if (seen.has(copyKey(text))) throw new Error("caption-already-tried");
@@ -515,6 +523,7 @@ async function prepareMetricoolFallback({ prepareOnly = false } = {}) {
         break;
       } catch (error) {
         publisherFailure = error.name === "TimeoutError" ? "publisher-timeout" : error.message;
+        generationBlocked = ["provider-subscription-required", "provider-rate-limited"].includes(publisherFailure);
       }
     }
     // In preparation mode, a Publisher outage must not prevent using a
@@ -551,7 +560,13 @@ async function main() {
   if (process.env.GERARD_METRICOOL_PREPARE_ONLY === "true") {
     await refreshProjectProposals();
     if (await pendingPrepared({direct:directMetricoolEnabled(process.env.GERARD_METRICOOL_DIRECT_EXECUTION_ENABLED)})) return;
-    console.log(JSON.stringify({ metricoolPreparation: await prepareMetricoolFallback({ prepareOnly: true }) }));
+    const preparation = await prepareMetricoolFallback({ prepareOnly: true });
+    console.log(JSON.stringify({ metricoolPreparation: preparation }));
+    if (preparation.status === "no-draft-prepared") process.exitCode = 1;
+    if (preparation.status === "no-draft-prepared" && process.env.GITHUB_STEP_SUMMARY) {
+      await appendFile(process.env.GITHUB_STEP_SUMMARY,
+        `\n### Gérard — aucun nouveau contenu préparé\n\nCause : ${preparation.publisherFailure || "catalogue local épuisé"}. Aucune programmation confirmée par cette étape.\n`);
+    }
     return;
   }
   const path = "garden/next-social-publication.json";

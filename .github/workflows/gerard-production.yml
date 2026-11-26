@@ -141,7 +141,7 @@ jobs:
           curl --fail --silent --show-error \
             -X POST "$OCTOPUS_URL/adapters/register" \
             -H "Content-Type: application/json" \
-            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate","image.studio","audio.studio","video.studio"],executeUrl:$executeUrl}')"
+            --data "$(jq -n --arg executeUrl "$PUBLISHER_ADAPTER_URL" '{id:"publisher",name:"Blacklace Publisher",version:"github-actions",capabilities:["content.generate","copy.generate","knowledge.search","tool.search","content.article.write","content.social.write","social.publish","landing.generate","image.studio","audio.studio","video.studio"],executeUrl:$executeUrl}')"
 
       - name: Sync restart Seeds to Publisher
         working-directory: poulpe-fiction
@@ -159,18 +159,27 @@ jobs:
         run: node scripts/gerard-compost.mjs
 
       - name: Run Gerard cycle
+        id: cultivate
+        continue-on-error: true
         working-directory: poulpe-fiction
         env:
           PUBLISHER_JOB_SCRIPTS_DIR: ${{ github.workspace }}/publisher/scripts
           GERARD_JOB_SEARCH_ONLY: ${{ inputs.candidatures_only }}
         run: node scripts/gerard-cycle.mjs
 
+      - name: Report general cultivation failure separately from social preparation
+        if: steps.cultivate.outcome == 'failure'
+        run: |
+          echo "::warning title=Gérard cultivation failed::Inspect the recorded general-task failure. Social preparation continues independently."
+          echo "General cultivation failed; the social preparation and delivery results must be checked separately." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Compost freshly produced local harvests
         working-directory: poulpe-fiction
         run: node scripts/gerard-compost.mjs
 
       - name: Prepare a social draft for the diffusion tentacle
-        if: inputs.candidatures_only != true
+        if: ${{ !cancelled() && steps.restore_private.outcome == 'success' && inputs.candidatures_only != true }}
+        id: social_preparation
         working-directory: poulpe-fiction
         run: node scripts/gerard-metricool-publication.mjs
 
