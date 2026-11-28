@@ -3,16 +3,10 @@
   "status": "private",
   "storage": "postgresql",
   "schema": "gerard-private-runtime-v1",
-  "lastMode": "cultivate",
-  "lastRunAt": "2026-11-27T23:27:31.661Z",
+  "lastMode": "symbiosis",
+  "lastRunAt": "2026-11-28T07:48:10.820Z",
   "lastSeedId": "benoit-job-search",
   "history": [
-    {
-      "at": "2026-11-22T11:23:44.735Z",
-      "mode": "cultivate",
-      "result": "ok",
-      "operationId": "gerard-cultivate-1795346615666"
-    },
     {
       "at": "2026-11-22T19:39:13.912Z",
       "mode": "cultivate",
@@ -124,17 +118,17 @@
     {
       "at": "2026-11-27T23:27:31.661Z",
       "mode": "cultivate",
-      "operationId": "gerard-cultivate-1795822049599",
+      "result": "ok",
+      "operationId": "gerard-cultivate-1795822049599"
+    },
+    {
+      "at": "2026-11-28T07:48:10.820Z",
+      "mode": "symbiosis",
+      "operationId": "gerard-symbiosis-1795852090449",
       "result": "ok"
     }
   ],
   "learningHistory": [
-    {
-      "at": "2026-11-12T20:33:01.032Z",
-      "mode": "symbiosis",
-      "outcome": "ok",
-      "operationId": "gerard-symbiosis-1794515580289"
-    },
     {
       "at": "2026-11-12T20:39:30.852Z",
       "mode": "cultivate",
@@ -506,21 +500,23 @@
     },
     {
       "at": "2026-11-27T23:27:31.661Z",
-      "operationId": "gerard-cultivate-1795822049599",
       "mode": "cultivate",
+      "seedId": "benoit-job-search",
       "outcome": "ok",
       "decision": "candidatures-no-new-verified-offers",
-      "seedId": "benoit-job-search",
-      "parcelId": "benoit-career"
+      "parcelId": "benoit-career",
+      "operationId": "gerard-cultivate-1795822049599"
+    },
+    {
+      "at": "2026-11-28T07:48:10.820Z",
+      "operationId": "gerard-symbiosis-1795852090449",
+      "mode": "symbiosis",
+      "outcome": "ok"
     }
   ],
   "lastResult": {
-    "status": "ok",
-    "decision": "candidatures-no-new-verified-offers",
-    "parcelId": "benoit-career",
-    "seedId": "benoit-job-search",
-    "operationId": "gerard-cultivate-1795822049599",
-    "itemCount": 0,
-    "contacted": false
+    "at": "2026-11-28T07:48:10.819Z",
+    "mode": "symbiosis",
+    "status": "ok"
   }
 }
